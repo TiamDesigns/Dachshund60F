@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "name": "Dachshund60F",
+  "status": "proposed: pins chosen for PCB routing; update this file if the schematic changes them",
+  "mcu": "nRF52840 (Raytac MDBT50Q-1MV2)",
+  "usb": {
+    "warning": "pid.codes TEST PIDs: not unique, in-house testing only. Must not ship on boards that are sold or redistributed. Replace with a registered pid.codes PID first.",
+    "keyboard": { "vid": "0x1209", "pid": "0x0001", "manufacturer": "Dachshund", "product": "Dachshund60F" },
+    "dongle": { "vid": "0x1209", "pid": "0x0002", "manufacturer": "Dachshund", "product": "Dachshund60F Receiver" }
+  },
+  "matrix": {
+    "rows": 6,
+    "cols": 15,
+    "diodeDirection": "COL2ROW",
+    "rowPins": ["P1.10", "P1.11", "P1.12", "P1.13", "P1.14", "P1.15"],
+    "colPins": [
+      "P0.02", "P0.03", "P0.28", "P0.29", "P0.30", "P0.31", "P1.01", "P1.02",
+      "P1.03", "P1.04", "P1.05", "P1.06", "P1.07", "P0.04", "P0.05"
+    ]
+  },
+  "encoders": [
+    { "id": 0, "pinA": "P0.11", "pinB": "P0.12", "stepsPerDetent": 4, "push": { "row": 0, "col": 14 } }
+  ],
+  "indicators": {
+    "type": "SK6812MINI-E",
+    "count": 2,
+    "dataPin": "P0.06",
+    "powerEnablePin": "P0.08",
+    "powerEnableActive": "high"
+  },
+  "power": {
+    "batterySense": "VDDH/5 internal SAADC channel (battery wired to VDDH); no GPIO",
+    "chargeStatusPin": "P0.15",
+    "chargeStatusActive": "low",
+    "regout0": "3.3V"
+  },
+  "reserved": {
+    "P0.00": "32.768 kHz crystal XL1",
+    "P0.01": "32.768 kHz crystal XL2",
+    "P0.09": "NFC1, left unused",
+    "P0.10": "NFC2, left unused",
+    "P0.18": "nRESET (reset button and SWD header)"
+  }
+}

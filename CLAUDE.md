@@ -15,7 +15,8 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 - Bootloader: UF2 (Adafruit nRF52 bootloader)
 - Host library: TypeScript (Node ≥ 20, ESM), `node-hid` on desktop and WebHID in the browser; tests use `node:test`
 - GUI: TypeScript UI; shell TBD (Tauri recommended for signing and auto-update, or a WebHID web app)
-- USB VID/PID: TBD (needed before phase 2)
+- Board: `Dachshund60F` (MDBT50Q-1MV2, 6×15 COL2ROW matrix, 1 encoder, 2× SK6812MINI-E). Pins are in `boards/Dachshund60F/board.json` and are still proposed, since no PCB exists yet.
+- USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard) and 0x1209:0x0002 (dongle). They're for in-house testing only; get a registered pid.codes PID before any board is sold or given away.
 
 ## Repo layout
 
@@ -35,7 +36,7 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Release build (logging compiled out): add `-- -DEXTRA_CONF_FILE=release.conf`
 - Flash (UF2): not available yet. Phase 2 adds the custom board with the UF2 bootloader's partition layout and `CONFIG_BUILD_OUTPUT_UF2=y`; then copy `zephyr.uf2` onto the bootloader drive. Until then, flash a DK over SWD with `west flash -d build/firmware`.
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
-- Run host-lib tests: `cd host-lib && npm ci && npm test`
+- Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`
 - Run the GUI against the mock device: not available yet (phase 8)
 - CI: `.github/workflows/ci.yml` runs core tests, host-lib tests, and debug and release firmware builds for both apps
 

@@ -14,6 +14,13 @@ Each board folder will hold:
 - **Zephyr board files** — devicetree and Kconfig for the custom PCB
   (including the flash partition layout the UF2 bootloader expects).
 
-No board exists yet. Until it does, CI builds the firmware against Nordic's
-`nrf52840dk/nrf52840` and the dongle against `nrf52840dongle/nrf52840`, using
-only those boards' own devicetree.
+Boards:
+
+- `Dachshund60F/`: MDBT50Q-1MV2, 79 keys + encoder. Its pin map is proposed and
+  not yet backed by a PCB.
+
+Required files per board: `keyboard.json` (layout) and `board.json` (pins,
+USB IDs, power). The host-lib tests validate both for every board folder.
+
+Until the Zephyr board files exist (phase 2), CI builds the firmware against
+Nordic's `nrf52840dk/nrf52840` and the dongle against `nrf52840dongle/nrf52840`.
