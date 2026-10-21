@@ -2,7 +2,10 @@
   "mcpServers": {
     "konnect": {
       "command": "C:\\Users\\tiamb\\OneDrive\\Documents\\KiCad\\10.0\\3rdparty\\plugins\\com_github_mixelpixx_konnect\\bin\\konnect.exe",
-      "args": []
+      "args": [],
+      "env": {
+        "KICAD_API_SOCKET": "ipc://C:\\Users\\tiamb\\AppData\\Local\\Temp\\kicad\\api.sock"
+      }
     }
   }
 }

@@ -63,8 +63,8 @@ switch footprints and wire them to the same diode.
 | Encoder A | P0.11 | To GND through the encoder; internal pull-up. |
 | Encoder B | P0.12 | Same as A. The push switch is in the matrix at (0, 14). |
 | LED data | P0.06 | SK6812MINI-E chain: LED 0 under Caps Lock, LED 1 under Esc (layer). Driven by SPI MOSI. |
-| LED power enable | P0.08 | Active-high EN of a load switch (e.g. TPS22918) feeding the LEDs. Add a 100 kΩ pull-down so the LEDs stay off through reset and sleep. |
-| Charger status | P0.15 | Charger's open-drain STAT, active-low; internal pull-up. |
+| LED power enable | P0.08 | Active-high EN of the TPS22917 load switch feeding the LEDs, with a 100 kΩ pull-down so the LEDs stay off through reset and sleep. |
+| Charger status | P0.15 | MCP73831 STAT through a BAT54WS Schottky (cathode at STAT), so it behaves as open-drain: low while charging. Needs the internal pull-up. |
 | Reset | P0.18 | nRESET: reset button to GND and SWD header. Double-tap enters the UF2 bootloader. |
 | USB | D+, D−, VBUS | Dedicated module pads. |
 | SWD | SWDIO, SWDCLK | Dedicated pads. Bring out SWDIO, SWDCLK, nRESET, VDD and GND to a header or pads. |
