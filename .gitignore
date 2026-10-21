@@ -1,0 +1,15 @@
+# Zephyr / west build output
+build/
+twister-out*/
+
+# Host builds
+firmware/core/build/
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  core-tests:
+    name: Core unit tests (host)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S firmware/core -B firmware/core/build
+      - name: Build
+        run: cmake --build firmware/core/build
+      - name: Test
+        run: ctest --test-dir firmware/core/build --output-on-failure
+
+  host-lib:
+    name: host-lib tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: host-lib
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: host-lib/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  firmware:
+    name: Firmware (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: firmware
+            board: nrf52840dk/nrf52840
+          - app: dongle
+            board: nrf52840dongle/nrf52840
+    steps:
+      # West workspace: repo in ./kb, NCS projects alongside it.
+      - uses: actions/checkout@v4
+        with:
+          path: kb
+      - uses: zephyrproject-rtos/action-zephyr-setup@v1
+        with:
+          app-path: kb
+          toolchains: arm-zephyr-eabi
+      - name: Install NCS Python requirements
+        run: pip install -r nrf/scripts/requirements-build.txt
+      - name: Build (debug)
+        run: west build -p -b ${{ matrix.board }} -d build/${{ matrix.app }}-debug kb/${{ matrix.app }}
+      - name: Build (release)
+        run: >
+          west build -p -b ${{ matrix.board }} -d build/${{ matrix.app }}-release kb/${{ matrix.app }}
+          -- -DEXTRA_CONF_FILE=release.conf
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-${{ github.sha }}
+          path: |
+            build/${{ matrix.app }}-*/merged.hex
+            build/${{ matrix.app }}-*/${{ matrix.app }}/zephyr/zephyr.hex
+          if-no-files-found: warn
