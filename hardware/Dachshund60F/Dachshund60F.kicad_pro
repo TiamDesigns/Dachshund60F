@@ -70,7 +70,36 @@
         }
       },
       "diff_pair_dimensions": [],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "courtyards_overlap|146206500|142943000|84a2ca63-169b-4658-9da1-8c4e1bf69b2c|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|100969000|142553000|96cff6da-5435-4fbc-b797-ed511f265b9d|d716941d-f1fb-4d59-b842-fc49adc978bd",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|100969000|157763000|005a75ab-db3c-49f0-9574-0357d08682f2|d716941d-f1fb-4d59-b842-fc49adc978bd",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|153382000|142553000|ab201ebd-512d-447c-898d-79cf18509f44|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|153382000|157763000|55063c40-2587-4cde-9899-df9f1523720f|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "pth_inside_courtyard|143984000|144458000|34175f5b-dc69-48f9-9eac-c814d9ae53bd|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "pth_inside_courtyard|148429000|154618000|fddc0e65-9661-4a91-84d1-36ab3ea4f410|84a2ca63-169b-4658-9da1-8c4e1bf69b2c",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -153,7 +182,7 @@
         "min_text_height": 0.8,
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.3,
-        "min_track_width": 0.2,
+        "min_track_width": 0.15,
         "min_via_annular_width": 0.1,
         "min_via_diameter": 0.5,
         "solder_mask_to_copper_clearance": 0.0,

@@ -96,8 +96,10 @@ switch footprints and wire them to the same diode.
   load switch, not from 5 V VBUS. At 5 V their input-high threshold (0.7 × VDD)
   is above 3.3 V logic. If you want 5 V, add a level shifter such as a
   74AHCT1G125.
-- **Encoder:** standard EC11 with A/B to GPIO and C to GND. Put a 10 nF
-  capacitor from each of A and B to GND if the encoder is noisy.
+- **Encoder:** Bourns PEC12R-4220F-S0024, horizontal shaft, with a wide
+  roller so it turns like a mouse wheel. A/B go to GPIO and C to GND, with
+  10 nF from each of A and B to GND. Its body sits just past the 16u key
+  area, so the PCB is about 12.7 mm wider than the layout.
 - **USB-C:** 5.1 kΩ pull-downs on CC1 and CC2, and ESD protection on D+/D−
   (e.g. USBLC6-2).
 - **Antenna:** keep the MDBT50Q antenna keep-out free of copper on all layers,
