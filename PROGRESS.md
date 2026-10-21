@@ -24,6 +24,14 @@ Phase 1 (Scaffold) is complete. Next is phase 2 (blinky and USB enumeration).
 - USB IDs: pid.codes test PIDs, 1209:0001 for the keyboard and 1209:0002 for the dongle.
 - `host-lib/test/boards.test.ts` validates every board folder: matrix range and uniqueness per layout option, no key overlaps, and pins that are valid, unique and not reserved.
 
+### PCB tooling: KiCad MCP (2026-10-21)
+
+- `.mcp.json` registers the Konnect v0.13.0 MCP server (mixelpixx/Konnect, AGPL-3.0, beta) for KiCad 10. It runs from the KiCad 3rd-party plugin folder.
+- Konnect is installed through KiCad's Plugin and Content Manager, and KiCad's IPC API server is enabled. It connects from Claude Code with 228 tools, and KiCad 10.0.3 was detected.
+- `hardware/Dachshund60F/`: the KiCad 10 project (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`). The schematic and board are still empty.
+- `.gitignore` excludes KiCad lock files, `.history/` backups, `*.kicad_prl` view state and `fp-info-cache`.
+- The kbplacer and kleplacement KiCad plugins are already installed and can place switches from the KLE layout.
+
 ## Tested
 
 - host-lib `npm test`: 13/13 pass locally (Node 24.12, Windows), including the board validation.

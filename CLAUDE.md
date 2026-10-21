@@ -26,6 +26,7 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 - `host-lib/`: hidapi and WebHID transports, typed API, mock device
 - `app/`: the GUI
 - `boards/<name>/`: pin map, matrix and keyboard definition JSON
+- `hardware/<name>/`: KiCad 10 schematic and PCB project. The Konnect KiCad MCP server is registered in `.mcp.json`; its PCB tools need KiCad running with the board open and the IPC API server enabled.
 
 ## Commands
 

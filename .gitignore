@@ -8,6 +8,16 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# KiCad: lock files, local backups, per-user view state
+~*.lck
+*.lck
+.history/
+*-backups/
+*.kicad_prl
+fp-info-cache
+_autosave-*
+*.bak
+
 # Editors / OS
 .vscode/
 .idea/
