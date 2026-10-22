@@ -11,8 +11,8 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/core/sources.cmake)
 target_sources(app PRIVATE
   src/main.c
   src/bootloader.c
+  src/kb_usb.c
   src/led_bringup.c
-  src/usb_hid.c
   ${KB_CORE_SOURCES}
 )
 target_include_directories(app PRIVATE ${KB_CORE_INCLUDE_DIRS})

@@ -6,7 +6,7 @@
  * from firmware/VERSION.
  */
 
-#include "usb_hid.h"
+#include "kb_usb.h"
 
 #include <errno.h>
 #include <string.h>
@@ -22,7 +22,7 @@
 
 #include "kb/version.h"
 
-LOG_MODULE_REGISTER(usb_hid, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(kb_usb, LOG_LEVEL_INF);
 
 USBD_DEVICE_DEFINE(kb_usbd, DEVICE_DT_GET(DT_NODELABEL(zephyr_udc0)),
                    CONFIG_KB_USB_VID, CONFIG_KB_USB_PID);
@@ -43,7 +43,7 @@ static const struct device *const hid_kbd = DEVICE_DT_GET(DT_NODELABEL(hid_kbd))
 static atomic_t kbd_ready;
 static uint8_t kbd_protocol = HID_PROTOCOL_REPORT;
 static uint32_t kbd_idle_duration;
-static uint8_t kbd_last_report[USB_HID_KBD_REPORT_SIZE];
+static uint8_t kbd_last_report[KB_USB_KBD_REPORT_SIZE];
 static uint8_t kbd_led_state;
 
 static void kbd_iface_ready(const struct device *dev, const bool ready)
@@ -123,7 +123,7 @@ static const struct hid_device_ops kbd_ops = {
     .output_report = kbd_output_report,
 };
 
-int usb_hid_send_keyboard(const uint8_t report[USB_HID_KBD_REPORT_SIZE])
+int kb_usb_send_keyboard(const uint8_t report[KB_USB_KBD_REPORT_SIZE])
 {
     if (!atomic_get(&kbd_ready)) {
         return -EAGAIN;
@@ -133,7 +133,7 @@ int usb_hid_send_keyboard(const uint8_t report[USB_HID_KBD_REPORT_SIZE])
     return hid_device_submit_report(hid_kbd, sizeof(kbd_last_report), kbd_last_report);
 }
 
-int usb_hid_init(void)
+int kb_usb_init(void)
 {
     int err;
 

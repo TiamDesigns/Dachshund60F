@@ -13,8 +13,8 @@
 
 #include "bootloader.h"
 #include "kb/core.h"
+#include "kb_usb.h"
 #include "led_bringup.h"
-#include "usb_hid.h"
 
 LOG_MODULE_REGISTER(kb_main, LOG_LEVEL_INF);
 
@@ -28,7 +28,7 @@ int main(void)
         LOG_ERR("bootloader key unavailable");
     }
 
-    if (usb_hid_init() != 0) {
+    if (kb_usb_init() != 0) {
         LOG_ERR("USB init failed");
     }
 
