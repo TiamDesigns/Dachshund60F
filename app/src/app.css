@@ -1,0 +1,279 @@
+/*
+ * Doghouse design tokens: warm earth tones.
+ * Oat and cream surfaces, espresso text, terracotta for action, ochre for
+ * energy (battery), sage for "all good". Dark mode is a warm den, not grey.
+ */
+
+:root {
+  color-scheme: light;
+
+  --bg: #f3eadc;
+  --surface: #fbf6ee;
+  --surface-2: #efe3d1;
+  --surface-3: #e6d5bd;
+  --border: #d9c6ab;
+  --border-strong: #c2a988;
+
+  --text: #3a2a1f;
+  --text-muted: #77614f;
+  --text-faint: #a08a75;
+
+  --accent: #b4532d;
+  --accent-hover: #9c4423;
+  --accent-text: #fffaf3;
+  --accent-soft: #f2d8c6;
+
+  --ochre: #c4922f;
+  --ochre-soft: #f3e2bb;
+  --sage: #667a4c;
+  --sage-soft: #dfe5cf;
+  --danger: #a23a29;
+  --danger-soft: #f3d3cb;
+
+  --key-face: #fffcf7;
+  --key-edge: #e2d0b6;
+  --key-shadow: #c9b293;
+  --key-legend: #3a2a1f;
+  --key-sub: #9a8470;
+  --key-trns: #b9a48c;
+  --case: #8a5a3b;
+  --case-edge: #6e4529;
+  --plate: #4a3426;
+
+  --dog: #8a5a3b;
+  --dog-ear: #5c3822;
+  --avatar-bg: #f3e2bb;
+  --rug: #e8cf9f;
+
+  --layer-0: #b4532d;
+  --layer-1: #667a4c;
+  --layer-2: #c4922f;
+  --layer-3: #7a5c8a;
+
+  --shadow-sm: 0 1px 2px rgb(58 42 31 / 0.08);
+  --shadow-md: 0 4px 14px rgb(58 42 31 / 0.10), 0 1px 3px rgb(58 42 31 / 0.08);
+  --shadow-lg: 0 18px 40px rgb(58 42 31 / 0.16);
+
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+
+  --font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --font-display: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "Cascadia Code", "Consolas", ui-monospace, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #1c1511;
+    --surface: #261d17;
+    --surface-2: #30251d;
+    --surface-3: #3b2e24;
+    --border: #47382c;
+    --border-strong: #5e4a3a;
+
+    --text: #f2e6d6;
+    --text-muted: #c0aa94;
+    --text-faint: #8d7765;
+
+    --accent: #d9774b;
+    --accent-hover: #e58a5f;
+    --accent-text: #1c1511;
+    --accent-soft: #4a2c1e;
+
+    --ochre: #d8ad54;
+    --ochre-soft: #4a3a1c;
+    --sage: #9cb27a;
+    --sage-soft: #2f3a22;
+    --danger: #e0715c;
+    --danger-soft: #4a221b;
+
+    --key-face: #3a2d24;
+    --key-edge: #2c221b;
+    --key-shadow: #18110d;
+    --key-legend: #f2e6d6;
+    --key-sub: #a8927d;
+    --key-trns: #6f5a49;
+    --case: #5a3a26;
+    --case-edge: #3f2819;
+    --plate: #140f0c;
+
+    --dog: #c68b5e;
+    --dog-ear: #8e5b39;
+    --avatar-bg: #3b2e24;
+    --rug: #4a3a2b;
+
+    --layer-0: #d9774b;
+    --layer-1: #9cb27a;
+    --layer-2: #d8ad54;
+    --layer-3: #a98ab8;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 14px rgb(0 0 0 / 0.35);
+    --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.45);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #1c1511;
+  --surface: #261d17;
+  --surface-2: #30251d;
+  --surface-3: #3b2e24;
+  --border: #47382c;
+  --border-strong: #5e4a3a;
+
+  --text: #f2e6d6;
+  --text-muted: #c0aa94;
+  --text-faint: #8d7765;
+
+  --accent: #d9774b;
+  --accent-hover: #e58a5f;
+  --accent-text: #1c1511;
+  --accent-soft: #4a2c1e;
+
+  --ochre: #d8ad54;
+  --ochre-soft: #4a3a1c;
+  --sage: #9cb27a;
+  --sage-soft: #2f3a22;
+  --danger: #e0715c;
+  --danger-soft: #4a221b;
+
+  --key-face: #3a2d24;
+  --key-edge: #2c221b;
+  --key-shadow: #18110d;
+  --key-legend: #f2e6d6;
+  --key-sub: #a8927d;
+  --key-trns: #6f5a49;
+  --case: #5a3a26;
+  --case-edge: #3f2819;
+  --plate: #140f0c;
+
+  --dog: #c68b5e;
+  --dog-ear: #8e5b39;
+  --avatar-bg: #3b2e24;
+  --rug: #4a3a2b;
+
+  --layer-0: #d9774b;
+  --layer-1: #9cb27a;
+  --layer-2: #d8ad54;
+  --layer-3: #a98ab8;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 14px rgb(0 0 0 / 0.35);
+  --shadow-lg: 0 18px 40px rgb(0 0 0 / 0.45);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 120ms, border-color 120ms, transform 80ms;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn.ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn.ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.btn.small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

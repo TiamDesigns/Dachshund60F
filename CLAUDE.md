@@ -14,7 +14,7 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 - Core keymap logic: plain C11 in `firmware/core/`, host-tested with CMake/CTest and the header-only harness in `firmware/core/tests/kb_test.h`
 - Bootloader: UF2 (Adafruit nRF52 bootloader)
 - Host library: TypeScript (Node ≥ 20, ESM), `node-hid` on desktop and WebHID in the browser; tests use `node:test`
-- GUI: TypeScript UI; shell TBD (Tauri recommended for signing and auto-update, or a WebHID web app)
+- GUI: **Doghouse** in `app/`, Svelte 5 + TypeScript + Vite. It runs in the browser against mock boards for now; a Tauri shell comes later (needs Rust and the MSVC build tools). Design language: warm earth tones, dog-themed (boards are named after dogs).
 - Board: `Dachshund60F` (MDBT50Q-1MV2, 6×15 COL2ROW matrix, 1 encoder, 2× SK6812MINI-E). Pins are in `boards/Dachshund60F/board.json` and are still proposed, since no PCB exists yet.
 - USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard) and 0x1209:0x0002 (dongle). They're for in-house testing only; get a registered pid.codes PID before any board is sold or given away.
 
@@ -41,8 +41,8 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Debug logs: SEGGER RTT over SWD (the board has no UART). Release builds have none.
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
 - Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`
-- Run the GUI against the mock device: not available yet (phase 8)
-- CI: `.github/workflows/ci.yml` runs core tests, host-lib tests, and debug and release firmware builds for both apps
+- Run the GUI against the mock device: `cd app && npm install && npm run dev`, then open http://localhost:5173. Check, test and build with `npm run check`, `npm test` and `npm run build`.
+- CI: `.github/workflows/ci.yml` runs core tests, host-lib tests, the Doghouse app (check, test, build), and debug and release firmware builds
 
 ## Hard rules
 

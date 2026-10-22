@@ -74,7 +74,7 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 - host-lib `firmware-board.test.ts`: the devicetree matrix, encoder, charger and LED pins, the LED chain length and the Kconfig USB IDs must all match `board.json`. A deliberately wrong DTS pin makes it fail.
 - CI builds `dachshund60f/nrf52840` with `-DBOARD_ROOT` and uploads `zephyr.uf2`. Debug: 67.6 KB flash, 16.9 KB RAM. Release: 51.9 KB flash, 13.4 KB RAM. Both UF2 files start at 0x26000 with family ID 0xADA52840.
 
-### Status screen on J4, OLED or e-paper (2026-10-22, branch `status-screen`)
+### Status screen on J4, OLED or e-paper (2026-10-22, merged to main)
 
 The status display is now in scope: SPEC.md moved it out of "Not in v1", and added it under Tier 3 plus a layout editor in the GUI list. The panel is not chosen yet, so the firmware supports both kinds, picked at build time.
 
@@ -100,6 +100,25 @@ The status display is now in scope: SPEC.md moved it out of "Not in v1", and add
   - The LED MOSI check now looks only at the SPIM3 pinctrl.
   - Moving the DC pin in the DTS makes the test fail.
 - CI builds one firmware per panel (debug and release) and checks `CONFIG_KB_SCREEN=y`. Run 39862064737 is green. The screen adds about 22 KB of flash and 9 KB of RAM (debug: 91.5 KB flash, 26.1 KB RAM with the 128×32 OLED).
+
+### Doghouse configurator, first cut (2026-10-22, branch `doghouse-app`)
+
+Started ahead of phases 5 and 7, so the design can be reviewed before boards arrive. It runs in the browser against simulated boards.
+
+- Choices: Svelte 5 + TypeScript + Vite in `app/`; Tauri later; the app is named Doghouse. New dev dependencies in `app/`: vite, svelte, @sveltejs/vite-plugin-svelte, svelte-check and typescript (6, because svelte-check doesn't support 7 yet). host-lib gained no dependencies.
+- host-lib:
+  - Typed `Board`/`BoardManager` API (`types.ts`): board info with connection kind (usb, dongle, ble), battery, keymap and encoders, settings with limits, save/revert/factory reset, identify, events, and `BoardError` codes matching SPEC.
+  - Keycode catalog (`keycodes.ts`): QMK-style ids in 9 categories, plus layer and Bluetooth profile keys that depend on the layer count.
+  - `default-keymaps.ts`: base and Fn layers for the Dachshund60F. Fn has media keys on the F-row, BT1–3 and output selection on 1–6, navigation on the arrows, and QK_BOOT on Esc.
+  - `MockBoard`/`MockBoardManager`: they validate like the firmware, keep live and saved copies, simulate battery charge and drain, and support plug/unplug.
+  - 45 host-lib tests in total.
+- App:
+  - Pack sidebar: dachshund avatars, connection chips, bone battery meters, unsaved dots.
+  - Board header: name, model, serial, connection, battery, and Identify/Revert/Save.
+  - Keys tab: board drawn from `keyboard.json`; layer tabs with colours and counts; spacebar option; transparent keys show what they fall through to; roller forward/back/press; LED row with a live battery gauge; searchable palette; drag and drop; undo/redo; keyboard shortcuts.
+  - Settings and About tabs; light and dark themes; toasts; a "Simulated" panel to plug in, unplug and set battery.
+  - 14 Node tests for geometry, transparent-key resolution and undo history.
+- Checked in the browser at 1440×900 in light and dark, and at 800×600: editing a key, the Fn layer, Save, rename, and plugging in more boards. svelte-check reports 0 errors and 0 warnings; the production build is 102 KB of JS (36 KB gzipped).
 
 ## PCB status and known issues
 
@@ -162,7 +181,7 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 - Registered pid.codes PID before distributing boards; this needs a licence and a public repo with PCB files
 - PCB design: the pin map is proposed and must be confirmed (or edited) once the schematic is routed
 - Case and mounting (sets the outline, mounting holes and daughterboard position)
-- GUI shell: Tauri or a WebHID web app
+- When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Licence
 
@@ -170,5 +189,7 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 
 - Release builds print Kconfig warnings, because `prj.conf` sets logging options that `release.conf` turns off. PRINTK also stays on in release, since something selects it; nothing prints, because no console or RTT backend exists. This is harmless, but the warnings are noise.
 - E-paper builds warn that Zephyr's MIPI-DBI driver is "experimental". It is what Zephyr's own e-paper shields use; this is a notice, not a fault.
+- Doghouse keycode ids (`host-lib/src/keycodes.ts`) are QMK-style names. Phase 3 (firmware keycode model) and phase 5 (protocol) must adopt them or map them, so the GUI, mock and firmware agree.
+- Doghouse doesn't yet show key labels in the user's OS keyboard layout (AZERTY and so on), edit the status screen layout, or update firmware. The SPEC lists these for later phases.
 - An OLED left on all the time can burn in. It gets an idle timeout with power management in phase 13.
 - No Dachshund60F build of the Adafruit nRF52 bootloader exists yet. It's needed for the first SWD flash. Where its board files live (in this repo or a fork) is still open.
