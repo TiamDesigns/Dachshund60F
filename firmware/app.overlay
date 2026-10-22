@@ -7,7 +7,7 @@
 / {
 	hid_kbd: hid_kbd {
 		compatible = "zephyr,hid-device";
-		interface-name = "Keyboard";
+		label = "Keyboard";
 		protocol-code = "keyboard";
 		in-report-size = <8>;
 		in-polling-period-us = <1000>;
