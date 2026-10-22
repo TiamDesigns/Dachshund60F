@@ -56,7 +56,7 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 - Ground: GND pours on F.Cu and B.Cu (0.3 mm clearance, thermal reliefs), about 690 GND stitching vias, and short via ties for boxed-in decoupling-cap pads.
 - Design rules: the minimum track width is now 0.15 mm, because Freerouting necks tracks down to 0.187 mm at fine-pitch pads.
 
-### Phase 2 firmware: board bring-up (2026-10-22, branch `phase2-firmware`)
+### Phase 2 firmware: board bring-up (2026-10-22, merged to main)
 
 - Pin check: all 29 module pins in `board.json` match the routed PCB pad for pad, and USB, SWD and VDDH sit on the right pads. Diodes are COL2ROW in the PCB (cathode on the ROW net).
 - Zephyr board `dachshund60f/nrf52840` (HWMv2) in `boards/Dachshund60F/`:
@@ -65,7 +65,7 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
   - `zephyr.uf2` output, with uf2 as the default `west flash` runner, plus nrfutil, jlink and pyocd for SWD
   - P0.18 as nRESET, and REG0/REG1 left in LDO mode, since DCCH is unconnected
   - `board.c` sets UICR REGOUT0 to 3.3 V on first boot in high-voltage mode, then resets
-- Raw pin groups (matrix, encoder, charge status) sit in `zephyr,user` until the phase 3, 9 and 13 drivers replace them. The display header pins (P0.19–P0.24) are not in the devicetree, because the display is out of scope for v1.
+- Raw pin groups (matrix, encoder, charge status) sit in `zephyr,user` until the phase 3, 9 and 13 drivers replace them.
 - USB (device_next): boot-protocol HID keyboard on 1209:0001, "Dachshund" / "Dachshund60F". The serial number comes from the chip's factory ID, so it's unique per board; `bcdDevice` comes from `firmware/VERSION`; bMaxPower is 500 mA. VID, PID and strings are Kconfig options in `firmware/Kconfig`. It sends no key reports yet, and the lock-LED output report is stored but not shown.
 - LED bring-up: enables the TPS22917 (P0.08), then lights one SK6812 at a time in chain order (layer, battery 1–4, Caps), cycling red, green and blue every 500 ms at low brightness. This shows both the chain order and the colour order.
 - Reboot to UF2: hold Esc (row 0, col 0) for 3 s. That writes GPREGRET = 0x57 and resets. The phase 3 keymap action replaces this.
@@ -73,6 +73,33 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 - Core: `kb_version_bcd_device` and `kb_hold` (long-press detector, timestamp wrap-safe), with host tests.
 - host-lib `firmware-board.test.ts`: the devicetree matrix, encoder, charger and LED pins, the LED chain length and the Kconfig USB IDs must all match `board.json`. A deliberately wrong DTS pin makes it fail.
 - CI builds `dachshund60f/nrf52840` with `-DBOARD_ROOT` and uploads `zephyr.uf2`. Debug: 67.6 KB flash, 16.9 KB RAM. Release: 51.9 KB flash, 13.4 KB RAM. Both UF2 files start at 0x26000 with family ID 0xADA52840.
+
+### Status screen on J4, OLED or e-paper (2026-10-22, branch `status-screen`)
+
+The status display is now in scope: SPEC.md moved it out of "Not in v1", and added it under Tier 3 plus a layout editor in the GUI list. The panel is not chosen yet, so the firmware supports both kinds, picked at build time.
+
+- Board devicetree:
+  - `display_header` is a GPIO nexus indexed by J4 pin number: 3 DIN, 4 CLK, 5 CS, 6 DC, 7 RST, 8 BUSY. Its binding is in `boards/Dachshund60F/dts/bindings/`.
+  - `display_i2c` (TWIM0: SDA P0.21, SCL P0.19, with pull-ups) and `display_spi` (SPIM2: SCK P0.19, MOSI P0.21, CS on J4-5) are both disabled until a panel overlay enables one.
+- Panels, in `firmware/displays/`: SSD1306 128×32, SSD1306 128×64, SH1106 128×64 (all I2C at 0x3C), and the Waveshare 2.13" e-Paper V4 (SSD1680, 250×122, SPI). Panel settings are copied from Zephyr's own shield definitions. Select one with `-DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay`. `CONFIG_KB_SCREEN` then turns on from the `zephyr,display` chosen node. With no overlay, the build is exactly as before.
+- Core `kb/screen.h`:
+  - Layouts are up to 8 widgets on a character grid: text, layer, locks, battery, connection.
+  - Each widget has a row, a column and an alignment (left, right or centre), plus 16 layer names.
+  - Rows that don't fit are skipped, so one layout works on every panel.
+  - `kb_screen_layout_validate` checks every field, ready for layouts sent from the host later.
+  - Host tests cover rendering, alignment, truncation and rejected layouts.
+- Firmware `status_screen`:
+  - Draws with Zephyr's character framebuffer (10×16 font: 12×2 cells on 128×32, 12×4 on 128×64, 25×7 on the 2.13" e-paper).
+  - OLED changes redraw within 20 ms. E-paper redraws at most every 3 s, and changes in between are combined.
+  - Lock state (from the USB LED report) and the USB connection are live. Layer shows "Base" until phase 3, battery "BAT --" until phase 13.
+  - `status_screen_set_layout()` swaps the layout at run time, for the configurator once the protocol exists.
+- Build-time options (Kconfig): custom text (default "Dachshund60F"), which widgets to show, font index, invert, and the e-paper refresh interval.
+- host-lib tests:
+  - The J4 map and the display I2C/SPI pinctrl must match `board.json`.
+  - Panel overlays must not use raw `&gpio` pins or pinctrl.
+  - The LED MOSI check now looks only at the SPIM3 pinctrl.
+  - Moving the DC pin in the DTS makes the test fail.
+- CI builds one firmware per panel (debug and release) and checks `CONFIG_KB_SCREEN=y`. Run 39862064737 is green. The screen adds about 22 KB of flash and 9 KB of RAM (debug: 91.5 KB flash, 26.1 KB RAM with the 128×32 OLED).
 
 ## PCB status and known issues
 
@@ -114,13 +141,13 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 - Re-routed with the same pipeline. DRC: 0 errors and 0 unconnected items; the warnings are unchanged. Nothing is in the antenna keep-out.
 - Mechanical: a straight header stands about 8.5 mm tall and won't fit under a plate at 5 mm. The plate or case needs a cutout above J4, or use a right-angle header or solder wires directly.
 - Keep the display, especially an OLED with a metal back, away from the module antenna at the right edge (x > 333, y 67–79 mm).
-- SPEC.md still lists "OLED status display" under Not in v1. The header is hardware provision only; firmware support needs the spec changed first.
+- Firmware support for the header followed on the same day (see Status screen above); SPEC.md now has the display in scope.
 
 ## Tested
 
 - host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
-- Core C tests (core, hold, version): pass in CI. Not run locally; there's no C compiler or CMake here.
-- Firmware builds: debug and release for `dachshund60f/nrf52840`, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39844202996. Not built locally; NCS isn't installed here.
+- Core C tests (core, hold, screen, version): pass in CI. Not run locally; there's no C compiler or CMake here.
+- Firmware builds: debug and release for `dachshund60f/nrf52840` with no screen and with each of the four panels, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39862064737. Not built locally; NCS isn't installed here.
 - Real hardware: nothing yet. Phase 2 is still to be checked on a board:
   - flash the UF2 bootloader over SWD, then `zephyr.uf2`
   - check that it enumerates as 1209:0001 with a unique serial number (USB Device Tree Viewer or `lsusb -v`)
@@ -128,6 +155,7 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
   - check that the LEDs walk in chain order with correct colours
   - check that holding Esc for 3 s mounts the UF2 drive
   - check that REGOUT0 reads 3.3 V
+  - for the chosen panel: check that the screen shows layer, battery and text, that Caps/Num/Scroll follow the host, that "USB" appears once enumerated, and that the orientation is right in the case
 
 ## Open decisions
 
@@ -135,9 +163,12 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 - PCB design: the pin map is proposed and must be confirmed (or edited) once the schematic is routed
 - Case and mounting (sets the outline, mounting holes and daughterboard position)
 - GUI shell: Tauri or a WebHID web app
+- Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Licence
 
 ## Known bugs
 
 - Release builds print Kconfig warnings, because `prj.conf` sets logging options that `release.conf` turns off. PRINTK also stays on in release, since something selects it; nothing prints, because no console or RTT backend exists. This is harmless, but the warnings are noise.
+- E-paper builds warn that Zephyr's MIPI-DBI driver is "experimental". It is what Zephyr's own e-paper shields use; this is a notice, not a fault.
+- An OLED left on all the time can burn in. It gets an idle timeout with power management in phase 13.
 - No Dachshund60F build of the Adafruit nRF52 bootloader exists yet. It's needed for the first SWD flash. Where its board files live (in this repo or a fork) is still open.

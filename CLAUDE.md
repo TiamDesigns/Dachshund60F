@@ -33,6 +33,7 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrfutil sdk-manager` / `nrfutil toolchain-manager launch`), with the repo as the current directory. They build the apps as freestanding applications. For a self-contained workspace instead, clone the repo into `<ws>/kb`, then `cd <ws> && west init -l kb && west update`. Keep `<ws>` out of OneDrive; NCS is several GB.
 
 - Build firmware: `west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"` (`BOARD_ROOT` must be an absolute path to the repo root, where Zephyr finds `boards/Dachshund60F/board.yml`)
+- Build with the status screen: add `-DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay` after the `--`. Panels are listed in `firmware/displays/README.md`: `oled-ssd1306-128x32`, `oled-ssd1306-128x64`, `oled-sh1106-128x64` and `eink-2in13-v4`. Without one, the firmware has no screen.
 - Build dongle: `west build -p -b nrf52840dongle/nrf52840 -d build/dongle dongle`
 - Release build (logging compiled out): add `-DEXTRA_CONF_FILE=release.conf` after the `--`
 - Flash (UF2): double-tap reset, or hold Esc for 3 s, so the board mounts as a UF2 drive. Then copy `build/firmware/firmware/zephyr/zephyr.uf2` onto it, or run `west flash -d build/firmware` (the default runner is `uf2`).
