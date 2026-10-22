@@ -86,6 +86,18 @@ The layer LED no longer sits under Esc. A row of five reverse-mount SK6812MINI-E
 - The LED_D5 data line and LED_VDD both run about 310 mm across the board to the Caps LED; that's fine at 800 kHz.
 - SPEC.md lists only layer and lock-state indicators under Lighting, so the battery gauge needs adding to the spec before the firmware and GUI work on it.
 
+### PCB: display header (2026-10-22)
+
+The case will carry a low-power display (e-ink or OLED) between the encoder and the indicator row. J4 is a 1×8 2.54 mm through-hole header on the front at y = 112.5 mm (pin 1 at x = 309.1), between the reset button and the LED load switch on the back. Each pin is labelled on the front silkscreen.
+
+- Pinout, in Waveshare e-Paper module order: 1 +3V3, 2 GND, 3 DIN (P0.21), 4 CLK (P0.19), 5 CS (P0.20), 6 DC (P0.23), 7 RST (P0.22), 8 BUSY (P0.24). A 4-pin I2C OLED wires to +3V3, GND, CLK (SCL) and DIN (SDA). The nRF52840 maps SPI or TWI to any pin, and OLED modules carry their own pull-ups.
+- Power comes straight from +3V3 (REGOUT0). That rail has about 25 mA for outside parts: enough for e-ink and a small OLED, tight for a large OLED at full white.
+- `board.json` has a new `display` section, and the host-lib pin test now includes its pins.
+- Re-routed with the same pipeline. DRC: 0 errors and 0 unconnected items; the warnings are unchanged. Nothing is in the antenna keep-out.
+- Mechanical: a straight header stands about 8.5 mm tall and won't fit under a plate at 5 mm. The plate or case needs a cutout above J4, or use a right-angle header or solder wires directly.
+- Keep the display, especially an OLED with a metal back, away from the module antenna at the right edge (x > 333, y 67–79 mm).
+- SPEC.md still lists "OLED status display" under Not in v1. The header is hardware provision only; firmware support needs the spec changed first.
+
 ## Tested
 
 - host-lib `npm test`: 16/16 pass locally (Node 24.12, Windows), including the board validation.

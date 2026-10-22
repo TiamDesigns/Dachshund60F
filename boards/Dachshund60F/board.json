@@ -28,6 +28,12 @@
     "powerEnablePin": "P0.08",
     "powerEnableActive": "high"
   },
+  "display": {
+    "connector": "J4, 1x8 2.54 mm header on the front: VCC GND DIN CLK CS DC RST BUSY (Waveshare e-Paper module order)",
+    "interface": "SPI for e-paper; an I2C OLED uses CLK as SCL and DIN as SDA (the module supplies the pull-ups)",
+    "power": "+3V3 (REGOUT0, about 25 mA available for external parts)",
+    "pins": { "din": "P0.21", "clk": "P0.19", "cs": "P0.20", "dc": "P0.23", "rst": "P0.22", "busy": "P0.24" }
+  },
   "power": {
     "batterySense": "VDDH/5 internal SAADC channel (battery wired to VDDH); no GPIO",
     "chargeStatusPin": "P0.15",
