@@ -34,6 +34,70 @@ config KB_BOOTLOADER_HOLD_MS
 	int "Hold time for the reboot-to-UF2 key, in ms"
 	default 3000
 
+DT_CHOSEN_ZEPHYR_DISPLAY := zephyr,display
+
+menuconfig KB_SCREEN
+	bool "Status screen on the J4 display header"
+	default $(dt_chosen_enabled,$(DT_CHOSEN_ZEPHYR_DISPLAY))
+	select DISPLAY
+	select CHARACTER_FRAMEBUFFER
+	help
+	  On by default when a panel overlay from firmware/displays/ is in
+	  the build (it sets the zephyr,display chosen node).
+
+if KB_SCREEN
+
+config KB_SCREEN_TEXT
+	string "Custom text shown under the status widgets"
+	default "Dachshund60F"
+	help
+	  Up to 23 characters; longer text is cut off. Shown only when the
+	  panel has a free row after the enabled status widgets.
+
+config KB_SCREEN_SHOW_LAYER
+	bool "Show the active layer"
+	default y
+
+config KB_SCREEN_SHOW_BATTERY
+	bool "Show the battery level"
+	default y
+
+config KB_SCREEN_SHOW_LOCKS
+	bool "Show Caps, Num and Scroll Lock"
+	default y
+
+config KB_SCREEN_SHOW_CONNECTION
+	bool "Show the connection (USB, BT1-BT9, 2.4G)"
+	default y
+
+config KB_SCREEN_SHOW_TEXT
+	bool "Show the custom text"
+	default y
+
+config KB_SCREEN_FONT_INDEX
+	int "Character framebuffer font index (-1 picks the smallest)"
+	default -1
+	range -1 15
+
+config KB_SCREEN_INVERT
+	bool "Invert the screen (light text on dark e-paper, dark on lit OLED)"
+
+config KB_SCREEN_EPD_MIN_INTERVAL_MS
+	int "Minimum time between e-paper refreshes, in ms"
+	default 3000
+	range 500 600000
+	help
+	  E-paper refreshes are slow and wear the panel. Changes inside this
+	  window are combined into one refresh. OLEDs ignore this.
+
+config HEAP_MEM_POOL_ADD_SIZE_KB_SCREEN
+	int
+	default 8192
+	help
+	  The character framebuffer allocates the frame buffer from the heap.
+
+endif # KB_SCREEN
+
 endmenu
 
 source "Kconfig.zephyr"

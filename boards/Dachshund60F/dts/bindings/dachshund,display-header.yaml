@@ -1,0 +1,10 @@
+description: |
+  Dachshund60F display header J4 (1x8, 2.54 mm), as a GPIO nexus.
+
+  Display overlays refer to header pins by J4 pin number, so pin
+  assignments stay in the board files:
+    3 DIN, 4 CLK, 5 CS, 6 DC, 7 RST, 8 BUSY (1 is +3V3, 2 is GND).
+
+compatible: "dachshund,display-header"
+
+include: [gpio-nexus.yaml, base.yaml]

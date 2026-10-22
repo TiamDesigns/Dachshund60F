@@ -14,6 +14,7 @@ interface BoardDef {
   encoders: { pinA: string; pinB: string }[];
   indicators: { count: number; dataPin: string; powerEnablePin: string };
   power: { chargeStatusPin?: string };
+  display?: { pins: { din: string; clk: string; cs: string; dc: string; rst: string; busy: string } };
   usb: { keyboard: { vid: string; pid: string; manufacturer: string; product: string } };
 }
 
@@ -31,9 +32,10 @@ function dtProp(dts: string, name: string): string {
   return m[1]!;
 }
 
-// Body of a devicetree node by label, e.g. "led_power: led_power { ... }".
+// Body of a devicetree node by label, e.g. "led_power: led_power { ... }"
+// or "display_spi: &spi2 { ... }".
 function dtNode(dts: string, label: string): string {
-  const start = dts.search(new RegExp(`\\b${label}:\\s*[\\w@,-]+\\s*\\{`));
+  const start = dts.search(new RegExp(`\\b${label}:\\s*&?[\\w@,-]+\\s*\\{`));
   assert.ok(start >= 0, `node ${label} not found`);
   let depth = 0;
   for (let i = dts.indexOf("{", start); i < dts.length; i++) {
@@ -41,6 +43,12 @@ function dtNode(dts: string, label: string): string {
     else if (dts[i] === "}" && --depth === 0) return dts.slice(start, i + 1);
   }
   assert.fail(`node ${label} is not closed`);
+}
+
+// Pins of one function (e.g. SPIM_MOSI) in a pinctrl state node.
+function psels(dts: string, state: string, fn: string): string[] {
+  const re = new RegExp(`NRF_PSEL\\(${fn},\\s*(\\d),\\s*(\\d+)\\)`, "g");
+  return [...dtNode(dts, state).matchAll(re)].map((m) => `P${m[1]}.${m[2]!.padStart(2, "0")}`);
 }
 
 function kconfigDefault(kconfig: string, symbol: string): string {
@@ -80,15 +88,37 @@ for (const name of zephyrBoards) {
     const power = dtNode(dts, "led_power");
     assert.deepEqual(gpioPins(dtProp(power, "enable-gpios")), [board.indicators.powerEnablePin]);
 
-    const mosi = [...dts.matchAll(/NRF_PSEL\(SPIM_MOSI,\s*(\d),\s*(\d+)\)/g)].map(
-      (m) => `P${m[1]}.${m[2]!.padStart(2, "0")}`,
-    );
-    assert.ok(mosi.length > 0, "no SPIM_MOSI pinctrl");
-    for (const pin of mosi) assert.equal(pin, board.indicators.dataPin);
+    for (const state of ["spi3_default", "spi3_sleep"]) {
+      assert.deepEqual(psels(dts, state, "SPIM_MOSI"), [board.indicators.dataPin], state);
+    }
 
     const strip = dtNode(dts, "led_strip");
     assert.equal(Number(dtProp(strip, "chain-length").replace(/[<>\s]/g, "")), board.indicators.count);
   });
+
+  if (board.display) {
+    const pins = board.display.pins;
+
+    test(`${name}: display header map matches board.json`, () => {
+      const header = dtNode(dts, "display_header");
+      const entries = [...dtProp(header, "gpio-map").matchAll(/<\s*(\d+)\s+0\s+&gpio([01])\s+(\d+)\s+0\s*>/g)];
+      const map = Object.fromEntries(entries.map((m) => [m[1], `P${m[2]}.${m[3]!.padStart(2, "0")}`]));
+      // J4 pin numbers, Waveshare e-Paper order: 3 DIN, 4 CLK, 5 CS, 6 DC, 7 RST, 8 BUSY.
+      assert.deepEqual(map, { 3: pins.din, 4: pins.clk, 5: pins.cs, 6: pins.dc, 7: pins.rst, 8: pins.busy });
+    });
+
+    test(`${name}: display I2C and SPI pinctrl match board.json`, () => {
+      for (const state of ["i2c0_default", "i2c0_sleep"]) {
+        assert.deepEqual(psels(dts, state, "TWIM_SDA"), [pins.din], state);
+        assert.deepEqual(psels(dts, state, "TWIM_SCL"), [pins.clk], state);
+      }
+      for (const state of ["spi2_default", "spi2_sleep"]) {
+        assert.deepEqual(psels(dts, state, "SPIM_MOSI"), [pins.din], state);
+        assert.deepEqual(psels(dts, state, "SPIM_SCK"), [pins.clk], state);
+      }
+      assert.match(dtProp(dtNode(dts, "display_spi"), "cs-gpios"), /<&display_header 5 GPIO_ACTIVE_LOW>/);
+    });
+  }
 
   test(`${name}: firmware Kconfig USB IDs match board.json`, () => {
     const kconfig = readFileSync(path.join(repoDir, "firmware", "Kconfig"), "utf8").replace(/\r\n/g, "\n");
@@ -97,5 +127,22 @@ for (const name of zephyrBoards) {
     assert.equal(Number(kconfigDefault(kconfig, "KB_USB_PID")), Number(usb.pid));
     assert.equal(kconfigDefault(kconfig, "KB_USB_MANUFACTURER"), usb.manufacturer);
     assert.equal(kconfigDefault(kconfig, "KB_USB_PRODUCT"), usb.product);
+  });
+}
+
+const displaysDir = path.join(repoDir, "firmware", "displays");
+const overlays = existsSync(displaysDir) ? readdirSync(displaysDir).filter((f) => f.endsWith(".overlay")) : [];
+
+test("firmware/displays has panel overlays", () => {
+  assert.ok(overlays.length > 0);
+});
+
+for (const file of overlays) {
+  test(`display overlay ${file}: pins only through the J4 header`, () => {
+    const text = readFileSync(path.join(displaysDir, file), "utf8");
+    assert.doesNotMatch(text, /&gpio[01]\b/, "use <&display_header PIN FLAGS>, not raw &gpio pins");
+    assert.doesNotMatch(text, /NRF_PSEL/, "pinctrl belongs in the board files");
+    assert.match(text, /zephyr,display\s*=\s*&screen;/, "must choose its panel as zephyr,display");
+    assert.match(text, /&display_(i2c|spi)\b/, "must sit on display_i2c or display_spi");
   });
 }

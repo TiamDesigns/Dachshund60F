@@ -45,7 +45,7 @@ Claude Code writes much better code when these are fixed up front; put the answe
 | Form factor | Unibody, no split |
 | Switch sensing | Diode matrix (digital), no Hall-effect |
 | Lighting | Layer and lock-state indicators only, no per-key RGB |
-| Peripherals | Rotary encoders; no OLED, pointing device or haptics |
+| Peripherals | Rotary encoders; a status display on header J4 (OLED or e-paper, panel not yet chosen); no pointing device or haptics |
 | Firmware language and stack | Open: C on Zephyr / nRF Connect SDK (what ZMK uses, mature BLE), or Rust + Embassy with a Rust BLE stack (what RMK uses) |
 
 The full table of options below is kept for reference.
@@ -110,6 +110,7 @@ Checked items are in scope for v1; everything you dropped is listed under Not in
 ### Tier 3: indicators
 
 - [x] Layer and lock-state indicator colours
+- [x] Status display on the J4 header, OLED or e-paper chosen at build time: active layer, lock state, battery, connection and custom text, in a layout the user can change
 
 ### Persistence
 
@@ -213,6 +214,7 @@ Build against the mock device first, so the UI is usable before the firmware pro
 - [x] Key override editor
 - [x] Encoder mapping per layer
 - [x] Indicator colour editor (layer and lock-state colours)
+- [x] Status display layout editor (which widgets, where, custom text, layer names)
 - [x] Global settings: debounce, tapping term, NKRO, sleep timeout
 
 ### Tools
@@ -297,7 +299,6 @@ Dropped from your selections; kept here so they are easy to bring back later.
 
 - Unicode input helpers
 - Per-key RGB effects and the lighting editor beyond indicators
-- OLED status display
 - Pointing device (trackball, trackpad)
 - Haptic feedback
 - Split halves and half-to-half sync

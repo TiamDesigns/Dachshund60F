@@ -21,6 +21,7 @@
 #include <app_version.h>
 
 #include "kb/version.h"
+#include "status_screen.h"
 
 LOG_MODULE_REGISTER(kb_usb, LOG_LEVEL_INF);
 
@@ -50,6 +51,7 @@ static void kbd_iface_ready(const struct device *dev, const bool ready)
 {
     ARG_UNUSED(dev);
     atomic_set(&kbd_ready, ready);
+    status_screen_set_transport(ready ? KB_TRANSPORT_USB : KB_TRANSPORT_NONE, 0);
     LOG_INF("keyboard interface %s", ready ? "ready" : "not ready");
 }
 
@@ -73,12 +75,15 @@ static int kbd_set_report(const struct device *dev, const uint8_t type, const ui
     ARG_UNUSED(dev);
     ARG_UNUSED(id);
 
-    /* Lock-key LED output report (one byte). Indicators use it in phase 4. */
+    /* Lock-key LED output report (one byte): shown on the status screen now;
+     * the indicator LEDs use it in phase 4.
+     */
     if (type != HID_REPORT_TYPE_OUTPUT || len < 1) {
         return -ENOTSUP;
     }
 
     kbd_led_state = buf[0];
+    status_screen_set_locks(kbd_led_state);
     return 0;
 }
 
@@ -110,6 +115,7 @@ static void kbd_output_report(const struct device *dev, const uint16_t len,
 
     if (len >= 1) {
         kbd_led_state = buf[0];
+        status_screen_set_locks(kbd_led_state);
     }
 }
 

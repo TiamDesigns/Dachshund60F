@@ -8,6 +8,7 @@
 
 /dts-v1/;
 #include <nordic/nrf52840_qiaa.dtsi>
+#include <zephyr/dt-bindings/i2c/i2c.h>
 #include <zephyr/dt-bindings/led/led.h>
 #include "dachshund60f-pinctrl.dtsi"
 
@@ -64,6 +65,43 @@
 		encoder-b-gpios = <&gpio0 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		charge-status-gpios = <&gpio0 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 	};
+
+	/*
+	 * Display header J4, indexed by J4 pin number. Panel overlays in
+	 * firmware/displays/ use <&display_header PIN FLAGS>.
+	 */
+	display_header: display_header {
+		compatible = "dachshund,display-header";
+		#gpio-cells = <2>;
+		gpio-map-mask = <0xffffffff 0xffffffc0>;
+		gpio-map-pass-thru = <0 0x3f>;
+		gpio-map = <3 0 &gpio0 21 0>,	/* DIN */
+			   <4 0 &gpio0 19 0>,	/* CLK */
+			   <5 0 &gpio0 20 0>,	/* CS */
+			   <6 0 &gpio0 23 0>,	/* DC */
+			   <7 0 &gpio0 22 0>,	/* RST */
+			   <8 0 &gpio0 24 0>;	/* BUSY */
+	};
+};
+
+/* J4 as I2C for an OLED. Disabled until a panel overlay enables it. */
+display_i2c: &i2c0 {
+	compatible = "nordic,nrf-twim";
+	status = "disabled";
+	clock-frequency = <I2C_BITRATE_FAST>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-1 = <&i2c0_sleep>;
+	pinctrl-names = "default", "sleep";
+};
+
+/* J4 as SPI for e-paper. Disabled until a panel overlay enables it. */
+display_spi: &spi2 {
+	compatible = "nordic,nrf-spim";
+	status = "disabled";
+	cs-gpios = <&display_header 5 GPIO_ACTIVE_LOW>;
+	pinctrl-0 = <&spi2_default>;
+	pinctrl-1 = <&spi2_sleep>;
+	pinctrl-names = "default", "sleep";
 };
 
 &uicr {

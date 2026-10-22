@@ -1,0 +1,29 @@
+/*
+ * 0.96" SSD1306 128x64 OLED on the J4 display header
+ * (I2C at 0x3C: SDA on J4-3, SCL on J4-4).
+ * Panel settings from Zephyr's boards/shields/ssd1306 definitions.
+ */
+
+/ {
+	chosen {
+		zephyr,display = &screen;
+	};
+};
+
+&display_i2c {
+	status = "okay";
+
+	screen: ssd1306@3c {
+		compatible = "solomon,ssd1306";
+		reg = <0x3c>;
+		width = <128>;
+		height = <64>;
+		segment-offset = <0>;
+		page-offset = <0>;
+		display-offset = <0>;
+		multiplex-ratio = <63>;
+		segment-remap;
+		com-invdir;
+		prechargep = <0x22>;
+	};
+};

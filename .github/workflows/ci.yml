@@ -34,16 +34,41 @@ jobs:
       - run: npm test
 
   firmware:
-    name: Firmware (${{ matrix.app }})
+    name: Firmware (${{ matrix.variant }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         include:
-          - app: firmware
+          - variant: keyboard
+            app: firmware
             board: dachshund60f/nrf52840
-          - app: dongle
+          # One build per supported panel on the J4 display header.
+          - variant: keyboard + oled-ssd1306-128x32
+            app: firmware
+            board: dachshund60f/nrf52840
+            display: oled-ssd1306-128x32
+          - variant: keyboard + oled-ssd1306-128x64
+            app: firmware
+            board: dachshund60f/nrf52840
+            display: oled-ssd1306-128x64
+          - variant: keyboard + oled-sh1106-128x64
+            app: firmware
+            board: dachshund60f/nrf52840
+            display: oled-sh1106-128x64
+          - variant: keyboard + eink-2in13-v4
+            app: firmware
+            board: dachshund60f/nrf52840
+            display: eink-2in13-v4
+          - variant: dongle
+            app: dongle
             board: nrf52840dongle/nrf52840
+    env:
+      # BOARD_ROOT makes Zephyr find boards/Dachshund60F/board.yml in this repo.
+      EXTRA_ARGS: >-
+        -DBOARD_ROOT=${{ github.workspace }}/kb
+        ${{ matrix.display && format('-DEXTRA_DTC_OVERLAY_FILE=displays/{0}.overlay', matrix.display) || '' }}
+      ARTIFACT: ${{ matrix.app }}${{ matrix.display && format('-{0}', matrix.display) || '' }}
     steps:
       # West workspace: repo in ./kb, NCS projects alongside it.
       - uses: actions/checkout@v4
@@ -55,18 +80,23 @@ jobs:
           toolchains: arm-zephyr-eabi
       - name: Install NCS Python requirements
         run: pip install -r nrf/scripts/requirements-build.txt
-      # BOARD_ROOT makes Zephyr find boards/Dachshund60F/board.yml in this repo.
       - name: Build (debug)
         run: >
           west build -p -b ${{ matrix.board }} -d build/${{ matrix.app }}-debug kb/${{ matrix.app }}
-          -- -DBOARD_ROOT=${{ github.workspace }}/kb
+          -- $EXTRA_ARGS
       - name: Build (release)
         run: >
           west build -p -b ${{ matrix.board }} -d build/${{ matrix.app }}-release kb/${{ matrix.app }}
-          -- -DBOARD_ROOT=${{ github.workspace }}/kb -DEXTRA_CONF_FILE=release.conf
+          -- $EXTRA_ARGS -DEXTRA_CONF_FILE=release.conf
+      - name: Check the screen is built in
+        if: matrix.display
+        run: |
+          for b in debug release; do
+            grep -q '^CONFIG_KB_SCREEN=y' build/firmware-$b/firmware/zephyr/.config
+          done
       - uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app }}-${{ github.sha }}
+          name: ${{ env.ARTIFACT }}-${{ github.sha }}
           path: |
             build/${{ matrix.app }}-*/merged.hex
             build/${{ matrix.app }}-*/${{ matrix.app }}/zephyr/zephyr.hex

@@ -1,0 +1,42 @@
+/*
+ * Waveshare 2.13" e-Paper V4 (GoodDisplay GDEY0213B74, SSD1680, 250x122)
+ * on the J4 display header: DIN J4-3, CLK J4-4, CS J4-5, DC J4-6, RST J4-7,
+ * BUSY J4-8. Panel settings from Zephyr's boards/shields/waveshare_epaper.
+ */
+
+/ {
+	chosen {
+		zephyr,display = &screen;
+	};
+
+	screen_dbi: screen_dbi {
+		compatible = "zephyr,mipi-dbi-spi";
+		spi-dev = <&display_spi>;
+		dc-gpios = <&display_header 6 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&display_header 7 GPIO_ACTIVE_LOW>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		screen: ssd16xxfb@0 {
+			compatible = "gooddisplay,gdey0213b74", "solomon,ssd1680";
+			mipi-max-frequency = <4000000>;
+			reg = <0>;
+			width = <250>;
+			height = <122>;
+			busy-gpios = <&display_header 8 GPIO_ACTIVE_HIGH>;
+			tssv = <0x80>;
+
+			full {
+				border-waveform = <0x05>;
+			};
+
+			partial {
+				border-waveform = <0x3c>;
+			};
+		};
+	};
+};
+
+&display_spi {
+	status = "okay";
+};
