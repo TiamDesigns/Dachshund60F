@@ -1,0 +1,39 @@
+# Keyboard firmware options. USB IDs and strings must match
+# boards/Dachshund60F/board.json (checked by the host-lib board tests).
+
+menu "Dachshund60F keyboard"
+
+config KB_USB_VID
+	hex "USB vendor ID"
+	default 0x1209
+	help
+	  pid.codes VID. The default PID below is a pid.codes TEST PID: not
+	  unique, in-house testing only. Never ship it on a board that is
+	  sold or redistributed.
+
+config KB_USB_PID
+	hex "USB product ID"
+	default 0x0001
+
+config KB_USB_MANUFACTURER
+	string "USB manufacturer string"
+	default "Dachshund"
+
+config KB_USB_PRODUCT
+	string "USB product string"
+	default "Dachshund60F"
+
+config KB_USB_MAX_POWER_MA
+	int "USB bMaxPower in mA"
+	default 500
+	range 2 500
+	help
+	  The charger draws up to 500 mA from VBUS.
+
+config KB_BOOTLOADER_HOLD_MS
+	int "Hold time for the reboot-to-UF2 key, in ms"
+	default 3000
+
+endmenu
+
+source "Kconfig.zephyr"

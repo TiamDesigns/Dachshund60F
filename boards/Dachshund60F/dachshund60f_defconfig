@@ -1,0 +1,11 @@
+CONFIG_ARM_MPU=y
+CONFIG_HW_STACK_PROTECTION=y
+CONFIG_GPIO=y
+
+# The app lives at code_partition, after the MBR + SoftDevice area that the
+# Adafruit UF2 bootloader expects. Builds emit zephyr.uf2 for drag-and-drop.
+CONFIG_USE_DT_CODE_PARTITION=y
+CONFIG_BUILD_OUTPUT_UF2=y
+
+# REG0 and REG1 stay in LDO mode: DCCH is not connected on the PCB, so
+# enabling the REG0 DC/DC converter would brown the board out.

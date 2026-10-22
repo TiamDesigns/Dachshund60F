@@ -29,3 +29,5 @@ function(kb_add_test name)
 endfunction()
 
 kb_add_test(test_core)
+kb_add_test(test_hold)
+kb_add_test(test_version)

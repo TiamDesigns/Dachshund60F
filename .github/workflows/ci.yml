@@ -41,7 +41,7 @@ jobs:
       matrix:
         include:
           - app: firmware
-            board: nrf52840dk/nrf52840
+            board: dachshund60f/nrf52840
           - app: dongle
             board: nrf52840dongle/nrf52840
     steps:
@@ -55,16 +55,20 @@ jobs:
           toolchains: arm-zephyr-eabi
       - name: Install NCS Python requirements
         run: pip install -r nrf/scripts/requirements-build.txt
+      # BOARD_ROOT makes Zephyr find boards/Dachshund60F/board.yml in this repo.
       - name: Build (debug)
-        run: west build -p -b ${{ matrix.board }} -d build/${{ matrix.app }}-debug kb/${{ matrix.app }}
+        run: >
+          west build -p -b ${{ matrix.board }} -d build/${{ matrix.app }}-debug kb/${{ matrix.app }}
+          -- -DBOARD_ROOT=${{ github.workspace }}/kb
       - name: Build (release)
         run: >
           west build -p -b ${{ matrix.board }} -d build/${{ matrix.app }}-release kb/${{ matrix.app }}
-          -- -DEXTRA_CONF_FILE=release.conf
+          -- -DBOARD_ROOT=${{ github.workspace }}/kb -DEXTRA_CONF_FILE=release.conf
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.app }}-${{ github.sha }}
           path: |
             build/${{ matrix.app }}-*/merged.hex
             build/${{ matrix.app }}-*/${{ matrix.app }}/zephyr/zephyr.hex
+            build/${{ matrix.app }}-*/${{ matrix.app }}/zephyr/zephyr.uf2
           if-no-files-found: warn

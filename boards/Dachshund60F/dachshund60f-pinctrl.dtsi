@@ -1,0 +1,17 @@
+/* Pin muxing for the Dachshund60F. Pins come from board.json. */
+
+&pinctrl {
+	/* SK6812 data: SPIM MOSI only, clocked at 4 MHz by the ws2812-spi driver. */
+	spi3_default: spi3_default {
+		group1 {
+			psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;
+		};
+	};
+
+	spi3_sleep: spi3_sleep {
+		group1 {
+			psels = <NRF_PSEL(SPIM_MOSI, 0, 6)>;
+			low-power-enable;
+		};
+	};
+};

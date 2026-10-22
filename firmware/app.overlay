@@ -1,0 +1,15 @@
+/*
+ * USB HID interfaces exposed by the keyboard firmware.
+ * Phase 2: one boot-protocol keyboard. NKRO, consumer/system and the vendor
+ * config interface come in phases 4 and 5.
+ */
+
+/ {
+	hid_kbd: hid_kbd {
+		compatible = "zephyr,hid-device";
+		interface-name = "Keyboard";
+		protocol-code = "keyboard";
+		in-report-size = <8>;
+		in-polling-period-us = <1000>;
+	};
+};
