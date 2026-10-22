@@ -35,6 +35,7 @@ interface BoardDef {
   matrix: { rows: number; cols: number; rowPins: string[]; colPins: string[] };
   encoders: { pinA: string; pinB: string }[];
   indicators: { count: number; dataPin: string; powerEnablePin: string };
+  display?: { pins: Record<string, string> };
   power: { chargeStatusPin?: string };
   reserved: Record<string, string>;
 }
@@ -146,6 +147,7 @@ for (const name of boardNames) {
       ...board.encoders.flatMap((e) => [e.pinA, e.pinB]),
       board.indicators.dataPin,
       board.indicators.powerEnablePin,
+      ...Object.values(board.display?.pins ?? {}),
       ...(board.power.chargeStatusPin ? [board.power.chargeStatusPin] : []),
     ];
     const seen = new Set<string>();
