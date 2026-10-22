@@ -32,10 +32,12 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 
 Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrfutil sdk-manager` / `nrfutil toolchain-manager launch`), with the repo as the current directory. They build the apps as freestanding applications. For a self-contained workspace instead, clone the repo into `<ws>/kb`, then `cd <ws> && west init -l kb && west update`. Keep `<ws>` out of OneDrive; NCS is several GB.
 
-- Build firmware: `west build -p -b nrf52840dk/nrf52840 -d build/firmware firmware` (until `boards/<name>/` exists)
+- Build firmware: `west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"` (`BOARD_ROOT` must be an absolute path to the repo root, where Zephyr finds `boards/Dachshund60F/board.yml`)
 - Build dongle: `west build -p -b nrf52840dongle/nrf52840 -d build/dongle dongle`
-- Release build (logging compiled out): add `-- -DEXTRA_CONF_FILE=release.conf`
-- Flash (UF2): not available yet. Phase 2 adds the custom board with the UF2 bootloader's partition layout and `CONFIG_BUILD_OUTPUT_UF2=y`; then copy `zephyr.uf2` onto the bootloader drive. Until then, flash a DK over SWD with `west flash -d build/firmware`.
+- Release build (logging compiled out): add `-DEXTRA_CONF_FILE=release.conf` after the `--`
+- Flash (UF2): double-tap reset, or hold Esc for 3 s, so the board mounts as a UF2 drive. Then copy `build/firmware/firmware/zephyr/zephyr.uf2` onto it, or run `west flash -d build/firmware` (the default runner is `uf2`).
+- First-time bootloader flash: over the SWD header with a debug probe (`-r nrfutil`, `-r jlink` or `-r pyocd`). Needs a Dachshund60F build of the Adafruit nRF52 bootloader, which doesn't exist yet.
+- Debug logs: SEGGER RTT over SWD (the board has no UART). Release builds have none.
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
 - Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`
 - Run the GUI against the mock device: not available yet (phase 8)

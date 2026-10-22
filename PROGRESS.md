@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Phase 1 (Scaffold) is complete. Next is phase 2 (blinky and USB enumeration).
+Phase 2 (blinky and USB enumeration): the firmware half is done and builds in CI on branch `phase2-firmware`. Hardware testing waits for fabricated boards and a Dachshund60F build of the UF2 bootloader.
 
 ## Done
 
@@ -56,6 +56,24 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 - Ground: GND pours on F.Cu and B.Cu (0.3 mm clearance, thermal reliefs), about 690 GND stitching vias, and short via ties for boxed-in decoupling-cap pads.
 - Design rules: the minimum track width is now 0.15 mm, because Freerouting necks tracks down to 0.187 mm at fine-pitch pads.
 
+### Phase 2 firmware: board bring-up (2026-10-22, branch `phase2-firmware`)
+
+- Pin check: all 29 module pins in `board.json` match the routed PCB pad for pad, and USB, SWD and VDDH sit on the right pads. Diodes are COL2ROW in the PCB (cathode on the ROW net).
+- Zephyr board `dachshund60f/nrf52840` (HWMv2) in `boards/Dachshund60F/`:
+  - devicetree written from `board.json`
+  - Adafruit UF2 flash layout: app at 0x26000, storage at 0xEC000, bootloader at 0xF4000
+  - `zephyr.uf2` output, with uf2 as the default `west flash` runner, plus nrfutil, jlink and pyocd for SWD
+  - P0.18 as nRESET, and REG0/REG1 left in LDO mode, since DCCH is unconnected
+  - `board.c` sets UICR REGOUT0 to 3.3 V on first boot in high-voltage mode, then resets
+- Raw pin groups (matrix, encoder, charge status) sit in `zephyr,user` until the phase 3, 9 and 13 drivers replace them. The display header pins (P0.19–P0.24) are not in the devicetree, because the display is out of scope for v1.
+- USB (device_next): boot-protocol HID keyboard on 1209:0001, "Dachshund" / "Dachshund60F". The serial number comes from the chip's factory ID, so it's unique per board; `bcdDevice` comes from `firmware/VERSION`; bMaxPower is 500 mA. VID, PID and strings are Kconfig options in `firmware/Kconfig`. It sends no key reports yet, and the lock-LED output report is stored but not shown.
+- LED bring-up: enables the TPS22917 (P0.08), then lights one SK6812 at a time in chain order (layer, battery 1–4, Caps), cycling red, green and blue every 500 ms at low brightness. This shows both the chain order and the colour order.
+- Reboot to UF2: hold Esc (row 0, col 0) for 3 s. That writes GPREGRET = 0x57 and resets. The phase 3 keymap action replaces this.
+- Logging over SEGGER RTT on the SWD header, since the board has no UART. Release builds have no logging and no RTT.
+- Core: `kb_version_bcd_device` and `kb_hold` (long-press detector, timestamp wrap-safe), with host tests.
+- host-lib `firmware-board.test.ts`: the devicetree matrix, encoder, charger and LED pins, the LED chain length and the Kconfig USB IDs must all match `board.json`. A deliberately wrong DTS pin makes it fail.
+- CI builds `dachshund60f/nrf52840` with `-DBOARD_ROOT` and uploads `zephyr.uf2`. Debug: 67.6 KB flash, 16.9 KB RAM. Release: 51.9 KB flash, 13.4 KB RAM. Both UF2 files start at 0x26000 with family ID 0xADA52840.
+
 ## PCB status and known issues
 
 - SW604, SW606 (rotated 180°) and SW615 are soldered 3-pin footprints, placed with their centre holes on the KLE key centres. Stock MX footprints have their origin at pin 1, not the centre.
@@ -88,10 +106,16 @@ The layer LED no longer sits under Esc. A row of five reverse-mount SK6812MINI-E
 
 ## Tested
 
-- host-lib `npm test`: 16/16 pass locally (Node 24.12, Windows), including the board validation.
-- Core C tests: not run locally because there is no C compiler or CMake on this machine. CI only.
-- Firmware builds: not run locally because NCS is not installed. CI has not run either, since the repo is not under git or pushed yet.
-- Real hardware: nothing yet.
+- host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
+- Core C tests (core, hold, version): pass in CI. Not run locally; there's no C compiler or CMake here.
+- Firmware builds: debug and release for `dachshund60f/nrf52840`, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39844202996. Not built locally; NCS isn't installed here.
+- Real hardware: nothing yet. Phase 2 is still to be checked on a board:
+  - flash the UF2 bootloader over SWD, then `zephyr.uf2`
+  - check that it enumerates as 1209:0001 with a unique serial number (USB Device Tree Viewer or `lsusb -v`)
+  - check that it works as a boot keyboard in the BIOS
+  - check that the LEDs walk in chain order with correct colours
+  - check that holding Esc for 3 s mounts the UF2 drive
+  - check that REGOUT0 reads 3.3 V
 
 ## Open decisions
 
@@ -103,4 +127,5 @@ The layer LED no longer sits under Esc. A row of five reverse-mount SK6812MINI-E
 
 ## Known bugs
 
-None yet.
+- Release builds print Kconfig warnings, because `prj.conf` sets logging options that `release.conf` turns off. PRINTK also stays on in release, since something selects it; nothing prints, because no console or RTT backend exists. This is harmless, but the warnings are noise.
+- No Dachshund60F build of the Adafruit nRF52 bootloader exists yet. It's needed for the first SWD flash. Where its board files live (in this repo or a fork) is still open.
