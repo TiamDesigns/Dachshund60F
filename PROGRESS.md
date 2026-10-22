@@ -51,7 +51,7 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 
 - Encoder: the EC11 is replaced by a Bourns PEC12R-4220F-S0024 (horizontal, 24 detents, push, 20 mm shaft), using the stock `RotaryEncoder_Bourns_Horizontal_PEC12R-2x17F-Sxxxx` footprint. A roller about 12 mm wide and 20 mm across sits on the shaft in the encoder's KLE column (x = 15u) and rolls front to back like a mouse wheel. The body sits just past 16u.
 - Layout: the 18 mm top strip is gone. The module, charger, connectors, power switch, reset, SWD and LED load switch sit on the back in the empty column under the encoder. The module antenna faces the right edge (0.75 mm away), and the slide switch actuator is at the right edge.
-- Outline: 318.5 × 121.1 mm (x 19–337.5, y 39–160.1), about 12.7 mm wider than 16u.
+- Outline: 318.5 × 121.1 mm (x 19–337.5, y 39–160.1), about 12.7 mm wider than 16u. Corner radius is 5 mm (changed from 1 mm on 2026-10-22). About 6 mm is the most the top-right corner allows before the encoder's mounting tab gets too close to the edge.
 - Routing: Freerouting 2.5.0 (JAR on a portable Temurin 25 JRE) autorouted every signal and power net with 0 violations: 0.25 mm signal tracks, and a 0.3 mm power class for VBUS, VBAT, VSYS, LED_VDD, GND and +3V3. KiCad's Specctra export drops the module's antenna rule area, so a matching keep-out was added to the DSN before routing. The SES was imported with KiCad's own `pcbnew.ImportSpecctraSES`, and 118 unused fanout vias were removed.
 - Ground: GND pours on F.Cu and B.Cu (0.3 mm clearance, thermal reliefs), about 690 GND stitching vias, and short via ties for boxed-in decoupling-cap pads.
 - Design rules: the minimum track width is now 0.15 mm, because Freerouting necks tracks down to 0.187 mm at fine-pitch pads.
@@ -74,9 +74,21 @@ The old column of decoupling caps at x = 318 sat across the module's left-edge s
 - Schematic parity: only the Description and Datasheet text fields differ. Run Update PCB from Schematic in KiCad to sync them.
 - Not done: mounting holes (need a case design), checking the J1 pin order against the UDB spec, a plate and case cutout for the roller, and the USB-C daughterboard.
 
+### PCB: layer and battery indicator row (2026-10-22)
+
+The layer LED no longer sits under Esc. A row of five reverse-mount SK6812MINI-E LEDs now sits on the back, shining through cutouts into the free area above the Right arrow (level with the Up key, y = 130.5 mm): the layer LED at x = 310, then a 4-step battery gauge (25/50/75/100%) at x = 316.5, 322, 327.5 and 333. Each LED has a 100 nF cap just above its VDD pad. The Caps Lock LED stays under Caps Lock.
+
+- Schematic: D4–D7 (battery) and C15–C18 were added. The chain is now U1 P0.06 → D3 (layer) → D4 → D5 → D6 → D7 → D2 (Caps), and D2's DOUT is unconnected. ERC is clean, and the chain was checked in the exported netlist.
+- `board.json`: indicator count 6. `keyboard.json`: indicator `id` is the chain index. Free-standing LEDs have an `at` position (centre, key units) instead of `underKey`, and battery LEDs carry a `level` from 1 to 4. The host-lib tests now check that ids follow the chain, that each indicator has exactly one position, and that no free-standing LED sits under a key.
+- Re-routed the whole board with the same Freerouting pipeline. The DSN export now adds router keep-outs that KiCad leaves out: each LED cutout plus 0.15 mm, and a 0.35 mm band inside the board edge that follows the 5 mm corners. GND stitching now stays clear of the rounded corners and of all six LEDs.
+- `Dachshund60F.kicad_dru`: the 0.2 mm LED cutout rule now covers D2–D7. KiCad's `memberOfFootprint` didn't match a `D[2-7]` pattern, so the six references are listed one by one.
+- DRC (kicad-cli): 0 errors and 0 unconnected items. The warnings are the same as before, plus 8 stale footprint copies for the new parts.
+- The LED_D5 data line and LED_VDD both run about 310 mm across the board to the Caps LED; that's fine at 800 kHz.
+- SPEC.md lists only layer and lock-state indicators under Lighting, so the battery gauge needs adding to the spec before the firmware and GUI work on it.
+
 ## Tested
 
-- host-lib `npm test`: 13/13 pass locally (Node 24.12, Windows), including the board validation.
+- host-lib `npm test`: 16/16 pass locally (Node 24.12, Windows), including the board validation.
 - Core C tests: not run locally because there is no C compiler or CMake on this machine. CI only.
 - Firmware builds: not run locally because NCS is not installed. CI has not run either, since the repo is not under git or pushed yet.
 - Real hardware: nothing yet.

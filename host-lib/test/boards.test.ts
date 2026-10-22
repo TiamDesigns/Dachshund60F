@@ -27,7 +27,7 @@ interface KeyboardDef {
   layoutOptions: { id: string; choices: string[]; default: number }[];
   keys: Key[];
   encoders: { id: number; x: number; y: number; push?: MatrixPos }[];
-  indicators: { id: number; underKey?: MatrixPos }[];
+  indicators: { id: number; underKey?: MatrixPos; at?: { x: number; y: number } }[];
 }
 
 interface BoardDef {
@@ -163,4 +163,24 @@ for (const name of boardNames) {
   test(`${name}: indicator count matches keyboard.json`, () => {
     assert.equal(board.indicators.count, kb.indicators.length);
   });
+
+  test(`${name}: indicator ids follow the LED chain and each has one position`, () => {
+    kb.indicators.forEach((ind, i) => {
+      assert.equal(ind.id, i, `indicator ${i} has id ${ind.id}`);
+      assert.ok(!!ind.underKey !== !!ind.at, `indicator ${ind.id} needs exactly one of underKey or at`);
+    });
+  });
+
+  for (const choices of allChoiceCombos(kb)) {
+    test(`${name} [${choices.join(",")}]: free-standing indicators are not under a key`, () => {
+      for (const ind of kb.indicators) {
+        if (!ind.at) continue;
+        for (const k of visibleKeys(kb, choices)) {
+          const inside =
+            ind.at.x > k.x && ind.at.x < k.x + (k.w ?? 1) && ind.at.y > k.y && ind.at.y < k.y + (k.h ?? 1);
+          assert.ok(!inside, `indicator ${ind.id} is under key (${k.row},${k.col})`);
+        }
+      }
+    });
+  }
 }

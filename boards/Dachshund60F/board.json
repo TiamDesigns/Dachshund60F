@@ -23,7 +23,7 @@
   ],
   "indicators": {
     "type": "SK6812MINI-E",
-    "count": 2,
+    "count": 6,
     "dataPin": "P0.06",
     "powerEnablePin": "P0.08",
     "powerEnableActive": "high"

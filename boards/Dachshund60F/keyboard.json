@@ -110,23 +110,11 @@
     }
   ],
   "indicators": [
-    {
-      "id": 0,
-      "role": "lock",
-      "label": "Caps Lock",
-      "underKey": {
-        "row": 3,
-        "col": 0
-      }
-    },
-    {
-      "id": 1,
-      "role": "layer",
-      "label": "Layer",
-      "underKey": {
-        "row": 0,
-        "col": 0
-      }
-    }
+    {"id": 0, "role": "layer", "label": "Layer", "at": {"x": 15.22, "y": 4.75}},
+    {"id": 1, "role": "battery", "label": "Battery 25%", "level": 1, "at": {"x": 15.56, "y": 4.75}},
+    {"id": 2, "role": "battery", "label": "Battery 50%", "level": 2, "at": {"x": 15.85, "y": 4.75}},
+    {"id": 3, "role": "battery", "label": "Battery 75%", "level": 3, "at": {"x": 16.14, "y": 4.75}},
+    {"id": 4, "role": "battery", "label": "Battery 100%", "level": 4, "at": {"x": 16.43, "y": 4.75}},
+    {"id": 5, "role": "lock", "label": "Caps Lock", "underKey": {"row": 3, "col": 0}}
   ]
 }

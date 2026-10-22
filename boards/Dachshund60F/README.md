@@ -5,7 +5,9 @@ rotary encoder right of Delete and runs on a Raytac MDBT50Q-1MV2 (nRF52840).
 The layout comes from `KLE Info/` at the repo root.
 
 - `keyboard.json`: physical layout, matrix mapping, layout options, encoder
-  and indicator positions. The GUI reads this.
+  and indicator positions. The GUI reads this. Indicator `id` is the LED's
+  index in the data chain. An indicator under a key has `underKey`; a
+  free-standing one has `at`, its centre in key units.
 - `board.json`: pin map, USB IDs and power wiring. This is the source of truth
   for pins; firmware devicetree (phase 2) is written from it.
 
@@ -62,7 +64,7 @@ switch footprints and wire them to the same diode.
 |---|---|---|
 | Encoder A | P0.11 | To GND through the encoder; internal pull-up. |
 | Encoder B | P0.12 | Same as A. The push switch is in the matrix at (0, 14). |
-| LED data | P0.06 | SK6812MINI-E chain: LED 0 under Caps Lock, LED 1 under Esc (layer). Driven by SPI MOSI. |
+| LED data | P0.06 | SK6812MINI-E chain of 6, in this order: LED 0 layer, LEDs 1–4 battery gauge (25/50/75/100%), LED 5 under Caps Lock. LEDs 0–4 sit in a row above the Right arrow. Driven by SPI MOSI. |
 | LED power enable | P0.08 | Active-high EN of the TPS22917 load switch feeding the LEDs, with a 100 kΩ pull-down so the LEDs stay off through reset and sleep. |
 | Charger status | P0.15 | MCP73831 STAT through a BAT54WS Schottky (cathode at STAT), so it behaves as open-drain: low while charging. Needs the internal pull-up. |
 | Reset | P0.18 | nRESET: reset button to GND and SWD header. Double-tap enters the UF2 bootloader. |
