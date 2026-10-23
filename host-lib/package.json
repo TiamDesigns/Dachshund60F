@@ -2,6 +2,7 @@
   "name": "@dachshund60f/host-lib",
   "version": "0.1.0",
   "description": "Host library for the keyboard config protocol: hidapi and WebHID transports, typed API, mock device.",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "main": "dist/src/index.js",

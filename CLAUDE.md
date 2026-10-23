@@ -56,9 +56,14 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Never log typed keystrokes in release builds.
 - Pin assignments come only from `boards/<name>/`. If a pin is missing, ask; never guess.
 
+## Licence
+
+- Code is MIT (`LICENSE`); hardware under `hardware/` is CERN-OHL-P-2.0 (`hardware/LICENSE`). Third-party files keep their own licences.
+
 ## Working style
 
 - Do only the phase I name, then stop and summarise what changed and how to test it.
 - Write tests alongside features, not after.
 - Ask before adding a dependency, changing the repo layout, or changing the protocol frame format.
 - At the end of every session, update `PROGRESS.md`: current phase, what is done, what has been tested on real hardware, known bugs.
+- `SCHEDULED_TASKS.md` lists open tasks to pick up in later prompts. Delete a task from it in the same change that finishes it; add new open tasks as they come up.
