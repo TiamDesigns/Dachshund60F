@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Phase 2 (blinky and USB enumeration): the firmware half is done, merged to main, and builds in CI. Hardware testing waits for fabricated boards and a Dachshund60F build of the UF2 bootloader.
+Phase 2 (blinky and USB enumeration): the firmware half is done, merged to main, and builds in CI. Hardware testing waits for fabricated boards. The Dachshund60F UF2 bootloader now builds in CI, ready for the first SWD flash.
 
 ## Done
 
@@ -125,6 +125,16 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 - CI runs once per pull request. Before, every push to a PR branch started two identical runs (push and pull_request). Pushes now trigger CI only on `main`; a branch gets CI through its PR or with "Run workflow" in the Actions tab. A newer push to a PR cancels its run that is still going.
 - The USB-C daughterboard (`hardware/Dachshund60F-USB/`), designed on 2026-10-22 on a local branch, was rebased onto main and got its own PR.
 - Deleted the fully merged branches `doghouse-app`, `phase2-firmware`, `status-screen`, `dongle-pcb` and `ci-one-run-per-pr`, locally and on GitHub.
+
+### UF2 bootloader board definition (2026-10-23)
+
+- `boards/Dachshund60F/bootloader/`: board files for the Adafruit nRF52 bootloader (`board.h`, `pinconfig.c`, `board.mk`, `board.cmake`) and `build.sh`, which clones the bootloader at a pinned master commit (c67f0bcf, 2026-05-21), adds the board and builds it. The 0.9.2 release uses an older board API (`BUTTONS_NUMBER`), so it can't build these files.
+- Output: `dachshund60f_bootloader_s140_6.1.1.hex` (MBR, S140 6.1.1, bootloader and UICR) for the first SWD flash, and `bootloader_mbr.uf2` for later updates from the UF2 drive. The steps are in the folder's README.
+- Entering UF2 mode: double-tap reset, or hold Esc at power-up or reset. `board_init2()` drives col 0 (P0.02) high, and the bootloader reads row 0 (P1.10) with a pull-down. Holding Esc for 3 s in the firmware still works (GPREGRET 0x57).
+- Status shows on all six SK6812s (P0.06), with P0.08 turning on LED power. REGOUT0 is set to 3.3 V on first boot. USB is 1209:0003, a pid.codes test PID, with a "DACHSHUND" drive. `board.json` now lists it under `usb.bootloader`.
+- Flash layout fix: on the nRF52840 the bootloader reserves 40 KB below itself (0xEA000–0xF3FFF), and it ignores UF2 app writes there. `code_partition` shrinks from 0xC6000 to 0xC4000, so it ends at 0xEA000. `storage` (0xEC000) was already in the reserved area, which DFU never erases.
+- host-lib `bootloader-board.test.ts`: the LED pin, count and power pin, the Esc row and column, the USB IDs and names must all match `board.json`, and the devicetree partitions must fit the bootloader's layout. Moving the code partition back to 0xC6000 makes the test fail.
+- CI job "UF2 bootloader (Dachshund60F)" builds the bootloader with Ubuntu's `gcc-arm-none-eabi` and pip's `intelhex`, and uploads the hex and UF2 as `bootloader-<sha>`.
 
 ## PCB status and known issues
 
@@ -256,12 +266,14 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
 - Core C tests (core, hold, screen, version): pass in CI. Not run locally; there's no C compiler or CMake here.
 - Firmware builds: debug and release for `dachshund60f/nrf52840` with no screen and with each of the four panels, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39862064737. Not built locally; NCS isn't installed here.
+- UF2 bootloader: builds cleanly (`-Werror`) on Linux with arm-none-eabi-gcc 13.2.1. The merged hex puts the SoftDevice at 0x1000–0x25DE8, the bootloader at 0xF4000–0xFC3AC, and the UICR words at 0x10001014/18. Not yet run on a chip.
 - Real hardware: nothing yet. Phase 2 is still to be checked on a board:
-  - flash the UF2 bootloader over SWD, then `zephyr.uf2`
+  - flash `dachshund60f_bootloader_s140_6.1.1.hex` over SWD with a chip erase; check the DACHSHUND drive appears and `INFO_UF2.TXT` says `nRF52840-Dachshund60F-v1`; then copy `zephyr.uf2`
   - check that it enumerates as 1209:0001 with a unique serial number (USB Device Tree Viewer or `lsusb -v`)
   - check that it works as a boot keyboard in the BIOS
   - check that the LEDs walk in chain order with correct colours
-  - check that holding Esc for 3 s mounts the UF2 drive
+  - check that holding Esc for 3 s mounts the UF2 drive, and that holding Esc while plugging in does too
+  - check the SK6812s show the bootloader colours (its WS2812 timing is slightly long for the SK6812 spec: a 0.81 µs high bit against 0.75 µs at most)
   - check that REGOUT0 reads 3.3 V
   - for the chosen panel: check that the screen shows layer, battery and text, that Caps/Num/Scroll follow the host, that "USB" appears once enumerated, and that the orientation is right in the case
 - USB-C daughterboard: not built. On first boards, check:
@@ -284,7 +296,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
-- Dongle bootloader: reuse Adafruit's `pca10059` build (same DFU button and LED pins) or make a dongle-specific one. Try the existing build on the first board.
+- Dongle bootloader: reuse Adafruit's `pca10059` build or make a dongle-specific one. The DFU button matches (P1.06), but that build's LEDs are P0.06 and P0.12, so only the blue LED would light on this dongle. A dongle board can reuse the files in `boards/Dachshund60F/bootloader/` as a template. Try the existing build on the first board.
 - Licence
 
 ## Known bugs
@@ -295,4 +307,3 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - Doghouse keycode ids (`host-lib/src/keycodes.ts`) are QMK-style names. Phase 3 (firmware keycode model) and phase 5 (protocol) must adopt them or map them, so the GUI, mock and firmware agree.
 - Doghouse doesn't yet show key labels in the user's OS keyboard layout (AZERTY and so on), edit the status screen layout, or update firmware. The SPEC lists these for later phases.
 - An OLED left on all the time can burn in. It gets an idle timeout with power management in phase 13.
-- No Dachshund60F build of the Adafruit nRF52 bootloader exists yet. It's needed for the first SWD flash. Where its board files live (in this repo or a fork) is still open.

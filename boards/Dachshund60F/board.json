@@ -6,7 +6,8 @@
   "usb": {
     "warning": "pid.codes TEST PIDs: not unique, in-house testing only. Must not ship on boards that are sold or redistributed. Replace with a registered pid.codes PID first.",
     "keyboard": { "vid": "0x1209", "pid": "0x0001", "manufacturer": "Dachshund", "product": "Dachshund60F" },
-    "dongle": { "vid": "0x1209", "pid": "0x0002", "manufacturer": "Dachshund", "product": "Dachshund60F Receiver" }
+    "dongle": { "vid": "0x1209", "pid": "0x0002", "manufacturer": "Dachshund", "product": "Dachshund60F Receiver" },
+    "bootloader": { "vid": "0x1209", "pid": "0x0003", "manufacturer": "Dachshund", "product": "Dachshund60F" }
   },
   "matrix": {
     "rows": 6,
