@@ -17,7 +17,9 @@ Each board folder will hold:
 Boards:
 
 - `Dachshund60F/`: MDBT50Q-1MV2, 79 keys + encoder. Its pin map is proposed and
-  not yet backed by a PCB.
+  not yet backed by a PCB. The `dongle` section of its `board.json` holds the
+  pins of its 2.4 GHz receiver (`hardware/Dachshund60F-Dongle/`), a second
+  nRF52840; the host-lib tests check those pins too.
 
 Required files per board: `keyboard.json` (layout) and `board.json` (pins,
 USB IDs, power). The host-lib tests validate both for every board folder.

@@ -46,5 +46,25 @@
     "P0.09": "NFC1, left unused",
     "P0.10": "NFC2, left unused",
     "P0.18": "nRESET (reset button and SWD header)"
+  },
+  "dongle": {
+    "status": "proposed: pins chosen for the hardware/Dachshund60F-Dongle PCB; update this section if the schematic changes them",
+    "mcu": "nRF52840 (Raytac MDBT50Q-1MV2)",
+    "pcb": "hardware/Dachshund60F-Dongle",
+    "compatibility": "Button and LED pins match Nordic's nRF52840 Dongle (PCA10059), so the dongle firmware can be developed on one",
+    "pairButton": { "pin": "P1.06", "active": "low", "pull": "internal pull-up" },
+    "statusLed": {
+      "type": "RGB, common anode on +3V3 (Broadcom ASMB-MTB0-0A3A2)",
+      "active": "low",
+      "pins": { "red": "P0.08", "green": "P1.09", "blue": "P0.12" }
+    },
+    "power": {
+      "supply": "USB VBUS feeds both VBUS and VDDH (high-voltage mode); DCCH is unconnected, so REG0 runs as an LDO",
+      "regout0": "3.3V",
+      "lfclk": "no 32.768 kHz crystal: use the internal RC oscillator (LFRC) with calibration"
+    },
+    "reserved": {
+      "P0.18": "nRESET (reset button and SWD header)"
+    }
   }
 }

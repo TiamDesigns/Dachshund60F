@@ -162,6 +162,35 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 - Keep the display, especially an OLED with a metal back, away from the module antenna at the right edge (x > 333, y 67–79 mm).
 - Firmware support for the header followed on the same day (see Status screen above); SPEC.md now has the display in scope.
 
+### PCB: 2.4 GHz dongle (2026-10-23)
+
+The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCad 10, 2 layers, 1.6 mm), a 40 × 24 mm desk puck that connects to the computer with a USB-C cable. `hardware/Dachshund60F-Dongle/README.md` has the full design notes, the polling-rate limit and the latency budget.
+
+- Form factor: a puck with a cable rather than a plug-in stick, chosen so the receiver can sit next to the keyboard, away from USB 3 noise and the PC case.
+- Parts:
+  - Raytac MDBT50Q-1MV2, the same module as the keyboard. Its antenna is flush with the right edge, with a full-width copper keep-out on both layers.
+  - HRO USB-C, USBLC6-2SC6 and a 750 mA PTC, the same parts as the USB-C daughterboard (branch `usb-daughterboard`).
+  - PAIR and RESET buttons, an RGB status LED, and an SWD header in the keyboard's pin order.
+- Power: VBUS feeds both VBUS and VDDH (high-voltage mode). REGOUT0 must be set to 3.3 V by firmware, and DCCH is unconnected (LDO). There's no 32.768 kHz crystal, so firmware uses LFRC.
+- Pins: `board.json` has a new `dongle` section, where the generator reads them from:
+  - PAIR on P1.06
+  - LED red P0.08, green P1.09, blue P0.12 (active low)
+  - nRESET on P0.18
+  These match Nordic's PCA10059, so dongle firmware can be developed on one. Adafruit's `pca10059` UF2 bootloader uses the same DFU button (P1.06), so it should work here as-is. This is untested.
+- host-lib: a new test checks the dongle pins (valid, unique, not reserved). It fails if PAIR is moved to the reserved P0.18. There are now 46 tests.
+- Routing:
+  - D+/D− are hand-routed as a matched pair (about 23.5 mm each) over the B.Cu ground plane.
+  - The USB-C fan-out has no vias on the data lines.
+  - Supply tracks into the module are hand-routed and locked.
+  - Freerouting did the rest, then GND pours and stitching vias were added.
+- Checks (kicad-cli):
+  - ERC 0.
+  - DRC: 0 errors, 0 unconnected items, 0 parity issues. The two warnings are the stock receptacle footprint's silkscreen at the board edge, which the fab clips.
+  - A script checked every module pad and each GPIO's net through to its button, LED, SWD and USB pins against `board.json`: 0 mismatches.
+- Polling rate: **1000 Hz maximum.** The nRF52840 has full-speed USB only, which polls at most once per 1 ms frame. 4–8 kHz would need High-Speed USB, which means another receiver chip (for example the nRF54LM20A). That's out of v1 scope.
+- Estimated latency over the dongle, to be measured in phase 14: about 1 ms typical and about 2.5 ms worst case without retransmits, compared with 7.5–15 ms for BLE. The README lists the firmware settings this depends on: GPIO-sense wake, eager press debounce, ESB at 2 Mbit/s with fast ramp-up, HFXO kept on, BLE off in dongle mode, ACK payloads for host→keyboard data, and bInterval 1 on the dongle.
+- Not done: the case (light pipe, button caps, USB-C cutout; the M2 holes are placeholders), 3D models for the receptacle and LED, and a Zephyr board target for the dongle (phase 14).
+
 ## Tested
 
 - host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
@@ -175,6 +204,12 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
   - check that holding Esc for 3 s mounts the UF2 drive
   - check that REGOUT0 reads 3.3 V
   - for the chosen panel: check that the screen shows layer, battery and text, that Caps/Num/Scroll follow the host, that "USB" appears once enumerated, and that the orientation is right in the case
+- 2.4 GHz dongle board: not built. On first boards, check:
+  - VBUS reaches 5 V; VDD reads 1.8 V on a blank module and 3.3 V once firmware sets REGOUT0
+  - SWD flashing works, and whether Adafruit's `pca10059` UF2 bootloader runs (hold PAIR while plugging in)
+  - it enumerates as 1209:0002 in both plug orientations and from a USB-C to USB-C cable
+  - the LED shows red, green and blue; PAIR and RESET work
+  - in phase 14: range, and latency with a logic analyser, with the puck next to the keyboard and then plugged straight into a USB 3 port
 
 ## Open decisions
 
@@ -183,6 +218,8 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 - Case and mounting (sets the outline, mounting holes and daughterboard position)
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
+- Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
+- Dongle bootloader: reuse Adafruit's `pca10059` build (same DFU button and LED pins) or make a dongle-specific one. Try the existing build on the first board.
 - Licence
 
 ## Known bugs
