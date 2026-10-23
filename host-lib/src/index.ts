@@ -17,6 +17,8 @@ export * from "./keyboard-definition.js";
 export * from "./keycodes.js";
 export { defaultKeymap } from "./default-keymaps.js";
 export * from "./mock.js";
+export * from "./advanced.js";
+export { encodeMacros, decodeMacros } from "./advanced-codec.js";
 export { encodeKeycode, decodeKeycode, KeycodeError } from "./keycode-codec.js";
 export * from "./transport.js";
 export { ProtocolClient, statusError, type ClientOptions } from "./client.js";

@@ -8,12 +8,24 @@
  * is on.
  */
 
+import {
+  checkAdvancedEntry,
+  checkAdvancedOptions,
+  checkMacros,
+  defaultAdvancedKeys,
+  ADVANCED_SLOTS,
+  type AdvancedContext,
+} from "./advanced.js";
+import { decodeMacros, encodeMacros } from "./advanced-codec.js";
 import { defaultKeymap } from "./default-keymaps.js";
 import { isMatrixPositionUsed, type KeyboardDefinition } from "./keyboard-definition.js";
 import { isValidKeycode } from "./keycodes.js";
 import {
   BoardError,
   SETTINGS_LIMITS,
+  type AdvancedKeys,
+  type AdvancedOptions,
+  type AdvancedTable,
   type BatteryStatus,
   type Board,
   type BoardEvent,
@@ -25,6 +37,7 @@ import {
   type KeyPosition,
   type Keymap,
   type KeycodeId,
+  type MacroStep,
 } from "./types.js";
 
 export const MOCK_FIRMWARE_VERSION = "0.1.0-dev";
@@ -43,6 +56,8 @@ export const DEFAULT_SETTINGS: Readonly<BoardSettings> = {
 interface StoredState {
   keymap: Keymap;
   settings: BoardSettings;
+  advanced: AdvancedKeys;
+  macros: MacroStep[][];
 }
 
 export interface MockBoardOptions {
@@ -85,7 +100,12 @@ export class MockBoard implements Board {
       protocolVersion: MOCK_PROTOCOL_VERSION,
       layerCount: LAYER_COUNT,
     };
-    this.saved = { keymap, settings: { ...DEFAULT_SETTINGS, name: options.name ?? "" } };
+    this.saved = {
+      keymap,
+      settings: { ...DEFAULT_SETTINGS, name: options.name ?? "" },
+      advanced: defaultAdvancedKeys(),
+      macros: [],
+    };
     this.live = structuredClone(this.saved);
     this.battery = options.battery ?? { percent: 100, charging: false };
     this.latencyMs = options.latencyMs ?? 0;
@@ -207,7 +227,7 @@ export class MockBoard implements Board {
   factoryReset(): Promise<void> {
     return this.call(() => {
       const keymap = defaultKeymap(this.definition.name)!;
-      this.saved = { keymap, settings: { ...DEFAULT_SETTINGS } };
+      this.saved = { keymap, settings: { ...DEFAULT_SETTINGS }, advanced: defaultAdvancedKeys(), macros: [] };
       this.live = structuredClone(this.saved);
       this.emit({ type: "reverted" });
     });
@@ -215,6 +235,56 @@ export class MockBoard implements Board {
 
   identify(): Promise<void> {
     return this.call(() => undefined);
+  }
+
+  private get advancedContext(): AdvancedContext {
+    return {
+      layerCount: this.info.layerCount,
+      rows: this.definition.matrix.rows,
+      cols: this.definition.matrix.cols,
+    };
+  }
+
+  getAdvancedKeys(): Promise<AdvancedKeys> {
+    return this.call(() => structuredClone(this.live.advanced));
+  }
+
+  setAdvancedEntry<T extends AdvancedTable>(table: T, index: number, value: AdvancedKeys[T][number]): Promise<void> {
+    return this.call(() => {
+      if (!(table in ADVANCED_SLOTS)) {
+        throw new BoardError("out-of-range", `unknown table ${String(table)}`);
+      }
+      if (!Number.isInteger(index) || index < 0 || index >= ADVANCED_SLOTS[table]) {
+        throw new BoardError("out-of-range", `${table} slot ${index} out of range`);
+      }
+      checkAdvancedEntry(table, value, this.advancedContext);
+      (this.live.advanced[table] as AdvancedKeys[T][number][])[index] = structuredClone(value);
+      this.emit({ type: "changed" });
+    });
+  }
+
+  setAdvancedOptions(patch: Partial<AdvancedOptions>): Promise<AdvancedOptions> {
+    return this.call(() => {
+      const current = this.live.advanced.options;
+      const next: AdvancedOptions = { ...current, ...patch, mouse: { ...current.mouse, ...patch.mouse } };
+      checkAdvancedOptions(next);
+      this.live.advanced.options = next;
+      this.emit({ type: "changed" });
+      return structuredClone(next);
+    });
+  }
+
+  getMacros(): Promise<MacroStep[][]> {
+    return this.call(() => structuredClone(this.live.macros));
+  }
+
+  setMacros(macros: MacroStep[][]): Promise<void> {
+    return this.call(() => {
+      checkMacros(macros, this.advancedContext);
+      // Stored as the board reads them back (text runs joined, no trailing empty macros).
+      this.live.macros = decodeMacros(encodeMacros(macros));
+      this.emit({ type: "changed" });
+    });
   }
 
   subscribe(listener: (event: BoardEvent) => void): () => void {

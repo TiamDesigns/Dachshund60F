@@ -12,6 +12,9 @@ import {
   MockBoardManager,
   webHid,
   WebHidBoardManager,
+  type AdvancedKeys,
+  type AdvancedOptions,
+  type AdvancedTable,
   type BatteryStatus,
   type Board,
   type BoardManager,
@@ -22,6 +25,7 @@ import {
   type KeyPosition,
   type Keymap,
   type KeycodeId,
+  type MacroStep,
   protocol,
 } from "@dachshund60f/host-lib";
 import dachshund60f from "@boards/Dachshund60F/keyboard.json";
@@ -48,7 +52,15 @@ function errorText(err: unknown): string {
 }
 
 /** Protocol capability names a board's features need (see protocol.yaml). */
-export type Feature = "keymap" | "persistence" | "settings" | "encoders" | "identify" | "battery";
+export type Feature =
+  | "keymap"
+  | "persistence"
+  | "settings"
+  | "encoders"
+  | "identify"
+  | "battery"
+  | "advancedKeys"
+  | "macros";
 
 export class BoardSession {
   readonly board: Board;
@@ -58,6 +70,9 @@ export class BoardSession {
   battery = $state<BatteryStatus | null>(null);
   settings = $state<BoardSettings | null>(null);
   keymap = $state<Keymap | null>(null);
+  /** Null when the board has no advanced keys (or macros). */
+  advanced = $state<AdvancedKeys | null>(null);
+  macros = $state<MacroStep[][] | null>(null);
   unsaved = $state(false);
   busy = $state(false);
   canUndo = $state(false);
@@ -115,6 +130,9 @@ export class BoardSession {
       this.keymap = await this.board.getKeymap();
       this.unsaved = await this.board.hasUnsavedChanges();
       this.settings = this.supports("settings") ? await this.board.getSettings() : null;
+      this.advanced =
+        this.supports("advancedKeys") && this.board.getAdvancedKeys ? await this.board.getAdvancedKeys() : null;
+      this.macros = this.supports("macros") && this.board.getMacros ? await this.board.getMacros() : null;
       this.battery = await this.board.getBattery();
       this.problem = null;
     } catch (err) {
@@ -210,6 +228,42 @@ export class BoardSession {
   async updateSettings(patch: Partial<BoardSettings>): Promise<void> {
     const next = await this.run(() => this.board.setSettings(patch));
     if (next) this.settings = next;
+  }
+
+  /** Replace one slot of an advanced-key table. Resolves true if the board took it. */
+  async setAdvancedEntry<T extends AdvancedTable>(
+    table: T,
+    index: number,
+    value: AdvancedKeys[T][number],
+  ): Promise<boolean> {
+    const set = this.board.setAdvancedEntry;
+    if (!this.advanced || !set) return false;
+    const ok = await this.run(async () => {
+      await set.call(this.board, table, index, value);
+      (this.advanced![table] as AdvancedKeys[T][number][])[index] = $state.snapshot(value) as AdvancedKeys[T][number];
+      return true;
+    });
+    return ok ?? false;
+  }
+
+  async updateAdvancedOptions(patch: Partial<AdvancedOptions>): Promise<void> {
+    const set = this.board.setAdvancedOptions;
+    if (!this.advanced || !set) return;
+    const next = await this.run(() => set.call(this.board, patch));
+    if (next) this.advanced.options = next;
+  }
+
+  /** Replace every macro. Resolves true if the board took them. */
+  async setMacros(macros: MacroStep[][]): Promise<boolean> {
+    const set = this.board.setMacros;
+    if (!this.macros || !set) return false;
+    const ok = await this.run(async () => {
+      await set.call(this.board, macros);
+      // Read back: the board joins text runs and drops trailing empty macros.
+      this.macros = await this.board.getMacros!();
+      return true;
+    });
+    return ok ?? false;
   }
 
   async save(): Promise<void> {
