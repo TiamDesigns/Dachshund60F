@@ -28,9 +28,21 @@ THICKNESS = 1.6
 SWITCH_CUTOUT = 14.0
 CUTOUT_RADIUS = 0.5
 
+# Stabilizer cutouts, for PCB-mount (screw-in) stabilizers of any brand.
+# Cherry's plate-mount cutout is 6.65-6.75 x 12.3 mm, from 5.53 mm above the
+# key centre to 6.77 mm below, plus a 3 x 1.2 mm notch at the bottom. Housings
+# fill that almost exactly, and clones vary, so each side gets clearance:
+# 0.125-0.175 mm on each long side, ~1 mm at the top (the wire end) and
+# 0.23 mm below the notch, which the full width now covers. Plate-mount
+# stabilizers no longer clip in. Each cutout is centred on the x of the
+# footprint's Eco1.User rectangle (11.938 mm out for a 2u stabilizer).
+STAB_CUTOUT_WIDTH = 7.0
+STAB_CUTOUT_TOP = 6.5     # above the key centre
+STAB_CUTOUT_BOTTOM = 8.2  # below the key centre
+
 # Exposed-copper accent ring around every switch and stabilizer cutout (top
 # side only), following the cutout 0.45 mm out so the router never touches
-# copper. A stabilizer cutout is only 1.56 mm from its switch cutout, too close
+# copper. A stabilizer cutout is only 1.44 mm from its switch cutout, too close
 # for two separate rings, so the copper fills that web and one ring outlines
 # the switch and both stabilizers together.
 ACCENT_GAP = 0.45
@@ -145,7 +157,9 @@ def read_mainboard():
                 raise SystemExit(f"{ref}: rotated stabilizers aren't handled")
             # The perigoso stabilizer footprints carry their Cherry plate
             # cutouts on Eco1.User: one rectangle each side of the key centre.
+            # Only their x centres are used; the size comes from STAB_CUTOUT_*.
             cx = pcbnew.ToMM(fp.GetPosition().x)
+            cy = pcbnew.ToMM(fp.GetPosition().y)
             sides = {}
             for g in fp.GraphicalItems():
                 if g.GetLayer() != pcbnew.Eco1_User:
@@ -157,7 +171,10 @@ def read_mainboard():
                     b[2], b[3] = max(b[2], x), max(b[3], y)
             if len(sides) != 2:
                 raise SystemExit(f"{ref}: no Eco1.User plate cutouts found")
-            stabs.extend((ref, *b) for b in sides.values())
+            w = STAB_CUTOUT_WIDTH / 2
+            for b in sides.values():
+                sx = (b[0] + b[2]) / 2
+                stabs.append((ref, sx - w, cy - STAB_CUTOUT_TOP, sx + w, cy + STAB_CUTOUT_BOTTOM))
 
     def courtyard(ref):
         fp = board.FindFootprintByReference(ref)
