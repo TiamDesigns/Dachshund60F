@@ -1,8 +1,16 @@
 name: CI
 
 on:
+  # Branches get CI through their pull request; pushing to main runs it once more.
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+# A new push to a pull request cancels its run that is still going.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   core-tests:
