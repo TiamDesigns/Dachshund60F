@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 
 import {
   BoardError,
+  CombinedBoardManager,
   DEFAULT_SETTINGS,
   defaultKeymap,
   isMatrixPositionUsed,
@@ -182,4 +183,17 @@ test("calls on an unplugged board fail with disconnected", async () => {
   assert.deepEqual(events, ["disconnected"]);
   await rejectsWith(board.getKeymap(), "disconnected");
   await rejectsWith(board.setKey({ layer: 0, row: 0, col: 0 }, "KC_A"), "disconnected");
+});
+
+test("a combined manager lists every manager's boards and passes on changes", () => {
+  const a = manager();
+  const b = manager();
+  const combined = new CombinedBoardManager([a, b]);
+  const seen: number[] = [];
+  combined.subscribe((boards) => seen.push(boards.length));
+  a.plug("Dachshund60F", "usb");
+  b.plug("Dachshund60F", "dongle");
+  assert.equal(combined.list().length, 2);
+  a.unplug(combined.list()[0]!.info.id);
+  assert.deepEqual(seen, [1, 2, 1]);
 });

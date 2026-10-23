@@ -22,5 +22,6 @@ export * from "./transport.js";
 export { ProtocolClient, statusError, type ClientOptions } from "./client.js";
 export { HidBoard, capabilityNames, type HidBoardOptions } from "./hid-board.js";
 export * from "./hid-manager.js";
+export { CombinedBoardManager } from "./combined-manager.js";
 export * from "./webhid.js";
 export * as protocol from "./protocol.js";

@@ -2,9 +2,18 @@
 
 ## Current phase
 
-Phase 7 (host library): done, in review as a PR. Phases 3 to 6 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 7 waits for fabricated boards.
+Phase 8 (Doghouse on host-lib): done, in review as a PR. Phases 3 to 7 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 8 waits for fabricated boards.
 
 ## Done
+
+### Phase 8: Doghouse MVP on host-lib (2026-10-23)
+
+- Doghouse now finds real boards through `WebHidBoardManager`: **Connect a board…** in the sidebar opens the browser's picker the first time, and after that boards open on their own when plugged in and leave when unplugged.
+- Demo mode keeps the simulated boards: it's on with `?demo` in the URL, or in a browser without WebHID (which also says to use Chrome or Edge). The empty kennel links to it. host-lib's new `CombinedBoardManager` puts real and demo boards in one list.
+- The app follows the firmware's capabilities: no settings section without the `settings` capability (the current firmware; phase 10 adds it), a note on the roller until encoders arrive (phase 9), and Identify, Save, Revert and factory reset only when supported. Loading no longer needs settings or a battery reading.
+- A board on another protocol version shows in the pack with a message saying whether to update Doghouse or the firmware, and nothing is written to it. A board model Doghouse has no definition for gets a toast and stays out of the pack.
+- About: the firmware's features, and **Restart into bootloader…** (protocol `reboot` into UF2) for firmware updates.
+- host-lib: `Board.reboot` (optional), `CombinedBoardManager`, and boards without a serial number (WebHID) get a unique id from their manager.
 
 ### Phase 7: host library (2026-10-23)
 
@@ -361,7 +370,9 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Phase 5: core tests (12, including `test_protocol` and `test_protocol_fuzz`) pass locally with GCC under ASan and UBSan; the libFuzzer target runs only in CI (the local clang has no compiler-rt). The firmware builds locally with no new warnings. host-lib (62 tests) passes.
 - Phase 6: core tests (14, including `test_store` and `test_settings`) pass locally with GCC under ASan and UBSan. The firmware builds locally with no new warnings.
 - Phase 7: host-lib 90 tests pass locally (Node 24), including the round trip against `kb_host_device`. Doghouse still checks, tests and builds.
-- Real hardware: nothing yet. Phase 7 is to be checked on a board: WebHID in Chrome or Edge finds the board after picking it once and follows unplugging; node-hid finds it on Windows (by usage page) and on Linux (by interface number, with a udev rule for hidraw access); the handshake, keymap read and a key change work over both.
+- Phase 8: Doghouse checks, tests (14) and builds. Checked by hand in headless Chromium against the host-built firmware through a stand-in `navigator.hid`: the board appears with its keymap, a key change shows as unsaved, Save works and survives a page reload, Identify works, and the settings and About tabs show what the firmware supports. A stand-in board on protocol v2 shows the update message. Demo mode and the no-WebHID message checked the same way. host-lib 91 tests pass.
+- Real hardware: nothing yet. Phase 8 is to be checked on a board: Connect a board… in Chrome and Edge on Windows, the board coming back after unplugging and replugging, a key change typed for real after saving and power-cycling, and Restart into bootloader mounting the UF2 drive.
+- Phase 7 is to be checked on a board: WebHID in Chrome or Edge finds the board after picking it once and follows unplugging; node-hid finds it on Windows (by usage page) and on Linux (by interface number, with a udev rule for hidraw access); the handshake, keymap read and a key change work over both.
 - Phase 6 is to be checked on a board: a saved keymap survives unplugging, revert and factory reset work, and a save cut short by unplugging leaves the previous settings.
 - Phase 5 is to be checked on a board: `lsusb -v` shows the vendor interface, and the handshake, `get_serial` and `identify` work once host-lib can talk to it (phase 7).
 - Phase 4 is to be checked on a board:

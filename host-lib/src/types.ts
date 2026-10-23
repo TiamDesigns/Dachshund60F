@@ -129,6 +129,12 @@ export interface Board {
   /** Flash the board's indicators so the user can tell which one it is. */
   identify(): Promise<void>;
 
+  /**
+   * Restart the board; with bootloader set, into its UF2 bootloader for a
+   * firmware update. It drops off the bus. Absent on boards that can't.
+   */
+  reboot?(bootloader: boolean): Promise<void>;
+
   subscribe(listener: (event: BoardEvent) => void): () => void;
 }
 

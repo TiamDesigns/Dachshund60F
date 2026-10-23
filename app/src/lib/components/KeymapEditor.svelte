@@ -8,7 +8,8 @@
 
   let { session }: { session: BoardSession } = $props();
 
-  const def = $derived(session.definition);
+  // The editor is only shown once the keymap has loaded, so the board is known.
+  const def = $derived(session.definition!);
   const layerCount = $derived(session.board.info.layerCount);
   const layerNames = $derived(
     Array.from({ length: layerCount }, (_, i) => (i === 0 ? "Base" : i === 1 ? "Fn" : `Layer ${i}`)),
@@ -176,6 +177,12 @@
         </button>
         <button onclick={selectRollerPress}>Press…</button>
       </div>
+    {:else if target?.kind === "encoder"}
+      <div class="what">
+        <span class="where">{layerNames[layer]} · Roller</span>
+        <span class="does">This board's firmware can't change the roller yet; that arrives with encoder support.</span>
+      </div>
+      <button class="btn small" onclick={selectRollerPress}>Press…</button>
     {:else}
       <span class="hint">Click a key or the roller to change what it does.</span>
     {/if}

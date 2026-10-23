@@ -1,14 +1,17 @@
 /**
  * Application state: connected boards and the editing session for each.
  *
- * Boards come from a host-lib BoardManager. Until the hidapi/WebHID
- * transports exist (phase 7), that is the MockBoardManager with simulated
- * Dachshund60Fs; nothing else in the app changes when the real one arrives.
+ * Boards come from host-lib board managers: real boards over WebHID (Chrome
+ * and Edge), plus simulated Dachshund60Fs in demo mode, which is on when the
+ * browser has no WebHID or the URL has ?demo.
  */
 
 import {
   BoardError,
+  CombinedBoardManager,
   MockBoardManager,
+  webHid,
+  WebHidBoardManager,
   type BatteryStatus,
   type Board,
   type BoardManager,
@@ -19,10 +22,13 @@ import {
   type KeyPosition,
   type Keymap,
   type KeycodeId,
+  protocol,
 } from "@dachshund60f/host-lib";
 import dachshund60f from "@boards/Dachshund60F/keyboard.json";
 
 import { EditHistory, type Edit } from "./history.ts";
+
+const { PROTOCOL_VERSION } = protocol;
 
 export const definitions: Record<string, KeyboardDefinition> = {
   Dachshund60F: dachshund60f as KeyboardDefinition,
@@ -41,9 +47,13 @@ function errorText(err: unknown): string {
   return String(err);
 }
 
+/** Protocol capability names a board's features need (see protocol.yaml). */
+export type Feature = "keymap" | "persistence" | "settings" | "encoders" | "identify" | "battery";
+
 export class BoardSession {
   readonly board: Board;
-  readonly definition: KeyboardDefinition;
+  /** Null only for a board on another protocol version, which can't say what it is. */
+  readonly definition: KeyboardDefinition | null;
 
   battery = $state<BatteryStatus | null>(null);
   settings = $state<BoardSettings | null>(null);
@@ -52,6 +62,8 @@ export class BoardSession {
   busy = $state(false);
   canUndo = $state(false);
   canRedo = $state(false);
+  /** Why the board can't be edited (another protocol version, a failed load), or null. */
+  problem = $state<string | null>(null);
 
   private readonly history = new EditHistory();
   private readonly unsubscribe: () => void;
@@ -60,9 +72,7 @@ export class BoardSession {
   constructor(board: Board, app: AppState) {
     this.board = board;
     this.app = app;
-    const definition = definitions[board.info.model];
-    if (!definition) throw new Error(`no keyboard definition for ${board.info.model}`);
-    this.definition = definition;
+    this.definition = definitions[board.info.model] ?? null;
 
     this.unsubscribe = board.subscribe((event) => {
       switch (event.type) {
@@ -84,26 +94,38 @@ export class BoardSession {
     return this.board.info.id;
   }
 
+  /** Whether the board's firmware has a feature. Boards that don't list capabilities have all. */
+  supports(feature: Feature): boolean {
+    const caps = this.board.info.capabilities;
+    return caps === undefined || caps.includes(feature);
+  }
+
   get connection(): ConnectionKind {
     return this.board.info.connection;
   }
 
   /** The owner's name for the board, falling back to the model. */
   get displayName(): string {
-    return this.settings?.name.trim() || this.board.info.model;
+    return this.settings?.name.trim() || this.board.info.model || "Unknown board";
   }
 
   async load(): Promise<void> {
-    const [battery, settings, keymap, unsaved] = await Promise.all([
-      this.board.getBattery(),
-      this.board.getSettings(),
-      this.board.getKeymap(),
-      this.board.hasUnsavedChanges(),
-    ]);
-    this.battery = battery;
-    this.settings = settings;
-    this.keymap = keymap;
-    this.unsaved = unsaved;
+    try {
+      // One after another: a real board answers one request at a time anyway.
+      this.keymap = await this.board.getKeymap();
+      this.unsaved = await this.board.hasUnsavedChanges();
+      this.settings = this.supports("settings") ? await this.board.getSettings() : null;
+      this.battery = await this.board.getBattery();
+      this.problem = null;
+    } catch (err) {
+      if (err instanceof BoardError && err.code === "version-mismatch") {
+        this.problem =
+          `${this.board.info.model || "This board"} speaks protocol v${this.board.info.protocolVersion}, ` +
+          `and this Doghouse speaks v${PROTOCOL_VERSION}. Update ${this.board.info.protocolVersion > PROTOCOL_VERSION ? "Doghouse" : "the board's firmware"} to edit it.`;
+      } else {
+        this.problem = `Couldn't read the board: ${errorText(err)}`;
+      }
+    }
   }
 
   private async refreshUnsaved(): Promise<void> {
@@ -224,6 +246,16 @@ export class BoardSession {
     });
   }
 
+  /** Restart into the UF2 bootloader; the board leaves and its drive appears. */
+  async enterBootloader(): Promise<void> {
+    const reboot = this.board.reboot;
+    if (!reboot) return;
+    await this.run(async () => {
+      await reboot.call(this.board, true);
+      this.app.notify(`${this.displayName} is off to the bootloader. Copy the .uf2 file onto its drive.`, "info");
+    });
+  }
+
   dispose(): void {
     this.unsubscribe();
   }
@@ -235,22 +267,47 @@ export class AppState {
   toasts = $state<Toast[]>([]);
 
   readonly manager: BoardManager;
-  /** Present only while boards are simulated. */
+  /** Real boards over WebHID; absent when the browser has no WebHID. */
+  readonly hid: WebHidBoardManager | undefined;
+  /** Simulated boards; present only in demo mode. */
   readonly mock: MockBoardManager | undefined;
   private nextToast = 1;
+  /** Boards with no keyboard definition here, already reported. */
+  private readonly unknown = new Set<Board>();
 
-  constructor(manager: BoardManager, mock?: MockBoardManager) {
+  constructor(manager: BoardManager, sources: { hid?: WebHidBoardManager; mock?: MockBoardManager } = {}) {
     this.manager = manager;
-    this.mock = mock;
+    this.hid = sources.hid;
+    this.mock = sources.mock;
     manager.subscribe((boards) => this.sync(boards));
     this.sync(manager.list());
+  }
+
+  /** Ask the browser for a board (from a click). */
+  async connect(): Promise<void> {
+    try {
+      await this.hid?.request();
+    } catch (err) {
+      // Closing the picker without choosing isn't an error worth a toast.
+      if (!(err instanceof Error && err.name === "NotFoundError")) this.notify(errorText(err), "error");
+    }
   }
 
   get selected(): BoardSession | undefined {
     return this.sessions.find((s) => s.id === this.selectedId);
   }
 
-  private sync(boards: Board[]): void {
+  private sync(all: Board[]): void {
+    const boards = all.filter((b) => {
+      if (definitions[b.info.model] || (b.info.model === "" && b.info.protocolVersion !== PROTOCOL_VERSION)) {
+        return true;
+      }
+      if (!this.unknown.has(b)) {
+        this.unknown.add(b);
+        this.notify(`Doghouse doesn't know the ${b.info.model} yet.`, "error");
+      }
+      return false;
+    });
     const ids = new Set(boards.map((b) => b.info.id));
     for (const s of this.sessions) {
       if (!ids.has(s.id)) {
@@ -283,10 +340,25 @@ export class AppState {
 }
 
 function createApp(): AppState {
-  const mock = new MockBoardManager({ definitions, tickMs: 4000, latencyMs: 40 });
-  mock.plug("Dachshund60F", "usb", { name: "Biscuit", battery: { percent: 82, charging: true } });
-  mock.plug("Dachshund60F", "dongle", { name: "Noodle", battery: { percent: 46, charging: false } });
-  return new AppState(mock, mock);
+  const browserHid = webHid();
+  const demo = !browserHid || new URLSearchParams(globalThis.location?.search ?? "").has("demo");
+
+  let notify: (text: string) => void = () => {};
+  const hid = browserHid
+    ? new WebHidBoardManager(browserHid, { onError: (err) => notify(`A board didn't answer: ${errorText(err)}`) })
+    : undefined;
+  let mock: MockBoardManager | undefined;
+  if (demo) {
+    mock = new MockBoardManager({ definitions, tickMs: 4000, latencyMs: 40 });
+    mock.plug("Dachshund60F", "usb", { name: "Biscuit", battery: { percent: 82, charging: true } });
+    mock.plug("Dachshund60F", "dongle", { name: "Noodle", battery: { percent: 46, charging: false } });
+  }
+
+  const managers: BoardManager[] = [hid, mock].filter((m): m is NonNullable<typeof m> => m !== undefined);
+  const app = new AppState(new CombinedBoardManager(managers), { ...(hid && { hid }), ...(mock && { mock }) });
+  notify = (text) => app.notify(text, "error");
+  hid?.start().catch((err) => app.notify(errorText(err), "error"));
+  return app;
 }
 
 export const app = createApp();
