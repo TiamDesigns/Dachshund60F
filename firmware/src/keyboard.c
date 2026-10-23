@@ -51,8 +51,15 @@ BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_col_gpios) == COLS,
 #define SCAN_STACK_SIZE 2048
 #define SCAN_PRIORITY K_PRIO_PREEMPT(2)
 
-/* Live keymap in RAM; settings storage (phase 6) will load and save it. */
-static kb_keycode_t keymap_keys[DEFAULT_KEYMAP_LAYERS * ROWS * COLS];
+/*
+ * Live keymap in RAM, which the config protocol edits, and the saved copy
+ * that revert goes back to. Phase 6 keeps the saved copy in flash.
+ */
+#define KEYMAP_LEN (DEFAULT_KEYMAP_LAYERS * ROWS * COLS)
+static kb_keycode_t keymap_keys[KEYMAP_LEN];
+static kb_keycode_t saved_keys[KEYMAP_LEN];
+/* Held by the scan thread while it runs the engine, and by keymap edits. */
+static K_MUTEX_DEFINE(keymap_mutex);
 static struct kb_keymap keymap;
 static struct kb_engine engine;
 static struct kb_hid_reporter reporter;
@@ -139,6 +146,7 @@ static void scan_thread(void *p1, void *p2, void *p3)
         uint32_t now = k_uptime_get_32();
 
         matrix_scan(raw);
+        k_mutex_lock(&keymap_mutex, K_FOREVER);
         if (kb_debounce_update(&debounce, raw, now)) {
             const kb_matrix_row_t *next = kb_debounce_state(&debounce);
             kb_engine_matrix(&engine, stable, next, now);
@@ -156,6 +164,7 @@ static void scan_thread(void *p1, void *p2, void *p3)
         if (kb_usb_take_resync()) {
             kb_hid_reporter_resync(&reporter, kb_engine_hid(&engine));
         }
+        k_mutex_unlock(&keymap_mutex);
 
         /* Recovery: holding (0, 0) reboots into UF2 whatever the keymap says,
          * so a broken keymap can always be reflashed.
@@ -183,6 +192,7 @@ int keyboard_start(void)
     if (replaced > 0) {
         LOG_WRN("%d invalid keycodes in the default keymap", replaced);
     }
+    memcpy(saved_keys, keymap_keys, sizeof(saved_keys));
 
     if (kb_debounce_init(&debounce, ROWS, COLS, DEBOUNCE_ALGO, CONFIG_KB_DEBOUNCE_MS) != 0) {
         return -EINVAL;
@@ -200,4 +210,42 @@ int keyboard_start(void)
     LOG_INF("scanning %dx%d every %d us, debounce %d ms, NKRO %s", ROWS, COLS,
             CONFIG_KB_MATRIX_SCAN_PERIOD_US, CONFIG_KB_DEBOUNCE_MS, nkro ? "on" : "off");
     return 0;
+}
+
+struct kb_keymap *keyboard_keymap(void)
+{
+    return &keymap;
+}
+
+void keyboard_lock(void)
+{
+    k_mutex_lock(&keymap_mutex, K_FOREVER);
+}
+
+void keyboard_unlock(void)
+{
+    k_mutex_unlock(&keymap_mutex);
+}
+
+void keyboard_save(void)
+{
+    keyboard_lock();
+    memcpy(saved_keys, keymap_keys, sizeof(saved_keys));
+    keyboard_unlock();
+}
+
+void keyboard_revert(void)
+{
+    keyboard_lock();
+    memcpy(keymap_keys, saved_keys, sizeof(keymap_keys));
+    keyboard_unlock();
+}
+
+void keyboard_factory_reset(void)
+{
+    keyboard_lock();
+    (void)kb_keymap_init(&keymap, keymap_keys, DEFAULT_KEYMAP_LAYERS, ROWS, COLS,
+                         &default_keymap[0][0][0]);
+    memcpy(saved_keys, keymap_keys, sizeof(saved_keys));
+    keyboard_unlock();
 }

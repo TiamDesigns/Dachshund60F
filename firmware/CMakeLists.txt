@@ -12,6 +12,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/core/sources.cmake)
 target_sources(app PRIVATE
   src/main.c
   src/bootloader.c
+  src/config.c
   src/default_keymap.c
   src/indicators.c
   src/kb_usb.c

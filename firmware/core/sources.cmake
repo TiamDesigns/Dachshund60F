@@ -10,6 +10,8 @@ set(KB_CORE_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/src/indicators.c
   ${CMAKE_CURRENT_LIST_DIR}/src/keycodes.c
   ${CMAKE_CURRENT_LIST_DIR}/src/keymap.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/protocol.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/protocol_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/src/screen.c
   ${CMAKE_CURRENT_LIST_DIR}/src/version.c
 )

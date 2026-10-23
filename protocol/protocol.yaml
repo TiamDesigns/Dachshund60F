@@ -1,0 +1,162 @@
+# Dachshund config protocol: the only definition of its commands.
+#
+# Generated from this file (never edit them by hand; run protocol/gen/gen.py):
+#   firmware/core/include/kb/protocol_gen.h, firmware/core/src/protocol_gen.c
+#   host-lib/src/protocol.gen.ts
+#
+# Rules (CLAUDE.md): bump `version` on any breaking change (removing or
+# renumbering a command, changing a field); adding a command is not
+# breaking. Ask before changing the frame format.
+
+version: 1
+
+# Vendor-defined HID interface, separate from the keyboard interfaces, so
+# the OS never claims it and opening it needs no special permission.
+hid:
+  usage_page: 0xFF00
+  usage: 0x44 # 'D'
+  report_size: 64 # input and output reports, no report ID
+
+# Every report is one frame, padded with zeros to report_size.
+#
+# Request (host to device):
+#   0 command   1 sequence   2 payload length   3 protocol version   4.. payload
+# Response (device to host):
+#   0 command   1 sequence   2 payload length   3 status             4.. payload
+#
+# The device echoes command and sequence, so the host can match responses.
+# It refuses every command except handshake with version_mismatch when
+# byte 3 of the request isn't its own protocol version, so an old app can
+# never write to a newer board. Payloads are little-endian.
+#
+# No CRC: USB, BLE and the 2.4 GHz link (ESB) already check every packet.
+frame:
+  header_size: 4
+  max_payload: 60
+
+# Status codes. Error responses carry no payload.
+errors:
+  - {name: ok, code: 0, doc: Success}
+  - {name: unknown_command, code: 1, doc: The command ID isn't known to this firmware}
+  - {name: bad_length, code: 2, doc: The payload length is wrong for this command}
+  - {name: out_of_range, code: 3, doc: "An index (layer, row, column, offset) is out of range"}
+  - {name: bad_value, code: 4, doc: "A value is invalid, such as an undefined keycode"}
+  - {name: busy, code: 5, doc: The device can't do this now; try again}
+  - {name: storage_full, code: 6, doc: Settings storage is full}
+  - {name: storage_error, code: 7, doc: Settings storage failed}
+  - {name: version_mismatch, code: 8, doc: The request's protocol version isn't the device's}
+  - {name: not_supported, code: 9, doc: This build doesn't support the command}
+
+# Capability bits in the handshake: which features this firmware has.
+capabilities:
+  - {name: keymap, bit: 0, doc: get/set keys and bulk keymap}
+  - {name: persistence, bit: 1, doc: "save, revert and factory reset survive a power cycle"}
+  - {name: encoders, bit: 2, doc: encoder mapping}
+  - {name: macros, bit: 3, doc: macro buffer}
+  - {name: advanced_keys, bit: 4, doc: "tap-hold settings, combos, tap dance, key overrides"}
+  - {name: indicators, bit: 5, doc: indicator colours}
+  - {name: settings, bit: 6, doc: global settings}
+  - {name: matrix_stream, bit: 7, doc: live matrix state for the key tester}
+  - {name: battery, bit: 8, doc: battery level}
+  - {name: identify, bit: 9, doc: identify command}
+
+# Field types: u8, u16, u32; char[N] (fixed, NUL-padded text); u16[] (a
+# variable-length array, only as the last field, its length taken from the
+# payload length, with `max` elements at most).
+#
+# The keymap index used by the chunk commands runs layer by layer, then row
+# by row, then column: index = (layer * rows + row) * cols + col.
+commands:
+  - name: handshake
+    id: 0x01
+    doc: Identify the board and its protocol. Always answered, whatever the request's version.
+    request: []
+    response:
+      - {name: protocol_version, type: u8}
+      - {name: firmware_major, type: u8}
+      - {name: firmware_minor, type: u8}
+      - {name: firmware_patch, type: u8}
+      - {name: build, type: "char[16]", doc: git describe of the firmware build}
+      - {name: capabilities, type: u32}
+      - {name: rows, type: u8}
+      - {name: cols, type: u8}
+      - {name: layers, type: u8}
+      - {name: encoders, type: u8}
+      - {name: macro_buffer_size, type: u16}
+      - {name: model, type: "char[16]", doc: "keyboard definition name, boards/<model>/"}
+
+  - name: reboot
+    id: 0x02
+    doc: Reboot after the response is sent. The board drops off the bus.
+    request:
+      - {name: mode, type: u8, doc: "0 normal, 1 into the UF2 bootloader"}
+    response: []
+
+  - name: identify
+    id: 0x03
+    doc: Flash the indicator LEDs so the user can tell which board this is.
+    request:
+      - {name: seconds, type: u8, doc: 1-30}
+    response: []
+
+  - name: get_serial
+    id: 0x04
+    doc: The board's serial number, the same as the USB serial string. WebHID can't read USB strings, so the app asks here.
+    request: []
+    response:
+      - {name: serial, type: "char[32]"}
+
+  - name: get_key
+    id: 0x10
+    request:
+      - {name: layer, type: u8}
+      - {name: row, type: u8}
+      - {name: col, type: u8}
+    response:
+      - {name: keycode, type: u16}
+
+  - name: set_key
+    id: 0x11
+    doc: Change one key in the live keymap (RAM). save makes it permanent.
+    request:
+      - {name: layer, type: u8}
+      - {name: row, type: u8}
+      - {name: col, type: u8}
+      - {name: keycode, type: u16}
+    response: []
+
+  - name: get_keymap_chunk
+    id: 0x12
+    doc: Read up to 28 keycodes from the live keymap, from a keymap index.
+    request:
+      - {name: offset, type: u16}
+      - {name: count, type: u8}
+    response:
+      - {name: offset, type: u16}
+      - {name: keycodes, type: "u16[]", max: 28}
+
+  - name: set_keymap_chunk
+    id: 0x13
+    doc: Write up to 28 keycodes from a keymap index. Every keycode is checked first; on an error nothing changes.
+    request:
+      - {name: offset, type: u16}
+      - {name: keycodes, type: "u16[]", max: 28}
+    response: []
+
+  - name: save
+    id: 0x20
+    doc: Write the live keymap and settings to flash.
+    request: []
+    response: []
+
+  - name: revert
+    id: 0x21
+    doc: Replace the live keymap and settings with the saved ones.
+    request: []
+    response: []
+
+  - name: factory_reset
+    id: 0x22
+    doc: Restore the compiled-in defaults, live and saved.
+    request: []
+    response: []

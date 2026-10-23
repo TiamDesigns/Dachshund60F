@@ -1,0 +1,188 @@
+/*
+ * Config protocol service. Requests arrive on the USB thread, wait in a
+ * small queue and are handled one at a time on their own thread, so a slow
+ * command (a flash save, from phase 6) never holds up USB or the scan.
+ */
+
+#include "config.h"
+
+#include <string.h>
+
+#include <zephyr/drivers/hwinfo.h>
+#include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
+#include <zephyr/sys/reboot.h>
+#include <zephyr/sys/util.h>
+
+#include <app_version.h>
+
+#include "bootloader.h"
+#include "indicators.h"
+#include "kb/protocol.h"
+#include "kb_usb.h"
+#include "keyboard.h"
+
+LOG_MODULE_REGISTER(config, LOG_LEVEL_INF);
+
+#define CONFIG_STACK_SIZE 2048
+#define CONFIG_PRIORITY K_PRIO_PREEMPT(5)
+/* Long enough for the response to reach the host before the board drops off. */
+#define REBOOT_DELAY_MS 100
+
+struct request {
+    uint8_t len;
+    uint8_t data[KB_PROTO_REPORT_SIZE];
+};
+
+K_MSGQ_DEFINE(request_queue, sizeof(struct request), 4, 1);
+K_THREAD_STACK_DEFINE(config_stack, CONFIG_STACK_SIZE);
+static struct k_thread config_thread_data;
+
+/* git describe of this build; missing when built outside git. */
+#ifdef APP_BUILD_VERSION
+#define BUILD_ID STRINGIFY(APP_BUILD_VERSION)
+#else
+#define BUILD_ID "unknown"
+#endif
+
+static bool reboot_to_bootloader;
+
+static void reboot_fn(struct k_work *work)
+{
+    ARG_UNUSED(work);
+    if (reboot_to_bootloader) {
+        bootloader_reboot_to_uf2();
+    } else {
+        sys_reboot(SYS_REBOOT_COLD);
+    }
+}
+static K_WORK_DELAYABLE_DEFINE(reboot_work, reboot_fn);
+
+static uint8_t op_save(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_save();
+    return KB_PROTO_OK;
+}
+
+static uint8_t op_revert(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_revert();
+    return KB_PROTO_OK;
+}
+
+static uint8_t op_factory_reset(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_factory_reset();
+    return KB_PROTO_OK;
+}
+
+static void op_reboot(bool bootloader, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    LOG_INF("host asked for a reboot%s", bootloader ? " into UF2" : "");
+    reboot_to_bootloader = bootloader;
+    k_work_schedule(&reboot_work, K_MSEC(REBOOT_DELAY_MS));
+}
+
+static void op_identify(uint8_t seconds, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    indicators_identify(seconds);
+}
+
+static void op_lock(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_lock();
+}
+
+static void op_unlock(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_unlock();
+}
+
+static const struct kb_protocol_ops ops = {
+    .save = op_save,
+    .revert = op_revert,
+    .factory_reset = op_factory_reset,
+    .reboot = op_reboot,
+    .identify = op_identify,
+    .lock = op_lock,
+    .unlock = op_unlock,
+};
+
+static struct kb_protocol protocol = {
+    .ops = &ops,
+    .firmware_major = APP_VERSION_MAJOR,
+    .firmware_minor = APP_VERSION_MINOR,
+    .firmware_patch = APP_PATCHLEVEL,
+    .build = BUILD_ID,
+    .model = CONFIG_KB_MODEL,
+    /* Persistence joins in phase 6, the rest in later phases. */
+    .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_IDENTIFY,
+    .encoders = 0,
+    .macro_buffer_size = 0,
+};
+
+/* USB thread: copy and queue. A host that floods requests loses the extras. */
+static void on_request(const uint8_t *data, size_t len)
+{
+    struct request req = {.len = (uint8_t)MIN(len, sizeof(req.data))};
+    memcpy(req.data, data, req.len);
+    if (k_msgq_put(&request_queue, &req, K_NO_WAIT) != 0) {
+        LOG_WRN("config request dropped: queue full");
+    }
+}
+
+static void config_thread(void *p1, void *p2, void *p3)
+{
+    ARG_UNUSED(p1);
+    ARG_UNUSED(p2);
+    ARG_UNUSED(p3);
+
+    struct request req;
+    uint8_t resp[KB_PROTO_REPORT_SIZE];
+
+    for (;;) {
+        k_msgq_get(&request_queue, &req, K_FOREVER);
+        if (!kb_protocol_handle(&protocol, req.data, req.len, resp)) {
+            continue; /* no header to answer */
+        }
+        int err = kb_usb_send_config(resp);
+        if (err) {
+            LOG_WRN("config response dropped (%d)", err);
+        }
+    }
+}
+
+/* Same text as the USB serial number string (uppercase hex of the device ID). */
+static char serial[KB_PROTO_GET_SERIAL_RESP_SIZE + 1];
+
+static void load_serial(void)
+{
+    static const char hex[] = "0123456789ABCDEF";
+    uint8_t id[16];
+    ssize_t n = hwinfo_get_device_id(id, sizeof(id));
+
+    for (ssize_t i = 0; i < n && (size_t)i * 2 + 1 < sizeof(serial) - 1; i++) {
+        serial[i * 2] = hex[id[i] >> 4];
+        serial[i * 2 + 1] = hex[id[i] & 0xF];
+    }
+    protocol.serial = serial;
+}
+
+int config_start(void)
+{
+    protocol.keymap = keyboard_keymap();
+    load_serial();
+    kb_usb_set_config_rx(on_request);
+
+    k_thread_create(&config_thread_data, config_stack, K_THREAD_STACK_SIZEOF(config_stack),
+                    config_thread, NULL, NULL, NULL, CONFIG_PRIORITY, 0, K_NO_WAIT);
+    k_thread_name_set(&config_thread_data, "kb_config");
+    return 0;
+}

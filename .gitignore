@@ -23,3 +23,8 @@ _autosave-*
 .idea/
 .DS_Store
 Thumbs.db
+
+# Protocol fuzzing (firmware/core/fuzz)
+firmware/core/fuzz_protocol
+firmware/core/corpus/
+firmware/core/crash-*

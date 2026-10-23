@@ -1,4 +1,5 @@
 #include "kb/hid.h"
+#include "kb/protocol_gen.h"
 #include "kb_test.h"
 
 #include <string.h>
@@ -87,6 +88,22 @@ static void test_extra_descriptor(void)
         KB_CHECK_EQ(info.output_bits[i], 0);
     }
     KB_CHECK(KB_HID_EXTRA_REPORT_MAX <= 64u); /* one full-speed packet */
+}
+
+static void test_config_descriptor(void)
+{
+    struct desc_info info;
+    parse(kb_hid_config_desc, kb_hid_config_desc_len, &info);
+
+    KB_CHECK(info.ok);
+    KB_CHECK_EQ(info.depth, 0);
+    KB_CHECK(!info.uses_ids);
+    KB_CHECK_EQ(info.input_bits[0], KB_PROTO_REPORT_SIZE * 8u);
+    KB_CHECK_EQ(info.output_bits[0], KB_PROTO_REPORT_SIZE * 8u);
+    /* Vendor-defined usage page, as protocol.yaml says. */
+    KB_CHECK_EQ(kb_hid_config_desc[0], 0x06);
+    KB_CHECK_EQ(kb_hid_config_desc[1] | (kb_hid_config_desc[2] << 8), KB_PROTO_HID_USAGE_PAGE);
+    KB_CHECK(KB_PROTO_HID_USAGE_PAGE >= 0xFF00u);
 }
 
 static void test_pack(void)
@@ -368,6 +385,7 @@ int main(void)
 {
     KB_RUN(test_keyboard_descriptor);
     KB_RUN(test_extra_descriptor);
+    KB_RUN(test_config_descriptor);
     KB_RUN(test_pack);
     KB_RUN(test_reporter_nkro_path);
     KB_RUN(test_reporter_6kro_path);

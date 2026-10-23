@@ -3,7 +3,8 @@
  * firmware/core/include/kb/hid.h):
  * - hid_kbd: boot keyboard, 8-byte 6KRO report and the lock-LED output
  * - hid_extra: NKRO keyboard, consumer and system control, with report IDs
- * The vendor config interface comes in phase 5.
+ * - hid_config: the vendor-defined config interface (protocol/protocol.yaml),
+ *   64-byte reports both ways over interrupt endpoints
  */
 
 / {
@@ -21,5 +22,15 @@
 		protocol-code = "none";
 		in-report-size = <30>;
 		in-polling-period-us = <1000>;
+	};
+
+	hid_config: hid_config {
+		compatible = "zephyr,hid-device";
+		label = "Dachshund config";
+		protocol-code = "none";
+		in-report-size = <64>;
+		in-polling-period-us = <1000>;
+		out-report-size = <64>;
+		out-polling-period-us = <1000>;
 	};
 };

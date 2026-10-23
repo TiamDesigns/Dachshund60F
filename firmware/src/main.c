@@ -2,7 +2,8 @@
  * Keyboard firmware entry point.
  *
  * Matrix scanning and the keymap (phase 3) typing over USB with NKRO,
- * media and system keys (phase 4), indicator LEDs for layer and Caps Lock
+ * media and system keys (phase 4), the config protocol on a vendor HID
+ * interface (phase 5), indicator LEDs for layer and Caps Lock
  * after a power-on walk along the chain, and the status screen when a
  * panel overlay is built in.
  */
@@ -13,6 +14,7 @@
 #include <app_version.h>
 
 #include "kb/core.h"
+#include "config.h"
 #include "indicators.h"
 #include "kb_usb.h"
 #include "keyboard.h"
@@ -33,6 +35,11 @@ int main(void)
     /* Before USB, so the screen sees the first lock-state report. */
     if (IS_ENABLED(CONFIG_KB_SCREEN) && status_screen_init() != 0) {
         LOG_ERR("status screen unavailable");
+    }
+
+    /* Before USB, so the first config request finds a listener. */
+    if (config_start() != 0) {
+        LOG_ERR("config protocol unavailable");
     }
 
     if (kb_usb_init() != 0) {
