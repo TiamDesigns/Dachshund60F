@@ -129,3 +129,24 @@ jobs:
             build/${{ matrix.app }}-*/${{ matrix.app }}/zephyr/zephyr.hex
             build/${{ matrix.app }}-*/${{ matrix.app }}/zephyr/zephyr.uf2
           if-no-files-found: warn
+
+  bootloader:
+    name: UF2 bootloader (Dachshund60F)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
+          pip install intelhex
+      - name: Build
+        run: boards/Dachshund60F/bootloader/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bootloader-${{ github.sha }}
+          path: |
+            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund60f/dachshund60f_bootloader_s140_6.1.1.hex
+            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund60f/bootloader_mbr.uf2
+            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund60f/bootloader.hex
+          if-no-files-found: error
