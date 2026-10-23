@@ -129,7 +129,7 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 ## PCB status and known issues
 
 - SW604, SW606 (rotated 180°) and SW615 are soldered 3-pin footprints, placed with their centre holes on the KLE key centres. Stock MX footprints have their origin at pin 1, not the centre.
-- DRC before routing: there are no shorts or drill overlaps, except that the 6.25u stabilizer's right holes and the right Mod's stabilizer holes coincide (0.04 mm apart, a warning). The remaining courtyard errors on the spacebar row are expected because the two layouts deliberately overlap; add them as DRC exclusions in KiCad. The stock SK6812MINI-E reverse-mount footprint has 0.25–0.35 mm copper-to-cutout clearance against a 0.5 mm rule. About 189 "footprint differs from library" warnings remain (run Update Footprints from Library in KiCad). Unrouted nets are expected.
+- DRC before routing: there are no shorts or drill overlaps, except that the 6.25u stabilizer's right holes and the right Mod's stabilizer holes coincide (0.04 mm apart, a warning). The remaining courtyard errors on the spacebar row are expected because the two layouts deliberately overlap; add them as DRC exclusions in KiCad. The stock SK6812MINI-E reverse-mount footprint has 0.25–0.35 mm copper-to-cutout clearance against a 0.5 mm rule (fixed on 2026-10-23 with a project footprint; see "LED cutout clearance"). About 189 "footprint differs from library" warnings remain (run Update Footprints from Library in KiCad). Unrouted nets are expected.
 - DRC fixes (2026-10-21, after review): removed a duplicate GND via at (319.3, 67.1) and a dangling /COL2 stub. The GND pours now use solid connections for SMD pads and thermal reliefs for through-hole pads, which cleared all starved thermals. The ST1–ST6 reference text is hidden. `Dachshund60F.kicad_dru` adds two rules: 0.2 mm edge clearance at the D2/D3 LED cutouts (stock reverse-mount pads are 0.247 mm from the cutout corners, so check with the fab), and 0 mm for SW1's edge-mount tabs.
 
 ### PCB: module decoupling rework and re-route (2026-10-22)
@@ -215,6 +215,24 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - Estimated latency over the dongle, to be measured in phase 14: about 1 ms typical and about 2.5 ms worst case without retransmits, compared with 7.5–15 ms for BLE. The README lists the firmware settings this depends on: GPIO-sense wake, eager press debounce, ESB at 2 Mbit/s with fast ramp-up, HFXO kept on, BLE off in dongle mode, ACK payloads for host→keyboard data, and bInterval 1 on the dongle.
 - Not done: the case (light pipe, button caps, USB-C cutout; the M2 holes are placeholders), 3D models for the receptacle and LED, and a Zephyr board target for the dongle (phase 14).
 
+### Plate: FR4 gasket-mount switch plate (2026-10-23)
+
+`hardware/Dachshund60F-Plate/` holds a generated 1.6 mm FR4 plate. `gen_plate.py` (run with KiCad's Python) reads the mainboard and writes `Dachshund60F-Plate.kicad_pcb`; the README has the full geometry.
+
+- Decision: the mainboard gets no mounting holes. The PCB hangs from the hot-swap switches, and the plate is gasket-mounted.
+- 80 switch cutouts (14 mm, 0.5 mm corners) and 12 Cherry stabilizer cutouts. Both spacebar layouts are cut; where they overlap the holes merge, and only soldered switches sit in the merged slot.
+- A notch at the top right for the roller encoder, a slot over the display header J4, and 4 mm windows over the indicator LEDs D3–D7.
+- 8 gasket tabs (4 top, 4 bottom), 2.8 × 6.5 mm, for 8 × 5 × 5 mm silicone socks. Sock outlines are on Cmts.User for the case design.
+- An exposed-copper accent ring around every switch and stabilizer cutout, ≥ 0.4 mm from every routed edge. A stabilizer and its switch share one outline, since the 1.56 mm web between them is too narrow for two rings. ENIG recommended.
+- DRC (kicad-cli): 0 violations.
+
+### PCB: LED cutout clearance (2026-10-23)
+
+- D2–D7 now use a project footprint, `Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4` in `hardware/Dachshund60F/lib/Dachshund60F.pretty` (registered in the project `fp-lib-table`). It is the stock KiCad footprint with the corner-relief light cutout replaced by a plain 3.4 × 3.4 mm cutout with 0.5 mm corners.
+- Pads are now 0.35 mm from the routed edge (was 0.247 mm), and the nearest track about 0.36 mm. The LED body (3.2 × 2.8 mm) clears the rounded corners by about 0.05 mm. Nothing was re-routed.
+- `Dachshund60F.kicad_dru`: the LED cutout rule is raised from 0.2 mm to 0.3 mm. The schematic's footprint fields for D2–D7 point at the new footprint.
+- Checks (kicad-cli): ERC 0. DRC: 0 errors and 0 unconnected items after refilling the zones. The warnings are unchanged.
+
 ## Tested
 
 - host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
@@ -244,7 +262,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 
 - Registered pid.codes PID before distributing boards; this needs a licence and a public repo with PCB files
 - PCB design: the pin map is proposed and must be confirmed (or edited) once the schematic is routed
-- Case and mounting (sets the outline, mounting holes and daughterboard position). The daughterboard is designed for M3; if the case uses M2, swap H1/H2 to `MountingHole_2.2mm_M2_Pad_TopBottom` for a snug fit.
+- Case (sets the gasket pockets from the plate's sock outlines, the roller support and the daughterboard position). The mainboard and plate have no mounting holes. The daughterboard is designed for M3; if the case uses M2, swap H1/H2 to `MountingHole_2.2mm_M2_Pad_TopBottom` for a snug fit.
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
