@@ -2,9 +2,17 @@
 
 ## Current phase
 
-Phase 5 (config protocol v1): done, in review as a PR. Phases 3 and 4 are merged to main (PRs #8 and #13). Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 5 waits for fabricated boards.
+Phase 6 (persistence): done, in review as a PR. Phases 3 to 5 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 6 waits for fabricated boards.
 
 ## Done
+
+### Phase 6: persistence (2026-10-23)
+
+- Core, `kb/store.h`: a log of whole snapshots in a flash area split into sectors. Each save appends one record (magic, sequence number, schema, length, CRC-32, data). When a sector is full the next one is erased, round robin, so wear is spread evenly and the newest record is never in the sector being erased. The magic word is written last and every write is read back, and mount checks that the space after the last record is still blank, so a save cut short by power loss is ignored and the previous snapshot stays. The flash is passed in as read, write and erase functions.
+- Core, `kb/settings.h`: the blob saved in a record, schema 1. Tagged sections (keymap; settings: debounce algorithm and time, tapping term, NKRO, sleep timeout, indicator brightness, board name), each with a length, so unknown sections are skipped and missing ones keep their defaults. Adding a section or appending a field needs no schema bump; anything else bumps the schema and adds a migration in `kb_settings_decode()`. Every value is range-checked on load, and a keymap with other dimensions is ignored.
+- Tests: `test_store` runs on a simulated 8 KB flash with 1 KB sectors that counts writes and catches writes to unerased cells. It covers wear levelling over many saves, power cut at every write of a save, a corrupted record, wipe, and sequence wrap. `test_settings` covers encode and decode round trips, bad values, unknown and short sections, and other keymap sizes.
+- Firmware: `storage.c` puts the store on `storage_partition` (32 KB at 0xEC000, 4 KB sectors). At boot `keyboard.c` loads the saved keymap and settings, or the defaults if nothing valid is saved. The protocol's `save`, `revert` and `factory_reset` now work, and the handshake reports the `persistence` capability. Fn+N updates the NKRO setting, so a save keeps it; debounce and NKRO are applied from the loaded settings. New Kconfig defaults: `KB_SLEEP_TIMEOUT_MIN` (15) and `KB_INDICATOR_BRIGHTNESS` (13%).
+- Size, debug without a screen: 85.4 KB flash, 30.5 KB RAM.
 
 ### Phase 5: config protocol v1 (2026-10-23)
 
@@ -341,7 +349,9 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Core C tests for phase 3 (debounce, engine, keycodes, keymap): pass locally on Linux with GCC, also under ASan and UBSan.
 - Phase 4: all core tests (including `test_hid` and `test_indicators`) pass on Linux with GCC, also under ASan and UBSan. The firmware builds locally (NCS v3.4.1, Zephyr SDK 1.0.1) in debug, and in release with the 128×32 OLED, with no new warnings. host-lib (57 tests) and Doghouse (check, 14 tests, build) pass.
 - Phase 5: core tests (12, including `test_protocol` and `test_protocol_fuzz`) pass locally with GCC under ASan and UBSan; the libFuzzer target runs only in CI (the local clang has no compiler-rt). The firmware builds locally with no new warnings. host-lib (62 tests) passes.
-- Real hardware: nothing yet. Phase 5 is to be checked on a board: `lsusb -v` shows the vendor interface, and the handshake, `get_serial` and `identify` work once host-lib can talk to it (phase 7).
+- Phase 6: core tests (14, including `test_store` and `test_settings`) pass locally with GCC under ASan and UBSan. The firmware builds locally with no new warnings.
+- Real hardware: nothing yet. Phase 6 is to be checked on a board: a saved keymap survives unplugging, revert and factory reset work, and a save cut short by unplugging leaves the previous settings.
+- Phase 5 is to be checked on a board: `lsusb -v` shows the vendor interface, and the handshake, `get_serial` and `identify` work once host-lib can talk to it (phase 7).
 - Phase 4 is to be checked on a board:
   - `lsusb -v`: two HID interfaces, the first with the boot keyboard subclass, the second with report IDs 1–3; both endpoints at bInterval 1; remote wakeup set in bmAttributes
   - seven or more keys held at once all reach the host; Fn+N switches to 6KRO and back

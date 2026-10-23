@@ -15,10 +15,12 @@
 #include "kb/hid.h"
 #include "kb/hold.h"
 #include "kb/keymap.h"
+#include "kb/settings.h"
 #include "indicators.h"
 #include "kb_usb.h"
 #include "matrix.h"
 #include "status_screen.h"
+#include "storage.h"
 
 LOG_MODULE_REGISTER(keyboard, LOG_LEVEL_INF);
 
@@ -52,18 +54,19 @@ BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_col_gpios) == COLS,
 #define SCAN_PRIORITY K_PRIO_PREEMPT(2)
 
 /*
- * Live keymap in RAM, which the config protocol edits, and the saved copy
- * that revert goes back to. Phase 6 keeps the saved copy in flash.
+ * Live keymap and settings in RAM, which the config protocol edits; save
+ * writes them to flash (storage.c) and revert reads them back.
  */
 #define KEYMAP_LEN (DEFAULT_KEYMAP_LAYERS * ROWS * COLS)
 static kb_keycode_t keymap_keys[KEYMAP_LEN];
-static kb_keycode_t saved_keys[KEYMAP_LEN];
-/* Held by the scan thread while it runs the engine, and by keymap edits. */
+static struct kb_settings settings;
+/* Encoded snapshot for save and load; only used under keymap_mutex or before the scan starts. */
+static uint8_t blob[512 + 2 * KEYMAP_LEN];
+/* Held by the scan thread while it runs the engine, and by keymap and settings edits. */
 static K_MUTEX_DEFINE(keymap_mutex);
 static struct kb_keymap keymap;
 static struct kb_engine engine;
 static struct kb_hid_reporter reporter;
-static bool nkro = IS_ENABLED(CONFIG_KB_NKRO);
 static struct kb_debounce debounce;
 static struct kb_hold recovery_hold;
 static kb_matrix_row_t raw[ROWS];
@@ -108,9 +111,10 @@ static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
         sys_reboot(SYS_REBOOT_COLD);
         break;
     case NK_TOGG:
-        nkro = !nkro;
-        kb_hid_reporter_set_nkro(&reporter, nkro, kb_engine_hid(&engine));
-        LOG_INF("NKRO %s", nkro ? "on" : "off");
+        /* A live setting: save keeps it. */
+        settings.nkro = !settings.nkro;
+        kb_hid_reporter_set_nkro(&reporter, settings.nkro, kb_engine_hid(&engine));
+        LOG_INF("NKRO %s", settings.nkro ? "on" : "off");
         break;
     default:
         /* Connection, mouse and the other actions arrive in later phases. */
@@ -176,6 +180,74 @@ static void scan_thread(void *p1, void *p2, void *p3)
     }
 }
 
+/* Settings and storage. Callers hold keymap_mutex, or the scan hasn't started. */
+
+static void default_settings(struct kb_settings *st)
+{
+    memset(st, 0, sizeof(*st));
+    st->debounce_algo = DEBOUNCE_ALGO;
+    st->debounce_ms = CONFIG_KB_DEBOUNCE_MS;
+    st->tapping_term_ms = CONFIG_KB_TAPPING_TERM_MS;
+    st->nkro = IS_ENABLED(CONFIG_KB_NKRO);
+    st->sleep_timeout_min = CONFIG_KB_SLEEP_TIMEOUT_MIN;
+    st->indicator_brightness = CONFIG_KB_INDICATOR_BRIGHTNESS;
+}
+
+/* Compiled-in keymap and settings. Returns the keycodes replaced, or -1. */
+static int load_defaults(void)
+{
+    default_settings(&settings);
+    return kb_keymap_init(&keymap, keymap_keys, DEFAULT_KEYMAP_LAYERS, ROWS, COLS,
+                          &default_keymap[0][0][0]);
+}
+
+/* The saved snapshot over the defaults. Returns 0, or -ENOENT and friends. */
+static int load_saved(void)
+{
+    uint16_t schema;
+    size_t len;
+    int err = storage_load(&schema, blob, sizeof(blob), &len);
+    if (err) {
+        if (err != -ENOENT) {
+            LOG_ERR("reading saved settings failed (%d); using defaults", err);
+        }
+        return err;
+    }
+
+    int loaded = kb_settings_decode(schema, blob, len, &keymap, &settings);
+    if (loaded < 0) {
+        LOG_ERR("saved settings have schema %u, unknown here; using defaults", schema);
+        return -EINVAL;
+    }
+    LOG_INF("loaded saved%s%s", (loaded & KB_LOADED_KEYMAP) ? " keymap" : "",
+            (loaded & KB_LOADED_SETTINGS) ? " settings" : "");
+    return 0;
+}
+
+/* Put the settings into effect. Debounce restarts only if it changed (or on first). */
+static int apply_settings(bool first)
+{
+    static uint8_t debounce_algo, debounce_ms;
+
+    if (first || settings.debounce_algo != debounce_algo || settings.debounce_ms != debounce_ms) {
+        if (kb_debounce_init(&debounce, ROWS, COLS, settings.debounce_algo,
+                             settings.debounce_ms) != 0) {
+            return -EINVAL;
+        }
+        /* Debounce starts from all keys up: let the engine release what it holds. */
+        if (!first) {
+            kb_engine_matrix(&engine, stable, kb_debounce_state(&debounce), k_uptime_get_32());
+            memcpy(stable, kb_debounce_state(&debounce), sizeof(stable));
+        }
+        debounce_algo = settings.debounce_algo;
+        debounce_ms = settings.debounce_ms;
+    }
+    kb_engine_set_tapping_term(&engine, settings.tapping_term_ms);
+    kb_hid_reporter_set_nkro(&reporter, settings.nkro, kb_engine_hid(&engine));
+    indicators_set_brightness(settings.indicator_brightness);
+    return 0;
+}
+
 int keyboard_start(void)
 {
     int err = matrix_init();
@@ -184,23 +256,22 @@ int keyboard_start(void)
         return err;
     }
 
-    int replaced = kb_keymap_init(&keymap, keymap_keys, DEFAULT_KEYMAP_LAYERS, ROWS, COLS,
-                                  &default_keymap[0][0][0]);
+    int replaced = load_defaults();
     if (replaced < 0) {
         return -EINVAL;
     }
     if (replaced > 0) {
         LOG_WRN("%d invalid keycodes in the default keymap", replaced);
     }
-    memcpy(saved_keys, keymap_keys, sizeof(saved_keys));
-
-    if (kb_debounce_init(&debounce, ROWS, COLS, DEBOUNCE_ALGO, CONFIG_KB_DEBOUNCE_MS) != 0) {
-        return -EINVAL;
+    if (storage_init() == 0) {
+        (void)load_saved();
     }
 
-    kb_hid_reporter_init(&reporter, nkro, send_report, NULL);
+    kb_hid_reporter_init(&reporter, settings.nkro, send_report, NULL);
     kb_engine_init(&engine, &keymap, &engine_ops, NULL);
-    kb_engine_set_tapping_term(&engine, CONFIG_KB_TAPPING_TERM_MS);
+    if (apply_settings(true) != 0) {
+        return -EINVAL;
+    }
     kb_hold_init(&recovery_hold, CONFIG_KB_BOOTLOADER_HOLD_MS);
 
     k_thread_create(&scan_thread_data, scan_stack, K_THREAD_STACK_SIZEOF(scan_stack),
@@ -208,7 +279,7 @@ int keyboard_start(void)
     k_thread_name_set(&scan_thread_data, "kb_scan");
 
     LOG_INF("scanning %dx%d every %d us, debounce %d ms, NKRO %s", ROWS, COLS,
-            CONFIG_KB_MATRIX_SCAN_PERIOD_US, CONFIG_KB_DEBOUNCE_MS, nkro ? "on" : "off");
+            CONFIG_KB_MATRIX_SCAN_PERIOD_US, settings.debounce_ms, settings.nkro ? "on" : "off");
     return 0;
 }
 
@@ -227,25 +298,37 @@ void keyboard_unlock(void)
     k_mutex_unlock(&keymap_mutex);
 }
 
-void keyboard_save(void)
+int keyboard_save(void)
 {
+    uint16_t schema = KB_SETTINGS_SCHEMA;
+
     keyboard_lock();
-    memcpy(saved_keys, keymap_keys, sizeof(saved_keys));
+    size_t len = kb_settings_encode(&keymap, &settings, blob, sizeof(blob));
+    /* The flash write stalls the CPU anyway (an erase takes up to 85 ms), so
+     * keep the lock: nothing can change the blob or the keymap meanwhile.
+     */
+    int err = len ? storage_save(schema, blob, len) : -ENOSPC;
     keyboard_unlock();
+    return err;
 }
 
-void keyboard_revert(void)
+int keyboard_revert(void)
 {
     keyboard_lock();
-    memcpy(keymap_keys, saved_keys, sizeof(keymap_keys));
+    (void)load_defaults();
+    int err = load_saved();
+    (void)apply_settings(false);
     keyboard_unlock();
+    /* Nothing saved yet: the defaults are what's saved. */
+    return err == -ENOENT ? 0 : err;
 }
 
-void keyboard_factory_reset(void)
+int keyboard_factory_reset(void)
 {
     keyboard_lock();
-    (void)kb_keymap_init(&keymap, keymap_keys, DEFAULT_KEYMAP_LAYERS, ROWS, COLS,
-                         &default_keymap[0][0][0]);
-    memcpy(saved_keys, keymap_keys, sizeof(saved_keys));
+    int err = storage_wipe();
+    (void)load_defaults();
+    (void)apply_settings(false);
     keyboard_unlock();
+    return err;
 }

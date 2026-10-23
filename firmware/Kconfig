@@ -108,6 +108,20 @@ config KB_NKRO
 	  report. NK_TOGG in the keymap switches at run time; the host sets
 	  it once the settings protocol exists (phase 10).
 
+config KB_SLEEP_TIMEOUT_MIN
+	int "Default sleep timeout, in minutes (0 = never)"
+	default 15
+	range 0 240
+	help
+	  Stored with the settings; power management uses it in phase 13.
+
+config KB_INDICATOR_BRIGHTNESS
+	int "Default indicator LED brightness, in percent"
+	default 13
+	range 0 100
+	help
+	  Six SK6812s at full white draw about 360 mA, so keep this low.
+
 config KB_LED_SELFTEST
 	bool "Walk the indicator LED chain once at power-up"
 	default y

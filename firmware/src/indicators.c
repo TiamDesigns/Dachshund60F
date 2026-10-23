@@ -51,6 +51,16 @@ static const struct device *const led_power = DEVICE_DT_GET(DT_NODELABEL(led_pow
 static struct k_spinlock lock;
 static struct kb_indicator_state state = {.battery = KB_BATTERY_UNKNOWN};
 static struct kb_indicator_config config;
+static bool config_ready;
+
+/* Defaults on first use: the keyboard sets the brightness before indicators_start. Hold lock. */
+static void config_init_locked(void)
+{
+    if (!config_ready) {
+        kb_indicators_default_config(&config);
+        config_ready = true;
+    }
+}
 static bool powered;
 static bool started;
 static uint32_t selftest_step;
@@ -109,11 +119,14 @@ static void redraw(struct k_work *work)
     if (!started) {
         return; /* the self-test still owns the strip */
     }
+    struct kb_indicator_config cfg;
     K_SPINLOCK(&lock) {
+        config_init_locked();
         now = state;
+        cfg = config;
     }
 
-    bool lit = kb_indicators_render(chain, STRIP_LEN, &config, &now, out);
+    bool lit = kb_indicators_render(chain, STRIP_LEN, &cfg, &now, out);
     for (size_t i = 0; i < STRIP_LEN; i++) {
         pixels[i].r = out[i].r;
         pixels[i].g = out[i].g;
@@ -197,6 +210,15 @@ void indicators_set_layer(uint8_t layer)
     changed();
 }
 
+void indicators_set_brightness(uint8_t percent)
+{
+    K_SPINLOCK(&lock) {
+        config_init_locked();
+        config.brightness = (uint8_t)(MIN(percent, 100u) * 255u / 100u);
+    }
+    changed();
+}
+
 void indicators_set_asleep(bool asleep)
 {
     K_SPINLOCK(&lock) {
@@ -212,7 +234,6 @@ int indicators_start(void)
         return -ENODEV;
     }
 
-    kb_indicators_default_config(&config);
 
     if (IS_ENABLED(CONFIG_KB_LED_SELFTEST)) {
         k_work_schedule(&selftest_work, K_NO_WAIT);

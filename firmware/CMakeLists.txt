@@ -18,6 +18,7 @@ target_sources(app PRIVATE
   src/kb_usb.c
   src/keyboard.c
   src/matrix.c
+  src/storage.c
   ${KB_CORE_SOURCES}
 )
 target_sources_ifdef(CONFIG_KB_SCREEN app PRIVATE src/status_screen.c)
