@@ -38,6 +38,24 @@ interface BoardDef {
   display?: { pins: Record<string, string> };
   power: { chargeStatusPin?: string };
   reserved: Record<string, string>;
+  dongle?: {
+    pairButton: { pin: string };
+    statusLed: { pins: Record<string, string> };
+    reserved: Record<string, string>;
+  };
+}
+
+function assertPinsValid(used: string[], reserved: Record<string, string>): void {
+  const seen = new Set<string>();
+  for (const pin of used) {
+    const m = /^P([01])\.(\d{2})$/.exec(pin);
+    assert.ok(m, `bad pin name ${pin}`);
+    const num = Number(m[2]);
+    assert.ok(m[1] === "0" ? num <= 31 : num <= 15, `${pin} does not exist on nRF52840`);
+    assert.ok(!seen.has(pin), `${pin} assigned twice`);
+    assert.ok(!(pin in reserved), `${pin} is reserved: ${reserved[pin]}`);
+    seen.add(pin);
+  }
 }
 
 const boardNames = readdirSync(boardsDir, { withFileTypes: true })
@@ -150,17 +168,16 @@ for (const name of boardNames) {
       ...Object.values(board.display?.pins ?? {}),
       ...(board.power.chargeStatusPin ? [board.power.chargeStatusPin] : []),
     ];
-    const seen = new Set<string>();
-    for (const pin of used) {
-      const m = /^P([01])\.(\d{2})$/.exec(pin);
-      assert.ok(m, `bad pin name ${pin}`);
-      const num = Number(m[2]);
-      assert.ok(m[1] === "0" ? num <= 31 : num <= 15, `${pin} does not exist on nRF52840`);
-      assert.ok(!seen.has(pin), `${pin} assigned twice`);
-      assert.ok(!(pin in board.reserved), `${pin} is reserved: ${board.reserved[pin]}`);
-      seen.add(pin);
-    }
+    assertPinsValid(used, board.reserved);
   });
+
+  // The dongle is a second nRF52840 with its own pins, so it is checked on its own.
+  const dongle = board.dongle;
+  if (dongle) {
+    test(`${name}: dongle pins are valid nRF52840 GPIOs, unique and not reserved`, () => {
+      assertPinsValid([dongle.pairButton.pin, ...Object.values(dongle.statusLed.pins)], dongle.reserved);
+    });
+  }
 
   test(`${name}: indicator count matches keyboard.json`, () => {
     assert.equal(board.indicators.count, kb.indicators.length);
