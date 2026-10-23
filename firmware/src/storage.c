@@ -17,7 +17,7 @@
 LOG_MODULE_REGISTER(storage, LOG_LEVEL_INF);
 
 #define STORAGE_ID PARTITION_ID(storage_partition)
-#define SECTOR_SIZE 4096u
+#define SECTOR_SIZE STORAGE_SECTOR_SIZE
 
 static const struct flash_area *area;
 static struct kb_store store;

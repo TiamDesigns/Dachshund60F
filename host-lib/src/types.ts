@@ -5,6 +5,7 @@
  * (hid-board.ts) implements Board over the config protocol for real boards;
  * MockBoard (mock.ts) simulates one.
  */
+import type { MatrixPosition } from "./keyboard-definition.js";
 
 /** How the host reaches the board. */
 export type ConnectionKind = "usb" | "dongle" | "ble";
@@ -77,6 +78,99 @@ export interface Keymap {
   encoders: EncoderAction[][];
 }
 
+/** Pressing all keys (2-4) within timeoutMs acts as result. result KC_NO = an unused slot. */
+export interface Combo {
+  keys: MatrixPosition[];
+  result: KeycodeId;
+  /** 0 = the firmware default (50 ms). */
+  timeoutMs: number;
+  /** Layers it works on; empty = all. */
+  layers: number[];
+}
+
+/** TD(n): tap once, hold, tap twice or three times. KC_NO actions fall back to tap. */
+export interface TapDance {
+  tap: KeycodeId;
+  hold: KeycodeId;
+  doubleTap: KeycodeId;
+  tripleTap: KeycodeId;
+  /** 0 = the tapping term. */
+  termMs: number;
+}
+
+/**
+ * With exactly these modifiers held (either side counts), triggerKey sends
+ * replacement without them; e.g. Shift + Backspace = Delete. replacement
+ * KC_NO = an unused slot.
+ */
+export interface KeyOverride {
+  /** HID modifier bits: 0x01 Ctrl, 0x02 Shift, 0x04 Alt, 0x08 GUI (right-hand ones count the same). */
+  triggerMods: number;
+  /** A basic key, e.g. "KC_BSPC". */
+  triggerKey: KeycodeId;
+  replacement: KeycodeId;
+  layers: number[];
+}
+
+/** QK_LEAD, then these basic keys (1-4), taps result. result KC_NO = unused. */
+export interface LeaderSequence {
+  keys: KeycodeId[];
+  result: KeycodeId;
+}
+
+/** Tap-hold behaviour for one layer-tap or mod-tap key. null in a list = an unused slot. */
+export interface TapHoldRule {
+  row: number;
+  col: number;
+  permissiveHold: boolean;
+  holdOnOtherKeyPress: boolean;
+  retroTap: boolean;
+  tappingTermMs: number;
+  /** 0 = off. */
+  quickTapMs: number;
+}
+
+export interface AdvancedOptions {
+  /** Time allowed per key of a Leader sequence. */
+  leaderTimeoutMs: number;
+  /** Both Shifts together toggle Caps Word. */
+  capsWordOnBothShifts: boolean;
+  /** Caps Word turns off after this long without typing; 0 = never. */
+  capsWordIdleMs: number;
+  /** Auto Shift on at power-up (AS_TOGG flips it). */
+  autoShift: boolean;
+  /** Hold a key this long to get it shifted. */
+  autoShiftMs: number;
+  mouse: {
+    intervalMs: number;
+    /** Starting speed, pixels per report. */
+    moveDelta: number;
+    maxSpeed: number;
+    timeToMaxMs: number;
+    wheelIntervalMs: number;
+  };
+}
+
+/** Everything the advanced-key editors edit, as the board has it live. */
+export interface AdvancedKeys {
+  options: AdvancedOptions;
+  combos: Combo[];
+  tapDances: TapDance[];
+  keyOverrides: KeyOverride[];
+  leader: LeaderSequence[];
+  tapHold: (TapHoldRule | null)[];
+}
+
+/** The tables of AdvancedKeys that hold one entry per slot. */
+export type AdvancedTable = "combos" | "tapDances" | "keyOverrides" | "leader" | "tapHold";
+
+/** One step of a macro (M(n)). */
+export type MacroStep =
+  | { type: "tap" | "down" | "up"; keycode: KeycodeId }
+  | { type: "delay"; ms: number }
+  /** Printable ASCII, typed on a US layout. */
+  | { type: "text"; text: string };
+
 export type BoardEvent =
   | { type: "battery"; battery: BatteryStatus }
   | { type: "changed" } // keymap or settings changed (live, not yet saved)
@@ -134,6 +228,20 @@ export interface Board {
    * firmware update. It drops off the bus. Absent on boards that can't.
    */
   reboot?(bootloader: boolean): Promise<void>;
+
+  /**
+   * Advanced keys (combos, tap dance, overrides, Leader, tap-hold rules and
+   * their options). Absent on boards that don't have them.
+   */
+  getAdvancedKeys?(): Promise<AdvancedKeys>;
+  /** Replace slot index of a table (live, like setKey). */
+  setAdvancedEntry?<T extends AdvancedTable>(table: T, index: number, value: AdvancedKeys[T][number]): Promise<void>;
+  setAdvancedOptions?(patch: Partial<AdvancedOptions>): Promise<AdvancedOptions>;
+
+  /** Macros M(0)... in order. Absent on boards without macros. */
+  getMacros?(): Promise<MacroStep[][]>;
+  /** Replace every macro at once. "storage-full" if they don't fit the board's buffer. */
+  setMacros?(macros: MacroStep[][]): Promise<void>;
 
   subscribe(listener: (event: BoardEvent) => void): () => void;
 }

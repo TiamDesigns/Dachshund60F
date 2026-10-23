@@ -43,8 +43,9 @@ class Field:
             self.type = t
         elif m := re.fullmatch(r"char\[(\d+)\]", t):
             self.kind, self.size = "char", int(m[1])
-        elif t == "u16[]":
+        elif t in ("u8[]", "u16[]"):
             self.kind, self.max = "array", int(raw["max"])
+            self.elem = 1 if t == "u8[]" else 2
             self.size = 0
         else:
             raise SystemExit(f"{where}: unknown type {t!r}")
@@ -61,7 +62,7 @@ class Message:
                 raise SystemExit(f"{where}: an array must be the last field")
         self.fixed = sum(f.size for f in self.fields)
         self.array = self.fields[-1] if self.fields and self.fields[-1].kind == "array" else None
-        self.max_size = self.fixed + (2 * self.array.max if self.array else 0)
+        self.max_size = self.fixed + (self.array.elem * self.array.max if self.array else 0)
         if self.max_size > max_payload:
             raise SystemExit(f"{where}: {self.max_size} bytes exceeds the {max_payload}-byte payload")
 
@@ -87,6 +88,7 @@ def load():
         raise SystemExit("frame: header_size + max_payload must equal hid.report_size")
 
     allowed = {"errors": {"name", "code", "doc"}, "capabilities": {"name", "bit", "doc"},
+               "feature_tables": {"name", "id", "size", "entries", "doc"},
                "commands": {"name", "id", "doc", "request", "response"}}
     for key, keys in allowed.items():
         for item in spec[key]:
@@ -98,7 +100,7 @@ def load():
             if set(f) - {"name", "type", "doc", "max"}:
                 raise SystemExit(f"{cmd['name']}: field {f.get('name')}: unexpected {sorted(set(f) - {'name', 'type', 'doc', 'max'})}")
 
-    for key, field in (("errors", "code"), ("commands", "id"), ("capabilities", "bit")):
+    for key, field in (("errors", "code"), ("commands", "id"), ("capabilities", "bit"), ("feature_tables", "id")):
         seen_names, seen_values = set(), set()
         for item in spec[key]:
             if item["name"] in seen_names or item[field] in seen_values:
@@ -107,6 +109,8 @@ def load():
             seen_values.add(item[field])
     if any(not 0 < c["id"] < 0xFF for c in spec["commands"]):
         raise SystemExit("commands: ids must be 0x01-0xFE")
+    if any(not 0 < t["size"] <= max_payload - 4 for t in spec["feature_tables"]):
+        raise SystemExit("feature_tables: size must fit a get_feature response")
     if any(not 0 <= c["bit"] < 32 for c in spec["capabilities"]):
         raise SystemExit("capabilities: bits must be 0-31")
 
@@ -129,7 +133,7 @@ def c_fields(m):
             lines.append(f"    char {f.name}[{f.size + 1}]; /* NUL-terminated */")
         else:
             lines.append(f"    uint8_t {f.name}_count;")
-            lines.append(f"    uint16_t {f.name}[{f.max}];")
+            lines.append(f"    uint{f.elem * 8}_t {f.name}[{f.max}];")
     return lines
 
 
@@ -159,6 +163,12 @@ def gen_h(spec, messages):
     o += [f"    KB_PROTO_CMD_{c['name'].upper()} = 0x{c['id']:02X}," for c in spec["commands"]]
     o += ["};", "", "/* Handshake capability bits */"]
     o += [f"#define KB_PROTO_CAP_{c['name'].upper()} (1u << {c['bit']}) /* {c['doc']} */" for c in spec["capabilities"]]
+    o += ["", "/* Advanced-key tables: id, entry size in bytes and entry count */"]
+    for t in spec["feature_tables"]:
+        n = t["name"].upper()
+        o += [f"#define KB_PROTO_TABLE_{n} {t['id']}u", f"#define KB_PROTO_TABLE_{n}_SIZE {t['size']}u",
+              f"#define KB_PROTO_TABLE_{n}_ENTRIES {t['entries']}u"]
+    o.append(f"#define KB_PROTO_TABLE_COUNT {len(spec['feature_tables'])}u")
     o.append("")
 
     for m in messages:
@@ -217,7 +227,9 @@ def gen_c(spec, messages):
         # decode
         body.append(f"int {m.c_name}_decode(const uint8_t *p, size_t len, struct {m.c_name} *out)")
         body.append("{")
-        if m.array:
+        if m.array and m.array.elem == 1:
+            body.append(f"    if (len < {m.fixed}u || len - {m.fixed}u > {m.array.max}u) {{")
+        elif m.array:
             body.append(f"    if (len < {m.fixed}u || (len - {m.fixed}u) % 2u != 0 || (len - {m.fixed}u) / 2u > {m.array.max}u) {{")
         else:
             body.append(f"    if (len != {m.fixed}u) {{")
@@ -234,6 +246,9 @@ def gen_c(spec, messages):
             elif f.kind == "char":
                 body.append(f"    memcpy(out->{f.name}, p + {off}, {f.size});")
                 off += f.size
+            elif f.elem == 1:
+                body.append(f"    out->{f.name}_count = (uint8_t)(len - {off}u);")
+                body.append(f"    memcpy(out->{f.name}, p + {off}, out->{f.name}_count);")
             else:
                 used["get16"] = True
                 body.append(f"    out->{f.name}_count = (uint8_t)((len - {off}u) / 2u);")
@@ -260,6 +275,10 @@ def gen_c(spec, messages):
                 used["text_len"] = True
                 body.append(f"    memcpy(p + {off}, in->{f.name}, text_len(in->{f.name}, {f.size}));")
                 off += f.size
+            elif f.elem == 1:
+                body.append(f"    size_t n = in->{f.name}_count < {f.max}u ? in->{f.name}_count : {f.max}u;")
+                body.append(f"    memcpy(p + {off}, in->{f.name}, n);")
+                body.append(f"    return {off}u + n;")
             else:
                 used["put16"] = True
                 body.append(f"    size_t n = in->{f.name}_count < {f.max}u ? in->{f.name}_count : {f.max}u;")
@@ -302,7 +321,7 @@ def ts_type(f):
         return "number"
     if f.kind == "char":
         return "string"
-    return "number[]"
+    return "Uint8Array" if f.elem == 1 else "number[]"
 
 
 def gen_ts(spec, messages):
@@ -327,6 +346,10 @@ def gen_ts(spec, messages):
     o += ["} as const;", "export type CommandName = keyof typeof Command;", "", "export const Capability = {"]
     o += [f"  {camel(c['name'])}: 1 << {c['bit']}," for c in spec["capabilities"]]
     o += ["} as const;", ""]
+    o += ["/** Advanced-key tables: id, entry size in bytes and most entries (see protocol.yaml). */"]
+    o += ["export const FeatureTable = {"]
+    o += [f"  {camel(t['name'])}: {{ id: {t['id']}, size: {t['size']}, entries: {t['entries']} }}," for t in spec["feature_tables"]]
+    o += ["} as const;", "export type FeatureTableName = keyof typeof FeatureTable;", ""]
     o += [
         "/** A payload that doesn't fit its message. */",
         "export class PayloadError extends Error {}",
@@ -376,7 +399,7 @@ def gen_ts(spec, messages):
         if m.array:
             a = camel(m.array.name)
             o.append(f"  if (m.{a}.length > {m.array.max}) throw new PayloadError(\"{m.array.name}: at most {m.array.max}\");")
-            o.append(f"  const p = new Uint8Array({m.fixed} + 2 * m.{a}.length);")
+            o.append(f"  const p = new Uint8Array({m.fixed} + {m.array.elem} * m.{a}.length);")
         else:
             o.append(f"  const p = new Uint8Array({m.fixed});")
         if m.fields:
@@ -395,13 +418,17 @@ def gen_ts(spec, messages):
                 o.append(f"  if ({n}Bytes.length > {f.size}) throw new PayloadError(\"{f.name}: at most {f.size} bytes\");")
                 o.append(f"  p.set({n}Bytes, {off});")
                 off += f.size
+            elif f.elem == 1:
+                o.append(f"  p.set(m.{n}, {off});")
             else:
                 o.append(f"  m.{n}.forEach((x, i) => v.setUint16({off} + 2 * i, u16(x, \"{f.name}\"), true));")
         o += ["  return p;", "}", ""]
         # decode
         parg = "p" if m.fields else "p"
         o.append(f"export function decode{cmdname}{dirname}({parg}: Uint8Array): {m.ts_name} {{")
-        if m.array:
+        if m.array and m.array.elem == 1:
+            o.append(f"  if (p.length < {m.fixed} || p.length - {m.fixed} > {m.array.max}) {{")
+        elif m.array:
             o.append(
                 f"  if (p.length < {m.fixed} || (p.length - {m.fixed}) % 2 !== 0 || (p.length - {m.fixed}) / 2 > {m.array.max}) {{"
             )
@@ -425,6 +452,8 @@ def gen_ts(spec, messages):
             elif f.kind == "char":
                 o.append(f"    {n}: text(p, {off}, {f.size}),")
                 off += f.size
+            elif f.elem == 1:
+                o.append(f"    {n}: p.slice({off}),")
             else:
                 o.append(f"    {n}: Array.from({{ length: (p.length - {off}) / 2 }}, (_, i) => v.getUint16({off} + 2 * i, true)),")
         o += ["  };", "}", ""]

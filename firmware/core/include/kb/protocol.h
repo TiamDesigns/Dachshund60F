@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "kb/features.h"
 #include "kb/keymap.h"
 #include "kb/protocol_gen.h"
 
@@ -31,6 +32,11 @@ struct kb_protocol_ops {
     void (*reboot)(bool bootloader, void *ctx);
     /* Flash the indicators for this many seconds. NULL: not supported. */
     void (*identify)(uint8_t seconds, void *ctx);
+    /*
+     * The advanced-key tables changed (called with the lock held), so the
+     * engine can drop state that refers to the old ones. Optional.
+     */
+    void (*features_changed)(void *ctx);
     /* Guard keymap changes against the scan thread. Optional. */
     void (*lock)(void *ctx);
     void (*unlock)(void *ctx);
@@ -50,6 +56,14 @@ struct kb_protocol {
     uint32_t capabilities;
     uint8_t encoders;
     uint16_t macro_buffer_size;
+    /*
+     * The live advanced-key tables, and a KB_MACRO_BUFFER-byte buffer where
+     * the host edits macros before apply_macros. NULL: the feature commands
+     * answer not_supported. Revert and factory reset replace the tables
+     * themselves; the edit buffer is refreshed here.
+     */
+    struct kb_features *features;
+    uint8_t *macro_edit;
 };
 
 /*

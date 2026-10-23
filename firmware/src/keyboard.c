@@ -10,8 +10,10 @@
 
 #include "bootloader.h"
 #include "default_keymap.h"
+#include "encoder_input.h"
 #include "kb/debounce.h"
 #include "kb/engine.h"
+#include "kb/features.h"
 #include "kb/hid.h"
 #include "kb/hold.h"
 #include "kb/keymap.h"
@@ -60,8 +62,13 @@ BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_col_gpios) == COLS,
 #define KEYMAP_LEN (DEFAULT_KEYMAP_LAYERS * ROWS * COLS)
 static kb_keycode_t keymap_keys[KEYMAP_LEN];
 static struct kb_settings settings;
-/* Encoded snapshot for save and load; only used under keymap_mutex or before the scan starts. */
-static uint8_t blob[512 + 2 * KEYMAP_LEN];
+/* Advanced keys (combos, tap dance, macros, encoder mapping...), and the macros the host is editing. */
+static struct kb_features features;
+static uint8_t macro_edit[KB_MACRO_BUFFER];
+/* Encoded snapshot for save and load (one store sector at most); only used
+ * under keymap_mutex or before the scan starts.
+ */
+static uint8_t blob[STORAGE_RECORD_MAX];
 /* Held by the scan thread while it runs the engine, and by keymap and settings edits. */
 static K_MUTEX_DEFINE(keymap_mutex);
 static struct kb_keymap keymap;
@@ -76,7 +83,11 @@ K_THREAD_STACK_DEFINE(scan_stack, SCAN_STACK_SIZE);
 static struct k_thread scan_thread_data;
 K_TIMER_DEFINE(scan_timer, NULL, NULL);
 
-/* Everything below runs on the scan thread, so the engine and reporter need no locks. */
+/*
+ * The engine callbacks below run on the scan thread, or on the config
+ * thread when it changes settings or tables; both hold keymap_mutex, so the
+ * engine and reporter need no locks of their own.
+ */
 
 static void send_report(enum kb_hid_report report, const uint8_t *data, size_t len, void *ctx)
 {
@@ -122,6 +133,17 @@ static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
     }
 }
 
+static uint8_t mouse_buttons;
+
+static void on_mouse(const struct kb_mouse_report *m, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    uint8_t report[KB_HID_MOUSE_REPORT_SIZE];
+    kb_hid_pack_mouse(m, report);
+    mouse_buttons = m->buttons;
+    (void)kb_usb_send(KB_HID_REPORT_MOUSE, report, sizeof(report));
+}
+
 static void on_layers(uint32_t layer_mask, uint8_t highest, void *ctx)
 {
     ARG_UNUSED(layer_mask);
@@ -134,6 +156,7 @@ static const struct kb_engine_ops engine_ops = {
     .report = on_report,
     .action = on_action,
     .layers = on_layers,
+    .mouse = on_mouse,
 };
 
 static void scan_thread(void *p1, void *p2, void *p3)
@@ -156,6 +179,12 @@ static void scan_thread(void *p1, void *p2, void *p3)
             kb_engine_matrix(&engine, stable, next, now);
             memcpy(stable, next, sizeof(stable));
         }
+        for (int i = 0; i < encoder_input_count(); i++) {
+            int detent = encoder_input_poll(i);
+            if (detent) {
+                kb_engine_encoder(&engine, (uint8_t)i, detent > 0, now);
+            }
+        }
         kb_engine_tick(&engine, now);
 
         /* Follow the host: boot protocol forces 6KRO; after a resume or a
@@ -167,6 +196,8 @@ static void scan_thread(void *p1, void *p2, void *p3)
         }
         if (kb_usb_take_resync()) {
             kb_hid_reporter_resync(&reporter, kb_engine_hid(&engine));
+            /* Movement is never replayed, only the buttons held. */
+            on_mouse(&(struct kb_mouse_report){.buttons = mouse_buttons}, NULL);
         }
         k_mutex_unlock(&keymap_mutex);
 
@@ -197,6 +228,7 @@ static void default_settings(struct kb_settings *st)
 static int load_defaults(void)
 {
     default_settings(&settings);
+    default_features(&features);
     return kb_keymap_init(&keymap, keymap_keys, DEFAULT_KEYMAP_LAYERS, ROWS, COLS,
                           &default_keymap[0][0][0]);
 }
@@ -219,8 +251,9 @@ static int load_saved(void)
         LOG_ERR("saved settings have schema %u, unknown here; using defaults", schema);
         return -EINVAL;
     }
-    LOG_INF("loaded saved%s%s", (loaded & KB_LOADED_KEYMAP) ? " keymap" : "",
-            (loaded & KB_LOADED_SETTINGS) ? " settings" : "");
+    int advanced = kb_features_decode(schema, blob, len, &features, keymap.layers, ROWS, COLS);
+    LOG_INF("loaded saved%s%s%s", (loaded & KB_LOADED_KEYMAP) ? " keymap" : "",
+            (loaded & KB_LOADED_SETTINGS) ? " settings" : "", advanced > 0 ? " advanced keys" : "");
     return 0;
 }
 
@@ -243,6 +276,9 @@ static int apply_settings(bool first)
         debounce_ms = settings.debounce_ms;
     }
     kb_engine_set_tapping_term(&engine, settings.tapping_term_ms);
+    /* New tables (revert, factory reset): the engine lets go of the old ones. */
+    kb_engine_set_features(&engine, &features);
+    memcpy(macro_edit, features.macros, sizeof(macro_edit));
     kb_hid_reporter_set_nkro(&reporter, settings.nkro, kb_engine_hid(&engine));
     indicators_set_brightness(settings.indicator_brightness);
     return 0;
@@ -254,6 +290,11 @@ int keyboard_start(void)
     if (err) {
         LOG_ERR("matrix setup failed (%d)", err);
         return err;
+    }
+    err = encoder_input_init();
+    if (err) {
+        /* Typing still works without the roller. */
+        LOG_ERR("encoder setup failed (%d)", err);
     }
 
     int replaced = load_defaults();
@@ -288,6 +329,21 @@ struct kb_keymap *keyboard_keymap(void)
     return &keymap;
 }
 
+struct kb_features *keyboard_features(void)
+{
+    return &features;
+}
+
+uint8_t *keyboard_macro_edit(void)
+{
+    return macro_edit;
+}
+
+void keyboard_features_changed(void)
+{
+    kb_engine_set_features(&engine, &features);
+}
+
 void keyboard_lock(void)
 {
     k_mutex_lock(&keymap_mutex, K_FOREVER);
@@ -304,6 +360,8 @@ int keyboard_save(void)
 
     keyboard_lock();
     size_t len = kb_settings_encode(&keymap, &settings, blob, sizeof(blob));
+    size_t more = len ? kb_features_encode(&features, keymap.layers, blob + len, sizeof(blob) - len) : 0;
+    len = more ? len + more : 0;
     /* The flash write stalls the CPU anyway (an erase takes up to 85 ms), so
      * keep the lock: nothing can change the blob or the keymap meanwhile.
      */

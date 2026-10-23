@@ -47,6 +47,11 @@ export const Command = {
   save: 0x20,
   revert: 0x21,
   factoryReset: 0x22,
+  getFeature: 0x30,
+  setFeature: 0x31,
+  getMacroChunk: 0x32,
+  setMacroChunk: 0x33,
+  applyMacros: 0x34,
 } as const;
 export type CommandName = keyof typeof Command;
 
@@ -62,6 +67,18 @@ export const Capability = {
   battery: 1 << 8,
   identify: 1 << 9,
 } as const;
+
+/** Advanced-key tables: id, entry size in bytes and most entries (see protocol.yaml). */
+export const FeatureTable = {
+  options: { id: 0, size: 14, entries: 1 },
+  combo: { id: 1, size: 14, entries: 16 },
+  tapDance: { id: 2, size: 10, entries: 16 },
+  keyOverride: { id: 3, size: 6, entries: 16 },
+  leader: { id: 4, size: 6, entries: 16 },
+  tapHold: { id: 5, size: 7, entries: 16 },
+  encoder: { id: 6, size: 4, entries: 32 },
+} as const;
+export type FeatureTableName = keyof typeof FeatureTable;
 
 /** A payload that doesn't fit its message. */
 export class PayloadError extends Error {}
@@ -539,6 +556,221 @@ export function encodeFactoryResetResponse(_m: FactoryResetResponse): Uint8Array
 export function decodeFactoryResetResponse(p: Uint8Array): FactoryResetResponse {
   if (p.length !== 0) {
     throw new PayloadError(`factory_reset response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Read one entry of an advanced-key table (see feature_tables). */
+export interface GetFeatureRequest {
+  table: number;
+  index: number;
+}
+
+export function encodeGetFeatureRequest(m: GetFeatureRequest): Uint8Array {
+  const p = new Uint8Array(3);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.table, "table"));
+  v.setUint16(1, u16(m.index, "index"), true);
+  return p;
+}
+
+export function decodeGetFeatureRequest(p: Uint8Array): GetFeatureRequest {
+  if (p.length !== 3) {
+    throw new PayloadError(`get_feature request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    table: v.getUint8(0),
+    index: v.getUint16(1, true),
+  };
+}
+
+export interface GetFeatureResponse {
+  table: number;
+  index: number;
+  data: Uint8Array;
+}
+
+export function encodeGetFeatureResponse(m: GetFeatureResponse): Uint8Array {
+  if (m.data.length > 56) throw new PayloadError("data: at most 56");
+  const p = new Uint8Array(3 + 1 * m.data.length);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.table, "table"));
+  v.setUint16(1, u16(m.index, "index"), true);
+  p.set(m.data, 3);
+  return p;
+}
+
+export function decodeGetFeatureResponse(p: Uint8Array): GetFeatureResponse {
+  if (p.length < 3 || p.length - 3 > 56) {
+    throw new PayloadError(`get_feature response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    table: v.getUint8(0),
+    index: v.getUint16(1, true),
+    data: p.slice(3),
+  };
+}
+
+/** Replace one entry of an advanced-key table in the live settings. The whole set of tables is checked first; on an error nothing changes. */
+export interface SetFeatureRequest {
+  table: number;
+  index: number;
+  data: Uint8Array;
+}
+
+export function encodeSetFeatureRequest(m: SetFeatureRequest): Uint8Array {
+  if (m.data.length > 56) throw new PayloadError("data: at most 56");
+  const p = new Uint8Array(3 + 1 * m.data.length);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.table, "table"));
+  v.setUint16(1, u16(m.index, "index"), true);
+  p.set(m.data, 3);
+  return p;
+}
+
+export function decodeSetFeatureRequest(p: Uint8Array): SetFeatureRequest {
+  if (p.length < 3 || p.length - 3 > 56) {
+    throw new PayloadError(`set_feature request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    table: v.getUint8(0),
+    index: v.getUint16(1, true),
+    data: p.slice(3),
+  };
+}
+
+export type SetFeatureResponse = Record<string, never>;
+
+export function encodeSetFeatureResponse(_m: SetFeatureResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeSetFeatureResponse(p: Uint8Array): SetFeatureResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`set_feature response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Read up to 56 bytes of the macro buffer being edited (the live one unless set_macro_chunk changed it since). */
+export interface GetMacroChunkRequest {
+  offset: number;
+  count: number;
+}
+
+export function encodeGetMacroChunkRequest(m: GetMacroChunkRequest): Uint8Array {
+  const p = new Uint8Array(3);
+  const v = new DataView(p.buffer);
+  v.setUint16(0, u16(m.offset, "offset"), true);
+  v.setUint8(2, u8(m.count, "count"));
+  return p;
+}
+
+export function decodeGetMacroChunkRequest(p: Uint8Array): GetMacroChunkRequest {
+  if (p.length !== 3) {
+    throw new PayloadError(`get_macro_chunk request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    offset: v.getUint16(0, true),
+    count: v.getUint8(2),
+  };
+}
+
+export interface GetMacroChunkResponse {
+  offset: number;
+  data: Uint8Array;
+}
+
+export function encodeGetMacroChunkResponse(m: GetMacroChunkResponse): Uint8Array {
+  if (m.data.length > 56) throw new PayloadError("data: at most 56");
+  const p = new Uint8Array(2 + 1 * m.data.length);
+  const v = new DataView(p.buffer);
+  v.setUint16(0, u16(m.offset, "offset"), true);
+  p.set(m.data, 2);
+  return p;
+}
+
+export function decodeGetMacroChunkResponse(p: Uint8Array): GetMacroChunkResponse {
+  if (p.length < 2 || p.length - 2 > 56) {
+    throw new PayloadError(`get_macro_chunk response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    offset: v.getUint16(0, true),
+    data: p.slice(2),
+  };
+}
+
+/** Write up to 56 bytes into the macro buffer being edited. Nothing changes on the keyboard until apply_macros. */
+export interface SetMacroChunkRequest {
+  offset: number;
+  data: Uint8Array;
+}
+
+export function encodeSetMacroChunkRequest(m: SetMacroChunkRequest): Uint8Array {
+  if (m.data.length > 56) throw new PayloadError("data: at most 56");
+  const p = new Uint8Array(2 + 1 * m.data.length);
+  const v = new DataView(p.buffer);
+  v.setUint16(0, u16(m.offset, "offset"), true);
+  p.set(m.data, 2);
+  return p;
+}
+
+export function decodeSetMacroChunkRequest(p: Uint8Array): SetMacroChunkRequest {
+  if (p.length < 2 || p.length - 2 > 56) {
+    throw new PayloadError(`set_macro_chunk request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    offset: v.getUint16(0, true),
+    data: p.slice(2),
+  };
+}
+
+export type SetMacroChunkResponse = Record<string, never>;
+
+export function encodeSetMacroChunkResponse(_m: SetMacroChunkResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeSetMacroChunkResponse(p: Uint8Array): SetMacroChunkResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`set_macro_chunk response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Check the edited macro buffer and make it the live one. bad_value if a step is malformed; the live macros stay and the edit is dropped. */
+export type ApplyMacrosRequest = Record<string, never>;
+
+export function encodeApplyMacrosRequest(_m: ApplyMacrosRequest): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeApplyMacrosRequest(p: Uint8Array): ApplyMacrosRequest {
+  if (p.length !== 0) {
+    throw new PayloadError(`apply_macros request: bad length ${p.length}`);
+  }
+  return {};
+}
+
+export type ApplyMacrosResponse = Record<string, never>;
+
+export function encodeApplyMacrosResponse(_m: ApplyMacrosResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeApplyMacrosResponse(p: Uint8Array): ApplyMacrosResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`apply_macros response: bad length ${p.length}`);
   }
   return {};
 }

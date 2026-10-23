@@ -10,8 +10,11 @@
 
 #include "kb/store.h"
 
+/* A user may define its own geometry first (kb_host_device: the firmware's). */
+#ifndef SIM_SIZE
 #define SIM_SIZE 8192u
 #define SIM_SECTOR 1024u
+#endif
 #define SIM_SECTORS (SIM_SIZE / SIM_SECTOR)
 
 struct sim_flash {

@@ -14,6 +14,7 @@ target_sources(app PRIVATE
   src/bootloader.c
   src/config.c
   src/default_keymap.c
+  src/encoder_input.c
   src/indicators.c
   src/kb_usb.c
   src/keyboard.c

@@ -66,6 +66,10 @@ static bool fuzz_protocol_one(const uint8_t *data, size_t size)
             fprintf(stderr, "the keymap holds an invalid keycode\n");
             return false;
         }
+        if (!fx_features_valid()) {
+            fprintf(stderr, "the advanced-key tables are invalid\n");
+            return false;
+        }
         if (fx.locks != fx.unlocks) {
             fprintf(stderr, "lock and unlock calls don't pair\n");
             return false;

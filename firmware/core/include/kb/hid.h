@@ -9,7 +9,7 @@
  *   keys) with no report ID, and the lock-LED output report. This is all a
  *   BIOS or KVM sees.
  * - Extra: report protocol only, with report IDs: an NKRO bitmap keyboard,
- *   consumer control and system control.
+ *   consumer control, system control and a mouse (mouse keys).
  *
  * Keys go out on exactly one path at a time. In NKRO mode the keyboard
  * interface stays at all zeros and every key and modifier goes in the NKRO
@@ -30,6 +30,7 @@
 #define KB_HID_ID_NKRO 1u
 #define KB_HID_ID_CONSUMER 2u
 #define KB_HID_ID_SYSTEM 3u
+#define KB_HID_ID_MOUSE 4u
 
 /* The NKRO bitmap covers keyboard usages 0x00-0xDF; modifiers have their own byte. */
 #define KB_HID_NKRO_USAGES 0xE0u
@@ -40,6 +41,7 @@
 #define KB_HID_NKRO_REPORT_SIZE (2u + KB_HID_NKRO_BITMAP_SIZE)
 #define KB_HID_CONSUMER_REPORT_SIZE 3u
 #define KB_HID_SYSTEM_REPORT_SIZE 3u
+#define KB_HID_MOUSE_REPORT_SIZE 6u /* ID, buttons, x, y, wheel, pan */
 #define KB_HID_EXTRA_REPORT_MAX KB_HID_NKRO_REPORT_SIZE
 
 /* Lock-LED output report bits (keyboard interface) */
@@ -66,12 +68,15 @@ void kb_hid_pack_nkro(const struct kb_hid_state *hid, uint8_t out[KB_HID_NKRO_RE
 void kb_hid_pack_consumer(const struct kb_hid_state *hid,
                           uint8_t out[KB_HID_CONSUMER_REPORT_SIZE]);
 void kb_hid_pack_system(const struct kb_hid_state *hid, uint8_t out[KB_HID_SYSTEM_REPORT_SIZE]);
+/* Mouse reports are relative, so they go out as the engine makes them, not through the reporter. */
+void kb_hid_pack_mouse(const struct kb_mouse_report *m, uint8_t out[KB_HID_MOUSE_REPORT_SIZE]);
 
 enum kb_hid_report {
     KB_HID_REPORT_BOOT,     /* keyboard interface */
     KB_HID_REPORT_NKRO,     /* extra interface, ID 1 */
     KB_HID_REPORT_CONSUMER, /* extra interface, ID 2 */
     KB_HID_REPORT_SYSTEM,   /* extra interface, ID 3 */
+    KB_HID_REPORT_MOUSE,    /* extra interface, ID 4 */
 };
 
 /* Hands one report to the transport. */

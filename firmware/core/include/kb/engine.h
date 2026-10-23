@@ -229,7 +229,9 @@ void kb_engine_init(struct kb_engine *e, const struct kb_keymap *keymap,
 /*
  * Feature tables (combos, tap dance, ...); they must outlive the engine's
  * use of them and be valid (kb_features_valid). Also sets the per-key
- * tap-hold rules and Auto Shift's state from them. NULL clears them.
+ * tap-hold rules and Auto Shift's state from them. NULL clears them. Call
+ * it again after changing the tables: keys waiting to become a combo go on
+ * as plain keys, fired combos are released and a playing macro stops.
  */
 void kb_engine_set_features(struct kb_engine *e, const struct kb_features *features);
 

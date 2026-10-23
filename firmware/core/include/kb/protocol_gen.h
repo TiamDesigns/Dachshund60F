@@ -44,6 +44,11 @@ enum kb_proto_command {
     KB_PROTO_CMD_SAVE = 0x20,
     KB_PROTO_CMD_REVERT = 0x21,
     KB_PROTO_CMD_FACTORY_RESET = 0x22,
+    KB_PROTO_CMD_GET_FEATURE = 0x30,
+    KB_PROTO_CMD_SET_FEATURE = 0x31,
+    KB_PROTO_CMD_GET_MACRO_CHUNK = 0x32,
+    KB_PROTO_CMD_SET_MACRO_CHUNK = 0x33,
+    KB_PROTO_CMD_APPLY_MACROS = 0x34,
 };
 
 /* Handshake capability bits */
@@ -57,6 +62,30 @@ enum kb_proto_command {
 #define KB_PROTO_CAP_MATRIX_STREAM (1u << 7) /* live matrix state for the key tester */
 #define KB_PROTO_CAP_BATTERY (1u << 8) /* battery level */
 #define KB_PROTO_CAP_IDENTIFY (1u << 9) /* identify command */
+
+/* Advanced-key tables: id, entry size in bytes and entry count */
+#define KB_PROTO_TABLE_OPTIONS 0u
+#define KB_PROTO_TABLE_OPTIONS_SIZE 14u
+#define KB_PROTO_TABLE_OPTIONS_ENTRIES 1u
+#define KB_PROTO_TABLE_COMBO 1u
+#define KB_PROTO_TABLE_COMBO_SIZE 14u
+#define KB_PROTO_TABLE_COMBO_ENTRIES 16u
+#define KB_PROTO_TABLE_TAP_DANCE 2u
+#define KB_PROTO_TABLE_TAP_DANCE_SIZE 10u
+#define KB_PROTO_TABLE_TAP_DANCE_ENTRIES 16u
+#define KB_PROTO_TABLE_KEY_OVERRIDE 3u
+#define KB_PROTO_TABLE_KEY_OVERRIDE_SIZE 6u
+#define KB_PROTO_TABLE_KEY_OVERRIDE_ENTRIES 16u
+#define KB_PROTO_TABLE_LEADER 4u
+#define KB_PROTO_TABLE_LEADER_SIZE 6u
+#define KB_PROTO_TABLE_LEADER_ENTRIES 16u
+#define KB_PROTO_TABLE_TAP_HOLD 5u
+#define KB_PROTO_TABLE_TAP_HOLD_SIZE 7u
+#define KB_PROTO_TABLE_TAP_HOLD_ENTRIES 16u
+#define KB_PROTO_TABLE_ENCODER 6u
+#define KB_PROTO_TABLE_ENCODER_SIZE 4u
+#define KB_PROTO_TABLE_ENCODER_ENTRIES 32u
+#define KB_PROTO_TABLE_COUNT 7u
 
 /* handshake response */
 #define KB_PROTO_HANDSHAKE_RESP_SIZE 46u
@@ -180,5 +209,81 @@ struct kb_proto_set_keymap_chunk_req {
 int kb_proto_set_keymap_chunk_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_keymap_chunk_req *out);
 /* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
 size_t kb_proto_set_keymap_chunk_req_encode(const struct kb_proto_set_keymap_chunk_req *in, uint8_t *p);
+
+/* get_feature request */
+#define KB_PROTO_GET_FEATURE_REQ_SIZE 3u
+struct kb_proto_get_feature_req {
+    uint8_t table;
+    uint16_t index;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_feature_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_feature_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_feature_req_encode(const struct kb_proto_get_feature_req *in, uint8_t *p);
+
+/* get_feature response */
+#define KB_PROTO_GET_FEATURE_RESP_MIN_SIZE 3u
+#define KB_PROTO_GET_FEATURE_RESP_MAX_DATA 56u
+struct kb_proto_get_feature_resp {
+    uint8_t table;
+    uint16_t index;
+    uint8_t data_count;
+    uint8_t data[56];
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_feature_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_feature_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_feature_resp_encode(const struct kb_proto_get_feature_resp *in, uint8_t *p);
+
+/* set_feature request */
+#define KB_PROTO_SET_FEATURE_REQ_MIN_SIZE 3u
+#define KB_PROTO_SET_FEATURE_REQ_MAX_DATA 56u
+struct kb_proto_set_feature_req {
+    uint8_t table;
+    uint16_t index;
+    uint8_t data_count;
+    uint8_t data[56];
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_set_feature_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_feature_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_set_feature_req_encode(const struct kb_proto_set_feature_req *in, uint8_t *p);
+
+/* get_macro_chunk request */
+#define KB_PROTO_GET_MACRO_CHUNK_REQ_SIZE 3u
+struct kb_proto_get_macro_chunk_req {
+    uint16_t offset;
+    uint8_t count;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_macro_chunk_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_macro_chunk_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_macro_chunk_req_encode(const struct kb_proto_get_macro_chunk_req *in, uint8_t *p);
+
+/* get_macro_chunk response */
+#define KB_PROTO_GET_MACRO_CHUNK_RESP_MIN_SIZE 2u
+#define KB_PROTO_GET_MACRO_CHUNK_RESP_MAX_DATA 56u
+struct kb_proto_get_macro_chunk_resp {
+    uint16_t offset;
+    uint8_t data_count;
+    uint8_t data[56];
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_macro_chunk_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_macro_chunk_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_macro_chunk_resp_encode(const struct kb_proto_get_macro_chunk_resp *in, uint8_t *p);
+
+/* set_macro_chunk request */
+#define KB_PROTO_SET_MACRO_CHUNK_REQ_MIN_SIZE 2u
+#define KB_PROTO_SET_MACRO_CHUNK_REQ_MAX_DATA 56u
+struct kb_proto_set_macro_chunk_req {
+    uint16_t offset;
+    uint8_t data_count;
+    uint8_t data[56];
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_set_macro_chunk_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_macro_chunk_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_set_macro_chunk_req_encode(const struct kb_proto_set_macro_chunk_req *in, uint8_t *p);
 
 #endif /* KB_PROTOCOL_GEN_H */

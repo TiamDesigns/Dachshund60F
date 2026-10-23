@@ -18,6 +18,7 @@
 #include <app_version.h>
 
 #include "bootloader.h"
+#include "encoder_input.h"
 #include "indicators.h"
 #include "kb/protocol.h"
 #include "kb_usb.h"
@@ -103,6 +104,12 @@ static void op_identify(uint8_t seconds, void *ctx)
     indicators_identify(seconds);
 }
 
+static void op_features_changed(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_features_changed();
+}
+
 static void op_lock(void *ctx)
 {
     ARG_UNUSED(ctx);
@@ -121,6 +128,7 @@ static const struct kb_protocol_ops ops = {
     .factory_reset = op_factory_reset,
     .reboot = op_reboot,
     .identify = op_identify,
+    .features_changed = op_features_changed,
     .lock = op_lock,
     .unlock = op_unlock,
 };
@@ -132,10 +140,10 @@ static struct kb_protocol protocol = {
     .firmware_patch = APP_PATCHLEVEL,
     .build = BUILD_ID,
     .model = CONFIG_KB_MODEL,
-    /* The rest join in later phases. */
-    .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY,
-    .encoders = 0,
-    .macro_buffer_size = 0,
+    /* Settings, indicators, matrix streaming and battery join in later phases. */
+    .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
+                    KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS,
+    .macro_buffer_size = KB_MACRO_BUFFER,
 };
 
 /* USB thread: copy and queue. A host that floods requests loses the extras. */
@@ -188,6 +196,12 @@ static void load_serial(void)
 int config_start(void)
 {
     protocol.keymap = keyboard_keymap();
+    protocol.features = keyboard_features();
+    protocol.macro_edit = keyboard_macro_edit();
+    protocol.encoders = (uint8_t)encoder_input_count();
+    if (protocol.encoders > 0) {
+        protocol.capabilities |= KB_PROTO_CAP_ENCODERS;
+    }
     load_serial();
     kb_usb_set_config_rx(on_request);
 

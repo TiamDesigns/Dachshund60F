@@ -11,6 +11,7 @@
 #define KB_FEATURES_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "kb/keycodes.h"
@@ -161,6 +162,29 @@ int kb_macro_offset(const uint8_t *buf, uint16_t size, uint8_t n);
 
 /* Whether the macro buffer is well formed (every step whole, valid keycodes). */
 bool kb_macros_valid(const uint8_t *buf, uint16_t size, uint8_t layers);
+
+/*
+ * One table entry in the byte layout of protocol.yaml's feature_tables
+ * (tables KB_PROTO_TABLE_*), for the protocol and for saving.
+ */
+
+/* Entries table has on a keymap with this many layers; 0 for no such table. */
+uint16_t kb_feature_entries(uint8_t table, uint8_t layers);
+
+/* Entry size in bytes; 0 for no such table. */
+uint8_t kb_feature_entry_size(uint8_t table);
+
+/* Write entry index of table into out (kb_feature_entry_size bytes). False if there's no such entry. */
+bool kb_feature_get(const struct kb_features *f, uint8_t table, uint16_t index, uint8_t *out);
+
+/*
+ * Replace entry index of table from len bytes; a shorter entry keeps the
+ * current values of the fields it leaves out. Nothing is validated beyond
+ * the table and index (check the result with kb_features_valid). False if
+ * there's no such entry or len is longer than the entry.
+ */
+bool kb_feature_put(struct kb_features *f, uint8_t table, uint16_t index, const uint8_t *in,
+                    size_t len);
 
 /* US-layout HID usage and Shift for an ASCII character, or false. */
 bool kb_ascii_to_key(char c, uint8_t *usage, bool *shift);

@@ -84,10 +84,25 @@ static void test_extra_descriptor(void)
     KB_CHECK_EQ(info.input_bits[KB_HID_ID_NKRO] % 8u, 0);
     KB_CHECK_EQ(info.input_bits[KB_HID_ID_CONSUMER] / 8u + 1u, KB_HID_CONSUMER_REPORT_SIZE);
     KB_CHECK_EQ(info.input_bits[KB_HID_ID_SYSTEM] / 8u + 1u, KB_HID_SYSTEM_REPORT_SIZE);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_MOUSE] / 8u + 1u, KB_HID_MOUSE_REPORT_SIZE);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_MOUSE] % 8u, 0);
     for (unsigned i = 0; i < 256; i++) {
         KB_CHECK_EQ(info.output_bits[i], 0);
     }
     KB_CHECK(KB_HID_EXTRA_REPORT_MAX <= 64u); /* one full-speed packet */
+}
+
+static void test_mouse_report(void)
+{
+    struct kb_mouse_report m = {.buttons = 0x21, .x = -5, .y = 127, .wheel = -1, .pan = 1};
+    uint8_t out[KB_HID_MOUSE_REPORT_SIZE];
+    kb_hid_pack_mouse(&m, out);
+    KB_CHECK_EQ(out[0], KB_HID_ID_MOUSE);
+    KB_CHECK_EQ(out[1], 0x01); /* five buttons only */
+    KB_CHECK_EQ(out[2], 0xFB);
+    KB_CHECK_EQ(out[3], 0x7F);
+    KB_CHECK_EQ(out[4], 0xFF);
+    KB_CHECK_EQ(out[5], 0x01);
 }
 
 static void test_config_descriptor(void)
@@ -386,6 +401,7 @@ int main(void)
     KB_RUN(test_keyboard_descriptor);
     KB_RUN(test_extra_descriptor);
     KB_RUN(test_config_descriptor);
+    KB_RUN(test_mouse_report);
     KB_RUN(test_pack);
     KB_RUN(test_reporter_nkro_path);
     KB_RUN(test_reporter_6kro_path);

@@ -4,6 +4,7 @@ set(KB_CORE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include)
 set(KB_CORE_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/src/core.c
   ${CMAKE_CURRENT_LIST_DIR}/src/debounce.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/encoder.c
   ${CMAKE_CURRENT_LIST_DIR}/src/engine.c
   ${CMAKE_CURRENT_LIST_DIR}/src/features.c
   ${CMAKE_CURRENT_LIST_DIR}/src/hid.c

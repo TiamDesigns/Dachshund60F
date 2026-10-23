@@ -235,12 +235,26 @@ static size_t h_save(const struct kb_protocol *p, const uint8_t *in, size_t len,
     return run_op(p, len, status, p->ops ? p->ops->save : NULL);
 }
 
+/* The live macros changed: start editing from them again. */
+static void refresh_macro_edit(const struct kb_protocol *p)
+{
+    if (p->features && p->macro_edit) {
+        lock(p);
+        memcpy(p->macro_edit, p->features->macros, KB_MACRO_BUFFER);
+        unlock(p);
+    }
+}
+
 static size_t h_revert(const struct kb_protocol *p, const uint8_t *in, size_t len,
                        uint8_t *out, uint8_t *status)
 {
     (void)in;
     (void)out;
-    return run_op(p, len, status, p->ops ? p->ops->revert : NULL);
+    run_op(p, len, status, p->ops ? p->ops->revert : NULL);
+    if (*status == KB_PROTO_OK) {
+        refresh_macro_edit(p);
+    }
+    return 0;
 }
 
 static size_t h_factory_reset(const struct kb_protocol *p, const uint8_t *in, size_t len,
@@ -248,7 +262,158 @@ static size_t h_factory_reset(const struct kb_protocol *p, const uint8_t *in, si
 {
     (void)in;
     (void)out;
-    return run_op(p, len, status, p->ops ? p->ops->factory_reset : NULL);
+    run_op(p, len, status, p->ops ? p->ops->factory_reset : NULL);
+    if (*status == KB_PROTO_OK) {
+        refresh_macro_edit(p);
+    }
+    return 0;
+}
+
+static void features_changed(const struct kb_protocol *p)
+{
+    if (p->ops && p->ops->features_changed) {
+        p->ops->features_changed(p->ctx);
+    }
+}
+
+static size_t h_get_feature(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                            uint8_t *out, uint8_t *status)
+{
+    struct kb_proto_get_feature_req r;
+    if (!p->features) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_get_feature_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.index >= kb_feature_entries(r.table, p->keymap->layers)) {
+        *status = KB_PROTO_OUT_OF_RANGE;
+        return 0;
+    }
+
+    struct kb_proto_get_feature_resp resp;
+    resp.table = r.table;
+    resp.index = r.index;
+    resp.data_count = kb_feature_entry_size(r.table);
+    lock(p);
+    kb_feature_get(p->features, r.table, r.index, resp.data);
+    unlock(p);
+    return kb_proto_get_feature_resp_encode(&resp, out);
+}
+
+static size_t h_set_feature(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                            uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    struct kb_proto_set_feature_req r;
+    if (!p->features) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_set_feature_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.index >= kb_feature_entries(r.table, p->keymap->layers)) {
+        *status = KB_PROTO_OUT_OF_RANGE;
+        return 0;
+    }
+    if (r.data_count == 0 || r.data_count > kb_feature_entry_size(r.table)) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+
+    /* Write the entry, check the whole set, and put the old entry back on failure. */
+    uint8_t old[KB_PROTO_SET_FEATURE_REQ_MAX_DATA];
+    lock(p);
+    kb_feature_get(p->features, r.table, r.index, old);
+    kb_feature_put(p->features, r.table, r.index, r.data, r.data_count);
+    if (kb_features_valid(p->features, p->keymap->layers, p->keymap->rows, p->keymap->cols)) {
+        features_changed(p);
+    } else {
+        kb_feature_put(p->features, r.table, r.index, old, kb_feature_entry_size(r.table));
+        *status = KB_PROTO_BAD_VALUE;
+    }
+    unlock(p);
+    return 0;
+}
+
+static size_t h_get_macro_chunk(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                                uint8_t *out, uint8_t *status)
+{
+    struct kb_proto_get_macro_chunk_req r;
+    if (!p->features || !p->macro_edit) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_get_macro_chunk_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.count > KB_PROTO_GET_MACRO_CHUNK_RESP_MAX_DATA ||
+        (size_t)r.offset + r.count > KB_MACRO_BUFFER) {
+        *status = KB_PROTO_OUT_OF_RANGE;
+        return 0;
+    }
+
+    struct kb_proto_get_macro_chunk_resp resp;
+    resp.offset = r.offset;
+    resp.data_count = r.count;
+    lock(p);
+    memcpy(resp.data, &p->macro_edit[r.offset], r.count);
+    unlock(p);
+    return kb_proto_get_macro_chunk_resp_encode(&resp, out);
+}
+
+static size_t h_set_macro_chunk(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                                uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    struct kb_proto_set_macro_chunk_req r;
+    if (!p->features || !p->macro_edit) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_set_macro_chunk_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if ((size_t)r.offset + r.data_count > KB_MACRO_BUFFER) {
+        *status = KB_PROTO_OUT_OF_RANGE;
+        return 0;
+    }
+    lock(p);
+    memcpy(&p->macro_edit[r.offset], r.data, r.data_count);
+    unlock(p);
+    return 0;
+}
+
+static size_t h_apply_macros(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                             uint8_t *out, uint8_t *status)
+{
+    (void)in;
+    (void)out;
+    if (!p->features || !p->macro_edit) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (len != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    lock(p);
+    if (kb_macros_valid(p->macro_edit, KB_MACRO_BUFFER, p->keymap->layers)) {
+        memcpy(p->features->macros, p->macro_edit, KB_MACRO_BUFFER);
+        features_changed(p);
+    } else {
+        /* Refused: the edit is dropped, so reads show the live macros again. */
+        memcpy(p->macro_edit, p->features->macros, KB_MACRO_BUFFER);
+        *status = KB_PROTO_BAD_VALUE;
+    }
+    unlock(p);
+    return 0;
 }
 
 static handler_fn handler_for(uint8_t command)
@@ -265,6 +430,11 @@ static handler_fn handler_for(uint8_t command)
     case KB_PROTO_CMD_SAVE: return h_save;
     case KB_PROTO_CMD_REVERT: return h_revert;
     case KB_PROTO_CMD_FACTORY_RESET: return h_factory_reset;
+    case KB_PROTO_CMD_GET_FEATURE: return h_get_feature;
+    case KB_PROTO_CMD_SET_FEATURE: return h_set_feature;
+    case KB_PROTO_CMD_GET_MACRO_CHUNK: return h_get_macro_chunk;
+    case KB_PROTO_CMD_SET_MACRO_CHUNK: return h_set_macro_chunk;
+    case KB_PROTO_CMD_APPLY_MACROS: return h_apply_macros;
     default: return NULL;
     }
 }

@@ -239,3 +239,123 @@ size_t kb_proto_set_keymap_chunk_req_encode(const struct kb_proto_set_keymap_chu
     }
     return 2u + 2u * n;
 }
+
+int kb_proto_get_feature_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_feature_req *out)
+{
+    if (len != 3u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->table = p[0];
+    out->index = get16(p + 1);
+    return 0;
+}
+
+size_t kb_proto_get_feature_req_encode(const struct kb_proto_get_feature_req *in, uint8_t *p)
+{
+    p[0] = in->table;
+    put16(p + 1, in->index);
+    return 3u;
+}
+
+int kb_proto_get_feature_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_feature_resp *out)
+{
+    if (len < 3u || len - 3u > 56u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->table = p[0];
+    out->index = get16(p + 1);
+    out->data_count = (uint8_t)(len - 3u);
+    memcpy(out->data, p + 3, out->data_count);
+    return 0;
+}
+
+size_t kb_proto_get_feature_resp_encode(const struct kb_proto_get_feature_resp *in, uint8_t *p)
+{
+    p[0] = in->table;
+    put16(p + 1, in->index);
+    size_t n = in->data_count < 56u ? in->data_count : 56u;
+    memcpy(p + 3, in->data, n);
+    return 3u + n;
+}
+
+int kb_proto_set_feature_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_feature_req *out)
+{
+    if (len < 3u || len - 3u > 56u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->table = p[0];
+    out->index = get16(p + 1);
+    out->data_count = (uint8_t)(len - 3u);
+    memcpy(out->data, p + 3, out->data_count);
+    return 0;
+}
+
+size_t kb_proto_set_feature_req_encode(const struct kb_proto_set_feature_req *in, uint8_t *p)
+{
+    p[0] = in->table;
+    put16(p + 1, in->index);
+    size_t n = in->data_count < 56u ? in->data_count : 56u;
+    memcpy(p + 3, in->data, n);
+    return 3u + n;
+}
+
+int kb_proto_get_macro_chunk_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_macro_chunk_req *out)
+{
+    if (len != 3u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->offset = get16(p + 0);
+    out->count = p[2];
+    return 0;
+}
+
+size_t kb_proto_get_macro_chunk_req_encode(const struct kb_proto_get_macro_chunk_req *in, uint8_t *p)
+{
+    put16(p + 0, in->offset);
+    p[2] = in->count;
+    return 3u;
+}
+
+int kb_proto_get_macro_chunk_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_macro_chunk_resp *out)
+{
+    if (len < 2u || len - 2u > 56u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->offset = get16(p + 0);
+    out->data_count = (uint8_t)(len - 2u);
+    memcpy(out->data, p + 2, out->data_count);
+    return 0;
+}
+
+size_t kb_proto_get_macro_chunk_resp_encode(const struct kb_proto_get_macro_chunk_resp *in, uint8_t *p)
+{
+    put16(p + 0, in->offset);
+    size_t n = in->data_count < 56u ? in->data_count : 56u;
+    memcpy(p + 2, in->data, n);
+    return 2u + n;
+}
+
+int kb_proto_set_macro_chunk_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_macro_chunk_req *out)
+{
+    if (len < 2u || len - 2u > 56u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->offset = get16(p + 0);
+    out->data_count = (uint8_t)(len - 2u);
+    memcpy(out->data, p + 2, out->data_count);
+    return 0;
+}
+
+size_t kb_proto_set_macro_chunk_req_encode(const struct kb_proto_set_macro_chunk_req *in, uint8_t *p)
+{
+    put16(p + 0, in->offset);
+    size_t n = in->data_count < 56u ? in->data_count : 56u;
+    memcpy(p + 2, in->data, n);
+    return 2u + n;
+}

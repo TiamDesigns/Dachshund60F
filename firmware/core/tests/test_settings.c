@@ -1,5 +1,6 @@
 #include "kb/debounce.h"
 #include "kb/keycodes.h"
+#include "kb/protocol_gen.h"
 #include "kb/settings.h"
 #include "kb_test.h"
 
@@ -160,6 +161,129 @@ static void test_malformed_and_newer(void)
     KB_CHECK_EQ(kb_settings_decode(KB_SETTINGS_SCHEMA, buf, 0, &km, &st), 0);
 }
 
+static struct kb_features feat, loaded;
+static uint8_t blob[4096];
+
+/* Settings and features in one blob, as the firmware saves them. */
+static size_t encode_all(void)
+{
+    size_t n = kb_settings_encode(&km, &st, blob, sizeof(blob));
+    KB_CHECK(n > 0);
+    size_t m = kb_features_encode(&feat, km.layers, blob + n, sizeof(blob) - n);
+    KB_CHECK_EQ(m, kb_features_encoded_size(&feat, km.layers));
+    return n + m;
+}
+
+static void test_features_round_trip(void)
+{
+    reset();
+    kb_features_default(&feat);
+    feat.combos[3] = (struct kb_combo){.keys = {{0, 0}, {1, 2}, {KB_POS_NONE, KB_POS_NONE},
+                                                {KB_POS_NONE, KB_POS_NONE}},
+                                       .result = KC_ESC, .timeout_ms = 40, .layers = 1};
+    feat.tap_dances[15] = (struct kb_tap_dance){.tap1 = KC_A, .hold1 = KC_LCTL, .tap2 = MO(1)};
+    feat.overrides[0] = (struct kb_key_override){.trigger_mods = 0x02, .trigger_key = KC_BSPC,
+                                                 .replacement = KC_DEL};
+    feat.leader[1] = (struct kb_leader_seq){.keys = {KC_A, KC_B}, .result = KC_VOLU};
+    feat.tap_hold[0] = (struct kb_tap_hold_rule){.row = 1, .col = 2, .flags = KB_TH_RETRO_TAP,
+                                                 .tapping_term_ms = 250, .quick_tap_ms = 120};
+    feat.encoders[1][1] = (struct kb_encoder_action){.cw = KC_MNXT, .ccw = KC_MPRV};
+    feat.auto_shift = true;
+    feat.caps_word_idle_ms = 0;
+    feat.mouse.max_speed = 30;
+    const uint8_t m[] = {'h', 'i', KB_MACRO_END, KB_MACRO_TAP, KC_ENT, 0};
+    memcpy(feat.macros, m, sizeof(m));
+    KB_CHECK(kb_features_valid(&feat, L, R, C));
+
+    size_t n = encode_all();
+    KB_CHECK_EQ(kb_features_encode(&feat, km.layers, blob, 10), 0);
+
+    kb_features_default(&loaded);
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA, blob, n, &loaded, L, R, C), 1);
+    KB_CHECK(memcmp(&loaded.combos[3], &feat.combos[3], sizeof(feat.combos[3])) == 0);
+    KB_CHECK_EQ(loaded.tap_dances[15].tap2, MO(1));
+    KB_CHECK_EQ(loaded.overrides[0].replacement, KC_DEL);
+    KB_CHECK_EQ(loaded.leader[1].result, KC_VOLU);
+    KB_CHECK_EQ(loaded.tap_hold[0].quick_tap_ms, 120);
+    KB_CHECK_EQ(loaded.encoders[1][1].ccw, KC_MPRV);
+    KB_CHECK(loaded.auto_shift);
+    KB_CHECK_EQ(loaded.caps_word_idle_ms, 0);
+    KB_CHECK_EQ(loaded.mouse.max_speed, 30);
+    KB_CHECK(memcmp(loaded.macros, feat.macros, KB_MACRO_BUFFER) == 0);
+
+    /* The settings decoder skips the feature sections, and vice versa. */
+    reset();
+    KB_CHECK_EQ(kb_settings_decode(KB_SETTINGS_SCHEMA, blob, n, &km, &st),
+                KB_LOADED_KEYMAP | KB_LOADED_SETTINGS);
+    size_t only = kb_settings_encode(&km, &st, blob, sizeof(blob));
+    kb_features_default(&loaded);
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA, blob, only, &loaded, L, R, C), 0);
+}
+
+static void test_features_invalid_keep_defaults(void)
+{
+    reset();
+    kb_features_default(&feat);
+    feat.combos[0] = (struct kb_combo){.keys = {{0, 0}, {1, 2}, {KB_POS_NONE, KB_POS_NONE},
+                                                {KB_POS_NONE, KB_POS_NONE}},
+                                       .result = KC_ESC};
+    size_t n = encode_all();
+
+    /* Saved for a board with more columns: (1,2) is off a 2-column board. */
+    kb_features_default(&loaded);
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA, blob, n, &loaded, L, R, 2), 0);
+    KB_CHECK_EQ(loaded.combos[0].result, KC_NO);
+
+    /* A bad macro step. */
+    feat.macros[0] = 0x05;
+    n = encode_all();
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA, blob, n, &loaded, L, R, C), 0);
+    KB_CHECK_EQ(loaded.combos[0].result, KC_NO);
+
+    /* Malformed framing and other schemas. */
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA, blob, n - 1, &loaded, L, R, C), -1);
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA + 1, blob, n, &loaded, L, R, C), -1);
+}
+
+static void test_features_forward_compatible(void)
+{
+    /* A newer firmware's section: a longer combo entry, then an unknown table. */
+    uint8_t b[] = {
+        KB_SECTION_FEATURES, 0, 0, /* length below */
+        KB_PROTO_TABLE_COMBO, 16, 1, 0, /* one 16-byte entry */
+        0, 0, 0, 1, 0xFF, 0xFF, 0xFF, 0xFF, KC_TAB, 0, 0, 0, 0, 0, 0xAB, 0xCD,
+        99, 2, 2, 0, 1, 2, 3, 4, /* table 99 */
+        /* An older firmware's tap dance: only tap1 */
+        KB_PROTO_TABLE_TAP_DANCE, 2, 1, 0, KC_X, 0,
+    };
+    b[1] = (uint8_t)(sizeof(b) - 3);
+    kb_features_default(&loaded);
+    loaded.tap_dances[0].term_ms = 300;
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA, b, sizeof(b), &loaded, L, R, C), 1);
+    KB_CHECK_EQ(loaded.combos[0].result, KC_TAB);
+    KB_CHECK_EQ(loaded.combos[0].keys[1].col, 1);
+    KB_CHECK_EQ(loaded.tap_dances[0].tap1, KC_X);
+    KB_CHECK_EQ(loaded.tap_dances[0].term_ms, 300);
+
+    /* A block claiming more entries than it holds. */
+    b[5] = 5;
+    kb_features_default(&loaded);
+    KB_CHECK_EQ(kb_features_decode(KB_SETTINGS_SCHEMA, b, sizeof(b), &loaded, L, R, C), 0);
+    KB_CHECK_EQ(loaded.combos[0].result, KC_NO);
+}
+
+static void test_everything_fits_a_sector(void)
+{
+    /* The firmware's worst case: 4 layers of 6x15 and a full macro buffer, in a 4 KB sector. */
+    static kb_keycode_t big_keys[4 * 6 * 15];
+    struct kb_keymap big;
+    kb_keymap_init(&big, big_keys, 4, 6, 15, NULL);
+    kb_features_default(&feat);
+    memset(feat.macros, 'x', KB_MACRO_BUFFER);
+    size_t n = kb_settings_encoded_size(&big) + kb_features_encoded_size(&feat, 4);
+    KB_CHECK(n + 16 <= 4096);
+}
+
 int main(void)
 {
     KB_RUN(test_defaults_valid);
@@ -168,5 +292,9 @@ int main(void)
     KB_RUN(test_bad_values_fall_back);
     KB_RUN(test_forward_compatible_sections);
     KB_RUN(test_malformed_and_newer);
+    KB_RUN(test_features_round_trip);
+    KB_RUN(test_features_invalid_keep_defaults);
+    KB_RUN(test_features_forward_compatible);
+    KB_RUN(test_everything_fits_a_sector);
     return KB_TEST_RESULT();
 }

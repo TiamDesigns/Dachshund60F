@@ -7,6 +7,10 @@
  * Sections:
  *   KB_SECTION_KEYMAP:   layers u8, rows u8, cols u8, keycodes u16[]
  *   KB_SECTION_SETTINGS: the fields of struct kb_settings, in order
+ *   KB_SECTION_FEATURES: blocks of table u8, entry size u8, count u16,
+ *                        entries (the advanced-key tables, in the layout
+ *                        of protocol.yaml's feature_tables)
+ *   KB_SECTION_MACROS:   the macro buffer, without its trailing zeros
  * Unknown sections are skipped and missing ones keep their defaults, so
  * adding a section or appending a field to one needs no new schema. A
  * change that can't be read that way bumps KB_SETTINGS_SCHEMA and adds a
@@ -19,12 +23,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "kb/features.h"
 #include "kb/keymap.h"
 
 #define KB_SETTINGS_SCHEMA 1u
 
 #define KB_SECTION_KEYMAP 1u
 #define KB_SECTION_SETTINGS 2u
+#define KB_SECTION_FEATURES 3u
+#define KB_SECTION_MACROS 4u
 
 #define KB_SETTINGS_NAME_MAX 16u
 
@@ -69,5 +76,23 @@ size_t kb_settings_encode(const struct kb_keymap *km, const struct kb_settings *
  */
 int kb_settings_decode(uint16_t schema, const uint8_t *buf, size_t len, struct kb_keymap *km,
                        struct kb_settings *s);
+
+/*
+ * The advanced-key tables and macros, as two more sections to append to
+ * the blob from kb_settings_encode. Returns the length, or 0 if cap is too
+ * small. layers is the keymap's (encoder entries are saved for those).
+ */
+size_t kb_features_encoded_size(const struct kb_features *f, uint8_t layers);
+size_t kb_features_encode(const struct kb_features *f, uint8_t layers, uint8_t *buf, size_t cap);
+
+/*
+ * Load the feature sections of a blob over f, which holds the defaults on
+ * entry. Entries are checked as a whole with kb_features_valid for this
+ * keymap's size; if they fail, f keeps its defaults. Returns 1 if anything
+ * loaded, 0 if not (nothing saved, or invalid), or -1 like
+ * kb_settings_decode.
+ */
+int kb_features_decode(uint16_t schema, const uint8_t *buf, size_t len, struct kb_features *f,
+                       uint8_t layers, uint8_t rows, uint8_t cols);
 
 #endif /* KB_SETTINGS_H */

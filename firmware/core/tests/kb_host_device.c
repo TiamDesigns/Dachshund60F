@@ -17,6 +17,10 @@
 #include "kb/protocol.h"
 #include "kb/settings.h"
 #include "kb/store.h"
+
+/* The firmware's storage partition: 32 KB in 4 KB sectors. */
+#define SIM_SIZE 32768u
+#define SIM_SECTOR 4096u
 #include "sim_flash.h"
 
 #define LAYERS DEFAULT_KEYMAP_LAYERS
@@ -26,9 +30,11 @@
 static kb_keycode_t keys[LAYERS * ROWS * COLS];
 static struct kb_keymap keymap;
 static struct kb_settings settings;
+static struct kb_features features;
+static uint8_t macro_edit[KB_MACRO_BUFFER];
 static struct sim_flash flash;
 static struct kb_store store;
-static uint8_t blob[1024];
+static uint8_t blob[SIM_SECTOR];
 
 static void load_defaults(void)
 {
@@ -39,6 +45,7 @@ static void load_defaults(void)
     settings.sleep_timeout_min = 15;
     settings.indicator_brightness = 13;
     (void)kb_keymap_init(&keymap, keys, LAYERS, ROWS, COLS, &default_keymap[0][0][0]);
+    default_features(&features);
 }
 
 static int load_saved(void)
@@ -49,7 +56,11 @@ static int load_saved(void)
     if (err) {
         return err;
     }
-    return kb_settings_decode(schema, blob, len, &keymap, &settings) < 0 ? -KB_STORE_EIO : 0;
+    if (kb_settings_decode(schema, blob, len, &keymap, &settings) < 0 ||
+        kb_features_decode(schema, blob, len, &features, LAYERS, ROWS, COLS) < 0) {
+        return -KB_STORE_EIO;
+    }
+    return 0;
 }
 
 static uint8_t status_of(int err)
@@ -64,7 +75,9 @@ static uint8_t op_save(void *ctx)
 {
     (void)ctx;
     size_t len = kb_settings_encode(&keymap, &settings, blob, sizeof(blob));
-    return status_of(len ? kb_store_save(&store, KB_SETTINGS_SCHEMA, blob, len) : -KB_STORE_ENOSPC);
+    size_t more = len ? kb_features_encode(&features, LAYERS, blob + len, sizeof(blob) - len) : 0;
+    return status_of(more ? kb_store_save(&store, KB_SETTINGS_SCHEMA, blob, len + more)
+                          : -KB_STORE_ENOSPC);
 }
 
 static uint8_t op_revert(void *ctx)
@@ -91,6 +104,7 @@ static void op_reboot(bool bootloader, void *ctx)
     if (kb_store_mount(&store, &flash.flash) == 0) {
         (void)load_saved();
     }
+    memcpy(macro_edit, features.macros, KB_MACRO_BUFFER);
 }
 
 static void op_identify(uint8_t seconds, void *ctx)
@@ -132,7 +146,12 @@ int main(void)
         .build = "host",
         .model = "Dachshund60F",
         .serial = "HOST0001",
-        .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY,
+        .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
+                        KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS,
+        .encoders = 1,
+        .macro_buffer_size = KB_MACRO_BUFFER,
+        .features = &features,
+        .macro_edit = macro_edit,
     };
 
     sim_init(&flash);

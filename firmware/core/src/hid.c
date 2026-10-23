@@ -86,6 +86,39 @@ const uint8_t kb_hid_extra_desc[] = {
     0x95, 0x01,             /*   Report Count (1) */
     0x81, 0x00,             /*   Input (Data, Array) */
     0xC0,                   /* End Collection */
+
+    0x05, 0x01,             /* Usage Page (Generic Desktop) */
+    0x09, 0x02,             /* Usage (Mouse) */
+    0xA1, 0x01,             /* Collection (Application) */
+    0x85, KB_HID_ID_MOUSE,  /*   Report ID */
+    0x09, 0x01,             /*   Usage (Pointer) */
+    0xA1, 0x00,             /*   Collection (Physical) */
+    0x05, 0x09,             /*     Usage Page (Button) */
+    0x19, 0x01,             /*     Usage Minimum (1) */
+    0x29, 0x05,             /*     Usage Maximum (5) */
+    0x15, 0x00,             /*     Logical Minimum (0) */
+    0x25, 0x01,             /*     Logical Maximum (1) */
+    0x75, 0x01,             /*     Report Size (1) */
+    0x95, 0x05,             /*     Report Count (5) */
+    0x81, 0x02,             /*     Input (Data, Variable, Absolute): buttons */
+    0x75, 0x03,             /*     Report Size (3) */
+    0x95, 0x01,             /*     Report Count (1) */
+    0x81, 0x01,             /*     Input (Constant): padding */
+    0x05, 0x01,             /*     Usage Page (Generic Desktop) */
+    0x09, 0x30,             /*     Usage (X) */
+    0x09, 0x31,             /*     Usage (Y) */
+    0x09, 0x38,             /*     Usage (Wheel) */
+    0x15, 0x81,             /*     Logical Minimum (-127) */
+    0x25, 0x7F,             /*     Logical Maximum (127) */
+    0x75, 0x08,             /*     Report Size (8) */
+    0x95, 0x03,             /*     Report Count (3) */
+    0x81, 0x06,             /*     Input (Data, Variable, Relative) */
+    0x05, 0x0C,             /*     Usage Page (Consumer) */
+    0x0A, 0x38, 0x02,       /*     Usage (AC Pan) */
+    0x95, 0x01,             /*     Report Count (1) */
+    0x81, 0x06,             /*     Input (Data, Variable, Relative) */
+    0xC0,                   /*   End Collection */
+    0xC0,                   /* End Collection */
 };
 const size_t kb_hid_extra_desc_len = sizeof(kb_hid_extra_desc);
 
@@ -108,6 +141,16 @@ const uint8_t kb_hid_config_desc[] = {
 const size_t kb_hid_config_desc_len = sizeof(kb_hid_config_desc);
 
 /* Packers */
+
+void kb_hid_pack_mouse(const struct kb_mouse_report *m, uint8_t out[KB_HID_MOUSE_REPORT_SIZE])
+{
+    out[0] = KB_HID_ID_MOUSE;
+    out[1] = m->buttons & 0x1Fu;
+    out[2] = (uint8_t)m->x;
+    out[3] = (uint8_t)m->y;
+    out[4] = (uint8_t)m->wheel;
+    out[5] = (uint8_t)m->pan;
+}
 
 void kb_hid_pack_nkro(const struct kb_hid_state *hid, uint8_t out[KB_HID_NKRO_REPORT_SIZE])
 {

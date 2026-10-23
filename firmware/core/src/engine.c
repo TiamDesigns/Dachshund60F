@@ -1231,6 +1231,28 @@ void kb_engine_init(struct kb_engine *e, const struct kb_keymap *keymap,
 
 void kb_engine_set_features(struct kb_engine *e, const struct kb_features *features)
 {
+    /*
+     * The tables may have changed under state that refers to them: let
+     * waiting combo keys through as plain presses, release fired combos,
+     * and stop a playing macro.
+     */
+    if (e->combo_buf_len > 0) {
+        combo_flush(e);
+    }
+    for (unsigned i = 0; i < KB_COMBO_MAX; i++) {
+        if (e->combo_down[i]) {
+            e->combo_down[i] = 0;
+            struct kb_key_event up = {.time = e->now, .row = KB_VROW,
+                                      .col = (uint8_t)(KB_VCOL_COMBO + i), .pressed = false};
+            enqueue(e, &up);
+        }
+    }
+    if (e->macro_off >= 0) {
+        e->macro_off = -1;
+        e->macro_waiting = false;
+        vhold_release_all(e);
+    }
+
     e->features = features ? features : empty_features();
     e->th_keys = e->features->tap_hold;
     e->th_key_count = KB_TAP_HOLD_RULE_MAX;

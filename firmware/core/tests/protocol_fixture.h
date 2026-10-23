@@ -26,7 +26,10 @@ struct fx_state {
     kb_keycode_t live[FX_KEYS];
     kb_keycode_t saved[FX_KEYS];
     struct kb_keymap keymap;
-    int saves, reverts, resets, reboots, identifies, locks, unlocks;
+    struct kb_features features, saved_features;
+    uint8_t macro_edit[KB_MACRO_BUFFER];
+    int saves, reverts, resets, reboots, identifies, locks, unlocks, feature_changes;
+    bool locked;
     bool reboot_bootloader;
     uint8_t identify_seconds;
     uint8_t save_status;
@@ -40,6 +43,7 @@ static uint8_t fx_save(void *ctx)
     fx.saves++;
     if (fx.save_status == KB_PROTO_OK) {
         memcpy(fx.saved, fx.live, sizeof(fx.saved));
+        fx.saved_features = fx.features;
     }
     return fx.save_status;
 }
@@ -49,6 +53,7 @@ static uint8_t fx_revert(void *ctx)
     (void)ctx;
     fx.reverts++;
     memcpy(fx.live, fx.saved, sizeof(fx.live));
+    fx.features = fx.saved_features;
     return KB_PROTO_OK;
 }
 
@@ -58,6 +63,8 @@ static uint8_t fx_factory_reset(void *ctx)
     fx.resets++;
     memcpy(fx.live, fx_default, sizeof(fx.live));
     memcpy(fx.saved, fx_default, sizeof(fx.saved));
+    kb_features_default(&fx.features);
+    fx.saved_features = fx.features;
     return KB_PROTO_OK;
 }
 
@@ -79,12 +86,21 @@ static void fx_lock(void *ctx)
 {
     (void)ctx;
     fx.locks++;
+    fx.locked = true;
 }
 
 static void fx_unlock(void *ctx)
 {
     (void)ctx;
     fx.unlocks++;
+    fx.locked = false;
+}
+
+static void fx_features_changed(void *ctx)
+{
+    (void)ctx;
+    /* Called with the lock held. */
+    fx.feature_changes += fx.locked ? 1 : 1000;
 }
 
 static const struct kb_protocol_ops fx_ops = {
@@ -95,6 +111,7 @@ static const struct kb_protocol_ops fx_ops = {
     .identify = fx_identify,
     .lock = fx_lock,
     .unlock = fx_unlock,
+    .features_changed = fx_features_changed,
 };
 
 static struct kb_protocol fx_proto;
@@ -104,6 +121,9 @@ static void fx_init(void)
     memset(&fx, 0, sizeof(fx));
     kb_keymap_init(&fx.keymap, fx.live, FX_LAYERS, FX_ROWS, FX_COLS, &fx_default[0][0][0]);
     memcpy(fx.saved, fx.live, sizeof(fx.saved));
+    kb_features_default(&fx.features);
+    fx.saved_features = fx.features;
+    memcpy(fx.macro_edit, fx.features.macros, KB_MACRO_BUFFER);
     fx_proto = (struct kb_protocol){
         .keymap = &fx.keymap,
         .ops = &fx_ops,
@@ -115,6 +135,9 @@ static void fx_init(void)
         .serial = "0123456789ABCDEF",
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_IDENTIFY,
         .encoders = 1,
+        .macro_buffer_size = KB_MACRO_BUFFER,
+        .features = &fx.features,
+        .macro_edit = fx.macro_edit,
     };
 }
 
@@ -127,6 +150,12 @@ static bool fx_keymap_valid(void)
         }
     }
     return true;
+}
+
+/* The live tables are a set the engine accepts. */
+static bool fx_features_valid(void)
+{
+    return kb_features_valid(&fx.features, FX_LAYERS, FX_ROWS, FX_COLS);
 }
 
 #endif /* PROTOCOL_FIXTURE_H */

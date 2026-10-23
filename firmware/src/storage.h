@@ -8,6 +8,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "kb/store.h"
+
+/* The partition's sectors are 4 KB; a snapshot fits in one, after its header. */
+#define STORAGE_SECTOR_SIZE 4096u
+#define STORAGE_RECORD_MAX (STORAGE_SECTOR_SIZE - KB_STORE_HEADER_SIZE)
+
 /* Open the partition and find the newest snapshot. */
 int storage_init(void);
 
