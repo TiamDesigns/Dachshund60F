@@ -256,6 +256,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
 - Core C tests (core, hold, screen, version): pass in CI. Not run locally; there's no C compiler or CMake here.
 - Firmware builds: debug and release for `dachshund60f/nrf52840` with no screen and with each of the four panels, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39862064737. Not built locally; NCS isn't installed here.
+- Bring-up plan for all three boards (inspection, power, flashing, functional tests and measurements with methods and equipment): `docs/bringup-test-plan.md` (2026-10-23).
 - Real hardware: nothing yet. Phase 2 is still to be checked on a board:
   - flash the UF2 bootloader over SWD, then `zephyr.uf2`
   - check that it enumerates as 1209:0001 with a unique serial number (USB Device Tree Viewer or `lsusb -v`)
@@ -282,6 +283,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - PCB design: the pin map is proposed and must be confirmed (or edited) once the schematic is routed
 - Case (sets the gasket pockets from the plate's sock outlines, the roller support and the daughterboard position). The mainboard and plate have no mounting holes. The daughterboard is designed for M3; if the case uses M2, swap H1/H2 to `MountingHole_2.2mm_M2_Pad_TopBottom` for a snug fit.
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
+- Mainboard power path: VSYS is fed only from the battery through the slide switch, and VBUS only feeds the charger. So the keyboard is off on USB with the switch off, and browns out on USB with no battery. Add a VBUS-to-VSYS power path before ordering if USB-only use matters.
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
 - Dongle bootloader: reuse Adafruit's `pca10059` build (same DFU button and LED pins) or make a dongle-specific one. Try the existing build on the first board.
