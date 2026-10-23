@@ -658,7 +658,18 @@
 		(uuid "e14c4353-850a-44a3-9974-9b44b9756127")
 	)
 	(embedded_fonts no)
-	(model "${KICAD6_3RD_PARTY}/3dmodels/com_github_perigoso_keyswitch-kicad-library/3d-library.3dshapes/SW_Hotswap_Kailh_MX.wrl"
+	(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+	(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
 		(offset
 			(xyz 0 0 0)
 		)

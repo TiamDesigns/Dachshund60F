@@ -30,3 +30,13 @@ as `Dachshund60F` in the project `fp-lib-table`.
   0.5 mm corners. The relief corners came within 0.247 mm of the pads; the
   plain cutout keeps them 0.35 mm away, and the LED body still clears the
   rounded corners.
+
+# Vendored 3D models
+
+`keyswitch.3dshapes/` holds STEP models from the same perigoso library
+(CC-BY-SA-4.0): `SW_Hotswap_Kailh_MX`, `SW_Cherry_MX_PCB`,
+`SW_Cherry_MX_Plate`, and `Stabilizer_Cherry_MX_{2.00,6.25}u`. The vendored
+footprints point at them through `${KIPRJMOD}/lib/keyswitch.3dshapes/`
+instead of the PCM's `.wrl` files. The hot-swap footprints also carry the
+`SW_Cherry_MX_PCB` model, so 3D views show the switch body as well as the
+socket.

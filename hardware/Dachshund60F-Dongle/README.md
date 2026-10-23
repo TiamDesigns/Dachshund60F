@@ -110,7 +110,9 @@ What the hardware does for latency:
 
 - No case design yet. The case needs a light pipe over D1, button caps over SW1 and SW2, and a USB-C
   cutout. The M2 holes are a placeholder.
-- No 3D models for the HRO receptacle and the RGB LED, so STEP exports show only their pads.
+- 3D models: the HRO receptacle is a dimensioned stand-in (`hardware/3dmodels/`), and D1 uses KiCad's
+  Würth PLCC4 3.2 × 2.8 mm RGB LED model, the same package size. Swap in the manufacturers' STEPs before
+  final case work.
 - A Zephyr board definition for the dongle (with the UF2 flash layout) is phase 14 work. Until then,
   CI builds the dongle app for `nrf52840dongle/nrf52840`.
 - BOM: every soldered part except the SWD header has an MPN. LCSC numbers are filled in only where they
