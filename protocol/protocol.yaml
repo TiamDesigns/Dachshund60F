@@ -60,9 +60,52 @@ capabilities:
   - {name: battery, bit: 8, doc: battery level}
   - {name: identify, bit: 9, doc: identify command}
 
-# Field types: u8, u16, u32; char[N] (fixed, NUL-padded text); u16[] (a
-# variable-length array, only as the last field, its length taken from the
-# payload length, with `max` elements at most).
+# Advanced-key tables (kb/features.h), read and written one entry at a time
+# with get_feature and set_feature. Each entry is `size` bytes in the layout
+# given (u16 little-endian); `entries` is how many a table has. A position
+# (row, col) of 0xFF, 0xFF is an unused slot; an entry whose result is 0
+# (KC_NO) is unused. New fields are only ever appended, and a firmware that
+# gets an entry shorter than its own keeps the defaults for the rest.
+feature_tables:
+  - name: options
+    id: 0
+    size: 14
+    entries: 1
+    doc: "leader_timeout_ms u16, caps_word_on_both_shifts u8, caps_word_idle_ms u16, auto_shift u8, auto_shift_ms u16, mouse_interval_ms u8, mouse_move_delta u8, mouse_max_speed u8, mouse_time_to_max_ms u16, mouse_wheel_interval_ms u8"
+  - name: combo
+    id: 1
+    size: 14
+    entries: 16
+    doc: "row u8 + col u8 for each of 4 keys, result u16, timeout_ms u16 (0 = 50), layers u16 (bit mask, 0 = all)"
+  - name: tap_dance
+    id: 2
+    size: 10
+    entries: 16
+    doc: "tap1 u16, hold1 u16, tap2 u16, tap3 u16, term_ms u16 (0 = the tapping term); TD(n) uses entry n"
+  - name: key_override
+    id: 3
+    size: 6
+    entries: 16
+    doc: "trigger_mods u8 (HID modifier bits), trigger_key u8 (HID usage), replacement u16, layers u16"
+  - name: leader
+    id: 4
+    size: 6
+    entries: 16
+    doc: "4 keys u8 (HID usages, 0 ends the sequence), result u16"
+  - name: tap_hold
+    id: 5
+    size: 7
+    entries: 16
+    doc: "row u8, col u8, flags u8 (1 permissive hold, 2 hold on other key press, 4 retro tap), tapping_term_ms u16, quick_tap_ms u16"
+  - name: encoder
+    id: 6
+    size: 4
+    entries: 32
+    doc: "clockwise u16, counter-clockwise u16; entry layer * 2 + encoder, only for layers the keymap has; KC_TRNS falls through"
+
+# Field types: u8, u16, u32; char[N] (fixed, NUL-padded text); u8[] and
+# u16[] (a variable-length array, only as the last field, its length taken
+# from the payload length, with `max` elements at most).
 #
 # The keymap index used by the chunk commands runs layer by layer, then row
 # by row, then column: index = (layer * rows + row) * cols + col.
@@ -158,5 +201,49 @@ commands:
   - name: factory_reset
     id: 0x22
     doc: Restore the compiled-in defaults, live and saved.
+    request: []
+    response: []
+
+  - name: get_feature
+    id: 0x30
+    doc: Read one entry of an advanced-key table (see feature_tables).
+    request:
+      - {name: table, type: u8}
+      - {name: index, type: u16}
+    response:
+      - {name: table, type: u8}
+      - {name: index, type: u16}
+      - {name: data, type: "u8[]", max: 56}
+
+  - name: set_feature
+    id: 0x31
+    doc: Replace one entry of an advanced-key table in the live settings. The whole set of tables is checked first; on an error nothing changes.
+    request:
+      - {name: table, type: u8}
+      - {name: index, type: u16}
+      - {name: data, type: "u8[]", max: 56}
+    response: []
+
+  - name: get_macro_chunk
+    id: 0x32
+    doc: Read up to 56 bytes of the macro buffer being edited (the live one unless set_macro_chunk changed it since).
+    request:
+      - {name: offset, type: u16}
+      - {name: count, type: u8}
+    response:
+      - {name: offset, type: u16}
+      - {name: data, type: "u8[]", max: 56}
+
+  - name: set_macro_chunk
+    id: 0x33
+    doc: Write up to 56 bytes into the macro buffer being edited. Nothing changes on the keyboard until apply_macros.
+    request:
+      - {name: offset, type: u16}
+      - {name: data, type: "u8[]", max: 56}
+    response: []
+
+  - name: apply_macros
+    id: 0x34
+    doc: Check the edited macro buffer and make it the live one. bad_value if a step is malformed; the live macros stay and the edit is dropped.
     request: []
     response: []

@@ -5,6 +5,9 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include <stdint.h>
+
+#include "kb/features.h"
 #include "kb/keymap.h"
 
 /* Set up the matrix and keymap and start the scan thread. */
@@ -17,6 +20,15 @@ int keyboard_start(void);
 struct kb_keymap *keyboard_keymap(void);
 void keyboard_lock(void);
 void keyboard_unlock(void);
+
+/*
+ * The live advanced-key tables and the macro buffer the host edits (see
+ * kb/protocol.h). Change them under keyboard_lock(), then call
+ * keyboard_features_changed() (still locked).
+ */
+struct kb_features *keyboard_features(void);
+uint8_t *keyboard_macro_edit(void);
+void keyboard_features_changed(void);
 
 /*
  * Save writes the live keymap and settings to flash; revert reads them

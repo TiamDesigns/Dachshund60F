@@ -3,6 +3,7 @@
  * and encoders. */
 #include "kb/engine.h"
 #include "kb/features.h"
+#include "kb/protocol_gen.h"
 #include "kb_test.h"
 
 #include <string.h>
@@ -701,6 +702,70 @@ static void test_random_events_leave_nothing_held(void)
     }
 }
 
+static void test_tables_change_under_the_engine(void)
+{
+    setup();
+    combo(0, K_A, K_B, -1, KC_ESC);
+    apply();
+    key(K_A, true, 0);
+    key(K_B, true, 5);
+    KB_CHECK(kb_hid_key_held(&last, KC_ESC));
+    /* The host edits a table while the combo is held: it's released. */
+    feat.combos[0].result = KC_TAB;
+    kb_engine_set_features(&eng, &feat);
+    KB_CHECK(!kb_hid_key_held(&last, KC_ESC));
+    key(K_A, false, 20);
+    key(K_B, false, 25);
+    KB_CHECK_EQ(last.boot_keys[0], 0);
+
+    /* A key waiting to become a combo goes on as itself. */
+    key(K_A, true, 100);
+    KB_CHECK_EQ(ntyped, 1);
+    kb_engine_set_features(&eng, &feat);
+    KB_CHECK_EQ(typed[ntyped - 1].usage, KC_A);
+    key(K_A, false, 110);
+
+    /* A macro waiting on a delay stops, and its held keys come up. */
+    const uint8_t m[] = {KB_MACRO_DOWN, KC_LALT, 0, KB_MACRO_DELAY, 100, 0, KB_MACRO_TAP, KC_D, 0,
+                         KB_MACRO_END};
+    memcpy(feat.macros, m, sizeof(m));
+    apply();
+    tap(K_M0, 200);
+    KB_CHECK_EQ(last.mods, 0x04);
+    kb_engine_set_features(&eng, &feat);
+    KB_CHECK_EQ(last.mods, 0);
+    kb_engine_tick(&eng, 400);
+    KB_CHECK(typed[ntyped - 1].usage != KC_D);
+}
+
+static void test_entry_codec(void)
+{
+    kb_features_default(&feat);
+    uint8_t buf[16];
+    KB_CHECK_EQ(kb_feature_entry_size(KB_PROTO_TABLE_COMBO), 14);
+    KB_CHECK_EQ(kb_feature_entry_size(KB_PROTO_TABLE_COUNT), 0);
+    KB_CHECK_EQ(kb_feature_entries(KB_PROTO_TABLE_ENCODER, 3), 6);
+    KB_CHECK_EQ(kb_feature_entries(KB_PROTO_TABLE_COMBO, 3), KB_COMBO_MAX);
+    KB_CHECK(!kb_feature_get(&feat, KB_PROTO_TABLE_COMBO, KB_COMBO_MAX, buf));
+    KB_CHECK(!kb_feature_get(&feat, 200, 0, buf));
+
+    const uint8_t dance[10] = {KC_A, 0, KC_LCTL, 0, KC_B, 0, KC_C, 0, 0x2C, 0x01};
+    KB_CHECK(kb_feature_put(&feat, KB_PROTO_TABLE_TAP_DANCE, 3, dance, sizeof(dance)));
+    KB_CHECK_EQ(feat.tap_dances[3].hold1, KC_LCTL);
+    KB_CHECK_EQ(feat.tap_dances[3].term_ms, 300);
+    KB_CHECK(kb_feature_get(&feat, KB_PROTO_TABLE_TAP_DANCE, 3, buf));
+    KB_CHECK(memcmp(buf, dance, sizeof(dance)) == 0);
+    KB_CHECK(!kb_feature_put(&feat, KB_PROTO_TABLE_TAP_DANCE, 3, buf, 11));
+
+    /* Options in the documented order. */
+    KB_CHECK(kb_feature_get(&feat, KB_PROTO_TABLE_OPTIONS, 0, buf));
+    KB_CHECK_EQ(buf[0] | (buf[1] << 8), 300);  /* leader */
+    KB_CHECK_EQ(buf[3] | (buf[4] << 8), 5000); /* caps word idle */
+    KB_CHECK_EQ(buf[6] | (buf[7] << 8), 175);  /* auto shift */
+    KB_CHECK_EQ(buf[8], 16);                   /* mouse interval */
+    KB_CHECK_EQ(buf[13], 80);                  /* wheel interval */
+}
+
 /* Validation */
 
 static void test_features_valid(void)
@@ -821,6 +886,8 @@ int main(void)
     KB_RUN(test_mouse_keys);
     KB_RUN(test_encoder_layers);
     KB_RUN(test_encoder_basic_key);
+    KB_RUN(test_tables_change_under_the_engine);
+    KB_RUN(test_entry_codec);
     KB_RUN(test_random_events_leave_nothing_held);
     KB_RUN(test_features_valid);
     KB_RUN(test_macros_valid);

@@ -4,6 +4,7 @@
 
 #include "kb/debounce.h"
 #include "kb/keycodes.h"
+#include "kb/protocol_gen.h"
 
 #define SECTION_HEADER 3u
 #define KEYMAP_HEADER 3u
@@ -174,4 +175,128 @@ int kb_settings_decode(uint16_t schema, const uint8_t *buf, size_t len, struct k
     default:
         return -1;
     }
+}
+
+/* Feature sections */
+
+#define BLOCK_HEADER 4u
+
+static size_t macros_used(const struct kb_features *f)
+{
+    size_t n = KB_MACRO_BUFFER;
+    while (n > 0 && f->macros[n - 1] == 0) {
+        n--;
+    }
+    return n;
+}
+
+static size_t features_body(uint8_t layers)
+{
+    size_t n = 0;
+    for (uint8_t t = 0; t < KB_PROTO_TABLE_COUNT; t++) {
+        n += BLOCK_HEADER + (size_t)kb_feature_entries(t, layers) * kb_feature_entry_size(t);
+    }
+    return n;
+}
+
+size_t kb_features_encoded_size(const struct kb_features *f, uint8_t layers)
+{
+    return SECTION_HEADER + features_body(layers) + SECTION_HEADER + macros_used(f);
+}
+
+size_t kb_features_encode(const struct kb_features *f, uint8_t layers, uint8_t *buf, size_t cap)
+{
+    if (cap < kb_features_encoded_size(f, layers)) {
+        return 0;
+    }
+    uint8_t *p = section(buf, KB_SECTION_FEATURES, features_body(layers));
+    for (uint8_t t = 0; t < KB_PROTO_TABLE_COUNT; t++) {
+        uint16_t count = kb_feature_entries(t, layers);
+        uint8_t size = kb_feature_entry_size(t);
+        *p++ = t;
+        *p++ = size;
+        *p++ = (uint8_t)count;
+        *p++ = (uint8_t)(count >> 8);
+        for (uint16_t i = 0; i < count; i++) {
+            kb_feature_get(f, t, i, p);
+            p += size;
+        }
+    }
+    size_t m = macros_used(f);
+    p = section(p, KB_SECTION_MACROS, m);
+    memcpy(p, f->macros, m);
+    return (size_t)(p + m - buf);
+}
+
+/* One features section into f; false if its blocks are malformed. */
+static bool decode_features(const uint8_t *b, size_t len, struct kb_features *f, uint8_t layers)
+{
+    for (size_t off = 0; off < len;) {
+        if (len - off < BLOCK_HEADER) {
+            return false;
+        }
+        uint8_t table = b[off];
+        uint8_t size = b[off + 1];
+        size_t count = (size_t)(b[off + 2] | (b[off + 3] << 8));
+        off += BLOCK_HEADER;
+        if (size == 0 || count * size > len - off) {
+            return false;
+        }
+        uint8_t ours = kb_feature_entry_size(table); /* 0: a table from newer firmware */
+        uint16_t entries = kb_feature_entries(table, layers);
+        for (size_t i = 0; ours && i < count && i < entries; i++) {
+            /* Longer entries (newer firmware) lose the fields we don't know. */
+            kb_feature_put(f, table, (uint16_t)i, &b[off + i * size], size < ours ? size : ours);
+        }
+        off += count * size;
+    }
+    return true;
+}
+
+int kb_features_decode(uint16_t schema, const uint8_t *buf, size_t len, struct kb_features *f,
+                       uint8_t layers, uint8_t rows, uint8_t cols)
+{
+    if (schema != 1) {
+        return -1;
+    }
+    for (size_t off = 0; off < len;) {
+        if (len - off < SECTION_HEADER) {
+            return -1;
+        }
+        size_t n = (size_t)(buf[off + 1] | (buf[off + 2] << 8));
+        if (n > len - off - SECTION_HEADER) {
+            return -1;
+        }
+        off += SECTION_HEADER + n;
+    }
+
+    /* Built in a copy, so an invalid set leaves the defaults whole (static:
+     * about 2 KB, too much for a thread stack; callers never overlap). */
+    static struct kb_features next;
+    next = *f;
+    bool any = false;
+    for (size_t off = 0; off < len;) {
+        uint8_t tag = buf[off];
+        size_t n = (size_t)(buf[off + 1] | (buf[off + 2] << 8));
+        const uint8_t *body = &buf[off + SECTION_HEADER];
+        if (tag == KB_SECTION_FEATURES) {
+            if (!decode_features(body, n, &next, layers)) {
+                return 0;
+            }
+            any = true;
+        } else if (tag == KB_SECTION_MACROS) {
+            if (n > KB_MACRO_BUFFER) {
+                return 0;
+            }
+            memset(next.macros, 0, KB_MACRO_BUFFER);
+            memcpy(next.macros, body, n);
+            any = true;
+        }
+        off += SECTION_HEADER + n;
+    }
+    if (!any || !kb_features_valid(&next, layers, rows, cols)) {
+        return 0;
+    }
+    *f = next;
+    return 1;
 }

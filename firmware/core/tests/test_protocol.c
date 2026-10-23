@@ -221,6 +221,135 @@ static void test_save_revert_reset(void)
     KB_CHECK_EQ(fx.saved[0], KC_A);
 }
 
+static void test_features(void)
+{
+    fx_init();
+    /* Read the first combo: unused, all positions 0xFF. */
+    uint8_t get[3] = {KB_PROTO_TABLE_COMBO, 0, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_FEATURE, get, 3), KB_PROTO_OK);
+    KB_CHECK_EQ(payload_len(), 3 + KB_PROTO_TABLE_COMBO_SIZE);
+    KB_CHECK_EQ(payload()[0], KB_PROTO_TABLE_COMBO);
+    KB_CHECK_EQ(payload()[3], 0xFF);
+    KB_CHECK_EQ(payload()[11], 0); /* result high byte */
+
+    /* Combo 2: (0,0) + (0,1) = Esc. */
+    uint8_t set[3 + 14] = {KB_PROTO_TABLE_COMBO, 2, 0, 0, 0, 0, 1, 0xFF, 0xFF, 0xFF, 0xFF,
+                           KC_ESC, 0, 0, 0, 0, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_FEATURE, set, sizeof(set)), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.features.combos[2].result, KC_ESC);
+    KB_CHECK_EQ(fx.features.combos[2].keys[1].col, 1);
+    KB_CHECK_EQ(fx.feature_changes, 1);
+    get[1] = 2;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_FEATURE, get, 3), KB_PROTO_OK);
+    KB_CHECK(memcmp(payload() + 3, set + 3, 14) == 0);
+
+    /* A key off the board: refused, the old entry stays. */
+    set[3 + 2] = 1;
+    set[3 + 3] = FX_COLS;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_FEATURE, set, sizeof(set)), KB_PROTO_BAD_VALUE);
+    KB_CHECK_EQ(fx.features.combos[2].keys[1].col, 1);
+    KB_CHECK_EQ(fx.feature_changes, 1);
+
+    /* Options, shorter than the entry: only the fields given change. */
+    uint8_t opt[3 + 2] = {KB_PROTO_TABLE_OPTIONS, 0, 0, 0xF4, 0x01}; /* Leader 500 ms */
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_FEATURE, opt, sizeof(opt)), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.features.leader_timeout_ms, 500);
+    KB_CHECK_EQ(fx.features.auto_shift_ms, 175);
+
+    /* Encoders: two per layer the keymap has. */
+    uint8_t enc[3 + 4] = {KB_PROTO_TABLE_ENCODER, 7, 0, (uint8_t)KC_VOLU, (uint8_t)(KC_VOLU >> 8),
+                          (uint8_t)KC_VOLD, (uint8_t)(KC_VOLD >> 8)};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_FEATURE, enc, sizeof(enc)), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.features.encoders[3][1].ccw, KC_VOLD);
+    enc[1] = FX_LAYERS * 2;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_FEATURE, enc, sizeof(enc)), KB_PROTO_OUT_OF_RANGE);
+
+    /* Bad table, index, lengths. */
+    uint8_t bad[3] = {KB_PROTO_TABLE_COUNT, 0, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_FEATURE, bad, 3), KB_PROTO_OUT_OF_RANGE);
+    bad[0] = KB_PROTO_TABLE_TAP_DANCE;
+    bad[1] = 16;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_FEATURE, bad, 3), KB_PROTO_OUT_OF_RANGE);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_FEATURE, bad, 2), KB_PROTO_BAD_LENGTH);
+    uint8_t too_long[3 + 11] = {KB_PROTO_TABLE_TAP_DANCE, 0, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_FEATURE, too_long, sizeof(too_long)), KB_PROTO_BAD_LENGTH);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_FEATURE, too_long, 3), KB_PROTO_BAD_LENGTH);
+
+    /* Revert brings back the saved tables. */
+    KB_CHECK_EQ(call(KB_PROTO_CMD_REVERT, NULL, 0), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.features.combos[2].result, KC_NO);
+    KB_CHECK_EQ(fx.locks, fx.unlocks);
+}
+
+static void test_macros(void)
+{
+    fx_init();
+    /* "ab" then Enter, written in two chunks; nothing live until applied. */
+    uint8_t c1[2 + 3] = {0, 0, 'a', 'b', KB_MACRO_TAP};
+    uint8_t c2[2 + 2] = {3, 0, KC_ENT, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, c1, sizeof(c1)), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.features.macros[0], 0);
+    /* Half a step: applying now is refused. */
+    uint8_t cut[2 + 1] = {5, 0, KB_MACRO_TAP};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, cut, sizeof(cut)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, c2, sizeof(c2)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_APPLY_MACROS, NULL, 0), KB_PROTO_BAD_VALUE);
+    KB_CHECK_EQ(fx.features.macros[0], 0);
+    /* The refused edit is gone; write it again, whole this time. */
+    uint8_t clear[2 + 1] = {5, 0, KB_MACRO_END};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, c1, sizeof(c1)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, c2, sizeof(c2)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, clear, sizeof(clear)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_APPLY_MACROS, NULL, 0), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.features.macros[0], 'a');
+    KB_CHECK_EQ(fx.features.macros[3], KC_ENT);
+    KB_CHECK_EQ(fx.feature_changes, 1);
+
+    uint8_t bad_step[2 + 1] = {10, 0, 0x05};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, bad_step, sizeof(bad_step)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_APPLY_MACROS, NULL, 0), KB_PROTO_BAD_VALUE);
+    KB_CHECK_EQ(fx.features.macros[10], 0);
+
+    /* The refused edit is dropped: reads show the live macros. */
+    uint8_t get[3] = {0, 0, 12};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_MACRO_CHUNK, get, 3), KB_PROTO_OK);
+    KB_CHECK_EQ(payload_len(), 2 + 12);
+    KB_CHECK_EQ(payload()[2], 'a');
+    KB_CHECK_EQ(payload()[2 + 10], 0);
+
+    /* An edit not yet applied is what reads show. */
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, bad_step, sizeof(bad_step)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_MACRO_CHUNK, get, 3), KB_PROTO_OK);
+    KB_CHECK_EQ(payload()[2 + 10], 0x05);
+
+    /* Revert drops the edit, and the saved macros (none) come back. */
+    KB_CHECK_EQ(call(KB_PROTO_CMD_REVERT, NULL, 0), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_MACRO_CHUNK, get, 3), KB_PROTO_OK);
+    KB_CHECK_EQ(payload()[2], 0);
+    KB_CHECK_EQ(payload()[2 + 10], 0);
+
+    /* Bounds. */
+    uint8_t end[3] = {(uint8_t)(KB_MACRO_BUFFER - 4), (uint8_t)((KB_MACRO_BUFFER - 4) >> 8), 5};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_MACRO_CHUNK, end, 3), KB_PROTO_OUT_OF_RANGE);
+    end[2] = 57;
+    end[0] = 0;
+    end[1] = 0;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_MACRO_CHUNK, end, 3), KB_PROTO_OUT_OF_RANGE);
+    uint8_t over[2 + 4] = {(uint8_t)(KB_MACRO_BUFFER - 2), (uint8_t)((KB_MACRO_BUFFER - 2) >> 8)};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_MACRO_CHUNK, over, sizeof(over)), KB_PROTO_OUT_OF_RANGE);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_APPLY_MACROS, c1, 1), KB_PROTO_BAD_LENGTH);
+}
+
+static void test_features_not_supported(void)
+{
+    fx_init();
+    fx_proto.features = NULL;
+    uint8_t get[3] = {0, 0, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_FEATURE, get, 3), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_MACRO_CHUNK, get, 3), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_APPLY_MACROS, NULL, 0), KB_PROTO_NOT_SUPPORTED);
+}
+
 static void test_device_control(void)
 {
     fx_init();
@@ -291,6 +420,9 @@ int main(void)
     KB_RUN(test_get_and_set_key);
     KB_RUN(test_keymap_chunks);
     KB_RUN(test_save_revert_reset);
+    KB_RUN(test_features);
+    KB_RUN(test_macros);
+    KB_RUN(test_features_not_supported);
     KB_RUN(test_device_control);
     KB_RUN(test_codec_round_trip);
     return KB_TEST_RESULT();

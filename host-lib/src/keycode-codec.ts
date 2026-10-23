@@ -18,7 +18,7 @@ const c = (name: string): number => {
 
 /** Keycode names: everything in keycodes.h that is a keycode, not a range or bit. */
 const NAMED = new Map<string, number>(
-  Object.entries(K).filter(([name]) => /^(KC|QK|CW|NK|OUT|BT|MS)_/.test(name)),
+  Object.entries(K).filter(([name]) => /^(KC|QK|CW|NK|AS|OUT|BT|MS|DM)_/.test(name)),
 );
 const BY_NUMBER = new Map<number, string>();
 for (const [name, value] of NAMED) {
@@ -80,6 +80,12 @@ export function encodeKeycode(id: KeycodeId): number {
   }
   if (fn === "BT_SEL" && args.length === 1) return BT_SEL_BASE | int(args[0]!, BT_PROFILE_MAX - 1, "profile");
   if (fn === "OSM" && args.length === 1) return c("KB_KC_OSM") | modsOf(args[0]!);
+  if (fn === "M" && args.length === 1) {
+    return c("KB_KC_MACRO") + int(args[0]!, c("KB_KC_MACRO_MAX") - c("KB_KC_MACRO"), "macro");
+  }
+  if (fn === "TD" && args.length === 1) {
+    return c("KB_KC_TAP_DANCE") + int(args[0]!, c("KB_KC_TAP_DANCE_MAX") - c("KB_KC_TAP_DANCE"), "tap dance");
+  }
   if (fn === "LT" && args.length === 2) {
     return c("KB_KC_LT") | (int(args[0]!, 0xf, "layer") << 8) | basicKey(args[1]!);
   }
@@ -134,6 +140,8 @@ export function decodeKeycode(n: number): KeycodeId {
     return op ? `${op}(${lo})` : hex(n);
   }
   if (n >= BT_SEL_BASE && n < BT_SEL_BASE + BT_PROFILE_MAX) return `BT_SEL(${n - BT_SEL_BASE})`;
+  if (n >= c("KB_KC_MACRO") && n <= c("KB_KC_MACRO_MAX")) return `M(${n - c("KB_KC_MACRO")})`;
+  if (n >= c("KB_KC_TAP_DANCE") && n <= c("KB_KC_TAP_DANCE_MAX")) return `TD(${n - c("KB_KC_TAP_DANCE")})`;
   if (n >= c("KB_KC_OSM") && n <= c("KB_KC_OSM_MAX")) {
     const mod = MOD_NAMES[n & 0x1f];
     return mod ? `OSM(MOD_${mod})` : hex(n);

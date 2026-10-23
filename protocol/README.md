@@ -42,6 +42,21 @@ for another version can't change anything. Error responses carry no
 payload. There's no CRC, because USB, BLE and the 2.4 GHz link already check
 every packet.
 
+## Advanced keys and macros
+
+Combos, tap dance, key overrides, Leader sequences, per-key tap-hold rules,
+the encoder mapping and their options live in fixed tables (`feature_tables`
+in `protocol.yaml`, `kb/features.h` in the firmware). `get_feature` and
+`set_feature` read and write one entry at a time, in the byte layout the
+YAML gives. A write is checked against all the tables together (positions on
+the board, keycodes, no tap dance inside a combo, and so on), and on an error
+nothing changes. Fields are only ever appended to an entry; a shorter entry
+from an older app keeps the board's values for the rest.
+
+Macros are one 1 KB buffer. The host writes it in chunks with
+`set_macro_chunk` (nothing changes on the keyboard meanwhile) and then sends
+`apply_macros`, which checks every step and swaps it in, or drops the edit.
+
 ## Rules (see CLAUDE.md)
 
 - Bump `version` on any breaking change: removing or renumbering a command,

@@ -3,7 +3,7 @@
  * matrix (positions in boards/Dachshund60F/README.md). Unused matrix
  * positions are XXXXXXX.
  *
- * Must match host-lib/src/default-keymaps.ts, which the mock board and
+ * Must match host-lib/src/default-keymaps.ts (encoders included), which the mock board and
  * Doghouse use; host-lib's firmware-keymap test compares the two.
  */
 
@@ -47,3 +47,11 @@ const kb_keycode_t default_keymap[DEFAULT_KEYMAP_LAYERS][DEFAULT_KEYMAP_ROWS][DE
         {_______, _______, XXXXXXX, _______, _______, XXXXXXX, _______, XXXXXXX, _______, XXXXXXX, _______, _______, _______, _______, _______},
     },
 };
+
+void default_features(struct kb_features *f)
+{
+    kb_features_default(f);
+    /* The roller: volume on the base layer, tracks on Fn. */
+    f->encoders[0][0] = (struct kb_encoder_action){.cw = KC_VOLU, .ccw = KC_VOLD};
+    f->encoders[1][0] = (struct kb_encoder_action){.cw = KC_MNXT, .ccw = KC_MPRV};
+}

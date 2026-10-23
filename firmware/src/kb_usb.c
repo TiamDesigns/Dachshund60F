@@ -109,6 +109,7 @@ static uint8_t last_boot[KB_HID_BOOT_REPORT_SIZE];
 static uint8_t last_nkro[KB_HID_NKRO_REPORT_SIZE] = {KB_HID_ID_NKRO};
 static uint8_t last_consumer[KB_HID_CONSUMER_REPORT_SIZE] = {KB_HID_ID_CONSUMER};
 static uint8_t last_system[KB_HID_SYSTEM_REPORT_SIZE] = {KB_HID_ID_SYSTEM};
+static uint8_t last_mouse[KB_HID_MOUSE_REPORT_SIZE] = {KB_HID_ID_MOUSE};
 
 static void pipe_submit_next(struct hid_pipe *p)
 {
@@ -210,6 +211,8 @@ static int get_report(const struct device *dev, const uint8_t type, const uint8_
         return copy_last(last_consumer, sizeof(last_consumer), len, buf);
     case KB_HID_ID_SYSTEM:
         return copy_last(last_system, sizeof(last_system), len, buf);
+    case KB_HID_ID_MOUSE:
+        return copy_last(last_mouse, sizeof(last_mouse), len, buf);
     default:
         return -ENOTSUP;
     }
@@ -411,6 +414,11 @@ int kb_usb_send(enum kb_hid_report report, const uint8_t *data, size_t len)
         p = &extra_pipe;
         last = last_system;
         size = sizeof(last_system);
+        break;
+    case KB_HID_REPORT_MOUSE:
+        p = &extra_pipe;
+        last = last_mouse;
+        size = sizeof(last_mouse);
         break;
     default:
         return -EINVAL;

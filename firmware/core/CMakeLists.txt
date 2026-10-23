@@ -30,6 +30,7 @@ endfunction()
 
 kb_add_test(test_core)
 kb_add_test(test_debounce)
+kb_add_test(test_encoder)
 kb_add_test(test_engine)
 kb_add_test(test_features)
 kb_add_test(test_hid)

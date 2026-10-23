@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "kb/keymap.h"
+#include "kb/protocol_gen.h"
 
 void kb_features_default(struct kb_features *f)
 {
@@ -271,4 +272,163 @@ bool kb_ascii_to_key(char c, uint8_t *usage, bool *shift)
         }
     }
     return false;
+}
+
+/* Entry codec */
+
+static const struct {
+    uint8_t size;
+    uint8_t entries;
+} tables[KB_PROTO_TABLE_COUNT] = {
+    [KB_PROTO_TABLE_OPTIONS] = {KB_PROTO_TABLE_OPTIONS_SIZE, KB_PROTO_TABLE_OPTIONS_ENTRIES},
+    [KB_PROTO_TABLE_COMBO] = {KB_PROTO_TABLE_COMBO_SIZE, KB_COMBO_MAX},
+    [KB_PROTO_TABLE_TAP_DANCE] = {KB_PROTO_TABLE_TAP_DANCE_SIZE, KB_TAP_DANCE_MAX},
+    [KB_PROTO_TABLE_KEY_OVERRIDE] = {KB_PROTO_TABLE_KEY_OVERRIDE_SIZE, KB_KEY_OVERRIDE_MAX},
+    [KB_PROTO_TABLE_LEADER] = {KB_PROTO_TABLE_LEADER_SIZE, KB_LEADER_MAX},
+    [KB_PROTO_TABLE_TAP_HOLD] = {KB_PROTO_TABLE_TAP_HOLD_SIZE, KB_TAP_HOLD_RULE_MAX},
+    [KB_PROTO_TABLE_ENCODER] = {KB_PROTO_TABLE_ENCODER_SIZE, KB_MAX_LAYERS * KB_ENCODER_MAX},
+};
+
+_Static_assert(KB_PROTO_TABLE_COMBO_ENTRIES == KB_COMBO_MAX, "combo table size");
+_Static_assert(KB_PROTO_TABLE_TAP_DANCE_ENTRIES == KB_TAP_DANCE_MAX, "tap dance table size");
+_Static_assert(KB_PROTO_TABLE_KEY_OVERRIDE_ENTRIES == KB_KEY_OVERRIDE_MAX, "override table size");
+_Static_assert(KB_PROTO_TABLE_LEADER_ENTRIES == KB_LEADER_MAX, "leader table size");
+_Static_assert(KB_PROTO_TABLE_TAP_HOLD_ENTRIES == KB_TAP_HOLD_RULE_MAX, "tap-hold table size");
+_Static_assert(KB_PROTO_TABLE_ENCODER_ENTRIES == KB_MAX_LAYERS * KB_ENCODER_MAX, "encoder table size");
+
+#define ENTRY_MAX 16u
+_Static_assert(KB_PROTO_TABLE_OPTIONS_SIZE <= ENTRY_MAX && KB_PROTO_TABLE_COMBO_SIZE <= ENTRY_MAX,
+               "entry buffer");
+
+uint16_t kb_feature_entries(uint8_t table, uint8_t layers)
+{
+    if (table >= KB_PROTO_TABLE_COUNT) {
+        return 0;
+    }
+    if (table == KB_PROTO_TABLE_ENCODER) {
+        return (uint16_t)((layers < KB_MAX_LAYERS ? layers : KB_MAX_LAYERS) * KB_ENCODER_MAX);
+    }
+    return tables[table].entries;
+}
+
+uint8_t kb_feature_entry_size(uint8_t table)
+{
+    return table < KB_PROTO_TABLE_COUNT ? tables[table].size : 0;
+}
+
+/* Field-by-field copy between an entry's bytes and the struct, either way. */
+struct cursor {
+    uint8_t *p;
+    bool write; /* bytes -> struct */
+};
+
+static void f8(struct cursor *c, uint8_t *v)
+{
+    if (c->write) {
+        *v = *c->p;
+    } else {
+        *c->p = *v;
+    }
+    c->p++;
+}
+
+static void fbool(struct cursor *c, bool *v)
+{
+    uint8_t b = *v ? 1u : 0u;
+    f8(c, &b);
+    *v = b != 0;
+}
+
+static void f16(struct cursor *c, uint16_t *v)
+{
+    if (c->write) {
+        *v = (uint16_t)(c->p[0] | (c->p[1] << 8));
+    } else {
+        c->p[0] = (uint8_t)*v;
+        c->p[1] = (uint8_t)(*v >> 8);
+    }
+    c->p += 2;
+}
+
+static void entry(struct kb_features *f, uint8_t table, uint16_t i, struct cursor *c)
+{
+    switch (table) {
+    case KB_PROTO_TABLE_OPTIONS:
+        f16(c, &f->leader_timeout_ms);
+        fbool(c, &f->caps_word_on_both_shifts);
+        f16(c, &f->caps_word_idle_ms);
+        fbool(c, &f->auto_shift);
+        f16(c, &f->auto_shift_ms);
+        f8(c, &f->mouse.interval_ms);
+        f8(c, &f->mouse.move_delta);
+        f8(c, &f->mouse.max_speed);
+        f16(c, &f->mouse.time_to_max_ms);
+        f8(c, &f->mouse.wheel_interval_ms);
+        break;
+    case KB_PROTO_TABLE_COMBO:
+        for (unsigned k = 0; k < KB_COMBO_KEYS; k++) {
+            f8(c, &f->combos[i].keys[k].row);
+            f8(c, &f->combos[i].keys[k].col);
+        }
+        f16(c, &f->combos[i].result);
+        f16(c, &f->combos[i].timeout_ms);
+        f16(c, &f->combos[i].layers);
+        break;
+    case KB_PROTO_TABLE_TAP_DANCE:
+        f16(c, &f->tap_dances[i].tap1);
+        f16(c, &f->tap_dances[i].hold1);
+        f16(c, &f->tap_dances[i].tap2);
+        f16(c, &f->tap_dances[i].tap3);
+        f16(c, &f->tap_dances[i].term_ms);
+        break;
+    case KB_PROTO_TABLE_KEY_OVERRIDE:
+        f8(c, &f->overrides[i].trigger_mods);
+        f8(c, &f->overrides[i].trigger_key);
+        f16(c, &f->overrides[i].replacement);
+        f16(c, &f->overrides[i].layers);
+        break;
+    case KB_PROTO_TABLE_LEADER:
+        for (unsigned k = 0; k < KB_LEADER_KEYS; k++) {
+            f8(c, &f->leader[i].keys[k]);
+        }
+        f16(c, &f->leader[i].result);
+        break;
+    case KB_PROTO_TABLE_TAP_HOLD:
+        f8(c, &f->tap_hold[i].row);
+        f8(c, &f->tap_hold[i].col);
+        f8(c, &f->tap_hold[i].flags);
+        f16(c, &f->tap_hold[i].tapping_term_ms);
+        f16(c, &f->tap_hold[i].quick_tap_ms);
+        break;
+    case KB_PROTO_TABLE_ENCODER:
+        f16(c, &f->encoders[i / KB_ENCODER_MAX][i % KB_ENCODER_MAX].cw);
+        f16(c, &f->encoders[i / KB_ENCODER_MAX][i % KB_ENCODER_MAX].ccw);
+        break;
+    default:
+        break;
+    }
+}
+
+bool kb_feature_get(const struct kb_features *f, uint8_t table, uint16_t index, uint8_t *out)
+{
+    if (index >= kb_feature_entries(table, KB_MAX_LAYERS)) {
+        return false;
+    }
+    struct cursor c = {.p = out, .write = false};
+    /* Reading leaves f as it is; the cursor only copies out of it. */
+    entry((struct kb_features *)f, table, index, &c);
+    return true;
+}
+
+bool kb_feature_put(struct kb_features *f, uint8_t table, uint16_t index, const uint8_t *in,
+                    size_t len)
+{
+    uint8_t buf[ENTRY_MAX];
+    if (!kb_feature_get(f, table, index, buf) || len > tables[table].size) {
+        return false;
+    }
+    memcpy(buf, in, len);
+    struct cursor c = {.p = buf, .write = true};
+    entry(f, table, index, &c);
+    return true;
 }

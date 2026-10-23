@@ -6,11 +6,20 @@
  * version still opens, so the GUI can show it, but every call on it fails
  * with "version-mismatch" and nothing is ever written to it.
  */
+import * as codec from "./advanced-codec.js";
 import { ProtocolClient, type ClientOptions } from "./client.js";
 import { decodeKeycode, encodeKeycode, KeycodeError } from "./keycode-codec.js";
 import {
   Capability,
   Command,
+  decodeGetFeatureResponse,
+  decodeGetMacroChunkResponse,
+  encodeGetFeatureRequest,
+  encodeGetMacroChunkRequest,
+  encodeSetFeatureRequest,
+  encodeSetMacroChunkRequest,
+  FeatureTable,
+  type FeatureTableName,
   decodeGetKeymapChunkResponse,
   decodeGetSerialResponse,
   decodeHandshakeResponse,
@@ -24,6 +33,10 @@ import {
 import type { Transport } from "./transport.js";
 import {
   BoardError,
+  type AdvancedKeys,
+  type AdvancedOptions,
+  type AdvancedTable,
+  type MacroStep,
   type BatteryStatus,
   type Board,
   type BoardEvent,
@@ -37,6 +50,31 @@ import {
 
 /** Keycodes per get_keymap_chunk request (the most a response holds). */
 const CHUNK = 28;
+
+/** Encoder table entries per layer (the firmware's KB_ENCODER_MAX). */
+const ENCODER_STRIDE = 2;
+
+/** Macro bytes per get/set_macro_chunk request. */
+const MACRO_CHUNK = 56;
+
+/** The protocol table behind each AdvancedKeys table, and its codec. */
+const TABLES = {
+  combos: { table: "combo", encode: codec.encodeCombo, decode: codec.decodeCombo },
+  tapDances: { table: "tapDance", encode: codec.encodeTapDance, decode: codec.decodeTapDance },
+  keyOverrides: { table: "keyOverride", encode: codec.encodeKeyOverride, decode: codec.decodeKeyOverride },
+  leader: { table: "leader", encode: codec.encodeLeader, decode: codec.decodeLeader },
+  tapHold: { table: "tapHold", encode: codec.encodeTapHold, decode: codec.decodeTapHold },
+} as const satisfies Record<AdvancedTable, { table: FeatureTableName; encode: unknown; decode: unknown }>;
+
+/** Run an encoder from the codec, turning bad values into "invalid-value". */
+function encoded<T>(encode: (value: T) => Uint8Array, value: T): Uint8Array {
+  try {
+    return encode(value);
+  } catch (err) {
+    if (err instanceof KeycodeError) throw new BoardError("invalid-value", err.message);
+    throw err;
+  }
+}
 
 /** How long identify flashes the indicators, in seconds. */
 const IDENTIFY_SECONDS = 3;
@@ -68,6 +106,7 @@ export class HidBoard implements Board {
   private readonly client: ProtocolClient;
   private readonly capabilities: number;
   private readonly encoderCount: number;
+  private readonly macroBufferSize: number;
   private unsaved = false;
   private readonly listeners = new Set<(event: BoardEvent) => void>();
 
@@ -102,6 +141,7 @@ export class HidBoard implements Board {
     this.cols = handshake?.cols ?? 0;
     this.capabilities = handshake?.capabilities ?? 0;
     this.encoderCount = handshake?.encoders ?? 0;
+    this.macroBufferSize = handshake?.macroBufferSize ?? 0;
     this.info = {
       id: serial,
       model: handshake?.model ?? "",
@@ -180,9 +220,35 @@ export class HidBoard implements Board {
       }
       keys.push(layer);
     }
-    // Encoder mapping arrives in phase 9; until then no layer has any.
     const encoders: EncoderAction[][] = keys.map(() => []);
+    if (this.capabilities & Capability.encoders) {
+      for (let l = 0; l < layers; l++) {
+        for (let e = 0; e < this.encoderCount; e++) {
+          encoders[l]!.push(codec.decodeEncoder(await this.getEntry("encoder", l * ENCODER_STRIDE + e)));
+        }
+      }
+    }
     return { keys, encoders };
+  }
+
+  private async getEntry(table: FeatureTableName, index: number): Promise<Uint8Array> {
+    const { id, size } = FeatureTable[table];
+    const r = decodeGetFeatureResponse(
+      await this.client.request(Command.getFeature, encodeGetFeatureRequest({ table: id, index })),
+    );
+    if (r.table !== id || r.index !== index || r.data.length < size) {
+      throw new BoardError("protocol-error", `${table} entry ${index} came back wrong`);
+    }
+    return r.data.subarray(0, size);
+  }
+
+  private async setEntry(table: FeatureTableName, index: number, data: Uint8Array): Promise<void> {
+    await this.client.request(
+      Command.setFeature,
+      encodeSetFeatureRequest({ table: FeatureTable[table].id, index, data }),
+    );
+    this.unsaved = true;
+    this.emit({ type: "changed" });
   }
 
   async setKey({ layer, row, col }: KeyPosition, keycode: KeycodeId): Promise<void> {
@@ -209,11 +275,94 @@ export class HidBoard implements Board {
   }
 
   async setEncoder(layer: number, encoder: number, action: EncoderAction): Promise<void> {
-    void layer;
-    void encoder;
-    void action;
     this.check(Capability.encoders, "encoder mapping");
-    throw new BoardError("not-supported", `encoder mapping isn't in protocol ${PROTOCOL_VERSION} yet`);
+    for (const [name, value, limit] of [
+      ["layer", layer, this.info.layerCount],
+      ["encoder", encoder, this.encoderCount],
+    ] as const) {
+      if (!Number.isInteger(value) || value < 0 || value >= limit) {
+        throw new BoardError("out-of-range", `${name} ${value} out of range`);
+      }
+    }
+    await this.setEntry("encoder", layer * ENCODER_STRIDE + encoder, encoded(codec.encodeEncoder, action));
+  }
+
+  async getAdvancedKeys(): Promise<AdvancedKeys> {
+    this.check(Capability.advancedKeys, "advanced keys");
+    const read = async <T>(table: FeatureTableName, decode: (b: Uint8Array) => T): Promise<T[]> => {
+      const out: T[] = [];
+      for (let i = 0; i < FeatureTable[table].entries; i++) out.push(decode(await this.getEntry(table, i)));
+      return out;
+    };
+    return {
+      options: codec.decodeOptions(await this.getEntry("options", 0)),
+      combos: await read("combo", codec.decodeCombo),
+      tapDances: await read("tapDance", codec.decodeTapDance),
+      keyOverrides: await read("keyOverride", codec.decodeKeyOverride),
+      leader: await read("leader", codec.decodeLeader),
+      tapHold: await read("tapHold", codec.decodeTapHold),
+    };
+  }
+
+  async setAdvancedEntry<T extends AdvancedTable>(
+    table: T,
+    index: number,
+    value: AdvancedKeys[T][number],
+  ): Promise<void> {
+    this.check(Capability.advancedKeys, "advanced keys");
+    const spec = TABLES[table];
+    if (!spec) throw new BoardError("invalid-value", `no table ${String(table)}`);
+    const { entries } = FeatureTable[spec.table];
+    if (!Number.isInteger(index) || index < 0 || index >= entries) {
+      throw new BoardError("out-of-range", `${table} slot ${index} out of range`);
+    }
+    const encode = spec.encode as (v: AdvancedKeys[T][number]) => Uint8Array;
+    await this.setEntry(spec.table, index, encoded(encode, value));
+  }
+
+  async setAdvancedOptions(patch: Partial<AdvancedOptions>): Promise<AdvancedOptions> {
+    this.check(Capability.advancedKeys, "advanced keys");
+    const current = codec.decodeOptions(await this.getEntry("options", 0));
+    const next = { ...current, ...patch, mouse: { ...current.mouse, ...patch.mouse } };
+    await this.setEntry("options", 0, encoded(codec.encodeOptions, next));
+    return next;
+  }
+
+  async getMacros(): Promise<MacroStep[][]> {
+    this.check(Capability.macros, "macros");
+    const buf = new Uint8Array(this.macroBufferSize);
+    for (let offset = 0; offset < buf.length; offset += MACRO_CHUNK) {
+      const count = Math.min(MACRO_CHUNK, buf.length - offset);
+      const r = decodeGetMacroChunkResponse(
+        await this.client.request(Command.getMacroChunk, encodeGetMacroChunkRequest({ offset, count })),
+      );
+      if (r.offset !== offset || r.data.length !== count) {
+        throw new BoardError("protocol-error", `macro chunk at ${offset} came back wrong`);
+      }
+      buf.set(r.data, offset);
+    }
+    return codec.decodeMacros(buf);
+  }
+
+  async setMacros(macros: MacroStep[][]): Promise<void> {
+    this.check(Capability.macros, "macros");
+    const bytes = encoded(codec.encodeMacros, macros);
+    if (bytes.length > this.macroBufferSize) {
+      throw new BoardError(
+        "storage-full",
+        `the macros take ${bytes.length} bytes; the board has room for ${this.macroBufferSize}`,
+      );
+    }
+    // The whole buffer, so nothing of the old macros is left after the new ones.
+    const buf = new Uint8Array(this.macroBufferSize);
+    buf.set(bytes);
+    for (let offset = 0; offset < buf.length; offset += MACRO_CHUNK) {
+      const data = buf.subarray(offset, Math.min(offset + MACRO_CHUNK, buf.length));
+      await this.client.request(Command.setMacroChunk, encodeSetMacroChunkRequest({ offset, data }));
+    }
+    await this.client.request(Command.applyMacros);
+    this.unsaved = true;
+    this.emit({ type: "changed" });
   }
 
   async getSettings(): Promise<BoardSettings> {

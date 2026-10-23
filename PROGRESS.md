@@ -2,9 +2,19 @@
 
 ## Current phase
 
-Phase 9 (advanced keys and encoders), split in three: 9a, the core engine with host tests, is done and in review as a PR; 9b wires it into the firmware and the protocol; 9c adds the Doghouse editors. Phases 3 to 7 are merged to main and phase 8 is in review. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 9 waits for fabricated boards.
+Phase 9 (advanced keys and encoders), split in three: 9a (the core engine) and 9b (firmware, protocol and host library) are done and in review as PRs; 9c adds the Doghouse editors. Phases 3 to 6 are merged to main, and 7 and 8 are in review. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 9 waits for fabricated boards.
 
 ## Done
+
+### Phase 9b: advanced keys in the firmware, protocol and host library (2026-10-23)
+
+- Protocol (still version 1; only commands were added): `get_feature` and `set_feature` read and write one entry of an advanced-key table (options, combos, tap dances, key overrides, Leader sequences, tap-hold rules, encoder mapping); `get_macro_chunk`, `set_macro_chunk` and `apply_macros` edit the macro buffer. Table ids, entry sizes and byte layouts are in `protocol.yaml` (`feature_tables`), and the generator now emits them and supports `u8[]` fields. A `set_feature` is checked against every table together with `kb_features_valid()` and undone on an error; `apply_macros` checks every step, and a refused edit is dropped. Revert and factory reset refresh the macro edit buffer.
+- Saving: two new settings sections (no schema bump), `KB_SECTION_FEATURES` (blocks of table, entry size, count, entries) and `KB_SECTION_MACROS` (the buffer without trailing zeros). Loading checks the whole set and keeps the defaults if it fails; entries from newer or older firmware (longer or shorter) load field by field. The worst case (4 layers of 6×15 and a full macro buffer) fits one 4 KB store sector.
+- Engine: `kb_engine_set_features()` is safe to call while keys are down. Keys waiting to become a combo go on as plain presses, fired combos are released, and a playing macro stops and lets go of its keys.
+- Firmware: `keyboard.c` owns the tables (defaults: volume on the roller, tracks on Fn, as in Doghouse), loads and saves them with the keymap, and hands them to the engine. Mouse keys send a new mouse report (report ID 4 on the extra interface: five buttons, X, Y, wheel and horizontal pan). The encoder is read on the scan thread through a new quadrature decoder in the core (`kb/encoder.h`: counts transitions with direction, ignores impossible jumps, bounce cancels out; `CONFIG_KB_ENCODER_STEPS_PER_DETENT`, default 4) and fed to `kb_engine_encoder()`. The handshake now reports the `advanced_keys`, `macros` and `encoders` capabilities, one encoder and the 1 KB macro buffer.
+- host-lib: `Board` gains optional `getAdvancedKeys`, `setAdvancedEntry`, `setAdvancedOptions`, `getMacros` and `setMacros`, with types for each table and `MacroStep` (tap, down, up, delay, text). `HidBoard` implements them and the encoder mapping (`getKeymap().encoders`, `setEncoder`). `advanced-codec.ts` turns entries and macros into bytes and back. The keycode codec knows `M(n)`, `TD(n)`, `AS_TOGG` and the `DM_` keys. The mock gets these in 9c, with the editors.
+- Tests: core `test_encoder` (detents, bounce, impossible jumps, resolution), new `test_protocol` cases (every feature command and error, the edit-and-apply flow, revert), `test_settings` (round trip, invalid sets, forward and backward compatibility, the sector budget), engine tests for tables changing under held keys, the mouse report descriptor and packer. The protocol fuzz test now also checks that the tables stay valid. host-lib: codec tests, and round trips against `kb_host_device` (encoders, every table, options, macros, save and reboot, factory reset), which now runs on a 4 KB-sector flash like the firmware's.
+- Size, debug without a screen: 92.1 KB flash, 40.3 KB RAM (the tables, the macro edit buffer and a 4 KB save buffer).
 
 ### Phase 9a: advanced keys in the core engine (2026-10-23)
 

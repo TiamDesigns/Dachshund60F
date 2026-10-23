@@ -65,6 +65,15 @@ config KB_MATRIX_RELEASE_US
 	  The scan moves on as soon as every row reads low, so this only
 	  costs time while a key in that column is pressed.
 
+config KB_ENCODER_STEPS_PER_DETENT
+	int "Encoder transitions per detent"
+	default 4
+	range 1 4
+	help
+	  4 for an encoder with as many pulses as detents (the
+	  PEC12R-4220F-S0024: 24 and 24), 2 for one with half as many
+	  pulses. If one click turns two steps or none, this is wrong.
+
 choice KB_DEBOUNCE_ALGO
 	prompt "Debounce algorithm"
 	default KB_DEBOUNCE_EAGER_PRESS
