@@ -288,7 +288,8 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - LED data buffer (Tiam chose it over a silicon diode for D8 or testing as is): U4 (SN74LV1T34DBV, SOT-23-5), powered from LED_VDD with C19 (100 nF, 0402), sits between P0.06 (LED_DIN) and D3's DIN (new net LED_DIN_BUF). Its inputs are TTL-level (high above about 1.35 V at 4.5 V) at any supply from 1.6 V to 5.5 V, and its inputs tolerate 3.3 V while LED_VDD is switched off (Ioff). It sits on the back above D3 at (309.0, 121.2). VCC reaches the F.Cu LED_VDD track through a via, the output uses the old via down to D3, and four GND stitching vias were removed. Firmware is unchanged: the buffer is non-inverting.
 - `docs/bringup-test-plan.md` has new continuity checks, a USB-only power stage and an LED check on USB.
 - Saving with KiCad 10.0.7 re-wrote the zone fills and the 3D model blocks, so the PCB diff is large; only the parts above changed.
-- The STEP files in `hardware/step/` predate this change; re-export with `python hardware/export_step.py` for a fresh snapshot.
+- STEP files in `hardware/step/` re-exported on Tiam's PC with KiCad 10.0.6 after the power path, LED buffer and test pads (no missing-model warnings; the encoder and J2 still use the stand-ins).
+- KiCad 10.0.6 re-saves `Dachshund60F.kicad_pro` without the unused teardrop `td_enabled` flags and with `null` for empty net colours and net-class assignments, undoing what 10.0.7's pcbnew wrote. That re-save is committed; DRC and ERC are identical either way.
 
 ### PCB: test pads (2026-10-23)
 
