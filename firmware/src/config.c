@@ -1,11 +1,12 @@
 /*
  * Config protocol service. Requests arrive on the USB thread, wait in a
  * small queue and are handled one at a time on their own thread, so a slow
- * command (a flash save, from phase 6) never holds up USB or the scan.
+ * command (a flash save) never holds up USB.
  */
 
 #include "config.h"
 
+#include <errno.h>
 #include <string.h>
 
 #include <zephyr/drivers/hwinfo.h>
@@ -58,25 +59,34 @@ static void reboot_fn(struct k_work *work)
 }
 static K_WORK_DELAYABLE_DEFINE(reboot_work, reboot_fn);
 
+static uint8_t status_of(int err)
+{
+    switch (err) {
+    case 0:
+        return KB_PROTO_OK;
+    case -ENOSPC:
+        return KB_PROTO_STORAGE_FULL;
+    default:
+        return KB_PROTO_STORAGE_ERROR;
+    }
+}
+
 static uint8_t op_save(void *ctx)
 {
     ARG_UNUSED(ctx);
-    keyboard_save();
-    return KB_PROTO_OK;
+    return status_of(keyboard_save());
 }
 
 static uint8_t op_revert(void *ctx)
 {
     ARG_UNUSED(ctx);
-    keyboard_revert();
-    return KB_PROTO_OK;
+    return status_of(keyboard_revert());
 }
 
 static uint8_t op_factory_reset(void *ctx)
 {
     ARG_UNUSED(ctx);
-    keyboard_factory_reset();
-    return KB_PROTO_OK;
+    return status_of(keyboard_factory_reset());
 }
 
 static void op_reboot(bool bootloader, void *ctx)
@@ -122,8 +132,8 @@ static struct kb_protocol protocol = {
     .firmware_patch = APP_PATCHLEVEL,
     .build = BUILD_ID,
     .model = CONFIG_KB_MODEL,
-    /* Persistence joins in phase 6, the rest in later phases. */
-    .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_IDENTIFY,
+    /* The rest join in later phases. */
+    .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY,
     .encoders = 0,
     .macro_buffer_size = 0,
 };

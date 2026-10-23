@@ -18,11 +18,14 @@ struct kb_keymap *keyboard_keymap(void);
 void keyboard_lock(void);
 void keyboard_unlock(void);
 
-/* Saved keymap: save copies live to saved, revert saved to live; factory
- * reset puts the compiled-in default in both. RAM only until phase 6.
+/*
+ * Save writes the live keymap and settings to flash; revert reads them
+ * back (or the defaults, if nothing is saved); factory reset erases what's
+ * saved and goes back to the compiled-in defaults. Return 0 or a negative
+ * errno (-ENOSPC, -EIO).
  */
-void keyboard_save(void);
-void keyboard_revert(void);
-void keyboard_factory_reset(void);
+int keyboard_save(void);
+int keyboard_revert(void);
+int keyboard_factory_reset(void);
 
 #endif /* KEYBOARD_H */

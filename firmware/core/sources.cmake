@@ -13,5 +13,7 @@ set(KB_CORE_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/src/protocol.c
   ${CMAKE_CURRENT_LIST_DIR}/src/protocol_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/src/screen.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/settings.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/store.c
   ${CMAKE_CURRENT_LIST_DIR}/src/version.c
 )

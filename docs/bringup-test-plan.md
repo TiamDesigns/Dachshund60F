@@ -272,6 +272,7 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 | Media and system keys | Fn+F-row media keys, volume, mute; Sleep if mapped | The host reacts; `lsusb -v` shows a second HID interface with report IDs 1–3 | Phase 4 |
 | Suspend and wake | Put the computer to sleep with the keyboard plugged in, then press a key | The LEDs go dark while the host sleeps; a key press wakes it (if the host allows USB wake); after waking, no key is stuck | Phase 4 |
 | Config interface | `lsusb -v`; then the handshake from host-lib (phase 7) or Doghouse (phase 8) | A third HID interface, usage page 0xFF00, usage 0x44, 64-byte reports in and out. The handshake reports protocol 1, the firmware version, 6×15×4 and "Dachshund60F"; `get_serial` returns the same text as the USB serial; `identify` blinks the LEDs | Phase 5 |
+| Settings survive power-off | Change a key and save (Doghouse, phase 8, or host-lib), unplug, replug; then revert and factory reset | The change is kept after replugging; revert brings back the saved keymap and factory reset the default one; an NKRO choice made with Fn+N and then saved is kept | Phase 6 |
 | Lock LEDs | Toggle Caps, Num, Scroll on the host | Caps LED (D2) lights warm white while Caps Lock is on; the screen shows all three; the layer LED (D3) shows amber on Fn | Phase 4; colours settable in phase 10 |
 | LED chain | Bring-up walk on power-up (once, 3.6 s) | One LED at a time in chain order D3 (layer), D4–D7 (battery 1–4), D2 (Caps), each red then green then blue for 200 ms. Wrong order means a routing fault; wrong colours means the GRB order is off | Phase 2; one pass since phase 4 |
 | LED power switch | LED_VDD at C12 during the walk, then after it with every LED dark (no Caps Lock, base layer) | VSYS when on; under 0.1 V when off, since the firmware cuts LED power whenever no LED is lit | Phase 4 |
@@ -418,7 +419,8 @@ About a third of this plan can run on the day the boards arrive. The rest waits 
 | Phase 3: matrix scan at 1 kHz, debounce (eager press, 5 ms), keymap, key reports | On main (PR #8) | Every-key, ghosting, chatter, BIOS, scan and debounce timing |
 | Phase 4: NKRO, consumer keys, lock LEDs, suspend and remote wakeup | On main (PR #13) | Rollover, boot fallback, media keys, lock LEDs, suspend and wake |
 | Phase 5: config protocol v1 on a vendor HID interface | Done, in review | Config interface |
-| Phases 6–8: persistence, host transports, GUI on hardware | Not started (Doghouse runs against mock boards only) | Smoke test, matrix test mode, Doghouse key tester |
+| Phase 6: persistence (keymap and settings in flash) | Done, in review | Settings survive power-off |
+| Phases 7–8: host transports, GUI on hardware | Not started (Doghouse runs against mock boards only) | Smoke test, matrix test mode, Doghouse key tester |
 | Phase 9: encoder driver | Not started; pins sit in `zephyr,user` | Encoder rotation tests |
 | Phase 10: indicator colours | Not started | Lock LED colours, per-colour LED current |
 | Phase 12: BLE | Not started | All BLE tests, LFXO confirmation |
