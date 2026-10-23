@@ -2,9 +2,19 @@
 
 ## Current phase
 
-Phase 8 (Doghouse on host-lib): done, in review as a PR. Phases 3 to 7 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 8 waits for fabricated boards.
+Phase 9 (advanced keys and encoders), split in three: 9a, the core engine with host tests, is done and in review as a PR; 9b wires it into the firmware and the protocol; 9c adds the Doghouse editors. Phases 3 to 7 are merged to main and phase 8 is in review. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 9 waits for fabricated boards.
 
 ## Done
+
+### Phase 9a: advanced keys in the core engine (2026-10-23)
+
+- New `kb/features.h`: fixed-size tables the engine runs from, which the firmware will own, save and edit over the protocol in 9b. 16 combos (2–4 keys, a timeout and a layer mask each), 16 tap dances (`TD(n)`: one tap, hold, two taps, three taps), 16 key overrides (exact modifiers + key → replacement, e.g. Shift+Backspace = Delete), 16 Leader sequences (up to 4 keys), 16 per-key tap-hold rules, encoder actions per layer (transparent falls through), Caps Word, Auto Shift and mouse-key settings, and a 1 KB macro buffer. `kb_features_valid()` checks every index and keycode, so tables from the host or flash can't do anything a keymap couldn't.
+- Macros (`M(0)`–`M(31)`): steps that tap, press or release a keycode, wait, or type ASCII text (US layout). Keys a macro presses and doesn't release come up when it ends.
+- New keycodes: `M(n)`, `TD(n)`, `AS_TOGG`, `MS_BTN4`/`MS_BTN5`, `MS_WHLL`/`MS_WHLR`, and dynamic macros `DM_REC1`, `DM_REC2`, `DM_RSTP`, `DM_PLY1`, `DM_PLY2`.
+- Engine: key events pass a combo stage, then the tap-hold stage, then the keymap. Fired combos and encoder detents enter as events of a virtual key row, so they take part in tap-hold decisions like any key. Tap-hold options, globally or per key: permissive hold, hold on other key press, quick tap and retro tapping. Also Caps Word (letters shifted, `-` becomes `_`, digits and Backspace keep it going, ends on anything else or after 5 s idle; optionally both Shifts toggle it), Auto Shift (held past 175 ms = shifted), Repeat, Leader, two dynamic macro slots of 64 steps, and mouse keys with acceleration through a new mouse report callback. All of it is written for this repo, not taken from QMK.
+- `kb_engine_encoder()` turns a detent into a tap of the encoder's keycode on the active layer.
+- Tests: `test_features` covers each feature and its edge cases (combo timeouts, overlapping combos, early release, layer masks, dance interrupted, override modifier hiding, Caps Word timeout, rolling under Auto Shift, Leader prefixes, macro delays, encoder layers, table validation) plus a randomized test. It runs 200 rounds of random presses, detents and ticks with every feature set up, and checks that nothing stays held afterwards. A larger run (20,000 rounds under ASan and UBSan) is clean. That test found three bugs, which are fixed: a modifier counted twice when two features added it to one key, macro-held keys never released, and a clock that could lag behind the first event.
+- The firmware builds unchanged against the new engine (no tables yet): 87.8 KB flash, 32.8 KB RAM, debug without a screen.
 
 ### Phase 8: Doghouse MVP on host-lib (2026-10-23)
 

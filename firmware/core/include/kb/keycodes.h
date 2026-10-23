@@ -17,7 +17,9 @@
  *   0x6000-0x6FFF   layer-tap: 0x6000 | layer << 8 | key (layers 0-15)
  *   0x7000-0x7FFF   firmware actions (bootloader, connection, mouse, ...)
  *   0x8000-0x9FFF   mod-tap: 0x8000 | mods << 8 | key
- *   0xA000-0xFFFF   reserved (macros, tap dance and friends in phase 9)
+ *   0xA000-0xA01F   macros: M(n)
+ *   0xA100-0xA10F   tap dance: TD(n)
+ *   0xA200-0xFFFF   reserved
  *
  * "mods" is 5 bits: Ctrl, Shift, Alt, GUI, plus a right-hand flag in bit 4,
  * so one keycode holds left or right modifiers but not both.
@@ -48,6 +50,10 @@ typedef uint16_t kb_keycode_t;
 #define KB_KC_ACTION_MAX 0x7FFFu
 #define KB_KC_MT 0x8000u
 #define KB_KC_MT_MAX 0x9FFFu
+#define KB_KC_MACRO 0xA000u
+#define KB_KC_MACRO_MAX 0xA01Fu
+#define KB_KC_TAP_DANCE 0xA100u
+#define KB_KC_TAP_DANCE_MAX 0xA10Fu
 
 /* 5-bit modifier field */
 #define MOD_LCTL 0x01u
@@ -245,9 +251,9 @@ typedef uint16_t kb_keycode_t;
 #define KC_WAKE (KB_KC_SYSTEM | 0x83u)
 
 /*
- * Firmware actions. The engine hands these to the firmware's action
- * callback; phase 3 implements QK_BOOT and QK_RBT, phase 4 NK_TOGG, later
- * phases the rest.
+ * Firmware actions. The engine runs Caps Word, Repeat, Leader, Auto Shift,
+ * mouse keys and dynamic macros itself and hands the rest (QK_BOOT, QK_RBT,
+ * NK_TOGG, connection keys) to the firmware's action callback.
  */
 #define QK_BOOT 0x7000u
 #define QK_RBT 0x7001u
@@ -255,6 +261,7 @@ typedef uint16_t kb_keycode_t;
 #define QK_REP 0x7003u
 #define QK_LEAD 0x7004u
 #define NK_TOGG 0x7005u /* N-key rollover on or off */
+#define AS_TOGG 0x7006u /* Auto Shift on or off */
 
 #define OUT_USB 0x7100u
 #define OUT_2G4 0x7101u
@@ -270,8 +277,22 @@ typedef uint16_t kb_keycode_t;
 #define MS_BTN1 0x7210u
 #define MS_BTN2 0x7211u
 #define MS_BTN3 0x7212u
+#define MS_BTN4 0x7213u
+#define MS_BTN5 0x7214u
 #define MS_WHLU 0x7220u
 #define MS_WHLD 0x7221u
+#define MS_WHLL 0x7222u
+#define MS_WHLR 0x7223u
+
+/* Dynamic macros: record keys into slot 1 or 2, stop, play back. */
+#define DM_REC1 0x7300u
+#define DM_REC2 0x7301u
+#define DM_RSTP 0x7302u
+#define DM_PLY1 0x7303u
+#define DM_PLY2 0x7304u
+
+#define M(n) ((kb_keycode_t)(KB_KC_MACRO | ((n) & 0x1Fu)))
+#define TD(n) ((kb_keycode_t)(KB_KC_TAP_DANCE | ((n) & 0xFu)))
 
 /* Classification and field access */
 enum kb_keycode_kind {
@@ -287,6 +308,8 @@ enum kb_keycode_kind {
     KB_KIND_LT,
     KB_KIND_ACTION,
     KB_KIND_MT,
+    KB_KIND_MACRO,
+    KB_KIND_TAP_DANCE,
 };
 
 /*

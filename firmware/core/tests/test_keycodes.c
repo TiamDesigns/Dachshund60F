@@ -45,9 +45,14 @@ static void test_invalid_keycodes(void)
     KB_CHECK(!kb_keycode_is_valid(KB_KC_LAYER_OP(KB_LAYER_OP_COUNT, 0), 4));
     /* Unassigned actions and reserved space */
     KB_CHECK(kb_keycode_is_valid(NK_TOGG, 4));
-    KB_CHECK(!kb_keycode_is_valid(0x7006, 4));
+    KB_CHECK(kb_keycode_is_valid(AS_TOGG, 4));
+    KB_CHECK(!kb_keycode_is_valid(0x7007, 4));
     KB_CHECK(!kb_keycode_is_valid(BT_SEL(0) + KB_BT_PROFILE_MAX, 4));
-    KB_CHECK(!kb_keycode_is_valid(0xA000, 4));
+    KB_CHECK(kb_keycode_is_valid(M(0), 4));
+    KB_CHECK(kb_keycode_is_valid(TD(15), 4));
+    KB_CHECK(!kb_keycode_is_valid(0xA020, 4));
+    KB_CHECK(!kb_keycode_is_valid(0xA110, 4));
+    KB_CHECK(!kb_keycode_is_valid(0xA200, 4));
     KB_CHECK(!kb_keycode_is_valid(0xFFFF, 4));
 }
 
@@ -57,7 +62,7 @@ static void test_every_keycode_is_classified(void)
     unsigned valid = 0;
     for (unsigned kc = 0; kc <= 0xFFFFu; kc++) {
         enum kb_keycode_kind kind = kb_keycode_kind((kb_keycode_t)kc, 16);
-        KB_CHECK(kind >= KB_KIND_INVALID && kind <= KB_KIND_MT);
+        KB_CHECK(kind >= KB_KIND_INVALID && kind <= KB_KIND_TAP_DANCE);
         if (kind != KB_KIND_INVALID) {
             valid++;
         }
