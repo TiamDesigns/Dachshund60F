@@ -246,13 +246,15 @@ typedef uint16_t kb_keycode_t;
 
 /*
  * Firmware actions. The engine hands these to the firmware's action
- * callback; phase 3 implements QK_BOOT and QK_RBT, later phases the rest.
+ * callback; phase 3 implements QK_BOOT and QK_RBT, phase 4 NK_TOGG, later
+ * phases the rest.
  */
 #define QK_BOOT 0x7000u
 #define QK_RBT 0x7001u
 #define CW_TOGG 0x7002u
 #define QK_REP 0x7003u
 #define QK_LEAD 0x7004u
+#define NK_TOGG 0x7005u /* N-key rollover on or off */
 
 #define OUT_USB 0x7100u
 #define OUT_2G4 0x7101u

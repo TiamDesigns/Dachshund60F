@@ -128,6 +128,27 @@ for (const name of zephyrBoards) {
     assert.equal(kconfigDefault(kconfig, "KB_USB_MANUFACTURER"), usb.manufacturer);
     assert.equal(kconfigDefault(kconfig, "KB_USB_PRODUCT"), usb.product);
   });
+
+  test(`${name}: firmware indicator chain matches keyboard.json`, () => {
+    const layout = JSON.parse(readFileSync(path.join(dir, "keyboard.json"), "utf8")) as {
+      indicators: { id: number; role: string; label: string; level?: number }[];
+    };
+    const source = readFileSync(path.join(repoDir, "firmware", "src", "indicators.c"), "utf8");
+    const table = /static const struct kb_led_def chain\[\] = \{([^;]*)\};/.exec(source);
+    assert.ok(table, "chain table not found in firmware/src/indicators.c");
+    const firmware = [...table[1]!.matchAll(/\{KB_LED_ROLE_(\w+), (\d+)\}/g)].map((m) => `${m[1]} ${m[2]}`);
+
+    const expected = [...layout.indicators]
+      .sort((a, b) => a.id - b.id)
+      .map((ind) => {
+        if (ind.role === "layer") return "LAYER 0";
+        if (ind.role === "battery") return `BATTERY ${ind.level}`;
+        const lock = /^(Caps|Num|Scroll) Lock$/.exec(ind.label);
+        assert.ok(ind.role === "lock" && lock, `indicator ${ind.id}: unknown role ${ind.role} "${ind.label}"`);
+        return `${lock[1]!.toUpperCase()} 0`;
+      });
+    assert.deepEqual(firmware, expected);
+  });
 }
 
 const displaysDir = path.join(repoDir, "firmware", "displays");

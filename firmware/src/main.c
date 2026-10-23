@@ -1,9 +1,10 @@
 /*
  * Keyboard firmware entry point.
  *
- * Matrix scanning and the keymap (phase 3) typing over a USB boot keyboard,
- * an LED walk along the SK6812 chain (phase 2 bring-up), and the status
- * screen when a panel overlay is built in.
+ * Matrix scanning and the keymap (phase 3) typing over USB with NKRO,
+ * media and system keys (phase 4), indicator LEDs for layer and Caps Lock
+ * after a power-on walk along the chain, and the status screen when a
+ * panel overlay is built in.
  */
 
 #include <zephyr/kernel.h>
@@ -12,9 +13,9 @@
 #include <app_version.h>
 
 #include "kb/core.h"
+#include "indicators.h"
 #include "kb_usb.h"
 #include "keyboard.h"
-#include "led_bringup.h"
 #include "status_screen.h"
 
 LOG_MODULE_REGISTER(kb_main, LOG_LEVEL_INF);
@@ -38,8 +39,8 @@ int main(void)
         LOG_ERR("USB init failed");
     }
 
-    if (led_bringup_start() != 0) {
-        LOG_ERR("LED bring-up failed");
+    if (indicators_start() != 0) {
+        LOG_ERR("indicator LEDs unavailable");
     }
 
     return 0;

@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Phase 3 (matrix and basic keymap): done and merged to main. Core tests pass locally and the firmware builds in CI. The Dachshund60F UF2 bootloader also builds in CI, ready for the first SWD flash. Hardware testing for phases 2 and 3 waits for fabricated boards.
+Phase 4 (full HID over USB): done, in review as a PR. Phase 3 is merged to main (PR #8). Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 4 waits for fabricated boards.
 
 ## Done
 
@@ -151,6 +151,22 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
   - `QK_BOOT` (Fn+Esc) reboots into UF2 at once; `QK_RBT` reboots. Holding Esc for 3 s still reboots into UF2, now read from the debounced matrix and independent of the keymap, as a recovery path.
   - USB: key reports are queued (16 deep) and sent one per poll, so a tap within one millisecond still reaches the host as press then release. Before this, `hid_device_submit_report` ran synchronously and would have blocked the scan thread while the host wasn't polling.
 - host-lib `firmware-keymap.test.ts`: every Doghouse keycode id is defined in `kb/keycodes.h`, and the firmware default keymap matches host-lib's key for key. Encoder mapping is compared once the firmware has it (phase 9).
+
+### Phase 4: full HID over USB (2026-10-23)
+
+- Core (hardware- and transport-independent, host-tested), `kb/hid.h`:
+  - Report descriptors for two HID interfaces. Keyboard: the standard boot keyboard (8-byte 6KRO report, no report ID, 5-bit lock-LED output). Extra: report ID 1 is an NKRO keyboard (modifier byte plus a 224-bit bitmap for usages 0x00–0xDF, 30 bytes with the ID), ID 2 consumer control (one 16-bit usage up to 0x3FF), ID 3 system control (one 16-bit usage up to 0xB7).
+  - Packers for each report, and `kb_hid_reporter`, which turns the engine's HID state into the reports to send: only those that changed, keys on exactly one path (NKRO or boot), and on a path switch a release on the old path before the press on the new one, so no key sticks. NKRO is used only while it's enabled and the host hasn't asked for boot protocol, so a BIOS or KVM always gets the boot report. `resync` sends everything again after a resume or a new configuration. BLE and the dongle will reuse it.
+  - `kb/indicators.h`: colour per LED from the lock state, active layer, battery level and suspend, for a chain described by role (layer, Caps/Num/Scroll, battery step). Defaults: layer 0 dark, Fn amber, layers 2 and 3 teal and violet, Caps warm white, brightness 32/255. Battery steps light from (k − 1)/n, red at 15% and below; the level arrives in phase 13. Phase 10 makes the colours settable.
+  - New keycode `NK_TOGG` (0x7005), also in host-lib's catalogue. The default Fn layer has it on N, in both the firmware and Doghouse default keymaps.
+  - Tests: `test_hid` (a small HID descriptor parser checks every report size against its packer; reporter paths, boot fallback with a key held, NKRO toggling, resync, and seven keys through the engine) and `test_indicators`. All core tests pass, also under ASan and UBSan.
+- Firmware:
+  - `kb_usb.c`: the second HID interface (`hid_extra` in `app.overlay`, 30-byte reports, 1 ms polling), a 16-deep queue per interface, GET_REPORT for every report, and remote wakeup in the configuration descriptor. If a queue overflows (the host stopped polling), it's purged and every report is sent again from the current state, so no release is lost.
+  - Suspend: reports stop and the indicators go dark. The first key change while suspended asks the host to wake (if the host enabled remote wakeup); on resume, every report goes out again. Unplugging or a bus reset clears the suspended state.
+  - `keyboard.c` drives the reporter from the scan thread: it follows the host's protocol choice, resyncs when USB asks, and handles `NK_TOGG`. `CONFIG_KB_NKRO` (default on) sets NKRO at power-up; phase 6 will store it and phase 10 lets the host set it.
+  - `indicators.c` replaces the phase 2 LED walk: the walk now runs once at power-up (`CONFIG_KB_LED_SELFTEST`, 200 ms per colour, 3.6 s), then the Caps LED follows Caps Lock and the layer LED shows the active layer. LED power (the TPS22917) is switched off whenever no LED is lit. A host-lib test checks the firmware's LED chain table against `keyboard.json`.
+  - Size, debug without a screen: 76.6 KB flash, 24.3 KB RAM (was 73.0 KB and 22.7 KB).
+- Bring-up plan: new rows for rollover, boot fallback, media keys, and suspend and wake; the LED rows match the new behaviour.
 
 ## PCB status and known issues
 
@@ -312,7 +328,15 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Bring-up plan for all three boards (inspection, power, flashing, functional tests and measurements with methods and equipment): `docs/bringup-test-plan.md` (2026-10-23).
 - UF2 bootloader: builds cleanly (`-Werror`) on Linux with arm-none-eabi-gcc 13.2.1. The merged hex puts the SoftDevice at 0x1000–0x25DE8, the bootloader at 0xF4000–0xFC3AC, and the UICR words at 0x10001014/18. Not yet run on a chip.
 - Core C tests for phase 3 (debounce, engine, keycodes, keymap): pass locally on Linux with GCC, also under ASan and UBSan.
-- Real hardware: nothing yet. Phase 3 is to be checked on a board:
+- Phase 4: all core tests (including `test_hid` and `test_indicators`) pass on Linux with GCC, also under ASan and UBSan. The firmware builds locally (NCS v3.4.1, Zephyr SDK 1.0.1) in debug, and in release with the 128×32 OLED, with no new warnings. host-lib (57 tests) and Doghouse (check, 14 tests, build) pass.
+- Real hardware: nothing yet. Phase 4 is to be checked on a board:
+  - `lsusb -v`: two HID interfaces, the first with the boot keyboard subclass, the second with report IDs 1–3; both endpoints at bInterval 1; remote wakeup set in bmAttributes
+  - seven or more keys held at once all reach the host; Fn+N switches to 6KRO and back
+  - in a BIOS setup screen or through a KVM, keys work (boot protocol), and NKRO comes back in the OS
+  - media, volume and brightness keys on the Fn layer work
+  - the Caps LED follows Caps Lock, the layer LED turns amber on Fn, and LED_VDD drops to 0 V when every LED is dark
+  - sleep the host, press a key: the host wakes, and nothing sticks afterwards
+- Phase 3 is to be checked on a board:
   - every key types what the README matrix table says, with no ghosting when three keys in a rectangle are held
   - Fn layer: media keys, Insert, Print Screen, Page Up/Down, Home/End; the status screen shows the layer
   - Fn+Esc mounts the UF2 drive at once; holding Esc for 3 s still does
@@ -322,7 +346,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
   - flash `dachshund60f_bootloader_s140_6.1.1.hex` over SWD with a chip erase; check the DACHSHUND drive appears and `INFO_UF2.TXT` says `nRF52840-Dachshund60F-v1`; then copy `zephyr.uf2`
   - check that it enumerates as 1209:0001 with a unique serial number (USB Device Tree Viewer or `lsusb -v`)
   - check that it works as a boot keyboard in the BIOS
-  - check that the LEDs walk in chain order with correct colours
+  - check that the LEDs walk once in chain order with correct colours at power-up
   - check that holding Esc for 3 s mounts the UF2 drive, and that holding Esc while plugging in does too
   - check the SK6812s show the bootloader colours (its WS2812 timing is slightly long for the SK6812 spec: a 0.81 µs high bit against 0.75 µs at most)
   - check that REGOUT0 reads 3.3 V
@@ -356,6 +380,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - E-paper builds warn that Zephyr's MIPI-DBI driver is "experimental". It is what Zephyr's own e-paper shields use; this is a notice, not a fault.
 - Doghouse's palette has no layer-tap, mod-tap, one-shot mod, default-layer or modded keys yet, though the firmware supports them. Add them with the phase 9 editors.
 - The matrix is scanned at 1 kHz all the time, which costs battery. Phase 13 adds idle scanning with GPIO sense wake-up.
-- The 6KRO boot report drops a seventh held key (it still reaches the NKRO bitmap, which phase 4 sends).
+- In boot protocol (BIOS, KVM) or with NKRO off, a seventh held key is dropped from the 6-key report rather than sending the ErrorRollOver code.
+- A host that reads the boot report without ever sending SET_PROTOCOL (a few BIOSes and KVMs) sees no keys while NKRO is on, because keys then go to the NKRO interface. Fn+N switches to 6KRO for such hosts.
 - Doghouse doesn't yet show key labels in the user's OS keyboard layout (AZERTY and so on), edit the status screen layout, or update firmware. The SPEC lists these for later phases.
 - An OLED left on all the time can burn in. It gets an idle timeout with power management in phase 13.

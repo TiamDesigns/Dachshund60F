@@ -151,6 +151,7 @@ const STATIC_KEYCODES: KeycodeInfo[] = [
   k("QK_LEAD", "Leader", "Leader key", "special"),
   k("QK_BOOT", "Boot", "Reboot into the firmware updater", "special"),
   k("QK_RBT", "Reboot", "Reboot the keyboard", "special"),
+  k("NK_TOGG", "NKRO", "Turn N-key rollover on or off", "special"),
 ];
 
 const BY_ID = new Map(STATIC_KEYCODES.map((info) => [info.id, info]));

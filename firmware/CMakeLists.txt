@@ -13,9 +13,9 @@ target_sources(app PRIVATE
   src/main.c
   src/bootloader.c
   src/default_keymap.c
+  src/indicators.c
   src/kb_usb.c
   src/keyboard.c
-  src/led_bringup.c
   src/matrix.c
   ${KB_CORE_SOURCES}
 )

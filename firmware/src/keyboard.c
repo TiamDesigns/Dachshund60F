@@ -12,8 +12,10 @@
 #include "default_keymap.h"
 #include "kb/debounce.h"
 #include "kb/engine.h"
+#include "kb/hid.h"
 #include "kb/hold.h"
 #include "kb/keymap.h"
+#include "indicators.h"
 #include "kb_usb.h"
 #include "matrix.h"
 #include "status_screen.h"
@@ -53,6 +55,8 @@ BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_col_gpios) == COLS,
 static kb_keycode_t keymap_keys[DEFAULT_KEYMAP_LAYERS * ROWS * COLS];
 static struct kb_keymap keymap;
 static struct kb_engine engine;
+static struct kb_hid_reporter reporter;
+static bool nkro = IS_ENABLED(CONFIG_KB_NKRO);
 static struct kb_debounce debounce;
 static struct kb_hold recovery_hold;
 static kb_matrix_row_t raw[ROWS];
@@ -62,14 +66,21 @@ K_THREAD_STACK_DEFINE(scan_stack, SCAN_STACK_SIZE);
 static struct k_thread scan_thread_data;
 K_TIMER_DEFINE(scan_timer, NULL, NULL);
 
+/* Everything below runs on the scan thread, so the engine and reporter need no locks. */
+
+static void send_report(enum kb_hid_report report, const uint8_t *data, size_t len, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    /* Dropped while USB isn't configured or is suspended; kb_usb then asks
+     * for a resync, and every report carries the full state.
+     */
+    (void)kb_usb_send(report, data, len);
+}
+
 static void on_report(const struct kb_hid_state *hid, void *ctx)
 {
     ARG_UNUSED(ctx);
-
-    uint8_t report[KB_USB_KBD_REPORT_SIZE];
-    kb_hid_boot_report(hid, report);
-    /* Dropped while USB isn't configured; reports carry full state. */
-    (void)kb_usb_send_keyboard(report);
+    kb_hid_reporter_update(&reporter, hid);
 }
 
 static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
@@ -89,6 +100,11 @@ static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
         LOG_PANIC();
         sys_reboot(SYS_REBOOT_COLD);
         break;
+    case NK_TOGG:
+        nkro = !nkro;
+        kb_hid_reporter_set_nkro(&reporter, nkro, kb_engine_hid(&engine));
+        LOG_INF("NKRO %s", nkro ? "on" : "off");
+        break;
     default:
         /* Connection, mouse and the other actions arrive in later phases. */
         break;
@@ -100,6 +116,7 @@ static void on_layers(uint32_t layer_mask, uint8_t highest, void *ctx)
     ARG_UNUSED(layer_mask);
     ARG_UNUSED(ctx);
     status_screen_set_layer(highest);
+    indicators_set_layer(highest);
 }
 
 static const struct kb_engine_ops engine_ops = {
@@ -128,6 +145,17 @@ static void scan_thread(void *p1, void *p2, void *p3)
             memcpy(stable, next, sizeof(stable));
         }
         kb_engine_tick(&engine, now);
+
+        /* Follow the host: boot protocol forces 6KRO; after a resume or a
+         * new configuration, send everything again.
+         */
+        bool boot = kb_usb_boot_protocol();
+        if (boot != reporter.boot_protocol) {
+            kb_hid_reporter_set_boot_protocol(&reporter, boot, kb_engine_hid(&engine));
+        }
+        if (kb_usb_take_resync()) {
+            kb_hid_reporter_resync(&reporter, kb_engine_hid(&engine));
+        }
 
         /* Recovery: holding (0, 0) reboots into UF2 whatever the keymap says,
          * so a broken keymap can always be reflashed.
@@ -160,6 +188,7 @@ int keyboard_start(void)
         return -EINVAL;
     }
 
+    kb_hid_reporter_init(&reporter, nkro, send_report, NULL);
     kb_engine_init(&engine, &keymap, &engine_ops, NULL);
     kb_engine_set_tapping_term(&engine, CONFIG_KB_TAPPING_TERM_MS);
     kb_hold_init(&recovery_hold, CONFIG_KB_BOOTLOADER_HOLD_MS);
@@ -168,7 +197,7 @@ int keyboard_start(void)
                     scan_thread, NULL, NULL, NULL, SCAN_PRIORITY, 0, K_NO_WAIT);
     k_thread_name_set(&scan_thread_data, "kb_scan");
 
-    LOG_INF("scanning %dx%d every %d us, debounce %d ms", ROWS, COLS,
-            CONFIG_KB_MATRIX_SCAN_PERIOD_US, CONFIG_KB_DEBOUNCE_MS);
+    LOG_INF("scanning %dx%d every %d us, debounce %d ms, NKRO %s", ROWS, COLS,
+            CONFIG_KB_MATRIX_SCAN_PERIOD_US, CONFIG_KB_DEBOUNCE_MS, nkro ? "on" : "off");
     return 0;
 }

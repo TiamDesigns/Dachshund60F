@@ -1,10 +1,18 @@
 /*
- * USB device (device_next stack) with one boot-protocol HID keyboard.
- * Key reports come from the keymap engine through keyboard.c.
+ * USB device (device_next stack) with two HID interfaces:
+ * - Keyboard: boot subclass, the 8-byte 6KRO report and the lock-LED
+ *   output report.
+ * - Extra: NKRO keyboard, consumer control and system control, with
+ *   report IDs.
+ * Report descriptors and formats are in kb/hid.h; keyboard.c decides what
+ * to send.
  *
  * Descriptors: VID/PID and strings from Kconfig (matching board.json), a
- * serial number unique per board from the factory device ID, and bcdDevice
- * from firmware/VERSION.
+ * serial number unique per board from the factory device ID, bcdDevice
+ * from firmware/VERSION, and remote wakeup in the configuration.
+ *
+ * Suspend: reports stop, the indicators go dark, and the next key change
+ * asks the host to wake up. On resume every report is sent again.
  */
 
 #include "kb_usb.h"
@@ -21,6 +29,7 @@
 
 #include <app_version.h>
 
+#include "indicators.h"
 #include "kb/version.h"
 #include "status_screen.h"
 
@@ -36,85 +45,164 @@ USBD_DESC_SERIAL_NUMBER_DEFINE(kb_sn);
 USBD_DESC_CONFIG_DEFINE(kb_fs_cfg_desc, "Full-speed configuration");
 
 /* bMaxPower is in 2 mA units. */
-USBD_CONFIGURATION_DEFINE(kb_fs_config, 0, CONFIG_KB_USB_MAX_POWER_MA / 2, &kb_fs_cfg_desc);
+USBD_CONFIGURATION_DEFINE(kb_fs_config, USB_SCD_REMOTE_WAKEUP, CONFIG_KB_USB_MAX_POWER_MA / 2,
+                          &kb_fs_cfg_desc);
 
-static const uint8_t kbd_report_desc[] = HID_KEYBOARD_REPORT_DESC();
-
-static const struct device *const hid_kbd = DEVICE_DT_GET(DT_NODELABEL(hid_kbd));
-
-static atomic_t kbd_ready;
-static uint8_t kbd_protocol = HID_PROTOCOL_REPORT;
-static uint32_t kbd_idle_duration;
-static uint8_t kbd_last_report[KB_USB_KBD_REPORT_SIZE];
-static uint8_t kbd_led_state;
+BUILD_ASSERT(DT_PROP(DT_NODELABEL(hid_kbd), in_report_size) == KB_HID_BOOT_REPORT_SIZE,
+             "hid_kbd in-report-size must match the boot report");
+BUILD_ASSERT(DT_PROP(DT_NODELABEL(hid_extra), in_report_size) == KB_HID_EXTRA_REPORT_MAX,
+             "hid_extra in-report-size must match the longest extra report");
 
 /*
- * Reports wait here while one is on the wire, so a quick tap (press and
- * release in the same millisecond) still reaches the host as two reports.
- * The stack sends straight from kbd_tx, so it stays untouched until
- * input_report_done.
+ * One HID interface's outgoing reports. They wait in the queue while one
+ * is on the wire, so a quick tap (press and release in the same
+ * millisecond) still reaches the host as two reports. The stack sends
+ * straight from tx, so it stays untouched until input_report_done.
  */
-#define KBD_QUEUE_LEN 16
-K_MSGQ_DEFINE(kbd_queue, KB_USB_KBD_REPORT_SIZE, KBD_QUEUE_LEN, 1);
-static uint8_t kbd_tx[KB_USB_KBD_REPORT_SIZE] __aligned(sizeof(void *));
-static atomic_t kbd_busy;
+struct report_msg {
+    uint8_t len;
+    uint8_t data[KB_HID_EXTRA_REPORT_MAX];
+};
 
-static void kbd_submit_next(void)
+struct hid_pipe {
+    const struct device *dev;
+    struct k_msgq *queue;
+    atomic_t ready;
+    atomic_t busy;
+    uint8_t tx[KB_HID_EXTRA_REPORT_MAX] __aligned(sizeof(void *));
+};
+
+#define QUEUE_LEN 16
+K_MSGQ_DEFINE(kbd_queue, sizeof(struct report_msg), QUEUE_LEN, 1);
+K_MSGQ_DEFINE(extra_queue, sizeof(struct report_msg), QUEUE_LEN, 1);
+
+static struct hid_pipe kbd_pipe = {
+    .dev = DEVICE_DT_GET(DT_NODELABEL(hid_kbd)),
+    .queue = &kbd_queue,
+};
+static struct hid_pipe extra_pipe = {
+    .dev = DEVICE_DT_GET(DT_NODELABEL(hid_extra)),
+    .queue = &extra_queue,
+};
+
+static atomic_t suspended;
+static atomic_t wake_requested;
+static atomic_t boot_protocol;
+static atomic_t resync;
+static uint32_t kbd_idle_duration;
+
+/* Last report sent of each kind, for GET_REPORT. */
+static struct k_spinlock last_lock;
+static uint8_t last_boot[KB_HID_BOOT_REPORT_SIZE];
+static uint8_t last_nkro[KB_HID_NKRO_REPORT_SIZE] = {KB_HID_ID_NKRO};
+static uint8_t last_consumer[KB_HID_CONSUMER_REPORT_SIZE] = {KB_HID_ID_CONSUMER};
+static uint8_t last_system[KB_HID_SYSTEM_REPORT_SIZE] = {KB_HID_ID_SYSTEM};
+
+static void pipe_submit_next(struct hid_pipe *p)
 {
-    while (atomic_get(&kbd_ready) && atomic_cas(&kbd_busy, 0, 1)) {
-        if (k_msgq_get(&kbd_queue, kbd_tx, K_NO_WAIT) != 0) {
-            atomic_set(&kbd_busy, 0);
+    struct report_msg msg;
+
+    while (atomic_get(&p->ready) && !atomic_get(&suspended) && atomic_cas(&p->busy, 0, 1)) {
+        if (k_msgq_get(p->queue, &msg, K_NO_WAIT) != 0) {
+            atomic_set(&p->busy, 0);
             /* A report queued after the get but before the clear would be
              * stranded: look again.
              */
-            if (k_msgq_num_used_get(&kbd_queue) == 0) {
+            if (k_msgq_num_used_get(p->queue) == 0) {
                 return;
             }
             continue;
         }
 
-        memcpy(kbd_last_report, kbd_tx, sizeof(kbd_last_report));
-        int err = hid_device_submit_report(hid_kbd, sizeof(kbd_tx), kbd_tx);
+        memcpy(p->tx, msg.data, msg.len);
+        int err = hid_device_submit_report(p->dev, msg.len, p->tx);
         if (err == 0) {
             return;
         }
-        LOG_WRN("keyboard report dropped (%d)", err);
-        atomic_set(&kbd_busy, 0);
+        LOG_WRN("report dropped (%d)", err);
+        atomic_set(&p->busy, 0);
     }
 }
 
-static void kbd_input_report_done(const struct device *dev, const uint8_t *const report)
+static void pipe_reset(struct hid_pipe *p, bool ready)
 {
-    ARG_UNUSED(dev);
+    atomic_set(&p->ready, ready);
+    k_msgq_purge(p->queue);
+    atomic_set(&p->busy, 0);
+    atomic_set(&resync, 1);
+}
+
+static struct hid_pipe *pipe_of(const struct device *dev)
+{
+    return dev == kbd_pipe.dev ? &kbd_pipe : &extra_pipe;
+}
+
+/* Callbacks shared by both interfaces */
+
+static void input_report_done(const struct device *dev, const uint8_t *const report)
+{
     ARG_UNUSED(report);
-    atomic_set(&kbd_busy, 0);
-    kbd_submit_next();
+    struct hid_pipe *p = pipe_of(dev);
+
+    atomic_set(&p->busy, 0);
+    pipe_submit_next(p);
 }
 
-static void kbd_iface_ready(const struct device *dev, const bool ready)
+static void iface_ready(const struct device *dev, const bool ready)
 {
-    ARG_UNUSED(dev);
-    atomic_set(&kbd_ready, ready);
-    if (!ready) {
-        k_msgq_purge(&kbd_queue);
-        atomic_set(&kbd_busy, 0);
+    struct hid_pipe *p = pipe_of(dev);
+
+    pipe_reset(p, ready);
+    if (p == &kbd_pipe) {
+        /* A new configuration starts in report protocol. */
+        atomic_set(&boot_protocol, 0);
+        status_screen_set_transport(ready ? KB_TRANSPORT_USB : KB_TRANSPORT_NONE, 0);
+        LOG_INF("keyboard interface %s", ready ? "ready" : "not ready");
+    } else {
+        LOG_INF("extra interface %s", ready ? "ready" : "not ready");
     }
-    status_screen_set_transport(ready ? KB_TRANSPORT_USB : KB_TRANSPORT_NONE, 0);
-    LOG_INF("keyboard interface %s", ready ? "ready" : "not ready");
 }
 
-static int kbd_get_report(const struct device *dev, const uint8_t type, const uint8_t id,
-                          const uint16_t len, uint8_t *const buf)
+static int copy_last(const uint8_t *src, size_t size, uint16_t len, uint8_t *buf)
 {
-    ARG_UNUSED(dev);
-    ARG_UNUSED(id);
+    if (len < size) {
+        return -ENOTSUP;
+    }
+    K_SPINLOCK(&last_lock) {
+        memcpy(buf, src, size);
+    }
+    return (int)size;
+}
 
-    if (type != HID_REPORT_TYPE_INPUT || len < sizeof(kbd_last_report)) {
+static int get_report(const struct device *dev, const uint8_t type, const uint8_t id,
+                      const uint16_t len, uint8_t *const buf)
+{
+    if (type != HID_REPORT_TYPE_INPUT) {
         return -ENOTSUP;
     }
 
-    memcpy(buf, kbd_last_report, sizeof(kbd_last_report));
-    return sizeof(kbd_last_report);
+    if (dev == kbd_pipe.dev) {
+        return copy_last(last_boot, sizeof(last_boot), len, buf);
+    }
+
+    switch (id) {
+    case KB_HID_ID_NKRO:
+        return copy_last(last_nkro, sizeof(last_nkro), len, buf);
+    case KB_HID_ID_CONSUMER:
+        return copy_last(last_consumer, sizeof(last_consumer), len, buf);
+    case KB_HID_ID_SYSTEM:
+        return copy_last(last_system, sizeof(last_system), len, buf);
+    default:
+        return -ENOTSUP;
+    }
+}
+
+/* Keyboard interface only */
+
+static void set_locks(uint8_t locks)
+{
+    status_screen_set_locks(locks);
+    indicators_set_locks(locks);
 }
 
 static int kbd_set_report(const struct device *dev, const uint8_t type, const uint8_t id,
@@ -123,16 +211,23 @@ static int kbd_set_report(const struct device *dev, const uint8_t type, const ui
     ARG_UNUSED(dev);
     ARG_UNUSED(id);
 
-    /* Lock-key LED output report (one byte): shown on the status screen now;
-     * the indicator LEDs use it in phase 4.
-     */
+    /* Lock-key LED output report: one byte of KB_HID_LED_* bits. */
     if (type != HID_REPORT_TYPE_OUTPUT || len < 1) {
         return -ENOTSUP;
     }
 
-    kbd_led_state = buf[0];
-    status_screen_set_locks(kbd_led_state);
+    set_locks(buf[0]);
     return 0;
+}
+
+static void kbd_output_report(const struct device *dev, const uint16_t len,
+                              const uint8_t *const buf)
+{
+    ARG_UNUSED(dev);
+
+    if (len >= 1) {
+        set_locks(buf[0]);
+    }
 }
 
 static void kbd_set_idle(const struct device *dev, const uint8_t id, const uint32_t duration)
@@ -152,62 +247,174 @@ static uint32_t kbd_get_idle(const struct device *dev, const uint8_t id)
 static void kbd_set_protocol(const struct device *dev, const uint8_t proto)
 {
     ARG_UNUSED(dev);
-    kbd_protocol = proto;
+    atomic_set(&boot_protocol, proto == HID_PROTOCOL_BOOT);
     LOG_INF("host selected %s protocol", proto == HID_PROTOCOL_BOOT ? "boot" : "report");
 }
 
-static void kbd_output_report(const struct device *dev, const uint16_t len,
-                              const uint8_t *const buf)
-{
-    ARG_UNUSED(dev);
-
-    if (len >= 1) {
-        kbd_led_state = buf[0];
-        status_screen_set_locks(kbd_led_state);
-    }
-}
-
 static const struct hid_device_ops kbd_ops = {
-    .iface_ready = kbd_iface_ready,
-    .get_report = kbd_get_report,
+    .iface_ready = iface_ready,
+    .get_report = get_report,
     .set_report = kbd_set_report,
     .set_idle = kbd_set_idle,
     .get_idle = kbd_get_idle,
     .set_protocol = kbd_set_protocol,
     .output_report = kbd_output_report,
-    .input_report_done = kbd_input_report_done,
+    .input_report_done = input_report_done,
 };
 
-int kb_usb_send_keyboard(const uint8_t report[KB_USB_KBD_REPORT_SIZE])
+static const struct hid_device_ops extra_ops = {
+    .iface_ready = iface_ready,
+    .get_report = get_report,
+    .input_report_done = input_report_done,
+};
+
+/* Suspend and resume */
+
+static void on_usbd_msg(struct usbd_context *const ctx, const struct usbd_msg *const msg)
 {
-    if (!atomic_get(&kbd_ready)) {
+    ARG_UNUSED(ctx);
+
+    switch (msg->type) {
+    case USBD_MSG_SUSPEND:
+        atomic_set(&suspended, 1);
+        indicators_set_asleep(true);
+        LOG_INF("suspended");
+        break;
+    case USBD_MSG_RESUME:
+        atomic_set(&suspended, 0);
+        atomic_set(&wake_requested, 0);
+        /* The host may have missed changes made while it slept. */
+        k_msgq_purge(kbd_pipe.queue);
+        k_msgq_purge(extra_pipe.queue);
+        atomic_set(&resync, 1);
+        indicators_set_asleep(false);
+        LOG_INF("resumed");
+        break;
+    case USBD_MSG_RESET:
+    case USBD_MSG_VBUS_REMOVED:
+        atomic_set(&wake_requested, 0);
+        if (atomic_set(&suspended, 0)) {
+            indicators_set_asleep(false);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+static void wake_host(void)
+{
+    /* Once per suspend: the first key change wakes the host. */
+    if (!usbd_is_suspended(&kb_usbd) || !atomic_cas(&wake_requested, 0, 1)) {
+        return;
+    }
+    /* Fails with -EACCES if the host didn't enable remote wakeup. */
+    int err = usbd_wakeup_request(&kb_usbd);
+    if (err && err != -EACCES) {
+        LOG_WRN("remote wakeup failed (%d)", err);
+    }
+}
+
+/* Sending */
+
+int kb_usb_send(enum kb_hid_report report, const uint8_t *data, size_t len)
+{
+    struct hid_pipe *p;
+    uint8_t *last;
+    size_t size;
+
+    switch (report) {
+    case KB_HID_REPORT_BOOT:
+        p = &kbd_pipe;
+        last = last_boot;
+        size = sizeof(last_boot);
+        break;
+    case KB_HID_REPORT_NKRO:
+        p = &extra_pipe;
+        last = last_nkro;
+        size = sizeof(last_nkro);
+        break;
+    case KB_HID_REPORT_CONSUMER:
+        p = &extra_pipe;
+        last = last_consumer;
+        size = sizeof(last_consumer);
+        break;
+    case KB_HID_REPORT_SYSTEM:
+        p = &extra_pipe;
+        last = last_system;
+        size = sizeof(last_system);
+        break;
+    default:
+        return -EINVAL;
+    }
+    if (len != size) {
+        return -EINVAL;
+    }
+
+    K_SPINLOCK(&last_lock) {
+        memcpy(last, data, size);
+    }
+
+    if (atomic_get(&suspended)) {
+        /* Sent again in full after the resume. */
+        atomic_set(&resync, 1);
+        wake_host();
+        return -EAGAIN;
+    }
+    if (!atomic_get(&p->ready)) {
         return -EAGAIN;
     }
 
-    /* Full (host not polling): drop the oldest. Each report is the whole
-     * keyboard state, so the newest one is what matters.
-     */
-    while (k_msgq_put(&kbd_queue, report, K_NO_WAIT) != 0) {
-        uint8_t stale[KB_USB_KBD_REPORT_SIZE];
-        (void)k_msgq_get(&kbd_queue, stale, K_NO_WAIT);
+    struct report_msg msg = {.len = (uint8_t)len};
+    memcpy(msg.data, data, len);
+    if (k_msgq_put(p->queue, &msg, K_NO_WAIT) != 0) {
+        /* The host isn't polling. Start over from the current state, so no
+         * release is lost in between.
+         */
+        k_msgq_purge(p->queue);
+        atomic_set(&resync, 1);
+        return -ENOBUFS;
     }
 
-    kbd_submit_next();
+    pipe_submit_next(p);
     return 0;
+}
+
+bool kb_usb_boot_protocol(void)
+{
+    return atomic_get(&boot_protocol) != 0;
+}
+
+bool kb_usb_take_resync(void)
+{
+    return atomic_set(&resync, 0) != 0;
+}
+
+/* Setup */
+
+static int register_hid(struct hid_pipe *p, const uint8_t *desc, size_t len,
+                        const struct hid_device_ops *ops)
+{
+    if (!device_is_ready(p->dev)) {
+        LOG_ERR("HID device %s not ready", p->dev->name);
+        return -ENODEV;
+    }
+
+    int err = hid_device_register(p->dev, desc, len, ops);
+    if (err) {
+        LOG_ERR("HID register of %s failed (%d)", p->dev->name, err);
+    }
+    return err;
 }
 
 int kb_usb_init(void)
 {
     int err;
 
-    if (!device_is_ready(hid_kbd)) {
-        LOG_ERR("HID keyboard device not ready");
-        return -ENODEV;
-    }
-
-    err = hid_device_register(hid_kbd, kbd_report_desc, sizeof(kbd_report_desc), &kbd_ops);
+    err = register_hid(&kbd_pipe, kb_hid_keyboard_desc, kb_hid_keyboard_desc_len, &kbd_ops);
+    err = err ? err
+              : register_hid(&extra_pipe, kb_hid_extra_desc, kb_hid_extra_desc_len, &extra_ops);
     if (err) {
-        LOG_ERR("HID register failed (%d)", err);
         return err;
     }
 
@@ -241,6 +448,12 @@ int kb_usb_init(void)
                                                                  APP_PATCHLEVEL));
     if (err) {
         LOG_ERR("setting device descriptor fields failed (%d)", err);
+        return err;
+    }
+
+    err = usbd_msg_register_cb(&kb_usbd, on_usbd_msg);
+    if (err) {
+        LOG_ERR("registering the message callback failed (%d)", err);
         return err;
     }
 

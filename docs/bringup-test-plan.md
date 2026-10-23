@@ -267,10 +267,13 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 | Boot keyboard | Type in a BIOS/UEFI setup screen; through a KVM if you have one | Keys work | Phase 3 (main) |
 | Every key | Short each socket's pads with tweezers on the bare board, then press every fitted switch; watch `evtest` or an online key tester, or the RTT log | All 80 positions report, each as the right key, with no extra key. Both spacebar layouts | Phase 3 |
 | Ghosting | Hold three corners of any rectangle (for example Q, W, A) and press the fourth (S) | Only the pressed keys report. Each key has its own diode, so there should be no ghost | Phase 3 |
-| Rollover | Hold 6 keys, then more | 6KRO now; full NKRO after phase 4 | Phase 3, then 4 |
-| Lock LEDs | Toggle Caps, Num, Scroll on the host | Caps LED (D2) follows; the screen shows the locks | Phase 2 stores the report; LED colours in phase 10 |
-| LED chain | Bring-up walk on power-up | One LED at a time in chain order D3 (layer), D4–D7 (battery 1–4), D2 (Caps), each red then green then blue. Wrong order means a routing fault; wrong colours means the GRB order is off | Phase 2 |
-| LED power switch | LED_VDD at C12 with the walk running, then with EN low | VSYS when on, under 0.1 V when off | Phase 2 |
+| Rollover | Hold 6 keys, then more, in an online key tester; then Fn+N (NK_TOGG) and repeat | Every held key reports with NKRO on; six with it off | Phase 4 |
+| Boot fallback | In a BIOS/UEFI setup screen or through a KVM, hold 7 keys | Six keys report, no stuck keys; back in the OS, NKRO works again | Phase 4 |
+| Media and system keys | Fn+F-row media keys, volume, mute; Sleep if mapped | The host reacts; `lsusb -v` shows a second HID interface with report IDs 1–3 | Phase 4 |
+| Suspend and wake | Put the computer to sleep with the keyboard plugged in, then press a key | The LEDs go dark while the host sleeps; a key press wakes it (if the host allows USB wake); after waking, no key is stuck | Phase 4 |
+| Lock LEDs | Toggle Caps, Num, Scroll on the host | Caps LED (D2) lights warm white while Caps Lock is on; the screen shows all three; the layer LED (D3) shows amber on Fn | Phase 4; colours settable in phase 10 |
+| LED chain | Bring-up walk on power-up (once, 3.6 s) | One LED at a time in chain order D3 (layer), D4–D7 (battery 1–4), D2 (Caps), each red then green then blue for 200 ms. Wrong order means a routing fault; wrong colours means the GRB order is off | Phase 2; one pass since phase 4 |
+| LED power switch | LED_VDD at C12 during the walk, then after it with every LED dark (no Caps Lock, base layer) | VSYS when on; under 0.1 V when off, since the firmware cuts LED power whenever no LED is lit | Phase 4 |
 | Encoder | Turn slowly one detent at a time, then fast; press | One step per detent, the right direction, push reports as (row 0, col 14) | Push: phase 3. Rotation: phase 9 (pins are only in `zephyr,user`) |
 | Reset button | Press it | Board resets; a double tap enters UF2 | Bootloader |
 | Power switch | Off and on while on battery | Board dies and restarts cleanly | Any |
@@ -412,7 +415,7 @@ About a third of this plan can run on the day the boards arrive. The rest waits 
 | Status screen (four panels) | On main | Display tests |
 | Dachshund60F UF2 bootloader | On main (PR #7); never run on hardware | First SWD flash and every UF2 step |
 | Phase 3: matrix scan at 1 kHz, debounce (eager press, 5 ms), keymap, key reports | On main (PR #8) | Every-key, ghosting, chatter, BIOS, scan and debounce timing |
-| Phase 4: NKRO, consumer keys, suspend and remote wakeup | Not started | NKRO and suspend tests |
+| Phase 4: NKRO, consumer keys, lock LEDs, suspend and remote wakeup | Done, in review | Rollover, boot fallback, media keys, lock LEDs, suspend and wake |
 | Phases 5–8: protocol, persistence, host transports, GUI on hardware | Not started (Doghouse runs against mock boards only) | Smoke test, matrix test mode, Doghouse key tester |
 | Phase 9: encoder driver | Not started; pins sit in `zephyr,user` | Encoder rotation tests |
 | Phase 10: indicator colours | Not started | Lock LED colours, per-colour LED current |

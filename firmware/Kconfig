@@ -92,6 +92,23 @@ config KB_TAPPING_TERM_MS
 	default 200
 	range 50 2000
 
+config KB_NKRO
+	bool "N-key rollover at power-up"
+	default y
+	help
+	  Keys go in the NKRO report on the extra HID interface. A host that
+	  asks for boot protocol (a BIOS or KVM) always gets the 6-key boot
+	  report. NK_TOGG in the keymap switches at run time; the host sets
+	  it once the settings protocol exists (phase 10).
+
+config KB_LED_SELFTEST
+	bool "Walk the indicator LED chain once at power-up"
+	default y
+	help
+	  One LED at a time in chain order, red, green then blue, 200 ms
+	  each (3.6 s for six LEDs). Shows the chain and colour order at
+	  bring-up; the indicators take over afterwards.
+
 DT_CHOSEN_ZEPHYR_DISPLAY := zephyr,display
 
 menuconfig KB_SCREEN
