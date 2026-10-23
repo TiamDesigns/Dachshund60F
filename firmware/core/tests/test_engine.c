@@ -443,6 +443,110 @@ static void test_tapping_term_setting(void)
     KB_CHECK_EQ(last_layers, 0x3);
 }
 
+static void rule(uint8_t flags, uint16_t quick_tap_ms)
+{
+    struct kb_tap_hold_rule r = {.flags = flags, .tapping_term_ms = 200, .quick_tap_ms = quick_tap_ms};
+    kb_engine_set_tap_hold(&eng, &r, NULL, 0);
+}
+
+static void test_permissive_hold(void)
+{
+    /* LT down, A tapped inside it, all within the term: A on layer 1. */
+    setup();
+    rule(KB_TH_PERMISSIVE_HOLD, 0);
+    key(K_LT1, true, 0);
+    key(K_A, true, 30);
+    KB_CHECK_EQ(reports, 0); /* a press alone doesn't decide */
+    key(K_A, false, 60);
+    KB_CHECK_EQ(last_layers, 0x3);
+    KB_CHECK(!kb_hid_key_held(&last, KC_SPC));
+    KB_CHECK_EQ(reports, 2); /* 1 pressed and released */
+    key(K_LT1, false, 90);
+    KB_CHECK_EQ(last_layers, 0x1);
+
+    /* Rolled over (LT released first) is still a tap. */
+    setup();
+    rule(KB_TH_PERMISSIVE_HOLD, 0);
+    key(K_LT1, true, 0);
+    key(K_A, true, 30);
+    key(K_LT1, false, 60);
+    KB_CHECK(kb_hid_key_held(&last, KC_A));
+    KB_CHECK(!kb_hid_key_held(&last, KC_1));
+}
+
+static void test_hold_on_other_key_press(void)
+{
+    setup();
+    rule(KB_TH_HOLD_ON_OTHER_PRESS, 0);
+    key(K_MT, true, 0);
+    key(K_A, true, 20);
+    KB_CHECK_EQ(boot[0], 0x01);
+    KB_CHECK_EQ(boot[2], KC_A);
+}
+
+static void test_quick_tap_repeats_the_tap(void)
+{
+    setup();
+    rule(0, 150);
+    tap(K_LT1, 0);
+    key(K_LT1, true, 100); /* again within 150 ms: Space at once, held */
+    KB_CHECK(kb_hid_key_held(&last, KC_SPC));
+    kb_engine_tick(&eng, 400);
+    KB_CHECK_EQ(last_layers, 0x1);
+    key(K_LT1, false, 500);
+    KB_CHECK(!kb_hid_key_held(&last, KC_SPC));
+
+    /* Too late: an ordinary tap-hold again. */
+    key(K_LT1, true, 800);
+    KB_CHECK_EQ(reports, 4);
+    kb_engine_tick(&eng, 1000);
+    KB_CHECK_EQ(last_layers, 0x3);
+}
+
+static void test_retro_tapping(void)
+{
+    setup();
+    rule(KB_TH_RETRO_TAP, 0);
+    key(K_MT, true, 0);
+    kb_engine_tick(&eng, 300);
+    KB_CHECK_EQ(boot[0], 0x01);
+    int before = reports;
+    key(K_MT, false, 400);
+    /* Ctrl released with Esc pressed, then Esc released */
+    KB_CHECK_EQ(reports, before + 2);
+    KB_CHECK_EQ(boot[0], 0);
+    KB_CHECK_EQ(boot[2], 0);
+
+    /* Used as a modifier: no tap afterwards. */
+    key(K_MT, true, 1000);
+    kb_engine_tick(&eng, 1300);
+    tap(K_A, 1310);
+    before = reports;
+    key(K_MT, false, 1400);
+    KB_CHECK_EQ(reports, before + 1);
+}
+
+static void test_per_key_rule(void)
+{
+    static const struct kb_tap_hold_rule keys[] = {
+        {.row = K_MT / COLS, .col = K_MT % COLS, .flags = KB_TH_HOLD_ON_OTHER_PRESS, .tapping_term_ms = 100},
+    };
+    setup();
+    kb_engine_set_tap_hold(&eng, NULL, keys, 1);
+    key(K_MT, true, 0);
+    kb_engine_tick(&eng, 100);
+    KB_CHECK_EQ(boot[0], 0x01);
+    key(K_MT, false, 110);
+    /* Other keys keep the default: LT with A pressed waits. */
+    key(K_LT1, true, 200);
+    key(K_A, true, 220);
+    KB_CHECK_EQ(last_layers, 0x1);
+    kb_engine_tick(&eng, 399);
+    KB_CHECK_EQ(last_layers, 0x1);
+    kb_engine_tick(&eng, 400);
+    KB_CHECK_EQ(last_layers, 0x3);
+}
+
 static void test_action_callback(void)
 {
     setup();
@@ -517,6 +621,11 @@ int main(void)
     KB_RUN(test_mod_tap_decided_by_a_late_event);
     KB_RUN(test_tap_hold_queue_overflow_forces_hold);
     KB_RUN(test_tapping_term_setting);
+    KB_RUN(test_permissive_hold);
+    KB_RUN(test_hold_on_other_key_press);
+    KB_RUN(test_quick_tap_repeats_the_tap);
+    KB_RUN(test_retro_tapping);
+    KB_RUN(test_per_key_rule);
     KB_RUN(test_action_callback);
     KB_RUN(test_out_of_range_and_duplicates_ignored);
     KB_RUN(test_matrix_diff);

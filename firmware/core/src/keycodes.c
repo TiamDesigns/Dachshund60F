@@ -14,6 +14,7 @@ static bool action_keycode(kb_keycode_t kc)
     case QK_REP:
     case QK_LEAD:
     case NK_TOGG:
+    case AS_TOGG:
     case OUT_USB:
     case OUT_2G4:
     case OUT_BLE:
@@ -25,8 +26,17 @@ static bool action_keycode(kb_keycode_t kc)
     case MS_BTN1:
     case MS_BTN2:
     case MS_BTN3:
+    case MS_BTN4:
+    case MS_BTN5:
     case MS_WHLU:
     case MS_WHLD:
+    case MS_WHLL:
+    case MS_WHLR:
+    case DM_REC1:
+    case DM_REC2:
+    case DM_RSTP:
+    case DM_PLY1:
+    case DM_PLY2:
         return true;
     default:
         return kc >= BT_SEL(0) && kc < BT_SEL(0) + KB_BT_PROFILE_MAX;
@@ -72,6 +82,12 @@ enum kb_keycode_kind kb_keycode_kind(kb_keycode_t kc, uint8_t layer_count)
     }
     if (kc >= KB_KC_MT && kc <= KB_KC_MT_MAX) {
         return (mods & 0x0Fu) != 0 && basic_usage(key) ? KB_KIND_MT : KB_KIND_INVALID;
+    }
+    if (kc >= KB_KC_MACRO && kc <= KB_KC_MACRO_MAX) {
+        return KB_KIND_MACRO;
+    }
+    if (kc >= KB_KC_TAP_DANCE && kc <= KB_KC_TAP_DANCE_MAX) {
+        return KB_KIND_TAP_DANCE;
     }
     return KB_KIND_INVALID;
 }
