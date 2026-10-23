@@ -38,7 +38,7 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 
 - Schematic: one A2 sheet with 195 parts. ERC is clean (0 errors, 0 warnings). A script checked all 29 module pin nets against `board.json` (0 mismatches).
 - The board has no USB-C connector. J1 is a JST-SH 4-pin for the daughterboard, carrying VBUS, D−, D+ and GND in the Unified Daughterboard order (checked on 2026-10-22; see the daughterboard section).
-- Power path: VBUS feeds the MCP73831, which charges VBAT (JST-PH battery). The slide switch connects VBAT to VSYS, which feeds VDDH (high-voltage mode). VDD (REGOUT0) is +3V3.
+- Power path: VBUS feeds the MCP73831, which charges VBAT (JST-PH battery). The slide switch connects VBAT to VSYS, which feeds VDDH (high-voltage mode). VDD (REGOUT0) is +3V3. (A USB power path was added on 2026-10-23; see "PCB: USB power path".)
 - Charge status: a BAT54WS Schottky sits between the MCP73831 STAT pin and P0.15. STAT drives 5 V when charging completes, and the diode passes only the low (charging) level.
 - LEDs: the load switch is a TPS22917 (KiCad has no TPS22918 symbol); its QOD pin is unconnected and EN has a 100 kΩ pull-down.
 - DCCH is unconnected, so firmware must run REG0 in LDO mode.
@@ -277,6 +277,24 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - `hardware/3dmodels/gen_models.py` (run with FreeCAD 1.1's Python) now generates coloured models of the HRO receptacle (shell, opening, tongue and contacts, shell legs, SMD tails, locating posts) and the JST PH S2B-PH-SM4-TB (housing with cavity and latch window, contacts and tails, metal fittings), each in its footprint's frame. The footprints use them with no offset or rotation. On both boards the receptacle's front overhangs the board edge by 1.3 mm, as designed.
 - Checked: the STEP exports place both receptacles and J2 on their footprints, and `kicad-cli pcb render` shows them as expected. Not checked against real parts.
 
+### PCB: USB power path (2026-10-23)
+
+The mainboard ran only from the battery: with the switch off it was off even on USB, and with no battery it browned out. Tiam chose Microchip's load-sharing circuit for the MCP73831 (AN1149) before ordering.
+
+- Schematic: SW1's common pin now feeds a new net, VBAT_SW, instead of VSYS. Q1 (AO3401A P-MOSFET, SOT-23) has its drain on VBAT_SW, source on VSYS and gate on VBUS, with R3 (100 kΩ, 0603) pulling the gate to GND. D8 (B5819W Schottky, SOD-123) feeds VSYS from VBUS. On USB, Q1 is off and VSYS is about 4.7 V from D8. Unplugged, the gate falls to 0 V and Q1 connects the battery. The charger stays on VBAT, before the switch, so it charges with the switch off.
+- Effects: the board runs from USB with no battery or with the switch off, and the switch is now only a battery disconnect. VDDH (and so the SAADC battery reading) shows the USB-fed VSYS while USB is in, so phase 13 reads the cell only on battery and shows charging from CHG_STAT. The SK6812s now see about 4.7 V on USB instead of at most 4.2 V. Their input-high threshold is 0.7 × VDD, about 3.3 V at 4.7 V, so the 3.3 V data line has no margin on USB (at a full cell the threshold is 2.9 V). See Known bugs.
+- PCB: the three parts sit on the back between J2, J3 and SW1 (x 326–332, y 104–110), hand-routed: 0.3 mm power tracks, a 0.25 mm gate track. VBUS comes down on F.Cu from the J1 via at (331.7, 89.2), with vias at D8/R3 and at the gate. The old VSYS track from SW1 pin 2 now carries VBAT_SW to Q1's drain. 12 GND stitching vias in the way were removed, and the pours refilled.
+- Checks (kicad-cli 10.0.7): ERC has the same 4 warnings as before and no errors. DRC with schematic parity: 0 errors, 0 unconnected items, and the same warnings as before (silkscreen, hole-to-hole on the stabilizers, and the stale footprint copies).
+- `docs/bringup-test-plan.md` has new continuity checks and a USB-only power stage.
+- Saving with KiCad 10.0.7 re-wrote the zone fills and the 3D model blocks, so the PCB diff is large; only the parts above changed.
+- The STEP files in `hardware/step/` predate this change; re-export with `python hardware/export_step.py` for a fresh snapshot.
+
+### Licence (2026-10-23)
+
+- Code (firmware, host-lib, Doghouse, protocol, scripts): MIT, in `LICENSE`. host-lib and Doghouse carry `"license": "MIT"`.
+- Hardware (`hardware/`: the three PCBs and the plate): CERN-OHL-P-2.0, in `hardware/LICENSE`.
+- Third-party files keep their own licences: the vendored keyswitch footprints are CC-BY-SA-4.0 (see `hardware/Dachshund60F/lib/README.md`), and the UF2 bootloader build fetches Adafruit's MIT-licensed source.
+
 ## Tested
 
 - host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
@@ -314,18 +332,17 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 
 ## Open decisions
 
-- Registered pid.codes PID before distributing boards; this needs a licence and a public repo with PCB files
+- Registered pid.codes PID before distributing boards; the licence is now set (MIT and CERN-OHL-P), so this needs only a public repo
 - PCB design: the pin map is proposed and must be confirmed (or edited) once the schematic is routed
 - Case (sets the gasket pockets from the plate's sock outlines, the roller support and the daughterboard position). The mainboard and plate have no mounting holes. The daughterboard is designed for M3; if the case uses M2, swap H1/H2 to `MountingHole_2.2mm_M2_Pad_TopBottom` for a snug fit.
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
-- Mainboard power path: VSYS is fed only from the battery through the slide switch, and VBUS only feeds the charger. So the keyboard is off on USB with the switch off, and browns out on USB with no battery. Add a VBUS-to-VSYS power path before ordering if USB-only use matters.
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
 - Dongle bootloader: reuse Adafruit's `pca10059` build or make a dongle-specific one. The DFU button matches (P1.06), but that build's LEDs are P0.06 and P0.12, so only the blue LED would light on this dongle. A dongle board can reuse the files in `boards/Dachshund60F/bootloader/` as a template. Try the existing build on the first board.
-- Licence
 
 ## Known bugs
 
+- LED data margin on USB (from the 2026-10-23 power path): with VSYS at about 4.7 V, the SK6812 input-high threshold (0.7 × VDD) equals the 3.3 V data level. Strip LEDs often work like this, but it is out of spec. Options: a single-supply buffer with TTL-level inputs (SN74LV1T34, SOT-23-5, powered from LED_VDD) on the data line, or a silicon diode in place of D8 to drop VSYS to about 4.2 V. Decide before ordering, or test on the first board.
 - Encoder part number checked against Bourns' PEC12R datasheet (2026-10-23): the BOM's PEC12R-4220F-S0024 is right. The first digit of the ordering code is the mounting: 2 = vertical (radial pins, shaft up from the board), 3 = horizontal with a threaded bushing, 4 = horizontal without a bushing. So -4220F-S0024 is horizontal, no bushing, 24 detents, 20 mm shaft, push switch, 24 pulses, and Mouser lists it as right angle. Don't order PEC12R-2217F-S0024: it is the vertical part. KiCad's footprint name `Horizontal_PEC12R-2x17F` uses the wrong series digit; its geometry is the horizontal part's. Still open: SW3's 3D model is a stand-in (see `hardware/3dmodels/README.md`), and the footprint's hole pattern hasn't been checked dimension by dimension against the 4xxx drawing.
 - Release builds print Kconfig warnings, because `prj.conf` sets logging options that `release.conf` turns off. PRINTK also stays on in release, since something selects it; nothing prints, because no console or RTT backend exists. This is harmless, but the warnings are noise.
 - E-paper builds warn that Zephyr's MIPI-DBI driver is "experimental". It is what Zephyr's own e-paper shields use; this is a notice, not a fault.

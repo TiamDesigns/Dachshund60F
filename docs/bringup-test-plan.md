@@ -93,7 +93,10 @@ Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other,
 | VBUS to GND | J1-1 to J1-4, or C2 | High |
 | VBAT to GND | J2 battery pins | High |
 | VSYS to GND, switch on | C4 or C5 pads | High |
-| VSYS to VBAT | Switch off, then on | Open, then under 1 Ω |
+| VBAT_SW to VBAT | SW1 pin 2 (or Q1 drain) to J2-1, switch off, then on | Open, then under 1 Ω |
+| Q1 body diode | Diode test, red on VBAT_SW (Q1 drain), black on VSYS (C4) | About 0.5–0.7 V forward, open the other way |
+| D8 power-path Schottky | Diode test, red on VBUS (C1), black on VSYS (C4) | About 0.15–0.3 V forward, open the other way |
+| Gate pull-down R3 | Across R3 | 100 kΩ |
 | +3V3 to GND | C6/C7 pads, J3-1 to J3-5, J4-1 to J4-2 | High |
 | LED_VDD to GND | C12 or any of C13–C18 | High |
 | PROG resistor R1 | Across R1 | 2.0 kΩ (sets 500 mA charge current) |
@@ -115,12 +118,17 @@ A blank nRF52840 runs its regulator at the factory REGOUT0 setting, so VDD reads
 
 ### How the mainboard is powered
 
-The schematic has one path into VSYS: battery, through the slide switch. USB VBUS goes only to the MCP73831 charger and to the module's VBUS pin (USB detection). So:
+VSYS has two sources, in Microchip's load-sharing arrangement for the MCP73831 (AN1149):
 
-- With the switch off, the keyboard is off, even on USB. USB only charges the battery.
-- With no battery fitted and USB in, VSYS is fed by the charger's output with nothing to regulate against. The MCP73831 will charge the empty node to 4.2 V, terminate, and cycle, so the board may brown out. Don't test this way, and don't read anything into the results if it happens.
+- **USB:** VBUS through the B5819W Schottky D8, so VSYS sits about 0.2–0.3 V below VBUS (around 4.7 V).
+- **Battery:** VBAT through the slide switch SW1 (net VBAT_SW), then the AO3401A P-MOSFET Q1 into VSYS. Q1's gate is on VBUS with a 100 kΩ pull-down (R3). With USB unplugged the gate sits at 0 V, so Q1 is fully on. With USB in, the gate is above the source, so Q1 is off and the battery only charges.
 
-If you want the keyboard to run from USB with the switch off or with a flat battery, that is a design change (a power-path diode or load-sharing MOSFET from VBUS to VSYS). Decide before ordering.
+So:
+
+- On USB the keyboard runs whatever the switch says, and with no battery fitted. The switch only disconnects the battery.
+- On battery it runs only with the switch on.
+- The charger sits on VBAT, before the switch, so USB charges the battery with the switch off too.
+- With USB in, the SAADC's VDDH/5 reading shows the USB-fed VSYS, not the cell. Firmware has to read the battery with USB unplugged, or show "charging" from CHG_STAT instead.
 
 ### Mainboard
 
@@ -135,6 +143,15 @@ Use the bench supply on the battery connector J2 as a stand-in for the cell, swi
 | Sweep J2 from 3.0 V to 4.2 V | +3V3 | Stays 3.3 V ±3% once REGOUT0 is set. At 3.3 V in and below, the LDO drops out and VDD follows VDDH less about 0.1 V |
 | Ripple | +3V3 and VSYS on the scope, AC coupled, 20 MHz limit, short ground spring | Under 20 mV peak to peak idle, under 50 mV while the radio transmits |
 | Switch off | Supply current | Under 1 µA (only the charger's reverse leakage) |
+
+Then USB alone, through the daughterboard and the checked cable, with nothing on J2 and the current-limited supply on the USB side if you have a USB power meter or breakout:
+
+| Step | Measure | Pass |
+| --- | --- | --- |
+| USB in, no battery, switch off | VSYS at C4/C5 | VBUS less 0.15–0.35 V (about 4.7 V); the board runs |
+| | VBAT_SW (Q1 drain) | Near 0 V: Q1 is off and the switch is open |
+| | Q1 gate (R3) | Equal to VBUS |
+| Same, switch on | VSYS | Unchanged. VBAT_SW follows VBAT (the charger output, cycling with no cell; that's harmless now that VSYS doesn't depend on it) |
 
 Then add USB through the daughterboard and the checked cable, with the bench supply still on J2:
 
@@ -240,7 +257,8 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 | Power switch | Off and on while on battery | Board dies and restarts cleanly | Any |
 | 32.768 kHz crystal | RTT log of the low-frequency clock source, or BLE connecting reliably | LFXO starts (not LFRC fallback) | Phase 2 with a log line, or phase 12 |
 | Display | Build with each panel overlay you own and connect it to J4 | Text, layer, locks and "USB" show; orientation fits the case | Main, with `-DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay` |
-| Battery reading | Firmware reads VDDH/5 via the SAADC; compare against the DMM on J2 at 3.0, 3.7, 4.2 V | Within ±50 mV after calibration | Phase 13 |
+| Battery reading | Firmware reads VDDH/5 via the SAADC with USB unplugged; compare against the DMM on J2 at 3.0, 3.7, 4.2 V | Within ±50 mV after calibration (Q1 drops a few mV) | Phase 13 |
+| Power path | Plug and unplug USB on battery while typing; then USB with no battery, switch off | No reset or dropped keys at either transition; runs from USB alone | Any |
 | Charge status | P0.15 read in firmware, with and without USB | Charging shown while STAT is low | Phase 13 |
 | BLE | Pair with a phone and a PC; type; switch between 3 profiles | Connects, types, switches, reconnects after power cycle | Phase 12 |
 | Config protocol | Doghouse connects over USB, reads and writes a key, saves, power-cycles, reads back | SPEC's hardware-in-the-loop smoke test passes | Phases 5–8 |
@@ -392,7 +410,7 @@ Small test-only features this plan needs, none of them built yet:
 - [ ] `radio_test` built for both boards with the RTT shell
 - [ ] The PC-side latency script and the Pico photoMOS presser
 
-Hardware question to settle before ordering: the mainboard can't run from USB alone. With the switch off it is off, and with no battery it browns out (see Stage 1). If USB-only use matters, add a power path from VBUS to VSYS.
+The mainboard's USB power path (Q1, D8, R3) was added before ordering, on 2026-10-23; see "How the mainboard is powered" in Stage 1.
 
 ## Results log
 
