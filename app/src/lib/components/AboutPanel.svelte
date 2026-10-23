@@ -7,6 +7,12 @@
 
   const info = $derived(session.board.info);
   const CONNECTIONS = { usb: "USB cable", dongle: "2.4 GHz dongle", ble: "Bluetooth" } as const;
+
+  function enterBootloader() {
+    if (confirm(`Restart ${session.displayName} into its bootloader? It stops typing until you copy firmware onto it or reset it.`)) {
+      void session.enterBootloader();
+    }
+  }
 </script>
 
 <div class="about">
@@ -14,7 +20,7 @@
     <h2>Dog tag</h2>
     <dl>
       <dt>Model</dt>
-      <dd>{info.model} ({BREEDS[info.model] ?? "Good dog"})</dd>
+      <dd>{info.model || "Unknown"} ({BREEDS[info.model] ?? "Good dog"})</dd>
       <dt>Serial number</dt>
       <dd class="mono">{info.id}</dd>
       <dt>Connected by</dt>
@@ -25,6 +31,10 @@
       <dd class="mono">v{info.protocolVersion}</dd>
       <dt>Layers</dt>
       <dd>{info.layerCount}</dd>
+      {#if info.capabilities}
+        <dt>Features</dt>
+        <dd>{info.capabilities.join(", ") || "None"}</dd>
+      {/if}
       <dt>Battery</dt>
       <dd>{session.battery ? `${session.battery.percent}%${session.battery.charging ? ", charging" : ""}` : "Unknown"}</dd>
     </dl>
@@ -32,7 +42,12 @@
 
   <section class="card">
     <h2>Firmware updates</h2>
-    <p>Checking for and installing firmware from Doghouse is on the way. For now, hold Esc for 3 seconds (or double-tap reset) and copy the <code>.uf2</code> file onto the drive that appears.</p>
+    <p>Put the board in its bootloader, then copy the <code>.uf2</code> file onto the drive that appears. The board restarts with the new firmware.</p>
+    {#if session.board.reboot && !session.problem}
+      <button class="btn" onclick={enterBootloader} disabled={session.busy}>Restart into bootloader…</button>
+    {:else}
+      <p>To get there, hold Esc for 3 seconds or double-tap reset.</p>
+    {/if}
   </section>
 
   <p class="foot">Doghouse 0.1.0 · host-lib {HOST_LIB_VERSION}</p>
@@ -56,6 +71,10 @@
   h2 {
     font-size: 15px;
     margin-bottom: 10px;
+  }
+
+  .card .btn {
+    margin-top: 12px;
   }
 
   dl {

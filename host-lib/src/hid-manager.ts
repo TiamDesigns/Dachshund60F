@@ -58,8 +58,8 @@ export abstract class HidManagerBase implements BoardManager {
     this.pending.add(key);
     try {
       const transport = await open();
-      const options: HidBoardOptions = { ...this.options };
-      if (serialNumber !== undefined) options.serialNumber = serialNumber;
+      // Without a serial number (WebHID can't read one), the key at least keeps ids unique.
+      const options: HidBoardOptions = { ...this.options, serialNumber: serialNumber || key };
       const board = await HidBoard.open(transport, options);
       if (!board.connected) return null;
       this.boards.set(key, board);

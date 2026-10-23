@@ -10,8 +10,9 @@ Last updated: 2026-10-23.
 
 ## Firmware and app, testable before boards arrive (in phase order)
 
-- **Phase 8: Doghouse MVP on host-lib.** Wire the existing app to the real typed API.
 - **Phase 9: advanced keys and encoders.** Tap-hold options, combos, tap dance, macros, key overrides, Caps Word, Auto Shift, Leader, Repeat, mouse keys and encoder mapping, host-tested. Code may be borrowed from ZMK or RMK (MIT/Apache), not QMK (GPL).
+- **Matrix test mode and a Doghouse key tester.** Protocol v1 has the `matrix_stream` capability bit but no command for it. Add one (a new command isn't a breaking change), stream raw matrix state while Doghouse's key tester is open, and light up pressed keys. The bring-up plan's smoke test and every-key check want it.
+- **Settings over the protocol (with phase 10).** The firmware stores debounce, tapping term, NKRO, sleep timeout, brightness and the board name (phase 6), but protocol v1 can't read or write them, so Doghouse hides its settings tab for real boards. Add get/set settings commands and the `settings` capability; `HidBoard.getSettings`/`setSettings` then replace their `not-supported` errors.
 - **Phase 13 note: battery reading with the power path.** On USB, VDDH shows the USB-fed VSYS, so read the cell only on battery and show charging from CHG_STAT (P0.15).
 
 ## Tiam's own items

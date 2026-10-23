@@ -42,6 +42,12 @@
       {/each}
     </nav>
 
+    {#if app.hid}
+      <button class="btn primary connect" onclick={() => app.connect()}>Connect a board…</button>
+    {:else}
+      <p class="no-hid">This browser can't reach USB devices. Open Doghouse in Chrome or Edge to edit a real board; until then you're looking at demo boards.</p>
+    {/if}
+
     <div class="sidebar-foot">
       {#if app.mock}
         <MockPanel mock={app.mock} selectedId={app.selectedId} />
@@ -71,7 +77,12 @@
         </div>
 
         <div class="panel" role="tabpanel" id="panel-{tab}" aria-labelledby="tab-{tab}">
-          {#if !session.keymap || !session.settings}
+          {#if session.problem}
+            <div class="problem">
+              <p>{session.problem}</p>
+              {#if tab === "about"}<AboutPanel {session} />{/if}
+            </div>
+          {:else if !session.keymap}
             <p class="loading">Fetching…</p>
           {:else if tab === "keys"}
             <KeymapEditor {session} />
@@ -87,6 +98,12 @@
         <Dachshund width={260} sleeping />
         <h1>Nobody's home yet</h1>
         <p>Connect a Doghouse board by USB, or plug in its 2.4 GHz dongle, and it will trot in here.</p>
+        {#if app.hid}
+          <p>The first time, click <strong>Connect a board…</strong> and pick it; after that Doghouse finds it on its own.</p>
+        {/if}
+        {#if !app.mock}
+          <p><a href="?demo">Try it with demo boards</a></p>
+        {/if}
       </div>
     {/if}
   </main>
@@ -138,6 +155,38 @@
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+  }
+
+  .connect {
+    width: 100%;
+  }
+
+  .welcome a {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .welcome a:hover {
+    color: var(--accent-hover);
+  }
+
+  .no-hid {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 0 4px;
+  }
+
+  .problem {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .problem > p {
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
   }
 
   .empty-pack {

@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { SETTINGS_LIMITS, type BoardSettings } from "@dachshund60f/host-lib";
+  import { DEFAULT_SETTINGS, SETTINGS_LIMITS, type BoardSettings } from "@dachshund60f/host-lib";
+
+  const DEFAULT_VIEW: BoardSettings = { ...DEFAULT_SETTINGS };
 
   import type { BoardSession } from "../app-state.svelte.ts";
 
@@ -18,7 +20,8 @@
 
   // Writable deriveds: sliders move smoothly while dragged, commit on change,
   // and snap back to the board's value when it changes (revert, factory reset).
-  const s = $derived(session.settings!);
+  // Firmware without the settings capability has none to show.
+  const s = $derived(session.settings ?? DEFAULT_VIEW);
   let name = $derived(s.name);
   let debounce = $derived(s.debounceMs);
   let tapping = $derived(s.tappingTermMs);
@@ -36,6 +39,7 @@
 </script>
 
 <div class="settings">
+  {#if session.settings}
   <section class="group">
     <h2>Name tag</h2>
     <label class="row">
@@ -135,7 +139,11 @@
   </section>
 
   <p class="note">Changes take effect right away. Use <strong>Save to board</strong> to keep them after the board powers off.</p>
+  {:else}
+  <p class="note">This board's firmware can't change its settings from Doghouse yet. Its keymap can still be edited and saved.</p>
+  {/if}
 
+  {#if session.supports("persistence")}
   <section class="group danger">
     <h2>Fresh start</h2>
     <div class="row">
@@ -146,6 +154,7 @@
       <button class="btn" onclick={resetToFactory}>Reset…</button>
     </div>
   </section>
+  {/if}
 </div>
 
 <style>

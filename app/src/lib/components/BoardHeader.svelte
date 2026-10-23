@@ -7,10 +7,11 @@
   let { session }: { session: BoardSession } = $props();
 
   const info = $derived(session.board.info);
+  const def = $derived(session.definition);
   const keyCount = $derived(
-    new Set(session.definition.keys.map((k) => `${k.row},${k.col}`)).size +
-      session.definition.encoders.length,
+    def ? new Set(def.keys.map((k) => `${k.row},${k.col}`)).size + def.encoders.length : 0,
   );
+  const canSave = $derived(session.supports("persistence") && !session.problem);
 
   function batteryWords(): string {
     const b = session.battery;
@@ -29,7 +30,7 @@
   <div class="ident">
     <h1>{session.displayName}</h1>
     <p class="sub">
-      {info.model} · {BREEDS[info.model] ?? "Good dog"} · {keyCount} switches · serial {info.id}
+      {info.model || "Unknown model"} · {BREEDS[info.model] ?? "Good dog"}{#if keyCount} · {keyCount} switches{/if} · serial {info.id}
     </p>
     <div class="status">
       <ConnectionChip connection={info.connection} />
@@ -53,11 +54,15 @@
         Unsaved changes
       </span>
     {/if}
-    <button class="btn ghost" onclick={() => session.identify()} title="Flash this board's lights">Identify</button>
-    <button class="btn" onclick={() => session.revert()} disabled={!session.unsaved || session.busy}>Revert</button>
-    <button class="btn primary" onclick={() => session.save()} disabled={!session.unsaved || session.busy}>
-      Save to board
-    </button>
+    {#if session.supports("identify") && !session.problem}
+      <button class="btn ghost" onclick={() => session.identify()} title="Flash this board's lights">Identify</button>
+    {/if}
+    {#if canSave}
+      <button class="btn" onclick={() => session.revert()} disabled={!session.unsaved || session.busy}>Revert</button>
+      <button class="btn primary" onclick={() => session.save()} disabled={!session.unsaved || session.busy}>
+        Save to board
+      </button>
+    {/if}
   </div>
 </header>
 

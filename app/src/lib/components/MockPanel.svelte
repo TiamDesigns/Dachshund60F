@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { MockBoard, MockBoardManager } from "@dachshund60f/host-lib";
 
-  /** Controls for the simulated boards, shown until real hardware is supported. */
+  /** Controls for the simulated boards, shown in demo mode. */
   let { mock, selectedId }: { mock: MockBoardManager; selectedId: string | null } = $props();
 
   const NAMES = ["Pretzel", "Frank", "Waffles", "Maple", "Schnitzel", "Hazel", "Mochi", "Peanut"];
@@ -31,7 +31,7 @@
 <div class="mock">
   <button class="toggle" onclick={() => (open = !open)} aria-expanded={open}>
     <span class="badge">Simulated</span>
-    No hardware yet: boards are mocks
+    Demo mode: these boards are pretend
     <span class="chev" class:open>▸</span>
   </button>
 
