@@ -41,7 +41,7 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Debug logs: SEGGER RTT over SWD (the board has no UART). Release builds have none.
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
 - Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`
-- Export STEP models of every board for case design: `python hardware/export_step.py` (writes `hardware/step/`, git-ignored; needs KiCad 10's `kicad-cli`)
+- Export STEP models of every board for case design: `python hardware/export_step.py` (writes `hardware/step/`, which is committed so the files reach every device; commit a fresh export when you want a snapshot; needs KiCad 10's `kicad-cli`)
 - Run the GUI against the mock device: `cd app && npm install && npm run dev`, then open http://localhost:5173. Check, test and build with `npm run check`, `npm test` and `npm run build`.
 - CI: `.github/workflows/ci.yml` runs core tests, host-lib tests, the Doghouse app (check, test, build), and debug and release firmware builds. It runs on pull requests and on pushes to `main`, so a branch gets CI once it has a PR (or from the Actions tab with "Run workflow").
 

@@ -2,7 +2,8 @@
 
     python hardware/export_step.py
 
-Writes to hardware/step/ (git-ignored; rerun after any board change):
+Writes to hardware/step/ (committed; rerun after any board change and commit
+the result when you want a snapshot):
 
 - Dachshund60F.step           mainboard with all parts
 - Dachshund60F-Plate.step     switch plate
