@@ -30,6 +30,13 @@ config KB_USB_MAX_POWER_MA
 	help
 	  The charger draws up to 500 mA from VBUS.
 
+config KB_MODEL
+	string "Keyboard definition name, reported to the host"
+	default "Dachshund60F"
+	help
+	  The folder name under boards/; the configurator loads that
+	  board's keyboard.json. At most 16 bytes.
+
 config KB_BOOTLOADER_HOLD_MS
 	int "Hold time for the recovery key (Esc) that reboots into UF2, in ms"
 	default 3000

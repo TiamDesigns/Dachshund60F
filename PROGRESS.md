@@ -2,9 +2,20 @@
 
 ## Current phase
 
-Phase 4 (full HID over USB): done, in review as a PR. Phase 3 is merged to main (PR #8). Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 4 waits for fabricated boards.
+Phase 5 (config protocol v1): done, in review as a PR. Phases 3 and 4 are merged to main (PRs #8 and #13). Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 5 waits for fabricated boards.
 
 ## Done
+
+### Phase 5: config protocol v1 (2026-10-23)
+
+- `protocol/protocol.yaml` defines version 1: the frame (4-byte header, up to 60 payload bytes in a 64-byte report), the vendor HID interface (usage page 0xFF00, usage 0x44), ten status codes, ten capability bits, and the commands: `handshake`, `reboot` (normal or into UF2), `identify` (blink the LEDs 1–30 s), `get_serial`, `get_key`, `set_key`, `get_keymap_chunk` and `set_keymap_chunk` (28 keycodes per frame; a chunk write is all or nothing), and `save`, `revert`, `factory_reset` (persistence arrives in phase 6). `protocol/README.md` documents the frame.
+- `protocol/gen/gen.py` (Python 3 + PyYAML) writes `kb/protocol_gen.h`, `protocol_gen.c` and `host-lib/src/protocol.gen.ts`. CI runs it with `--check` so generated files can't drift.
+- Core: `kb/protocol.h` handles one request and builds the response. Every length, index and keycode is checked before anything changes; any request but the handshake with the wrong version byte gets `version_mismatch`; error responses carry no payload. Tests: `test_protocol` (every command, every error path) and `test_protocol_fuzz` (random and mutated frames, with invariants: a response always comes back, nothing changes on an error, the keymap stays valid). A libFuzzer target (`firmware/core/fuzz/`) runs for two minutes in a new CI job with ASan and UBSan.
+- `get_serial` exists because WebHID can't read the USB serial string; the firmware returns the same hex text as the USB descriptor, so the app can tell two boards apart.
+- Firmware: a third HID interface (`hid_config`, 64 bytes in and out) in `kb_usb.c`; `config.c` queues requests from the USB thread and answers them on its own thread, locking the keymap against the scan thread. `reboot` waits 100 ms so the response leaves first. `identify` blinks the indicators.
+- host-lib: `protocol.ts` builds request frames and parses responses (`encodeRequest`, `decodeResponse`), on top of the generated encoders and decoders. The transports and typed client come in phase 7.
+- CI: the bootloader job now times out after 20 minutes (one run hung installing packages).
+- Size, debug without a screen: 80.8 KB flash, 29.9 KB RAM.
 
 ### Phase 1: Scaffold (2026-10-21)
 
@@ -329,7 +340,9 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - UF2 bootloader: builds cleanly (`-Werror`) on Linux with arm-none-eabi-gcc 13.2.1. The merged hex puts the SoftDevice at 0x1000–0x25DE8, the bootloader at 0xF4000–0xFC3AC, and the UICR words at 0x10001014/18. Not yet run on a chip.
 - Core C tests for phase 3 (debounce, engine, keycodes, keymap): pass locally on Linux with GCC, also under ASan and UBSan.
 - Phase 4: all core tests (including `test_hid` and `test_indicators`) pass on Linux with GCC, also under ASan and UBSan. The firmware builds locally (NCS v3.4.1, Zephyr SDK 1.0.1) in debug, and in release with the 128×32 OLED, with no new warnings. host-lib (57 tests) and Doghouse (check, 14 tests, build) pass.
-- Real hardware: nothing yet. Phase 4 is to be checked on a board:
+- Phase 5: core tests (12, including `test_protocol` and `test_protocol_fuzz`) pass locally with GCC under ASan and UBSan; the libFuzzer target runs only in CI (the local clang has no compiler-rt). The firmware builds locally with no new warnings. host-lib (62 tests) passes.
+- Real hardware: nothing yet. Phase 5 is to be checked on a board: `lsusb -v` shows the vendor interface, and the handshake, `get_serial` and `identify` work once host-lib can talk to it (phase 7).
+- Phase 4 is to be checked on a board:
   - `lsusb -v`: two HID interfaces, the first with the boot keyboard subclass, the second with report IDs 1–3; both endpoints at bInterval 1; remote wakeup set in bmAttributes
   - seven or more keys held at once all reach the host; Fn+N switches to 6KRO and back
   - in a BIOS setup screen or through a KVM, keys work (boot protocol), and NKRO comes back in the OS

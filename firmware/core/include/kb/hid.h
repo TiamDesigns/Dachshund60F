@@ -4,7 +4,7 @@
  * Hardware- and transport-independent: USB uses these now, BLE and the
  * dongle reuse them later.
  *
- * Two HID interfaces:
+ * Three HID interfaces (the third, for config, is in protocol/protocol.yaml):
  * - Keyboard: boot subclass, the 8-byte 6KRO report (mods, reserved, six
  *   keys) with no report ID, and the lock-LED output report. This is all a
  *   BIOS or KVM sees.
@@ -53,6 +53,13 @@ extern const uint8_t kb_hid_keyboard_desc[];
 extern const size_t kb_hid_keyboard_desc_len;
 extern const uint8_t kb_hid_extra_desc[];
 extern const size_t kb_hid_extra_desc_len;
+
+/*
+ * Config interface: the vendor-defined page from protocol/protocol.yaml,
+ * one KB_PROTO_REPORT_SIZE input and output report, no report ID.
+ */
+extern const uint8_t kb_hid_config_desc[];
+extern const size_t kb_hid_config_desc_len;
 
 /* Report packers. Each writes exactly its report size. */
 void kb_hid_pack_nkro(const struct kb_hid_state *hid, uint8_t out[KB_HID_NKRO_REPORT_SIZE]);

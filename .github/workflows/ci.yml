@@ -24,6 +24,32 @@ jobs:
         run: cmake --build firmware/core/build
       - name: Test
         run: ctest --test-dir firmware/core/build --output-on-failure
+      # protocol.yaml is the only definition; the generated files must match it.
+      - name: Generated protocol bindings are up to date
+        run: |
+          pip install pyyaml
+          python3 protocol/gen/gen.py --check
+
+  fuzz:
+    name: Protocol parser fuzzing (libFuzzer)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        working-directory: firmware/core
+        run: >
+          clang -g -O1 -fsanitize=fuzzer,address,undefined -fno-sanitize-recover=all
+          -Iinclude -Itests fuzz/fuzz_protocol.c src/*.c -o fuzz_protocol
+      - name: Fuzz for 2 minutes
+        working-directory: firmware/core
+        run: |
+          mkdir -p corpus
+          ./fuzz_protocol -max_total_time=120 -max_len=1024 corpus
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: fuzz-crash-${{ github.sha }}
+          path: firmware/core/crash-*
 
   host-lib:
     name: host-lib tests
@@ -133,6 +159,7 @@ jobs:
   bootloader:
     name: UF2 bootloader (Dachshund60F)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Install toolchain

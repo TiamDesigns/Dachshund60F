@@ -57,10 +57,17 @@ static uint32_t selftest_step;
 
 static struct led_rgb pixels[STRIP_LEN];
 
+/* Identify: every LED blinks until identify_end (uptime, ms). */
+#define IDENTIFY_BLINK_MS 250
+static int64_t identify_end;
+static bool identify_on;
+
 static void redraw(struct k_work *work);
 static void selftest_step_fn(struct k_work *work);
 static K_WORK_DEFINE(redraw_work, redraw);
 static K_WORK_DELAYABLE_DEFINE(selftest_work, selftest_step_fn);
+static void identify_fn(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(identify_work, identify_fn);
 
 static void set_power(bool on)
 {
@@ -112,6 +119,15 @@ static void redraw(struct k_work *work)
         pixels[i].g = out[i].g;
         pixels[i].b = out[i].b;
     }
+    if (identify_end != 0) {
+        /* Identify overrides everything: all LEDs blink a warm white. */
+        for (size_t i = 0; i < STRIP_LEN; i++) {
+            pixels[i] = (struct led_rgb){.r = identify_on ? SELFTEST_LEVEL : 0,
+                                         .g = identify_on ? SELFTEST_LEVEL * 3 / 4 : 0,
+                                         .b = identify_on ? SELFTEST_LEVEL / 2 : 0};
+        }
+        lit = identify_on;
+    }
     show(lit);
 }
 
@@ -136,6 +152,28 @@ static void selftest_step_fn(struct k_work *work)
 
     selftest_step++;
     k_work_schedule(&selftest_work, K_MSEC(SELFTEST_STEP_MS));
+}
+
+/* Runs on the system work queue, like redraw. */
+static void identify_fn(struct k_work *work)
+{
+    ARG_UNUSED(work);
+
+    if (identify_end != 0 && k_uptime_get() >= identify_end) {
+        identify_end = 0;
+        identify_on = false;
+    } else {
+        identify_on = !identify_on;
+        k_work_schedule(&identify_work, K_MSEC(IDENTIFY_BLINK_MS));
+    }
+    redraw(NULL);
+}
+
+void indicators_identify(uint8_t seconds)
+{
+    /* Written here, read on the work queue; a stale read only shifts the end by a blink. */
+    identify_end = k_uptime_get() + (int64_t)seconds * 1000;
+    k_work_reschedule(&identify_work, K_NO_WAIT);
 }
 
 static void changed(void)

@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include "kb/protocol_gen.h"
+
 /* Keyboard interface: the standard boot keyboard (HID 1.11, appendix B.1). */
 const uint8_t kb_hid_keyboard_desc[] = {
     0x05, 0x01,       /* Usage Page (Generic Desktop) */
@@ -86,6 +88,24 @@ const uint8_t kb_hid_extra_desc[] = {
     0xC0,                   /* End Collection */
 };
 const size_t kb_hid_extra_desc_len = sizeof(kb_hid_extra_desc);
+
+/* Config interface: vendor page, one input and one output report. */
+const uint8_t kb_hid_config_desc[] = {
+    0x06, KB_PROTO_HID_USAGE_PAGE & 0xFFu, KB_PROTO_HID_USAGE_PAGE >> 8, /* Usage Page (vendor) */
+    0x09, KB_PROTO_HID_USAGE, /* Usage */
+    0xA1, 0x01,               /* Collection (Application) */
+    0x15, 0x00,               /*   Logical Minimum (0) */
+    0x26, 0xFF, 0x00,         /*   Logical Maximum (255) */
+    0x75, 0x08,               /*   Report Size (8) */
+    0x95, KB_PROTO_REPORT_SIZE, /* Report Count */
+    0x09, 0x01,               /*   Usage (vendor 1) */
+    0x81, 0x02,               /*   Input (Data, Variable, Absolute): responses */
+    0x95, KB_PROTO_REPORT_SIZE, /* Report Count */
+    0x09, 0x02,               /*   Usage (vendor 2) */
+    0x91, 0x02,               /*   Output (Data, Variable, Absolute): requests */
+    0xC0,                     /* End Collection */
+};
+const size_t kb_hid_config_desc_len = sizeof(kb_hid_config_desc);
 
 /* Packers */
 

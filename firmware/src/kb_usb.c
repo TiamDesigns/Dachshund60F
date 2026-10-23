@@ -4,6 +4,8 @@
  *   output report.
  * - Extra: NKRO keyboard, consumer control and system control, with
  *   report IDs.
+ * - Config: the vendor-defined interface for the config protocol
+ *   (protocol/protocol.yaml), one 64-byte report each way.
  * Report descriptors and formats are in kb/hid.h; keyboard.c decides what
  * to send.
  *
@@ -30,6 +32,7 @@
 #include <app_version.h>
 
 #include "indicators.h"
+#include "kb/protocol_gen.h"
 #include "kb/version.h"
 #include "status_screen.h"
 
@@ -52,6 +55,9 @@ BUILD_ASSERT(DT_PROP(DT_NODELABEL(hid_kbd), in_report_size) == KB_HID_BOOT_REPOR
              "hid_kbd in-report-size must match the boot report");
 BUILD_ASSERT(DT_PROP(DT_NODELABEL(hid_extra), in_report_size) == KB_HID_EXTRA_REPORT_MAX,
              "hid_extra in-report-size must match the longest extra report");
+BUILD_ASSERT(DT_PROP(DT_NODELABEL(hid_config), in_report_size) == KB_PROTO_REPORT_SIZE &&
+                 DT_PROP(DT_NODELABEL(hid_config), out_report_size) == KB_PROTO_REPORT_SIZE,
+             "hid_config report sizes must match protocol.yaml");
 
 /*
  * One HID interface's outgoing reports. They wait in the queue while one
@@ -61,7 +67,7 @@ BUILD_ASSERT(DT_PROP(DT_NODELABEL(hid_extra), in_report_size) == KB_HID_EXTRA_RE
  */
 struct report_msg {
     uint8_t len;
-    uint8_t data[KB_HID_EXTRA_REPORT_MAX];
+    uint8_t data[KB_PROTO_REPORT_SIZE];
 };
 
 struct hid_pipe {
@@ -69,12 +75,13 @@ struct hid_pipe {
     struct k_msgq *queue;
     atomic_t ready;
     atomic_t busy;
-    uint8_t tx[KB_HID_EXTRA_REPORT_MAX] __aligned(sizeof(void *));
+    uint8_t tx[KB_PROTO_REPORT_SIZE] __aligned(sizeof(void *));
 };
 
 #define QUEUE_LEN 16
 K_MSGQ_DEFINE(kbd_queue, sizeof(struct report_msg), QUEUE_LEN, 1);
 K_MSGQ_DEFINE(extra_queue, sizeof(struct report_msg), QUEUE_LEN, 1);
+K_MSGQ_DEFINE(config_queue, sizeof(struct report_msg), 4, 1);
 
 static struct hid_pipe kbd_pipe = {
     .dev = DEVICE_DT_GET(DT_NODELABEL(hid_kbd)),
@@ -84,6 +91,11 @@ static struct hid_pipe extra_pipe = {
     .dev = DEVICE_DT_GET(DT_NODELABEL(hid_extra)),
     .queue = &extra_queue,
 };
+static struct hid_pipe config_pipe = {
+    .dev = DEVICE_DT_GET(DT_NODELABEL(hid_config)),
+    .queue = &config_queue,
+};
+static kb_usb_config_rx_fn config_rx;
 
 static atomic_t suspended;
 static atomic_t wake_requested;
@@ -129,12 +141,17 @@ static void pipe_reset(struct hid_pipe *p, bool ready)
     atomic_set(&p->ready, ready);
     k_msgq_purge(p->queue);
     atomic_set(&p->busy, 0);
-    atomic_set(&resync, 1);
+    if (p != &config_pipe) {
+        atomic_set(&resync, 1);
+    }
 }
 
 static struct hid_pipe *pipe_of(const struct device *dev)
 {
-    return dev == kbd_pipe.dev ? &kbd_pipe : &extra_pipe;
+    if (dev == kbd_pipe.dev) {
+        return &kbd_pipe;
+    }
+    return dev == extra_pipe.dev ? &extra_pipe : &config_pipe;
 }
 
 /* Callbacks shared by both interfaces */
@@ -159,7 +176,8 @@ static void iface_ready(const struct device *dev, const bool ready)
         status_screen_set_transport(ready ? KB_TRANSPORT_USB : KB_TRANSPORT_NONE, 0);
         LOG_INF("keyboard interface %s", ready ? "ready" : "not ready");
     } else {
-        LOG_INF("extra interface %s", ready ? "ready" : "not ready");
+        LOG_INF("%s interface %s", p == &extra_pipe ? "extra" : "config",
+                ready ? "ready" : "not ready");
     }
 }
 
@@ -265,6 +283,56 @@ static const struct hid_device_ops kbd_ops = {
 static const struct hid_device_ops extra_ops = {
     .iface_ready = iface_ready,
     .get_report = get_report,
+    .input_report_done = input_report_done,
+};
+
+/* Config interface: requests arrive as output reports. */
+
+static void config_request(const uint8_t *buf, uint16_t len)
+{
+    kb_usb_config_rx_fn rx = config_rx;
+    if (rx) {
+        rx(buf, MIN(len, KB_PROTO_REPORT_SIZE));
+    }
+}
+
+static void config_output_report(const struct device *dev, const uint16_t len,
+                                 const uint8_t *const buf)
+{
+    ARG_UNUSED(dev);
+    config_request(buf, len);
+}
+
+static int config_set_report(const struct device *dev, const uint8_t type, const uint8_t id,
+                             const uint16_t len, const uint8_t *const buf)
+{
+    ARG_UNUSED(dev);
+    ARG_UNUSED(id);
+
+    /* Some hosts send output reports over the control pipe. */
+    if (type != HID_REPORT_TYPE_OUTPUT) {
+        return -ENOTSUP;
+    }
+    config_request(buf, len);
+    return 0;
+}
+
+static int config_get_report(const struct device *dev, const uint8_t type, const uint8_t id,
+                             const uint16_t len, uint8_t *const buf)
+{
+    ARG_UNUSED(dev);
+    ARG_UNUSED(type);
+    ARG_UNUSED(id);
+    ARG_UNUSED(len);
+    ARG_UNUSED(buf);
+    return -ENOTSUP;
+}
+
+static const struct hid_device_ops config_ops = {
+    .iface_ready = iface_ready,
+    .get_report = config_get_report,
+    .set_report = config_set_report,
+    .output_report = config_output_report,
     .input_report_done = input_report_done,
 };
 
@@ -380,6 +448,27 @@ int kb_usb_send(enum kb_hid_report report, const uint8_t *data, size_t len)
     return 0;
 }
 
+void kb_usb_set_config_rx(kb_usb_config_rx_fn rx)
+{
+    config_rx = rx;
+}
+
+int kb_usb_send_config(const uint8_t frame[KB_PROTO_REPORT_SIZE])
+{
+    if (!atomic_get(&config_pipe.ready) || atomic_get(&suspended)) {
+        return -EAGAIN;
+    }
+
+    struct report_msg msg = {.len = KB_PROTO_REPORT_SIZE};
+    memcpy(msg.data, frame, KB_PROTO_REPORT_SIZE);
+    if (k_msgq_put(config_pipe.queue, &msg, K_NO_WAIT) != 0) {
+        /* The host sends one request at a time, so this means it stopped reading. */
+        return -ENOBUFS;
+    }
+    pipe_submit_next(&config_pipe);
+    return 0;
+}
+
 bool kb_usb_boot_protocol(void)
 {
     return atomic_get(&boot_protocol) != 0;
@@ -414,6 +503,8 @@ int kb_usb_init(void)
     err = register_hid(&kbd_pipe, kb_hid_keyboard_desc, kb_hid_keyboard_desc_len, &kbd_ops);
     err = err ? err
               : register_hid(&extra_pipe, kb_hid_extra_desc, kb_hid_extra_desc_len, &extra_ops);
+    err = err ? err
+              : register_hid(&config_pipe, kb_hid_config_desc, kb_hid_config_desc_len, &config_ops);
     if (err) {
         return err;
     }

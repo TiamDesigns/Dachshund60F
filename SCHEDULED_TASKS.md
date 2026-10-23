@@ -10,7 +10,6 @@ Last updated: 2026-10-23.
 
 ## Firmware and app, testable before boards arrive (in phase order)
 
-- **Phase 5: protocol v1.** `protocol/protocol.yaml`, code generators, the firmware parser and vendor HID interface, and parser fuzzing in CI.
 - **Phase 6: persistence.** Versioned, CRC-checked, wear-levelled settings with defaults, factory reset and migration, tested against a simulated flash.
 - **Phase 7: host library.** hidapi and WebHID transports, hotplug, request/response matching, version negotiation; round-trip tests against the mock and against the core built for the host.
 - **Phase 8: Doghouse MVP on host-lib.** Wire the existing app to the real typed API.
