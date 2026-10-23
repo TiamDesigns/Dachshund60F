@@ -420,7 +420,8 @@ About a third of this plan can run on the day the boards arrive. The rest waits 
 | Phase 4: NKRO, consumer keys, lock LEDs, suspend and remote wakeup | On main (PR #13) | Rollover, boot fallback, media keys, lock LEDs, suspend and wake |
 | Phase 5: config protocol v1 on a vendor HID interface | Done, in review | Config interface |
 | Phase 6: persistence (keymap and settings in flash) | Done, in review | Settings survive power-off |
-| Phases 7–8: host transports, GUI on hardware | Not started (Doghouse runs against mock boards only) | Smoke test, matrix test mode, Doghouse key tester |
+| Phase 7: host library (WebHID and node-hid transports, typed board API) | Done, in review; tested against the host-built firmware only | Config interface (from a script) |
+| Phase 8: Doghouse on hardware | Not started (Doghouse runs against mock boards only) | Smoke test, matrix test mode, Doghouse key tester |
 | Phase 9: encoder driver | Not started; pins sit in `zephyr,user` | Encoder rotation tests |
 | Phase 10: indicator colours | Not started | Lock LED colours, per-colour LED current |
 | Phase 12: BLE | Not started | All BLE tests, LFXO confirmation |

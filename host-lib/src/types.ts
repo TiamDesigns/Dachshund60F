@@ -1,9 +1,9 @@
 /**
  * Typed board API shared by every transport (mock, hidapi, WebHID).
  *
- * The GUI talks only to these types; no raw protocol bytes leak out. Real
- * transports will implement Board on top of the bindings generated from
- * protocol/protocol.yaml (phases 5 and 7).
+ * The GUI talks only to these types; no raw protocol bytes leak out. HidBoard
+ * (hid-board.ts) implements Board over the config protocol for real boards;
+ * MockBoard (mock.ts) simulates one.
  */
 
 /** How the host reaches the board. */
@@ -24,6 +24,11 @@ export interface BoardInfo {
   firmwareVersion: string;
   protocolVersion: number;
   layerCount: number;
+  /**
+   * What the board's firmware can do, by protocol capability name (e.g.
+   * "keymap", "persistence"). Absent on the mock, which can do everything.
+   */
+  capabilities?: readonly string[];
 }
 
 export interface BoardSettings {
@@ -79,13 +84,17 @@ export type BoardEvent =
   | { type: "reverted" }
   | { type: "disconnected" };
 
-/** Error codes from SPEC.md's protocol error list. */
+/** Error codes from SPEC.md's protocol error list, plus transport failures. */
 export type BoardErrorCode =
   | "out-of-range"
   | "invalid-value"
   | "busy"
   | "storage-full"
+  | "storage-error"
   | "version-mismatch"
+  | "not-supported"
+  | "timeout"
+  | "protocol-error"
   | "disconnected";
 
 export class BoardError extends Error {

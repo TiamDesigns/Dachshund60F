@@ -42,3 +42,9 @@ kb_add_test(test_screen)
 kb_add_test(test_settings)
 kb_add_test(test_store)
 kb_add_test(test_version)
+
+# The config protocol over stdin/stdout with the firmware's default keymap
+# and a simulated flash; host-lib's round-trip test runs it.
+add_executable(kb_host_device tests/kb_host_device.c ${CMAKE_CURRENT_SOURCE_DIR}/../src/default_keymap.c)
+target_link_libraries(kb_host_device PRIVATE kb_core)
+target_include_directories(kb_host_device PRIVATE tests ${CMAKE_CURRENT_SOURCE_DIR}/../src)

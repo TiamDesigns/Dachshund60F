@@ -14,7 +14,9 @@ interface, plus the generator that turns it into firmware (C) and host
       python protocol/gen/gen.py
 
   It writes `firmware/core/include/kb/protocol_gen.h`,
-  `firmware/core/src/protocol_gen.c` and `host-lib/src/protocol.gen.ts`.
+  `firmware/core/src/protocol_gen.c` and `host-lib/src/protocol.gen.ts`,
+  and `host-lib/src/keycodes.gen.ts` from the keycode numbers in
+  `firmware/core/include/kb/keycodes.h`.
   Never edit those by hand. CI runs `python protocol/gen/gen.py --check` and
   fails if they don't match `protocol.yaml`.
 

@@ -41,7 +41,7 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - First-time bootloader flash: program that hex over the SWD header with a chip erase (`nrfutil device program --firmware <hex> --options chip_erase_mode=ERASE_ALL`, or pyocd/J-Link). Steps and checks are in `boards/Dachshund60F/bootloader/README.md`.
 - Debug logs: SEGGER RTT over SWD (the board has no UART). Release builds have none.
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
-- Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`
+- Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`. The round-trip tests against the host-built firmware need `kb_host_device`: build the core first (above); they're skipped without it, unless `KB_HOST_DEVICE` names the binary, as in CI.
 - Regenerate the protocol bindings after editing `protocol/protocol.yaml`: `python protocol/gen/gen.py` (needs PyYAML, which NCS has). CI fails if the generated files are stale (`--check`).
 - Fuzz the protocol parser (Linux, clang): `cd firmware/core && clang -g -O1 -fsanitize=fuzzer,address,undefined -Iinclude -Itests fuzz/fuzz_protocol.c src/*.c -o fuzz_protocol && ./fuzz_protocol -max_total_time=60 corpus`. A deterministic random-frame test (`test_protocol_fuzz`) also runs with the core tests.
 - Export STEP models of every board for case design: `python hardware/export_step.py` (writes `hardware/step/`, which is committed so the files reach every device; commit a fresh export when you want a snapshot; needs KiCad 10's `kicad-cli`)
