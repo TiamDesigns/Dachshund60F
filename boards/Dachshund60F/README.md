@@ -98,10 +98,10 @@ switch footprints and wire them to the same diode.
   is in. On USB, VDDH reads the USB rail, not the battery.
 - **GPIO voltage:** set REGOUT0 to 3.3 V (UICR). The default is 1.8 V, too low
   to drive the SK6812 data input.
-- **LED supply:** power the SK6812s from the battery or system rail through the
-  load switch, not from 5 V VBUS. At 5 V their input-high threshold (0.7 × VDD)
-  is above 3.3 V logic. If you want 5 V, add a level shifter such as a
-  74AHCT1G125.
+- **LED supply:** the SK6812s run from VSYS through the load switch, which is
+  about 4.7 V on USB. Their input-high threshold (0.7 × VDD) is then about
+  3.3 V, so the data line goes through an SN74LV1T34 buffer powered from
+  LED_VDD. Its TTL-level input reads 3.3 V logic at any LED voltage.
 - **Encoder:** Bourns PEC12R-4220F-S0024, horizontal shaft, with a wide
   roller so it turns like a mouse wheel. A/B go to GPIO and C to GND, with
   10 nF from each of A and B to GND. Its body sits just past the 16u key

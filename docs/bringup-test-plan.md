@@ -97,6 +97,7 @@ Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other,
 | Q1 body diode | Diode test, red on VBAT_SW (Q1 drain), black on VSYS (C4) | About 0.5–0.7 V forward, open the other way |
 | D8 power-path Schottky | Diode test, red on VBUS (C1), black on VSYS (C4) | About 0.15–0.3 V forward, open the other way |
 | Gate pull-down R3 | Across R3 | 100 kΩ |
+| LED data buffer U4 | U1 P0.06 to U4 pin 2; U4 pin 4 to D3 DIN (pin 2) | Under 1 Ω each, and P0.06 not connected straight to D3 |
 | +3V3 to GND | C6/C7 pads, J3-1 to J3-5, J4-1 to J4-2 | High |
 | LED_VDD to GND | C12 or any of C13–C18 | High |
 | PROG resistor R1 | Across R1 | 2.0 kΩ (sets 500 mA charge current) |
@@ -259,6 +260,7 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 | Display | Build with each panel overlay you own and connect it to J4 | Text, layer, locks and "USB" show; orientation fits the case | Main, with `-DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay` |
 | Battery reading | Firmware reads VDDH/5 via the SAADC with USB unplugged; compare against the DMM on J2 at 3.0, 3.7, 4.2 V | Within ±50 mV after calibration (Q1 drops a few mV) | Phase 13 |
 | Power path | Plug and unplug USB on battery while typing; then USB with no battery, switch off | No reset or dropped keys at either transition; runs from USB alone | Any |
+| LEDs on USB | LED walk with USB in and no battery (LED_VDD about 4.7 V); scope U4 pin 4 | Correct colours, no flicker; U4 output swings to LED_VDD | Phase 2 |
 | Charge status | P0.15 read in firmware, with and without USB | Charging shown while STAT is low | Phase 13 |
 | BLE | Pair with a phone and a PC; type; switch between 3 profiles | Connects, types, switches, reconnects after power cycle | Phase 12 |
 | Config protocol | Doghouse connects over USB, reads and writes a key, saves, power-cycles, reads back | SPEC's hardware-in-the-loop smoke test passes | Phases 5–8 |
