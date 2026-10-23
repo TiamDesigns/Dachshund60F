@@ -42,7 +42,7 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
 - Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`
 - Run the GUI against the mock device: `cd app && npm install && npm run dev`, then open http://localhost:5173. Check, test and build with `npm run check`, `npm test` and `npm run build`.
-- CI: `.github/workflows/ci.yml` runs core tests, host-lib tests, the Doghouse app (check, test, build), and debug and release firmware builds
+- CI: `.github/workflows/ci.yml` runs core tests, host-lib tests, the Doghouse app (check, test, build), and debug and release firmware builds. It runs on pull requests and on pushes to `main`, so a branch gets CI once it has a PR (or from the Actions tab with "Run workflow").
 
 ## Hard rules
 
