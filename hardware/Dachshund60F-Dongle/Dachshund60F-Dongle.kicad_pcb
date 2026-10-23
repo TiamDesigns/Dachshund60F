@@ -3510,7 +3510,7 @@
 			(uuid "80cfc4ad-8ffb-426a-a0b2-e403d676f63d")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_Avago_PLCC4_3.2x2.8mm_CW.step"
+		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_RGB_Wuerth-PLCC4_3.2x2.8mm_150141M173100.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -5013,15 +5013,15 @@
 			(uuid "11f46b19-87a1-4709-95e9-b6bc63a5255f")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Connector_USB.3dshapes/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"
+		(model "${KIPRJMOD}/../3dmodels/USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 3.65 1.63)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz 90 0 0)
 			)
 		)
 	)

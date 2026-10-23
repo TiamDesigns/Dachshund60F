@@ -750,6 +750,28 @@
 			(uuid "8121955d-0921-489c-8a1c-e7a1cfb982c3")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.25u"
 		(layer "F.Cu")
@@ -1414,6 +1436,28 @@
 			(uuid "2bd734fc-5b98-45b4-860d-48da088ddfcd")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -2078,6 +2122,28 @@
 			(uuid "6160fffc-41b5-4cb2-b263-fe540d9b909a")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -2742,6 +2808,28 @@
 			(uuid "8d667283-2174-4449-9560-45e4b2e132d8")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.25u"
 		(layer "F.Cu")
@@ -3406,6 +3494,28 @@
 			(uuid "23475c64-27b3-401f-a966-10181f377415")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -4070,6 +4180,28 @@
 			(uuid "a4d51ec8-1da4-45a7-989f-bdf289cd3967")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -4734,6 +4866,28 @@
 			(uuid "3a03fb65-64d0-42da-870c-9ffcb296dddd")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -5398,6 +5552,28 @@
 			(uuid "453b5b5b-b1ab-4798-ab62-7d8b2c785852")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -6062,6 +6238,28 @@
 			(uuid "a01edf01-1d11-4961-8bfa-784a88b846b1")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical"
 		(layer "F.Cu")
@@ -6335,15 +6533,15 @@
 		)
 		(embedded_fonts no)
 		(model "${KICAD10_3DMODEL_DIR}/Connector_PinHeader_2.54mm.3dshapes/PinHeader_1x08_P2.54mm_Vertical.step"
-			(offset
-				(xyz 0 0 0)
-			)
-			(scale
-				(xyz 1 1 1)
-			)
-			(rotate
-				(xyz 0 0 0)
-			)
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
 		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_2.25u"
@@ -7009,6 +7207,28 @@
 			(uuid "61c28451-02fe-4d22-88b4-086c2e99038c")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -7673,6 +7893,28 @@
 			(uuid "24e0ab3a-1829-4c37-ad29-21d745dd6acf")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Rotary_Encoder:RotaryEncoder_Bourns_Horizontal_PEC12R-2x17F-Sxxxx"
 		(layer "F.Cu")
@@ -8394,6 +8636,39 @@
 			(uuid "425a6610-f237-4077-ab7e-06046d5b7e74")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R_Horizontal_standin_body.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
+		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R_Horizontal_standin_bushing.step"
+			(offset
+				(xyz -2.5 -2.5 6.7)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 90 0)
+			)
+		)
+		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R_Horizontal_standin_shaft.step"
+			(offset
+				(xyz -7.5 -2.5 6.7)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 90 0)
+			)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -9058,6 +9333,28 @@
 			(uuid "b38c7cd8-41db-44ec-b911-cee74cae09b6")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.50u"
 		(layer "F.Cu")
@@ -9722,6 +10019,28 @@
 			(uuid "662bf60a-9a9b-4984-af1b-a8036d0720c2")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -10386,6 +10705,28 @@
 			(uuid "9267e5ce-e3d3-4992-8701-fffb232c4f85")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -11050,6 +11391,28 @@
 			(uuid "9c1e9d92-732b-4562-beae-d34b21e72279")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.25u"
 		(layer "F.Cu")
@@ -11714,6 +12077,28 @@
 			(uuid "819bf8c1-6f51-4f38-abe0-41b159d14c5e")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -12378,6 +12763,28 @@
 			(uuid "962ecb98-0768-4d4b-aa2c-e9ad1fa17a14")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -13042,6 +13449,28 @@
 			(uuid "29604642-0e64-4458-a397-3ee2ee8f37a9")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:Stabilizer_Cherry_MX_2.00u"
 		(layer "F.Cu")
@@ -13238,6 +13667,17 @@
 			(uuid "55063c40-2587-4cde-9899-df9f1523720f")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/Stabilizer_Cherry_MX_2.00u.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -13902,6 +14342,28 @@
 			(uuid "e8b947e6-544d-4835-b608-18cf724c5795")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -14566,6 +15028,28 @@
 			(uuid "b3081686-cf11-4c4b-b3b8-9c5694e1258c")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -15230,6 +15714,28 @@
 			(uuid "d0eb869c-21c9-4eab-9180-b0222b3036d1")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -15894,6 +16400,28 @@
 			(uuid "8e35d4bf-fc71-4f83-b256-216b4987b7ae")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -16558,6 +17086,28 @@
 			(uuid "d28a4006-beb5-4445-9751-0087b05683bc")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -17222,6 +17772,28 @@
 			(uuid "3c7175d7-f148-4ef3-8b6b-afd915c6d1a0")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:Stabilizer_Cherry_MX_2.00u"
 		(layer "F.Cu")
@@ -17418,6 +17990,17 @@
 			(uuid "85f95806-028a-4aa3-ae8f-6e602ed3187c")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/Stabilizer_Cherry_MX_2.00u.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_2.25u"
 		(layer "F.Cu")
@@ -18082,6 +18665,28 @@
 			(uuid "834d5a21-1cda-443f-8cce-cc30ea73cf09")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.25u"
 		(layer "F.Cu")
@@ -18746,6 +19351,28 @@
 			(uuid "aab0af2c-4faf-4bf8-a010-55ce7aee7dcb")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -19410,6 +20037,28 @@
 			(uuid "7e095cf7-e50d-4be9-b2c2-6260028d5f4f")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -20074,6 +20723,28 @@
 			(uuid "c587ba9d-da25-430e-8b62-00fbe3bc69fa")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:Stabilizer_Cherry_MX_2.00u"
 		(layer "F.Cu")
@@ -20270,6 +20941,17 @@
 			(uuid "46d876b5-c54a-46c0-b60d-d6d310588fa2")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/Stabilizer_Cherry_MX_2.00u.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -20934,6 +21616,28 @@
 			(uuid "023d9c2b-dd34-4158-a0c3-8bb7c9ce93ce")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -21598,6 +22302,28 @@
 			(uuid "2a55b39a-5d75-4b66-a904-85553968d495")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -22262,6 +22988,28 @@
 			(uuid "95c2e0e0-8e0b-40ea-a416-a80d9acbb6d9")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -22926,6 +23674,28 @@
 			(uuid "b6c4770a-dd01-4e62-b27f-6884205f4341")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -23590,6 +24360,28 @@
 			(uuid "7a2cbac7-2cf0-42db-9ff6-1de5e4abb984")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:Stabilizer_Cherry_MX_2.00u"
 		(layer "F.Cu")
@@ -23786,6 +24578,17 @@
 			(uuid "ac459784-a6da-4d63-9ab1-b2ed7c2a2030")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/Stabilizer_Cherry_MX_2.00u.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -24450,6 +25253,28 @@
 			(uuid "b35493d5-b97f-4244-8932-c15ed97b2ac4")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -25114,6 +25939,28 @@
 			(uuid "44248de3-0766-44c5-b97b-965127671beb")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -25778,6 +26625,28 @@
 			(uuid "d4de4fb1-a086-4b97-b0c8-067951440e25")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_2.00u"
 		(layer "F.Cu")
@@ -26442,6 +27311,28 @@
 			(uuid "62e2ad31-8c73-4c3e-807d-05ffb456e0cf")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -27106,6 +27997,28 @@
 			(uuid "8e92290d-9c4b-426a-a4f5-ce25388b9503")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Button_Switch_Keyboard:SW_Cherry_MX_2.75u_Plate"
 		(layer "F.Cu")
@@ -27358,6 +28271,17 @@
 			(uuid "09e06237-72af-4675-8a77-378bd8c28166")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_Plate.stp"
+			(offset
+				(xyz -2.54 -5.08 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -28022,6 +28946,28 @@
 			(uuid "08787db6-7b0f-40fb-985c-be70fc491bd0")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -28686,6 +29632,28 @@
 			(uuid "2e8692c8-f0ce-4a74-85bc-cbffdd885442")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -29350,6 +30318,28 @@
 			(uuid "9c41c4b2-32d1-4ac2-b9a4-7f4c9bc1ab5a")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -30014,6 +31004,28 @@
 			(uuid "05387b87-b325-4a19-a6e0-a8e6781926b9")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -30678,6 +31690,28 @@
 			(uuid "39a081f0-ee22-4a26-b451-395ae13a0428")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -31342,6 +32376,28 @@
 			(uuid "0866d6f7-5e0d-4b58-9384-582a77508fda")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.75u"
 		(layer "F.Cu")
@@ -32006,6 +33062,28 @@
 			(uuid "54a97809-e4bd-4bce-81b7-27cc2f0034f9")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.25u"
 		(layer "F.Cu")
@@ -32670,6 +33748,28 @@
 			(uuid "c2b8b6f3-a56f-46d9-ab24-8fb4050261a7")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -33334,6 +34434,28 @@
 			(uuid "93529dcd-921d-4e0c-96d6-249701c2b8cd")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.50u"
 		(layer "F.Cu")
@@ -33998,6 +35120,28 @@
 			(uuid "a3b821ce-5272-4dc2-a324-0d1a82a1fec5")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -34662,6 +35806,28 @@
 			(uuid "4fb1a55f-dc03-4cc5-9014-cf5c58fcca0e")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -35326,6 +36492,28 @@
 			(uuid "e9f8f840-0841-4338-a21d-1e552cc46889")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -35990,6 +37178,28 @@
 			(uuid "157e2cd4-98a9-4dc2-b44f-dd2161371c09")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Button_Switch_Keyboard:SW_Cherry_MX_6.25u_Plate"
 		(layer "F.Cu")
@@ -36242,6 +37452,17 @@
 			(uuid "a9ae8ae3-1a11-43c5-b6fb-4e261fb97df7")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_Plate.stp"
+			(offset
+				(xyz -2.54 -5.08 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -36906,6 +38127,28 @@
 			(uuid "3eb0a431-b948-4656-bc1c-efdd1352b176")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -37570,6 +38813,28 @@
 			(uuid "9ada886e-abbf-423a-aad5-7ca884092cca")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -38234,6 +39499,28 @@
 			(uuid "ee60cc35-2996-4cf1-9a0e-c203a22b397e")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -38898,6 +40185,28 @@
 			(uuid "1708ad33-d449-495b-96ec-1805b8043be1")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -39562,6 +40871,28 @@
 			(uuid "d4458993-106d-40a6-8da0-0475b8c8d7c2")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -40226,6 +41557,28 @@
 			(uuid "9cf3848f-5eb5-4138-b692-567e67b8a2cf")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -40890,6 +42243,28 @@
 			(uuid "a70373f0-871f-40f5-9489-41fe68765fff")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -41554,6 +42929,28 @@
 			(uuid "20bac728-2344-4b6b-afd8-5343d6072c00")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -42218,6 +43615,28 @@
 			(uuid "73cf60b8-7d7d-438b-99f3-1e06c0196bd7")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -42882,6 +44301,28 @@
 			(uuid "4a245ffb-7323-4e54-8401-6613ee1973e6")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -43546,6 +44987,28 @@
 			(uuid "e1ae7043-f747-4307-9438-2496a78a7194")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -44210,6 +45673,28 @@
 			(uuid "e5fd9d13-b09f-437a-b1ed-42dba38ebd31")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -44874,6 +46359,28 @@
 			(uuid "2582f768-4011-46dc-ac74-41b663e3e50e")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:Stabilizer_Cherry_MX_6.25u"
 		(layer "F.Cu")
@@ -45070,6 +46577,17 @@
 			(uuid "8c54e0dd-7224-4ee5-a6c9-ca9e38d71fc2")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/Stabilizer_Cherry_MX_6.25u.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -45734,6 +47252,28 @@
 			(uuid "197a1a03-2b29-4a6d-84fc-cc5b9c47ab79")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -46398,6 +47938,28 @@
 			(uuid "91d1676c-0031-44c9-a2e2-eb144647cc9f")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Button_Switch_Keyboard:SW_Cherry_MX_1.25u_Plate"
 		(layer "F.Cu")
@@ -46650,6 +48212,17 @@
 			(uuid "03bb2bee-f79b-48b9-a631-a8f5b3d242b6")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_Plate.stp"
+			(offset
+				(xyz -2.54 -5.08 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.75u"
 		(layer "F.Cu")
@@ -47314,6 +48887,28 @@
 			(uuid "306986ce-1d05-446c-bc70-2529cc478eeb")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -47978,6 +49573,28 @@
 			(uuid "cd5e106f-4ed0-424f-bb11-98dca20faeac")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -48642,6 +50259,28 @@
 			(uuid "50874792-5291-406b-82c5-e87558cd438e")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -49306,6 +50945,28 @@
 			(uuid "5fb4e623-d4c3-4843-ab01-4b59f1caab05")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -49970,6 +51631,28 @@
 			(uuid "ddb75ef3-f847-4cd9-a7ab-3e4e65702828")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -50634,6 +52317,28 @@
 			(uuid "828c2311-43d0-4cad-9c55-8db51cc68205")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_2.25u"
 		(layer "F.Cu")
@@ -51298,6 +53003,28 @@
 			(uuid "02d4868b-ea76-44c5-8d96-3ab36ffb88f0")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -51962,6 +53689,28 @@
 			(uuid "d8eb6333-0248-49b2-89da-887aad4d4b16")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -52626,6 +54375,28 @@
 			(uuid "4f0f7ad3-bc77-4d4d-afc3-b7390ceceb51")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:Stabilizer_Cherry_MX_2.00u"
 		(layer "F.Cu")
@@ -52822,6 +54593,17 @@
 			(uuid "26d80584-e150-44dd-92c2-9fb4b6b58802")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/Stabilizer_Cherry_MX_2.00u.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -53486,6 +55268,28 @@
 			(uuid "882255f9-eeb2-41e3-895d-74833bfd7b7b")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 		(layer "F.Cu")
@@ -54150,6 +55954,28 @@
 			(uuid "d99814c0-4964-4ac2-8497-c4781f8c04bd")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Hotswap_Kailh_MX.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
+		(model "${KIPRJMOD}/lib/keyswitch.3dshapes/SW_Cherry_MX_PCB.stp"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -54418,6 +56244,17 @@
 			(uuid "cb671a48-ab6c-4e97-a48d-4acbc180b767")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -54686,6 +56523,17 @@
 			(uuid "fd1997ef-f5db-4d0c-86d1-af513df6dc9f")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -54954,6 +56802,17 @@
 			(uuid "514e027a-efc6-4f18-8816-6bd990cfbe09")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical"
 		(layer "B.Cu")
@@ -55212,6 +57071,17 @@
 			(uuid "7ce9e145-a387-46c7-a398-4cd6dbde79bc")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Connector_PinHeader_1.27mm.3dshapes/PinHeader_1x05_P1.27mm_Vertical.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -55342,6 +57212,17 @@
 			(uuid "20b51b55-dae6-453e-b6f8-ce4fd7d684e8")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -55610,6 +57491,17 @@
 			(uuid "a08e2c00-5b2b-4fe5-8c74-62f5d4b9048d")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -55878,6 +57770,17 @@
 			(uuid "aedc0f71-fab2-4def-bed0-4c7efc8c4f1b")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -56146,6 +58049,17 @@
 			(uuid "3fc28123-69ca-473f-8682-8c00c6458add")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0603_1608Metric"
 		(layer "B.Cu")
@@ -56276,6 +58190,17 @@
 			(uuid "d9170bc6-a70f-43f4-ba6d-2a67f50e8f11")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -56544,6 +58469,17 @@
 			(uuid "aea88570-857e-49ae-b8c3-15b1d60bef5d")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -56812,6 +58748,17 @@
 			(uuid "5e61729d-fbff-4444-ae01-5deccc40ad9f")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -57080,6 +59027,17 @@
 			(uuid "b7ad7fad-c3ee-4f74-be77-e95735fcf96c")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -57348,6 +59306,17 @@
 			(uuid "c23459b3-f7cd-443b-ab99-fa0b43f1b688")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -57616,6 +59585,17 @@
 			(uuid "1bc98ffe-a891-4b07-a789-8745130dbbc3")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -57884,6 +59864,17 @@
 			(uuid "964dc089-a584-48c4-a449-80cb5619fea9")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -58152,6 +60143,17 @@
 			(uuid "2d88f87c-9d3d-4aec-9784-0e306b87222c")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -58420,6 +60422,17 @@
 			(uuid "861887b9-e08f-41c1-8c8c-36047c75bbf0")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -58688,6 +60701,17 @@
 			(uuid "69d4d0ac-5da1-4ed2-8a20-4a8dfe8b55d4")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -58819,6 +60843,17 @@
 			(uuid "020c22c0-af9a-4a1e-96dc-a9258f30eabf")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -59087,6 +61122,17 @@
 			(uuid "1436c428-2d39-4973-b5e9-47fadfd13fe3")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -59355,6 +61401,17 @@
 			(uuid "8f68a927-d0d4-45ec-b7e6-5e73cf4d4392")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -59623,6 +61680,17 @@
 			(uuid "07a35e5a-8546-4b01-b810-3cbdcf25919a")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -59891,6 +61959,17 @@
 			(uuid "e661146d-30a4-465a-a25c-a4f072280ae7")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -60159,6 +62238,17 @@
 			(uuid "401011cf-98a5-4e50-a4ab-dd24d3adf23d")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -60427,6 +62517,17 @@
 			(uuid "4c0c1ff4-1bf5-4518-9fa3-238c958bb31b")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -60557,6 +62658,17 @@
 			(uuid "4f8ecee0-de38-4993-9d6b-21dcd6ab08d8")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -60825,6 +62937,17 @@
 			(uuid "d9a54780-7854-4384-932d-b57445f726e5")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -60955,6 +63078,17 @@
 			(uuid "c52da5ac-5364-4a5a-a3ea-02db6f86bf09")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Button_Switch_SMD:SW_SPST_TL3342"
 		(layer "B.Cu")
@@ -61506,6 +63640,17 @@
 			(uuid "57332213-8054-42e4-b8ee-c3adc10a7d65")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPST_TL3342.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0603_1608Metric"
 		(layer "B.Cu")
@@ -61636,6 +63781,17 @@
 			(uuid "3de16b85-ef79-4aa2-8626-1c93f19c8fd0")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -61904,6 +64060,17 @@
 			(uuid "483d5d52-11cf-414e-ab6b-f6cb4de4cae1")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -62172,6 +64339,17 @@
 			(uuid "6413e9d9-21c1-48cd-9c63-05f33ab5d34e")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -62440,6 +64618,17 @@
 			(uuid "d1094203-524d-41ed-8b5b-d044ad74030e")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 		(layer "B.Cu")
@@ -62722,6 +64911,17 @@
 			(uuid "36bcca7d-d67a-4e08-b412-68a1eeb7dac4")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz -0 -0 -0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -62990,6 +65190,17 @@
 			(uuid "a0c8ecc2-9092-422e-a8f6-95fc262248c2")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -63258,6 +65469,17 @@
 			(uuid "cf19cc1e-5979-474f-b01c-fc6cfb8e54be")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -63526,6 +65748,17 @@
 			(uuid "69598caf-ff45-46ca-a6b5-4b981001544c")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -63794,6 +66027,17 @@
 			(uuid "207ba94a-0874-4dde-b74d-adac887821d9")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -64062,6 +66306,17 @@
 			(uuid "f93838bb-1a70-46cf-9eb9-01d322c7f6d8")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -64192,6 +66447,17 @@
 			(uuid "e80c62f0-8302-4c80-83c3-e975ed1958c5")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -64460,6 +66726,17 @@
 			(uuid "ee96c452-b3ac-458d-befc-469ee8bbbc67")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -64728,6 +67005,17 @@
 			(uuid "6b5ef4f1-345b-486f-bca9-dc8581c2a83c")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-323"
 		(layer "B.Cu")
@@ -64986,6 +67274,17 @@
 			(uuid "059e6727-4453-4657-8d40-a3743d455b88")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-323.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -65116,6 +67415,17 @@
 			(uuid "3ca5bc04-99f6-4953-a865-ae6042910b87")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -65384,6 +67694,17 @@
 			(uuid "989572f6-2dfe-4552-adeb-b0ce33502b44")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -65652,6 +67973,17 @@
 			(uuid "0f412ff5-d911-4d18-acd8-f613e36fd9f2")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -65920,6 +68252,17 @@
 			(uuid "0065fa8d-5e76-4d68-bf4d-05d4388d6861")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -66188,6 +68531,17 @@
 			(uuid "6df58b86-3c3e-470b-898a-451332e19bce")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -66456,6 +68810,17 @@
 			(uuid "2e20fd02-4079-408f-a858-7b9cd93d0690")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 		(layer "B.Cu")
@@ -66738,6 +69103,17 @@
 			(uuid "bb37efd2-67e6-46e4-9931-d6828024c28b")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz -0 -0 -0)
+		)
+		)
 	)
 	(footprint "Resistor_SMD:R_0603_1608Metric"
 		(layer "B.Cu")
@@ -66868,6 +69244,17 @@
 			(uuid "8292003f-7eeb-4dd3-9433-c6617bb236da")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0603_1608Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -67136,6 +69523,17 @@
 			(uuid "566a7db9-f567-45f4-8f81-a0fa97caca19")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Crystal:Crystal_SMD_3215-2Pin_3.2x1.5mm"
 		(layer "B.Cu")
@@ -67323,6 +69721,17 @@
 			(uuid "b8f32096-a18f-4078-881b-1713607b340a")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Crystal.3dshapes/Crystal_SMD_3215-2Pin_3.2x1.5mm.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
 		(layer "B.Cu")
@@ -67723,6 +70132,17 @@
 			(uuid "fa1438e6-863b-4898-bf4a-a5932a04e3e7")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Connector_JST.3dshapes/JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Package_TO_SOT_SMD:SOT-23-6"
 		(layer "B.Cu")
@@ -68047,6 +70467,17 @@
 			(uuid "e60807c9-c898-459b-abe8-565cd28525a0")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-6.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -68315,6 +70746,17 @@
 			(uuid "626571a3-5d07-4454-90bf-0b40b1ed14e9")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -68583,6 +71025,17 @@
 			(uuid "37f303c2-f8ab-4383-9319-08f36abe68fc")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -68851,6 +71304,17 @@
 			(uuid "4eb88e64-04c4-4133-a8f9-d30e099fd8bc")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -69119,6 +71583,17 @@
 			(uuid "2393b6a0-38b8-4639-9ec8-68d293d20142")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0603_1608Metric"
 		(layer "B.Cu")
@@ -69250,6 +71725,17 @@
 			(uuid "495c3c8a-3fc3-4aa2-95dd-8dde5bf539e8")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -69518,6 +72004,17 @@
 			(uuid "728803cd-f0cf-4482-b054-146f59af0843")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -69786,6 +72283,17 @@
 			(uuid "c6de11e9-328c-4135-bfc3-edf8fca57fde")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -70054,6 +72562,17 @@
 			(uuid "78791b8c-9275-4d6b-ac92-d081e12f7f26")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -70322,6 +72841,17 @@
 			(uuid "6243ebc3-bdce-47f5-a90e-bf9c80b4f9a0")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -70590,6 +73120,17 @@
 			(uuid "709bf518-5b5b-4a44-98bc-5b95de021037")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -70858,6 +73399,17 @@
 			(uuid "9dddd334-b7a9-453d-af89-4aa71b46179c")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -70988,6 +73540,17 @@
 			(uuid "33efa908-537c-4f35-a1d6-d3d42b00a033")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -71119,6 +73682,17 @@
 			(uuid "7bb7738c-29d4-41a9-ae14-5eb0f10d4691")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 		(layer "B.Cu")
@@ -71401,6 +73975,17 @@
 			(uuid "9ae212b2-a70f-4e71-a211-e394a467931e")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz -0 -0 -0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0603_1608Metric"
 		(layer "B.Cu")
@@ -71532,6 +74117,17 @@
 			(uuid "d0c775c0-6325-4338-aee1-e0099456d4f3")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -71800,6 +74396,17 @@
 			(uuid "31e190b3-a550-41db-983f-a45c0d169f16")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -72068,6 +74675,17 @@
 			(uuid "c9668f4c-1036-478e-b461-b936d15a0e84")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -72336,6 +74954,17 @@
 			(uuid "f0436ffa-af7b-4588-beab-4897ac61ff18")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 		(layer "B.Cu")
@@ -72618,6 +75247,17 @@
 			(uuid "5e6fe064-26e1-4309-bf75-e184038b9450")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz -0 -0 -0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -72886,6 +75526,17 @@
 			(uuid "99491241-7fde-4c58-ac23-5fafd5e3bee9")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -73154,6 +75805,17 @@
 			(uuid "07b60d73-f492-45b3-8130-fd18a97313a1")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -73422,6 +76084,17 @@
 			(uuid "4282750d-0329-4253-a2ee-5590f76e8e44")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -73690,6 +76363,17 @@
 			(uuid "cd6a66e2-d60b-42f2-981f-9dceeb845916")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Package_TO_SOT_SMD:SOT-23-5"
 		(layer "B.Cu")
@@ -74056,6 +76740,17 @@
 			(uuid "d7b4b8df-827a-40af-943a-dba0b899d542")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Package_TO_SOT_SMD.3dshapes/SOT-23-5.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -74324,6 +77019,17 @@
 			(uuid "84fcf15a-8a90-482b-a9ad-dae99a384841")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -74592,6 +77298,17 @@
 			(uuid "adffdeed-92b0-4879-b52c-ffb8fb345118")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -74860,6 +77577,17 @@
 			(uuid "2bc2f850-535d-4a32-a0e7-a97697cb797a")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -75128,6 +77856,17 @@
 			(uuid "56f3ceeb-8f30-4a61-9e70-ffd1daaea82f")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -75259,6 +77998,17 @@
 			(uuid "dc2eb443-8d1c-4e19-8530-3c2d71b7b769")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal"
 		(layer "B.Cu")
@@ -75723,6 +78473,17 @@
 			(uuid "1af4c585-0c5d-4ec5-994f-25f3ae66b8f5")
 		)
 		(embedded_fonts no)
+		(model "${KIPRJMOD}/../3dmodels/JST_PH_S2B-PH-SM4-TB_standin.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -75991,6 +78752,17 @@
 			(uuid "114e8780-17c0-431c-a361-4eb08fbed391")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -76121,6 +78893,17 @@
 			(uuid "1479a6d1-91ee-489c-b04e-2b23227ab5ed")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -76389,6 +79172,17 @@
 			(uuid "3d575550-9566-405b-953e-097067b44b62")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -76657,6 +79451,17 @@
 			(uuid "1d7471e5-1d02-467b-89a1-2524f036f2f9")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -76925,6 +79730,17 @@
 			(uuid "54273d08-88d6-48c9-9836-6ddcb5378e07")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 		(layer "B.Cu")
@@ -77207,6 +80023,17 @@
 			(uuid "8b9f9e1a-136c-45f8-af1f-acd546edcbdd")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz -0 -0 -0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -77475,6 +80302,17 @@
 			(uuid "a67b6912-6640-4cd0-b148-13161742d156")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0603_1608Metric"
 		(layer "B.Cu")
@@ -77606,6 +80444,17 @@
 			(uuid "420f6dbd-6da8-424a-ba9c-b5e7b6b61b55")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0603_1608Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -77874,6 +80723,17 @@
 			(uuid "ebcc2b92-cc7c-494e-9b6e-cd46a7e694b7")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -78005,6 +80865,17 @@
 			(uuid "7b4075cd-64e0-4e57-b787-880a19be7a92")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "RF_Module:Raytac_MDBT50Q"
 		(layer "B.Cu")
@@ -78732,6 +81603,17 @@
 			(uuid "0d37bc1d-3e3d-4d55-b46b-3f0b2e3e4f15")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/RF_Module.3dshapes/Raytac_MDBT50Q.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -78862,6 +81744,17 @@
 			(uuid "0fdbfc1c-2f66-46ae-9862-f6bdcd16253c")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -79130,6 +82023,17 @@
 			(uuid "49fee390-e3aa-4730-b725-dd58d5b0a141")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Button_Switch_SMD:SW_SPDT_PCM12"
 		(layer "B.Cu")
@@ -79541,6 +82445,17 @@
 			(uuid "77640b96-9dff-4e6c-9544-9c31d00e6f0f")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Button_Switch_SMD.3dshapes/SW_SPDT_PCM12.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Capacitor_SMD:C_0402_1005Metric"
 		(layer "B.Cu")
@@ -79671,6 +82586,17 @@
 			(uuid "a8e49f3a-de06-43ff-8365-3f142ff767c9")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Capacitor_SMD.3dshapes/C_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -79939,6 +82865,17 @@
 			(uuid "52a6a4f9-11b8-467f-9cf0-843e78dc8f03")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -80207,6 +83144,17 @@
 			(uuid "78ccc752-6ac8-4450-9038-b6fe055c0719")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -80475,6 +83423,17 @@
 			(uuid "ae5c37a4-b1f9-4967-83bc-f21d1a18779d")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -80743,6 +83702,17 @@
 			(uuid "802eaabf-204e-4c46-b1ac-072f30e71fa8")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -81011,6 +83981,17 @@
 			(uuid "08199b91-420c-415f-a758-263b8e4d8acc")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -81279,6 +84260,17 @@
 			(uuid "9312b8be-4b8f-456b-893c-1539ad0c5811")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Resistor_SMD:R_0402_1005Metric"
 		(layer "B.Cu")
@@ -81409,6 +84401,17 @@
 			(uuid "047862da-f417-4551-bfab-8acc6e5874ae")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_0402_1005Metric.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -81677,6 +84680,17 @@
 			(uuid "212b99d2-3945-4673-bcac-9461e8dfd061")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -81945,6 +84959,17 @@
 			(uuid "ed1c348b-228a-4f62-80b0-9fcfc36d3958")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -82213,6 +85238,17 @@
 			(uuid "936ac49a-ea66-4e5c-953b-749127fa56da")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 		(layer "B.Cu")
@@ -82495,6 +85531,17 @@
 			(uuid "3b9022cd-41df-4298-864b-fcb387fd402e")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz -0 -0 -0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -82763,6 +85810,17 @@
 			(uuid "ce87d79e-f9c2-4a26-bf66-db22bc4b6de5")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -83031,6 +86089,17 @@
 			(uuid "de6d330c-ccda-477a-9936-e5a19b0b8ce5")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -83299,6 +86368,17 @@
 			(uuid "2b31f06c-2cc7-4b1c-bb0d-5175e289c65e")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -83567,6 +86647,17 @@
 			(uuid "a2dbf9ca-1f64-470d-b9d8-1f8a7d496f90")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(footprint "Diode_SMD:D_SOD-123"
 		(layer "B.Cu")
@@ -83835,6 +86926,17 @@
 			(uuid "c2c3b81b-76e6-49a4-9b03-f6ebd6457742")
 		)
 		(embedded_fonts no)
+		(model "${KICAD10_3DMODEL_DIR}/Diode_SMD.3dshapes/D_SOD-123.step"
+		(offset
+		(xyz 0 0 0)
+		)
+		(scale
+		(xyz 1 1 1)
+		)
+		(rotate
+		(xyz 0 0 0)
+		)
+		)
 	)
 	(gr_arc
 		(start 19 44)

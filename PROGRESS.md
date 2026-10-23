@@ -184,7 +184,7 @@ The USB-C port lives on its own board, `hardware/Dachshund60F-USB/` (KiCad 10, 2
 - Routing: Freerouting, with a 0.4 mm keep-out band inside the board edge. Power nets (VBUS, GND, SHIELD) are 0.4 mm. Both layers have a GND pour, with stitching vias.
 - Checks (kicad-cli): ERC 0 violations. DRC: 0 errors, 0 unconnected items, 0 schematic parity issues. Two warnings remain: the stock receptacle footprint draws silkscreen past the board edge, which the fab clips.
 - BOM fields: every part has an MPN, and LCSC numbers where checked (C165948, C160404, C7519, C25905). F1 and FB1 have no LCSC number yet.
-- KiCad's library has no 3D model for the HRO receptacle, so 3D renders and STEP exports show only its pads. Add the manufacturer's STEP before modelling the case cutout.
+- KiCad's library has no 3D model for the HRO receptacle. A dimensioned stand-in is used for now (see "3D models for case design").
 
 ### PCB: 2.4 GHz dongle (2026-10-23, merged to main in PR #1)
 
@@ -213,7 +213,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
   - A script checked every module pad and each GPIO's net through to its button, LED, SWD and USB pins against `board.json`: 0 mismatches.
 - Polling rate: **1000 Hz maximum.** The nRF52840 has full-speed USB only, which polls at most once per 1 ms frame. 4–8 kHz would need High-Speed USB, which means another receiver chip (for example the nRF54LM20A). That's out of v1 scope.
 - Estimated latency over the dongle, to be measured in phase 14: about 1 ms typical and about 2.5 ms worst case without retransmits, compared with 7.5–15 ms for BLE. The README lists the firmware settings this depends on: GPIO-sense wake, eager press debounce, ESB at 2 Mbit/s with fast ramp-up, HFXO kept on, BLE off in dongle mode, ACK payloads for host→keyboard data, and bInterval 1 on the dongle.
-- Not done: the case (light pipe, button caps, USB-C cutout; the M2 holes are placeholders), 3D models for the receptacle and LED, and a Zephyr board target for the dongle (phase 14).
+- Not done: the case (light pipe, button caps, USB-C cutout; the M2 holes are placeholders), the manufacturer's STEP for the receptacle (a stand-in is used for now), and a Zephyr board target for the dongle (phase 14).
 
 ### Plate: FR4 gasket-mount switch plate (2026-10-23)
 
@@ -232,6 +232,17 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - Pads are now 0.35 mm from the routed edge (was 0.247 mm), and the nearest track about 0.36 mm. The LED body (3.2 × 2.8 mm) clears the rounded corners by about 0.05 mm. Nothing was re-routed.
 - `Dachshund60F.kicad_dru`: the LED cutout rule is raised from 0.2 mm to 0.3 mm. The schematic's footprint fields for D2–D7 point at the new footprint.
 - Checks (kicad-cli): ERC 0. DRC: 0 errors and 0 unconnected items after refilling the zones. The warnings are unchanged.
+
+### 3D models for case design (2026-10-23)
+
+`python hardware/export_step.py` writes STEP files of every board to `hardware/step/` (git-ignored): the mainboard, the plate, the mainboard and plate stacked, the daughterboard and the dongle. The mainboard, plate and assembly share an origin (the centre of the mainboard outline). The plate's bottom face is 5.0 mm above the PCB's bottom face, so the plate's top is 5.0 mm above the PCB's top (the MX spec).
+
+- Mainboard: the footprints had lost their 3D model links (only J4 had one). Every footprint now carries its library's models again.
+- Keyswitch models (perigoso v2.4, CC-BY-SA-4.0) are vendored into `hardware/Dachshund60F/lib/keyswitch.3dshapes/`: the Kailh hot-swap socket, the Cherry MX switch (PCB and plate versions) and the 2u and 6.25u stabilizers. The vendored hot-swap footprints now show the switch body as well as the socket. The three soldered spacebar-row switches use the plate-mount switch model without a keycap.
+- The two spacebar layouts are both modelled, so their switches overlap in the 3D view.
+- USB-C receptacle (daughterboard and dongle J1): KiCad has no model for the HRO TYPE-C-31-M-12, so `hardware/3dmodels/` has a dimensioned stand-in: an 8.94 × 3.26 mm obround shell, 7.3 mm deep, on the board surface. It's enough for the case cutout but has no detail.
+- Dongle D1 uses KiCad's Würth PLCC4 3.2 × 2.8 mm RGB LED model (same package as the ASMB-MTB0).
+- Encoder SW3 and battery connector J2 use dimensioned stand-ins in `hardware/3dmodels/` (KiCad's 3D library has neither model). The real STEPs need a Bourns/SamacSys account and JST's emailed licence download; swap them in when you have them.
 
 ## Tested
 
@@ -271,6 +282,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 
 ## Known bugs
 
+- The encoder's part number may not match its footprint. SW3 uses KiCad's horizontal-shaft (mouse-wheel) PEC12R footprint, which KiCad names after PEC12R-2xxx parts, but the BOM value is PEC12R-4220F-S0024. Distributors disagree on whether -4 parts have a vertical or horizontal shaft. Check the datasheet's ordering table before ordering; PEC12R-2217F-S0024 (17.5 mm shaft, push switch, 24 detents) looks like the matching horizontal part.
 - Release builds print Kconfig warnings, because `prj.conf` sets logging options that `release.conf` turns off. PRINTK also stays on in release, since something selects it; nothing prints, because no console or RTT backend exists. This is harmless, but the warnings are noise.
 - E-paper builds warn that Zephyr's MIPI-DBI driver is "experimental". It is what Zephyr's own e-paper shields use; this is a notice, not a fault.
 - Doghouse keycode ids (`host-lib/src/keycodes.ts`) are QMK-style names. Phase 3 (firmware keycode model) and phase 5 (protocol) must adopt them or map them, so the GUI, mock and firmware agree.

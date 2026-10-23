@@ -191,7 +191,7 @@
 		(uuid "03cc4da1-fa8c-44c8-adde-ff8f4e881d36")
 	)
 	(embedded_fonts no)
-	(model "${KICAD6_3RD_PARTY}/3dmodels/com_github_perigoso_keyswitch-kicad-library/3d-library.3dshapes/Stabilizer_Cherry_MX_2.00u.wrl"
+	(model "${KIPRJMOD}/lib/keyswitch.3dshapes/Stabilizer_Cherry_MX_2.00u.stp"
 		(offset
 			(xyz 0 0 0)
 		)

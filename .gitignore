@@ -18,6 +18,9 @@ fp-info-cache
 _autosave-*
 *.bak
 
+# Generated STEP models (python hardware/export_step.py)
+hardware/step/
+
 # Editors / OS
 .vscode/
 .idea/
