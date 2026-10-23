@@ -185,9 +185,9 @@ Each board gets its bootloader once over SWD; after that, firmware goes on by co
 
 ### Mainboard: bootloader, then firmware
 
-The bootloader board files are in PR #7, not yet on main. Its README (`boards/Dachshund60F/bootloader/README.md`) has the full procedure; in short:
+The bootloader board files are in `boards/Dachshund60F/bootloader/` (merged in PR #7). Its README (`boards/Dachshund60F/bootloader/README.md`) has the full procedure; in short:
 
-1. Build it with `boards/Dachshund60F/bootloader/build.sh` on Linux or WSL, or download the `bootloader-<sha>` artifact from the PR's CI run.
+1. Build it with `boards/Dachshund60F/bootloader/build.sh` on Linux or WSL, or download the `bootloader-<sha>` artifact from a CI run.
 2. Flash `dachshund60f_bootloader_s140_6.1.1.hex` with a full erase:
     - `nrfutil device program --firmware dachshund60f_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ`
     - or `pyocd flash -t nrf52840 --erase chip dachshund60f_bootloader_s140_6.1.1.hex`
@@ -228,7 +228,7 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 | USB enumeration | `lsusb -v` (or USB Device Tree Viewer) | 1209:0001, "Dachshund" / "Dachshund60F", a serial unique to each board, bcdDevice from `firmware/VERSION`, bMaxPower 500 mA, HID interrupt endpoint with bInterval 1 | Phase 2 (main) |
 | USB-C orientation | Enumerate with the plug both ways round, and through A-to-C and C-to-C cables | Enumerates every time | Phase 2 |
 | Hot-plug | Unplug and replug 20 times | Enumerates every time; no hang (check RTT) | Phase 2 |
-| Boot keyboard | Type in a BIOS/UEFI setup screen; through a KVM if you have one | Keys work | Phase 3 (PR #8) for key reports |
+| Boot keyboard | Type in a BIOS/UEFI setup screen; through a KVM if you have one | Keys work | Phase 3 (main) |
 | Every key | Short each socket's pads with tweezers on the bare board, then press every fitted switch; watch `evtest` or an online key tester, or the RTT log | All 80 positions report, each as the right key, with no extra key. Both spacebar layouts | Phase 3 |
 | Ghosting | Hold three corners of any rectangle (for example Q, W, A) and press the fourth (S) | Only the pressed keys report. Each key has its own diode, so there should be no ghost | Phase 3 |
 | Rollover | Hold 6 keys, then more | 6KRO now; full NKRO after phase 4 | Phase 3, then 4 |
@@ -372,8 +372,8 @@ About a third of this plan can run on the day the boards arrive. The rest waits 
 | --- | --- | --- |
 | Phase 2: USB enumeration, LED walk, Esc-to-UF2, RTT logs, REGOUT0 | On main | Enumeration, LED chain, LED switch, rails |
 | Status screen (four panels) | On main | Display tests |
-| Dachshund60F UF2 bootloader | PR #7, open; never run on hardware | First SWD flash and every UF2 step |
-| Phase 3: matrix scan at 1 kHz, debounce (eager press, 5 ms), keymap, key reports | PR #8, open | Every-key, ghosting, chatter, BIOS, scan and debounce timing |
+| Dachshund60F UF2 bootloader | On main (PR #7); never run on hardware | First SWD flash and every UF2 step |
+| Phase 3: matrix scan at 1 kHz, debounce (eager press, 5 ms), keymap, key reports | On main (PR #8) | Every-key, ghosting, chatter, BIOS, scan and debounce timing |
 | Phase 4: NKRO, consumer keys, suspend and remote wakeup | Not started | NKRO and suspend tests |
 | Phases 5–8: protocol, persistence, host transports, GUI on hardware | Not started (Doghouse runs against mock boards only) | Smoke test, matrix test mode, Doghouse key tester |
 | Phase 9: encoder driver | Not started; pins sit in `zephyr,user` | Encoder rotation tests |

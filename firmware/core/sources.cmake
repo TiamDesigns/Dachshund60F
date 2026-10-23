@@ -3,7 +3,11 @@
 set(KB_CORE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include)
 set(KB_CORE_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/src/core.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/debounce.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/engine.c
   ${CMAKE_CURRENT_LIST_DIR}/src/hold.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/keycodes.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/keymap.c
   ${CMAKE_CURRENT_LIST_DIR}/src/screen.c
   ${CMAKE_CURRENT_LIST_DIR}/src/version.c
 )

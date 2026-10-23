@@ -16,7 +16,7 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 - Host library: TypeScript (Node ≥ 20, ESM), `node-hid` on desktop and WebHID in the browser; tests use `node:test`
 - GUI: **Doghouse** in `app/`, Svelte 5 + TypeScript + Vite. It runs in the browser against mock boards for now; a Tauri shell comes later (needs Rust and the MSVC build tools). Design language: warm earth tones, dog-themed (boards are named after dogs).
 - Board: `Dachshund60F` (MDBT50Q-1MV2, 6×15 COL2ROW matrix, 1 encoder, 2× SK6812MINI-E). Pins are in `boards/Dachshund60F/board.json` and are still proposed, since no PCB exists yet.
-- USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard) and 0x1209:0x0002 (dongle). They're for in-house testing only; get a registered pid.codes PID before any board is sold or given away.
+- USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard), 0x1209:0x0002 (dongle) and 0x1209:0x0003 (UF2 bootloader). They're for in-house testing only; get a registered pid.codes PID before any board is sold or given away.
 
 ## Repo layout
 
@@ -37,7 +37,8 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Build dongle: `west build -p -b nrf52840dongle/nrf52840 -d build/dongle dongle`
 - Release build (logging compiled out): add `-DEXTRA_CONF_FILE=release.conf` after the `--`
 - Flash (UF2): double-tap reset, or hold Esc for 3 s, so the board mounts as a UF2 drive. Then copy `build/firmware/firmware/zephyr/zephyr.uf2` onto it, or run `west flash -d build/firmware` (the default runner is `uf2`).
-- First-time bootloader flash: over the SWD header with a debug probe (`-r nrfutil`, `-r jlink` or `-r pyocd`). Needs a Dachshund60F build of the Adafruit nRF52 bootloader, which doesn't exist yet.
+- Build the UF2 bootloader (Linux or WSL; needs `arm-none-eabi-gcc`, CMake, Ninja and Python `intelhex`): `boards/Dachshund60F/bootloader/build.sh`. CI builds it too and uploads `dachshund60f_bootloader_s140_6.1.1.hex` as the `bootloader-<sha>` artifact.
+- First-time bootloader flash: program that hex over the SWD header with a chip erase (`nrfutil device program --firmware <hex> --options chip_erase_mode=ERASE_ALL`, or pyocd/J-Link). Steps and checks are in `boards/Dachshund60F/bootloader/README.md`.
 - Debug logs: SEGGER RTT over SWD (the board has no UART). Release builds have none.
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
 - Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`

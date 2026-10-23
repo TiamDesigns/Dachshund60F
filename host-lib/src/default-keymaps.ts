@@ -2,8 +2,9 @@
  * Default keymaps per board model, as [row][col] grids over the full matrix.
  * Unused matrix positions are KC_NO.
  *
- * The mock board uses these. Once the firmware has its compiled-in default
- * keymap (phase 3), the two must match; the host-lib tests then compare them.
+ * The mock board uses these. They must match the firmware's compiled-in
+ * default keymap (firmware/src/default_keymap.c); test/firmware-keymap.test.ts
+ * compares the two.
  */
 
 import type { EncoderAction, Keymap, KeycodeId } from "./types.js";

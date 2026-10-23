@@ -13,6 +13,8 @@ Each board folder will hold:
   LED-to-key mapping. Read by the GUI.
 - **Zephyr board files** — devicetree and Kconfig for the custom PCB
   (including the flash partition layout the UF2 bootloader expects).
+- **Bootloader board files** (optional) — `bootloader/` with the board
+  definition for the Adafruit nRF52 UF2 bootloader and a script that builds it.
 
 Boards:
 

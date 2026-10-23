@@ -31,8 +31,66 @@ config KB_USB_MAX_POWER_MA
 	  The charger draws up to 500 mA from VBUS.
 
 config KB_BOOTLOADER_HOLD_MS
-	int "Hold time for the reboot-to-UF2 key, in ms"
+	int "Hold time for the recovery key (Esc) that reboots into UF2, in ms"
 	default 3000
+	help
+	  Works from the physical key, whatever the keymap says, so a broken
+	  keymap can always be reflashed. QK_BOOT in the keymap reboots at
+	  once.
+
+config KB_MATRIX_SCAN_PERIOD_US
+	int "Matrix scan period, in microseconds"
+	default 1000
+	range 250 10000
+	help
+	  1000 scans at 1 kHz.
+
+config KB_MATRIX_SETTLE_US
+	int "Wait after driving a column before reading the rows, in microseconds"
+	default 5
+	range 0 100
+
+config KB_MATRIX_RELEASE_US
+	int "Longest wait for the rows to fall after releasing a column, in microseconds"
+	default 10
+	range 0 100
+	help
+	  The scan moves on as soon as every row reads low, so this only
+	  costs time while a key in that column is pressed.
+
+choice KB_DEBOUNCE_ALGO
+	prompt "Debounce algorithm"
+	default KB_DEBOUNCE_EAGER_PRESS
+	help
+	  See firmware/core/include/kb/debounce.h. The host can change this
+	  at run time once the settings protocol exists (phase 10).
+
+config KB_DEBOUNCE_EAGER_PRESS
+	bool "Eager press, deferred release, per key"
+
+config KB_DEBOUNCE_EAGER_PER_KEY
+	bool "Eager, per key"
+
+config KB_DEBOUNCE_DEFER_PER_KEY
+	bool "Deferred, per key"
+
+config KB_DEBOUNCE_EAGER_GLOBAL
+	bool "Eager, whole matrix"
+
+config KB_DEBOUNCE_DEFER_GLOBAL
+	bool "Deferred, whole matrix"
+
+endchoice
+
+config KB_DEBOUNCE_MS
+	int "Debounce time, in ms"
+	default 5
+	range 0 100
+
+config KB_TAPPING_TERM_MS
+	int "Tapping term for layer-tap and mod-tap keys, in ms"
+	default 200
+	range 50 2000
 
 DT_CHOSEN_ZEPHYR_DISPLAY := zephyr,display
 

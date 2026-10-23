@@ -2,9 +2,11 @@
  * Keycode catalog for the GUI palette: every action a key can be given,
  * with a short keycap label, a longer name and a category.
  *
- * Identifiers follow QMK/ZMK naming so they read familiarly. The 16-bit
- * numbers behind them belong to the firmware keycode model (phase 3) and the
- * protocol (phase 5); until then this list is the reference for both.
+ * Identifiers follow QMK/ZMK naming so they read familiarly, and match the
+ * macro names of the firmware's 16-bit keycode model
+ * (firmware/core/include/kb/keycodes.h; test/firmware-keymap.test.ts checks
+ * every id here is defined there). The protocol (phase 5) maps ids to those
+ * numbers.
  */
 
 import type { KeycodeId } from "./types.js";
