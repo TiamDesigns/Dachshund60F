@@ -37,7 +37,7 @@ Phase 2 (blinky and USB enumeration): the firmware half is done, merged to main,
 Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 kΩ PROG) for a 1000–2000 mAh cell, and USB-C on a separate daughterboard.
 
 - Schematic: one A2 sheet with 195 parts. ERC is clean (0 errors, 0 warnings). A script checked all 29 module pin nets against `board.json` (0 mismatches).
-- The board has no USB-C connector. J1 is a JST-SH 4-pin for the daughterboard, carrying VBUS, D−, D+ and GND in the Unified Daughterboard order; that order still needs checking against the UDB spec.
+- The board has no USB-C connector. J1 is a JST-SH 4-pin for the daughterboard, carrying VBUS, D−, D+ and GND in the Unified Daughterboard order (checked on 2026-10-22; see the daughterboard section).
 - Power path: VBUS feeds the MCP73831, which charges VBAT (JST-PH battery). The slide switch connects VBAT to VSYS, which feeds VDDH (high-voltage mode). VDD (REGOUT0) is +3V3.
 - Charge status: a BAT54WS Schottky sits between the MCP73831 STAT pin and P0.15. STAT drives 5 V when charging completes, and the diode passes only the low (charging) level.
 - LEDs: the load switch is a TPS22917 (KiCad has no TPS22918 symbol); its QOD pin is unconnected and EN has a 100 kΩ pull-down.
@@ -123,14 +123,15 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 ### Repo housekeeping (2026-10-23)
 
 - CI runs once per pull request. Before, every push to a PR branch started two identical runs (push and pull_request). Pushes now trigger CI only on `main`; a branch gets CI through its PR or with "Run workflow" in the Actions tab. A newer push to a PR cancels its run that is still going.
-- The USB-C daughterboard (`hardware/Dachshund60F-USB/`) is still on the local, unpushed branch `usb-daughterboard`. It needs rebasing onto main, where PROGRESS.md will conflict with the dongle section, before it gets a PR.
-- `doghouse-app`, `phase2-firmware` and `status-screen` are fully merged and can be deleted.
+- The USB-C daughterboard (`hardware/Dachshund60F-USB/`), designed on 2026-10-22 on a local branch, was rebased onto main and got its own PR.
+- Deleted the fully merged branches `doghouse-app`, `phase2-firmware`, `status-screen`, `dongle-pcb` and `ci-one-run-per-pr`, locally and on GitHub.
 
 ## PCB status and known issues
 
 - SW604, SW606 (rotated 180°) and SW615 are soldered 3-pin footprints, placed with their centre holes on the KLE key centres. Stock MX footprints have their origin at pin 1, not the centre.
 - DRC before routing: there are no shorts or drill overlaps, except that the 6.25u stabilizer's right holes and the right Mod's stabilizer holes coincide (0.04 mm apart, a warning). The remaining courtyard errors on the spacebar row are expected because the two layouts deliberately overlap; add them as DRC exclusions in KiCad. The stock SK6812MINI-E reverse-mount footprint has 0.25–0.35 mm copper-to-cutout clearance against a 0.5 mm rule. About 189 "footprint differs from library" warnings remain (run Update Footprints from Library in KiCad). Unrouted nets are expected.
 - DRC fixes (2026-10-21, after review): removed a duplicate GND via at (319.3, 67.1) and a dangling /COL2 stub. The GND pours now use solid connections for SMD pads and thermal reliefs for through-hole pads, which cleared all starved thermals. The ST1–ST6 reference text is hidden. `Dachshund60F.kicad_dru` adds two rules: 0.2 mm edge clearance at the D2/D3 LED cutouts (stock reverse-mount pads are 0.247 mm from the cutout corners, so check with the fab), and 0 mm for SW1's edge-mount tabs.
+
 ### PCB: module decoupling rework and re-route (2026-10-22)
 
 The old column of decoupling caps at x = 318 sat across the module's left-edge signal exit, so C5, C6 and C7 ended up with GND pads boxed in by tracks on both layers. Rework:
@@ -142,7 +143,7 @@ The old column of decoupling caps at x = 318 sat across the module's left-edge s
 - DRC (kicad-cli, 2026-10-22): 0 errors and 0 unconnected items; the 7 spacebar items stay excluded through the project file. No copper in the antenna keep-out. Some SWDCLK and matrix tracks run on B.Cu under the module body between its pad rows (solder-masked, no exposed pads there).
 - Warnings left: the ST4/ST6 coincident stabilizer holes, silkscreen overlaps on the spacebar row, 2 SW1 silkscreen segments at the edge, and 189 stale footprint copies (fix with Update Footprints from Library).
 - Schematic parity: only the Description and Datasheet text fields differ. Run Update PCB from Schematic in KiCad to sync them.
-- Not done: mounting holes (need a case design), checking the J1 pin order against the UDB spec, a plate and case cutout for the roller, and the USB-C daughterboard.
+- Not done: mounting holes (need a case design) and a plate and case cutout for the roller. The J1 pin order and the USB-C daughterboard were done later (see the daughterboard section).
 
 ### PCB: layer and battery indicator row (2026-10-22)
 
@@ -168,6 +169,23 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 - Keep the display, especially an OLED with a metal back, away from the module antenna at the right edge (x > 333, y 67–79 mm).
 - Firmware support for the header followed on the same day (see Status screen above); SPEC.md now has the display in scope.
 
+### PCB: USB-C daughterboard (2026-10-22)
+
+The USB-C port lives on its own board, `hardware/Dachshund60F-USB/` (KiCad 10, 2 layers, 1.6 mm). It connects to mainboard J1 with a JST-SH 4-pin cable.
+
+- Shape: a 42 × 9 mm rectangle with 1 mm corners, so it sits along the case bezel. Two 3.2 mm plated holes sit 33 mm apart, on the board's centre line. They take M3 screws, or M2 with a washer. The 33 mm spacing matches the uDB S-series screw pattern, so a stock uDB-S board can use the same case bosses (it has a Pico-EZmate connector, so it needs an EZmate-to-JST-SH cable).
+- Layout: the USB-C receptacle (HRO TYPE-C-31-M-12) is centred on the front edge. Its shell sticks out 1.3 mm past the edge, the same as uDB-S. J2 (JST SM04B-SRSS-TB) sits at the right end with its opening on the rear edge. The protection parts sit at the left end. All parts are on the front. The back carries the board name and J2's pinout.
+- Circuit:
+  - USB 2.0 sink only: 5.1 kΩ Rd on CC1 and CC2, no PD.
+  - USBLC6-2SC6 (U1) clamps ESD on D+, D− and VBUS. The mainboard has no USB protection of its own, so this is the only ESD clamp.
+  - A 750 mA-hold 1206 PTC (Bourns MF-NSMF075-2) sits between the connector's VBUS and J2.
+  - The receptacle shell and both screw holes are a SHIELD net, tied to GND only through a 600 Ω ferrite bead (FB1), as on uDB boards. Metal screws ground a metal case through FB1.
+- Pinout: J2 is 1 VBUS, 2 D−, 3 D+, 4 GND, the same as mainboard J1 and the Unified Daughterboard spec (checked against the uDB-S design files). Use a 1:1 cable, pin 1 to pin 1, not a reversed one.
+- Routing: Freerouting, with a 0.4 mm keep-out band inside the board edge. Power nets (VBUS, GND, SHIELD) are 0.4 mm. Both layers have a GND pour, with stitching vias.
+- Checks (kicad-cli): ERC 0 violations. DRC: 0 errors, 0 unconnected items, 0 schematic parity issues. Two warnings remain: the stock receptacle footprint draws silkscreen past the board edge, which the fab clips.
+- BOM fields: every part has an MPN, and LCSC numbers where checked (C165948, C160404, C7519, C25905). F1 and FB1 have no LCSC number yet.
+- KiCad's library has no 3D model for the HRO receptacle, so 3D renders and STEP exports show only its pads. Add the manufacturer's STEP before modelling the case cutout.
+
 ### PCB: 2.4 GHz dongle (2026-10-23, merged to main in PR #1)
 
 The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCad 10, 2 layers, 1.6 mm), a 40 × 24 mm desk puck that connects to the computer with a USB-C cable. `hardware/Dachshund60F-Dongle/README.md` has the full design notes, the polling-rate limit and the latency budget.
@@ -175,7 +193,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - Form factor: a puck with a cable rather than a plug-in stick, chosen so the receiver can sit next to the keyboard, away from USB 3 noise and the PC case.
 - Parts:
   - Raytac MDBT50Q-1MV2, the same module as the keyboard. Its antenna is flush with the right edge, with a full-width copper keep-out on both layers.
-  - HRO USB-C, USBLC6-2SC6 and a 750 mA PTC, the same parts as the USB-C daughterboard (branch `usb-daughterboard`).
+  - HRO USB-C, USBLC6-2SC6 and a 750 mA PTC, the same parts as the USB-C daughterboard (see its section above).
   - PAIR and RESET buttons, an RGB status LED, and an SWD header in the keyboard's pin order.
 - Power: VBUS feeds both VBUS and VDDH (high-voltage mode). REGOUT0 must be set to 3.3 V by firmware, and DCCH is unconnected (LDO). There's no 32.768 kHz crystal, so firmware uses LFRC.
 - Pins: `board.json` has a new `dongle` section, where the generator reads them from:
@@ -210,6 +228,11 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
   - check that holding Esc for 3 s mounts the UF2 drive
   - check that REGOUT0 reads 3.3 V
   - for the chosen panel: check that the screen shows layer, battery and text, that Caps/Num/Scroll follow the host, that "USB" appears once enumerated, and that the orientation is right in the case
+- USB-C daughterboard: not built. On first boards, check:
+  - VBUS reaches mainboard J1 pin 1 with a 1:1 cable
+  - the board enumerates through it with both plug orientations
+  - a USB-C to USB-C cable from a charger supplies 5 V (the Rd pull-downs work)
+  - the shell and both screw holes read close to 0 Ω to GND (through FB1), and D+/D− read open to the shell
 - 2.4 GHz dongle board: not built. On first boards, check:
   - VBUS reaches 5 V; VDD reads 1.8 V on a blank module and 3.3 V once firmware sets REGOUT0
   - SWD flashing works, and whether Adafruit's `pca10059` UF2 bootloader runs (hold PAIR while plugging in)
@@ -221,7 +244,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 
 - Registered pid.codes PID before distributing boards; this needs a licence and a public repo with PCB files
 - PCB design: the pin map is proposed and must be confirmed (or edited) once the schematic is routed
-- Case and mounting (sets the outline, mounting holes and daughterboard position)
+- Case and mounting (sets the outline, mounting holes and daughterboard position). The daughterboard is designed for M3; if the case uses M2, swap H1/H2 to `MountingHole_2.2mm_M2_Pad_TopBottom` for a snug fit.
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
