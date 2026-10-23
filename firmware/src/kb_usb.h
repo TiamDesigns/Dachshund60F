@@ -1,20 +1,33 @@
 /*
- * USB device and HID keyboard interface.
+ * USB device: the boot keyboard interface and the extra HID interface
+ * (NKRO, consumer and system control). Report formats are in kb/hid.h.
  */
 #ifndef KB_USB_H
 #define KB_USB_H
 
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
-/* Boot-protocol keyboard report: modifiers, reserved, six keycodes. */
-#define KB_USB_KBD_REPORT_SIZE 8
+#include "kb/hid.h"
 
 int kb_usb_init(void);
 
 /*
- * Queue an 8-byte boot keyboard report; reports go out in order, one per
- * poll. Returns -EAGAIN if USB isn't configured. Safe from any thread.
+ * Queue one report from kb/hid.h; reports on each interface go out in
+ * order, one per poll. Safe from any thread. Returns -EAGAIN while the
+ * interface isn't configured or the host is suspended. While suspended,
+ * it asks the host to wake up (if the host allowed remote wakeup).
  */
-int kb_usb_send_keyboard(const uint8_t report[KB_USB_KBD_REPORT_SIZE]);
+int kb_usb_send(enum kb_hid_report report, const uint8_t *data, size_t len);
+
+/* The host asked for boot protocol on the keyboard interface. */
+bool kb_usb_boot_protocol(void);
+
+/*
+ * True once after the host may have missed reports: a new configuration,
+ * a resume, or a queue overflow. The caller then sends every report again.
+ */
+bool kb_usb_take_resync(void);
 
 #endif /* KB_USB_H */

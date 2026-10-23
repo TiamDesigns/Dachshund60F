@@ -25,7 +25,7 @@ const kb_keycode_t default_keymap[DEFAULT_KEYMAP_LAYERS][DEFAULT_KEYMAP_ROWS][DE
         {_______, BT_SEL(0), BT_SEL(1), BT_SEL(2), OUT_USB, OUT_2G4, OUT_BLE, _______, _______, _______, BT_CLR, _______, _______, KC_DEL, XXXXXXX},
         {_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_PSCR, KC_SCRL, KC_PAUS, _______, XXXXXXX},
         {_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, _______, XXXXXXX},
-        {_______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, _______, KC_PGUP, XXXXXXX},
+        {_______, _______, _______, _______, _______, _______, NK_TOGG, _______, _______, _______, _______, XXXXXXX, _______, KC_PGUP, XXXXXXX},
         {_______, _______, XXXXXXX, _______, _______, XXXXXXX, _______, XXXXXXX, _______, XXXXXXX, _______, _______, KC_HOME, KC_PGDN, KC_END},
     },
     /* 2: free for the user */

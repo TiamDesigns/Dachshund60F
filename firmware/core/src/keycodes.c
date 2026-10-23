@@ -13,6 +13,7 @@ static bool action_keycode(kb_keycode_t kc)
     case CW_TOGG:
     case QK_REP:
     case QK_LEAD:
+    case NK_TOGG:
     case OUT_USB:
     case OUT_2G4:
     case OUT_BLE:

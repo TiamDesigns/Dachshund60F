@@ -44,7 +44,8 @@ static void test_invalid_keycodes(void)
     KB_CHECK(!kb_keycode_is_valid(LT(4, KC_A), 4));
     KB_CHECK(!kb_keycode_is_valid(KB_KC_LAYER_OP(KB_LAYER_OP_COUNT, 0), 4));
     /* Unassigned actions and reserved space */
-    KB_CHECK(!kb_keycode_is_valid(0x7005, 4));
+    KB_CHECK(kb_keycode_is_valid(NK_TOGG, 4));
+    KB_CHECK(!kb_keycode_is_valid(0x7006, 4));
     KB_CHECK(!kb_keycode_is_valid(BT_SEL(0) + KB_BT_PROFILE_MAX, 4));
     KB_CHECK(!kb_keycode_is_valid(0xA000, 4));
     KB_CHECK(!kb_keycode_is_valid(0xFFFF, 4));

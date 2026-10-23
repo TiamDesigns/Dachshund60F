@@ -1,7 +1,9 @@
 /*
- * USB HID interfaces exposed by the keyboard firmware.
- * Phase 2: one boot-protocol keyboard. NKRO, consumer/system and the vendor
- * config interface come in phases 4 and 5.
+ * USB HID interfaces exposed by the keyboard firmware (report formats in
+ * firmware/core/include/kb/hid.h):
+ * - hid_kbd: boot keyboard, 8-byte 6KRO report and the lock-LED output
+ * - hid_extra: NKRO keyboard, consumer and system control, with report IDs
+ * The vendor config interface comes in phase 5.
  */
 
 / {
@@ -10,6 +12,14 @@
 		label = "Keyboard";
 		protocol-code = "keyboard";
 		in-report-size = <8>;
+		in-polling-period-us = <1000>;
+	};
+
+	hid_extra: hid_extra {
+		compatible = "zephyr,hid-device";
+		label = "Keyboard NKRO and media";
+		protocol-code = "none";
+		in-report-size = <30>;
 		in-polling-period-us = <1000>;
 	};
 };
