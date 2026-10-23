@@ -1,10 +1,9 @@
 /*
  * Keyboard firmware entry point.
  *
- * Phase 2 bring-up: USB boot keyboard enumeration, an LED walk along the
- * SK6812 chain, hold-Esc to reboot into the UF2 bootloader, and the status
- * screen when a panel overlay is built in. Matrix scanning and the keymap
- * arrive in phase 3.
+ * Matrix scanning and the keymap (phase 3) typing over a USB boot keyboard,
+ * an LED walk along the SK6812 chain (phase 2 bring-up), and the status
+ * screen when a panel overlay is built in.
  */
 
 #include <zephyr/kernel.h>
@@ -12,9 +11,9 @@
 
 #include <app_version.h>
 
-#include "bootloader.h"
 #include "kb/core.h"
 #include "kb_usb.h"
+#include "keyboard.h"
 #include "led_bringup.h"
 #include "status_screen.h"
 
@@ -25,9 +24,9 @@ int main(void)
     LOG_INF("keyboard firmware %s, core api %u", APP_VERSION_STRING,
             (unsigned)kb_core_api_version());
 
-    /* Start the bootloader key first so a recovery path exists even if USB fails. */
-    if (bootloader_key_start() != 0) {
-        LOG_ERR("bootloader key unavailable");
+    /* Start the keyboard first: its hold-Esc recovery key works even if USB fails. */
+    if (keyboard_start() != 0) {
+        LOG_ERR("keyboard unavailable");
     }
 
     /* Before USB, so the screen sees the first lock-state report. */

@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Phase 2 (blinky and USB enumeration): the firmware half is done, merged to main, and builds in CI. Hardware testing waits for fabricated boards. The Dachshund60F UF2 bootloader now builds in CI, ready for the first SWD flash.
+Phase 3 (matrix and basic keymap): done and merged to main. Core tests pass locally and the firmware builds in CI. The Dachshund60F UF2 bootloader also builds in CI, ready for the first SWD flash. Hardware testing for phases 2 and 3 waits for fabricated boards.
 
 ## Done
 
@@ -136,6 +136,22 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 - host-lib `bootloader-board.test.ts`: the LED pin, count and power pin, the Esc row and column, the USB IDs and names must all match `board.json`, and the devicetree partitions must fit the bootloader's layout. Moving the code partition back to 0xC6000 makes the test fail.
 - CI job "UF2 bootloader (Dachshund60F)" builds the bootloader with Ubuntu's `gcc-arm-none-eabi` and pip's `intelhex`, and uploads the hex and UF2 as `bootloader-<sha>`.
 
+### Phase 3: matrix, debounce, keycodes and keymap (2026-10-23)
+
+- Core (hardware- and transport-independent, host-tested):
+  - `kb/keycodes.h`: the 16-bit keycode model. Ranges for HID keys and modifiers, consumer and system keys, keys with modifiers (`LSFT(KC_1)`), layer actions (`MO`, `TG`, `TO`, `DF`, `OSL`), one-shot mods (`OSM`), layer-tap (`LT`), firmware actions (`QK_BOOT`, connection, mouse...) and mod-tap (`MT`, `LCTL_T`...). 0xA000 and up is reserved for phase 9. Names match Doghouse's QMK-style ids. `kb_keycode_kind()` rejects anything undefined, including layer keys past the layer count; the protocol will use it to refuse bad keycodes.
+  - `kb/keymap.h`: a keymap in caller-owned RAM, with get/set by (layer, row, col) that bounds-checks every index and keycode, and lookup through active layers with transparent (`KC_TRNS`) and opaque no-op (`KC_NO`) keys. Up to 16 layers.
+  - `kb/debounce.h`: five algorithms, picked at run time: deferred or eager, per key or whole matrix, plus eager press with deferred release (the default). Time 0–100 ms (default 5). Wrap-safe timestamps.
+  - `kb/engine.h`: turns key events into HID state (modifier byte, six boot keys in press order, an NKRO bitmap, consumer and system usages). Handles layers, held modifiers counted per key, one-shot mods and layers (held, they act like normal mods and `MO`), and layer-tap/mod-tap with a tapping term (default 200 ms). Keys pressed while a tap-hold key is undecided wait in a 16-event queue, so they land on the right layer. Firmware actions go to a callback. Permissive hold and the other tap-hold options are phase 9.
+  - Tests: `test_keycodes`, `test_keymap`, `test_debounce` and `test_engine` (28 engine cases with simulated events and timestamps). They also pass with AddressSanitizer and UBSan.
+- Firmware:
+  - `matrix.c`: COL2ROW scan with pins from the devicetree; it drives one column, waits 5 µs (`CONFIG_KB_MATRIX_SETTLE_US`), reads the rows, then waits until the rows drop (at most 10 µs) before the next column.
+  - `keyboard.c`: a scan thread on a 1 kHz timer (`CONFIG_KB_MATRIX_SCAN_PERIOD_US`): scan, debounce, engine, tick. Debounce algorithm and time, and the tapping term, are Kconfig options for now; the host sets them in phase 10. The layer shows on the status screen. Key events are never logged.
+  - `default_keymap.c`: the 4-layer default (Base, Fn, two transparent layers), the same as `host-lib/src/default-keymaps.ts`. The firmware runs a RAM copy, ready for live edits.
+  - `QK_BOOT` (Fn+Esc) reboots into UF2 at once; `QK_RBT` reboots. Holding Esc for 3 s still reboots into UF2, now read from the debounced matrix and independent of the keymap, as a recovery path.
+  - USB: key reports are queued (16 deep) and sent one per poll, so a tap within one millisecond still reaches the host as press then release. Before this, `hid_device_submit_report` ran synchronously and would have blocked the scan thread while the host wasn't polling.
+- host-lib `firmware-keymap.test.ts`: every Doghouse keycode id is defined in `kb/keycodes.h`, and the firmware default keymap matches host-lib's key for key. Encoder mapping is compared once the firmware has it (phase 9).
+
 ## PCB status and known issues
 
 - SW604, SW606 (rotated 180°) and SW615 are soldered 3-pin footprints, placed with their centre holes on the KLE key centres. Stock MX footprints have their origin at pin 1, not the centre.
@@ -267,7 +283,14 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - Core C tests (core, hold, screen, version): pass in CI. Not run locally; there's no C compiler or CMake here.
 - Firmware builds: debug and release for `dachshund60f/nrf52840` with no screen and with each of the four panels, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39862064737. Not built locally; NCS isn't installed here.
 - UF2 bootloader: builds cleanly (`-Werror`) on Linux with arm-none-eabi-gcc 13.2.1. The merged hex puts the SoftDevice at 0x1000–0x25DE8, the bootloader at 0xF4000–0xFC3AC, and the UICR words at 0x10001014/18. Not yet run on a chip.
-- Real hardware: nothing yet. Phase 2 is still to be checked on a board:
+- Core C tests for phase 3 (debounce, engine, keycodes, keymap): pass locally on Linux with GCC, also under ASan and UBSan.
+- Real hardware: nothing yet. Phase 3 is to be checked on a board:
+  - every key types what the README matrix table says, with no ghosting when three keys in a rectangle are held
+  - Fn layer: media keys, Insert, Print Screen, Page Up/Down, Home/End; the status screen shows the layer
+  - Fn+Esc mounts the UF2 drive at once; holding Esc for 3 s still does
+  - scan rate is 1 kHz and a scan takes well under 1 ms (toggle a spare GPIO and use a logic analyser)
+  - no chatter with the default debounce (eager press, 5 ms deferred release); try other algorithms through Kconfig if needed
+- Phase 2 is still to be checked on a board:
   - flash `dachshund60f_bootloader_s140_6.1.1.hex` over SWD with a chip erase; check the DACHSHUND drive appears and `INFO_UF2.TXT` says `nRF52840-Dachshund60F-v1`; then copy `zephyr.uf2`
   - check that it enumerates as 1209:0001 with a unique serial number (USB Device Tree Viewer or `lsusb -v`)
   - check that it works as a boot keyboard in the BIOS
@@ -304,6 +327,8 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - Encoder part number checked against Bourns' PEC12R datasheet (2026-10-23): the BOM's PEC12R-4220F-S0024 is right. The first digit of the ordering code is the mounting: 2 = vertical (radial pins, shaft up from the board), 3 = horizontal with a threaded bushing, 4 = horizontal without a bushing. So -4220F-S0024 is horizontal, no bushing, 24 detents, 20 mm shaft, push switch, 24 pulses, and Mouser lists it as right angle. Don't order PEC12R-2217F-S0024: it is the vertical part. KiCad's footprint name `Horizontal_PEC12R-2x17F` uses the wrong series digit; its geometry is the horizontal part's. Still open: SW3's 3D model is a stand-in (see `hardware/3dmodels/README.md`), and the footprint's hole pattern hasn't been checked dimension by dimension against the 4xxx drawing.
 - Release builds print Kconfig warnings, because `prj.conf` sets logging options that `release.conf` turns off. PRINTK also stays on in release, since something selects it; nothing prints, because no console or RTT backend exists. This is harmless, but the warnings are noise.
 - E-paper builds warn that Zephyr's MIPI-DBI driver is "experimental". It is what Zephyr's own e-paper shields use; this is a notice, not a fault.
-- Doghouse keycode ids (`host-lib/src/keycodes.ts`) are QMK-style names. Phase 3 (firmware keycode model) and phase 5 (protocol) must adopt them or map them, so the GUI, mock and firmware agree.
+- Doghouse's palette has no layer-tap, mod-tap, one-shot mod, default-layer or modded keys yet, though the firmware supports them. Add them with the phase 9 editors.
+- The matrix is scanned at 1 kHz all the time, which costs battery. Phase 13 adds idle scanning with GPIO sense wake-up.
+- The 6KRO boot report drops a seventh held key (it still reaches the NKRO bitmap, which phase 4 sends).
 - Doghouse doesn't yet show key labels in the user's OS keyboard layout (AZERTY and so on), edit the status screen layout, or update firmware. The SPEC lists these for later phases.
 - An OLED left on all the time can burn in. It gets an idle timeout with power management in phase 13.

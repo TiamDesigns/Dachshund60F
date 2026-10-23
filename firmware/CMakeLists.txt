@@ -12,8 +12,11 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/core/sources.cmake)
 target_sources(app PRIVATE
   src/main.c
   src/bootloader.c
+  src/default_keymap.c
   src/kb_usb.c
+  src/keyboard.c
   src/led_bringup.c
+  src/matrix.c
   ${KB_CORE_SOURCES}
 )
 target_sources_ifdef(CONFIG_KB_SCREEN app PRIVATE src/status_screen.c)

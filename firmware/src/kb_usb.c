@@ -1,5 +1,6 @@
 /*
  * USB device (device_next stack) with one boot-protocol HID keyboard.
+ * Key reports come from the keymap engine through keyboard.c.
  *
  * Descriptors: VID/PID and strings from Kconfig (matching board.json), a
  * serial number unique per board from the factory device ID, and bcdDevice
@@ -47,10 +48,57 @@ static uint32_t kbd_idle_duration;
 static uint8_t kbd_last_report[KB_USB_KBD_REPORT_SIZE];
 static uint8_t kbd_led_state;
 
+/*
+ * Reports wait here while one is on the wire, so a quick tap (press and
+ * release in the same millisecond) still reaches the host as two reports.
+ * The stack sends straight from kbd_tx, so it stays untouched until
+ * input_report_done.
+ */
+#define KBD_QUEUE_LEN 16
+K_MSGQ_DEFINE(kbd_queue, KB_USB_KBD_REPORT_SIZE, KBD_QUEUE_LEN, 1);
+static uint8_t kbd_tx[KB_USB_KBD_REPORT_SIZE] __aligned(sizeof(void *));
+static atomic_t kbd_busy;
+
+static void kbd_submit_next(void)
+{
+    while (atomic_get(&kbd_ready) && atomic_cas(&kbd_busy, 0, 1)) {
+        if (k_msgq_get(&kbd_queue, kbd_tx, K_NO_WAIT) != 0) {
+            atomic_set(&kbd_busy, 0);
+            /* A report queued after the get but before the clear would be
+             * stranded: look again.
+             */
+            if (k_msgq_num_used_get(&kbd_queue) == 0) {
+                return;
+            }
+            continue;
+        }
+
+        memcpy(kbd_last_report, kbd_tx, sizeof(kbd_last_report));
+        int err = hid_device_submit_report(hid_kbd, sizeof(kbd_tx), kbd_tx);
+        if (err == 0) {
+            return;
+        }
+        LOG_WRN("keyboard report dropped (%d)", err);
+        atomic_set(&kbd_busy, 0);
+    }
+}
+
+static void kbd_input_report_done(const struct device *dev, const uint8_t *const report)
+{
+    ARG_UNUSED(dev);
+    ARG_UNUSED(report);
+    atomic_set(&kbd_busy, 0);
+    kbd_submit_next();
+}
+
 static void kbd_iface_ready(const struct device *dev, const bool ready)
 {
     ARG_UNUSED(dev);
     atomic_set(&kbd_ready, ready);
+    if (!ready) {
+        k_msgq_purge(&kbd_queue);
+        atomic_set(&kbd_busy, 0);
+    }
     status_screen_set_transport(ready ? KB_TRANSPORT_USB : KB_TRANSPORT_NONE, 0);
     LOG_INF("keyboard interface %s", ready ? "ready" : "not ready");
 }
@@ -127,6 +175,7 @@ static const struct hid_device_ops kbd_ops = {
     .get_idle = kbd_get_idle,
     .set_protocol = kbd_set_protocol,
     .output_report = kbd_output_report,
+    .input_report_done = kbd_input_report_done,
 };
 
 int kb_usb_send_keyboard(const uint8_t report[KB_USB_KBD_REPORT_SIZE])
@@ -135,8 +184,16 @@ int kb_usb_send_keyboard(const uint8_t report[KB_USB_KBD_REPORT_SIZE])
         return -EAGAIN;
     }
 
-    memcpy(kbd_last_report, report, sizeof(kbd_last_report));
-    return hid_device_submit_report(hid_kbd, sizeof(kbd_last_report), kbd_last_report);
+    /* Full (host not polling): drop the oldest. Each report is the whole
+     * keyboard state, so the newest one is what matters.
+     */
+    while (k_msgq_put(&kbd_queue, report, K_NO_WAIT) != 0) {
+        uint8_t stale[KB_USB_KBD_REPORT_SIZE];
+        (void)k_msgq_get(&kbd_queue, stale, K_NO_WAIT);
+    }
+
+    kbd_submit_next();
+    return 0;
 }
 
 int kb_usb_init(void)
