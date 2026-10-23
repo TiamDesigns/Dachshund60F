@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Phase 2 (blinky and USB enumeration): the firmware half is done and builds in CI on branch `phase2-firmware`. Hardware testing waits for fabricated boards and a Dachshund60F build of the UF2 bootloader.
+Phase 2 (blinky and USB enumeration): the firmware half is done, merged to main, and builds in CI. Hardware testing waits for fabricated boards and a Dachshund60F build of the UF2 bootloader.
 
 ## Done
 
@@ -101,7 +101,7 @@ The status display is now in scope: SPEC.md moved it out of "Not in v1", and add
   - Moving the DC pin in the DTS makes the test fail.
 - CI builds one firmware per panel (debug and release) and checks `CONFIG_KB_SCREEN=y`. Run 39862064737 is green. The screen adds about 22 KB of flash and 9 KB of RAM (debug: 91.5 KB flash, 26.1 KB RAM with the 128×32 OLED).
 
-### Doghouse configurator, first cut (2026-10-22, branch `doghouse-app`)
+### Doghouse configurator, first cut (2026-10-22, merged to main)
 
 Started ahead of phases 5 and 7, so the design can be reviewed before boards arrive. It runs in the browser against simulated boards.
 
@@ -119,6 +119,12 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
   - Settings and About tabs; light and dark themes; toasts; a "Simulated" panel to plug in, unplug and set battery.
   - 14 Node tests for geometry, transparent-key resolution and undo history.
 - Checked in the browser at 1440×900 in light and dark, and at 800×600: editing a key, the Fn layer, Save, rename, and plugging in more boards. svelte-check reports 0 errors and 0 warnings; the production build is 102 KB of JS (36 KB gzipped).
+
+### Repo housekeeping (2026-10-23)
+
+- CI runs once per pull request. Before, every push to a PR branch started two identical runs (push and pull_request). Pushes now trigger CI only on `main`; a branch gets CI through its PR or with "Run workflow" in the Actions tab. A newer push to a PR cancels its run that is still going.
+- The USB-C daughterboard (`hardware/Dachshund60F-USB/`) is still on the local, unpushed branch `usb-daughterboard`. It needs rebasing onto main, where PROGRESS.md will conflict with the dongle section, before it gets a PR.
+- `doghouse-app`, `phase2-firmware` and `status-screen` are fully merged and can be deleted.
 
 ## PCB status and known issues
 
@@ -162,7 +168,7 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 - Keep the display, especially an OLED with a metal back, away from the module antenna at the right edge (x > 333, y 67–79 mm).
 - Firmware support for the header followed on the same day (see Status screen above); SPEC.md now has the display in scope.
 
-### PCB: 2.4 GHz dongle (2026-10-23)
+### PCB: 2.4 GHz dongle (2026-10-23, merged to main in PR #1)
 
 The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCad 10, 2 layers, 1.6 mm), a 40 × 24 mm desk puck that connects to the computer with a USB-C cable. `hardware/Dachshund60F-Dongle/README.md` has the full design notes, the polling-rate limit and the latency budget.
 
