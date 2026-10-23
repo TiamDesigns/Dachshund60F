@@ -119,85 +119,100 @@ test("host-built firmware: encoders", host.skip ? { skip: host.skip } : {}, asyn
   await rejectsWith(board.setEncoder(0, 0, { cw: "KC_NOPE", ccw: "KC_B" }), "invalid-value");
 });
 
-test("host-built firmware: advanced keys", host.skip ? { skip: host.skip } : {}, async (t) => {
-  const board = await openHostDevice(t);
-  const before = await board.getAdvancedKeys();
-  assert.equal(before.combos.length, 16);
-  assert.deepEqual(before.combos[0], { keys: [], result: "KC_NO", timeoutMs: 0, layers: [] });
-  assert.equal(before.options.autoShiftMs, 175);
-  assert.deepEqual(before.tapHold, new Array(16).fill(null));
+// The advanced-key checks the mock makes (advanced.ts) must match the firmware's.
+for (const [name, open, options] of subjects) {
+  test(`${name}: advanced keys`, options, async (t) => {
+    const board = (await open(t)) as Required<Board>;
+    const before = await board.getAdvancedKeys();
+    assert.equal(before.combos.length, 16);
+    assert.deepEqual(before.combos[0], { keys: [], result: "KC_NO", timeoutMs: 0, layers: [] });
+    assert.equal(before.options.autoShiftMs, 175);
+    assert.deepEqual(before.tapHold, new Array(16).fill(null));
 
-  const combo = { keys: [{ row: 2, col: 1 }, { row: 2, col: 2 }], result: "KC_ESC", timeoutMs: 40, layers: [0, 1] };
-  await board.setAdvancedEntry("combos", 5, combo);
-  const dance = { tap: "KC_A", hold: "KC_LCTL", doubleTap: "MO(1)", tripleTap: "KC_NO", termMs: 0 };
-  await board.setAdvancedEntry("tapDances", 0, dance);
-  const override = { triggerMods: 0x02, triggerKey: "KC_BSPC", replacement: "KC_DEL", layers: [] };
-  await board.setAdvancedEntry("keyOverrides", 1, override);
-  const seq = { keys: ["KC_G", "KC_H"], result: "LSFT(KC_1)" };
-  await board.setAdvancedEntry("leader", 2, seq);
-  const rule = {
-    row: 3, col: 0, permissiveHold: true, holdOnOtherKeyPress: false, retroTap: true,
-    tappingTermMs: 220, quickTapMs: 100,
-  };
-  await board.setAdvancedEntry("tapHold", 3, rule);
-  const options = await board.setAdvancedOptions({ autoShift: true, mouse: { ...before.options.mouse, maxSpeed: 40 } });
-  assert.equal(options.autoShift, true);
+    const combo = { keys: [{ row: 2, col: 1 }, { row: 2, col: 2 }], result: "KC_ESC", timeoutMs: 40, layers: [0, 1] };
+    await board.setAdvancedEntry("combos", 5, combo);
+    const dance = { tap: "KC_A", hold: "KC_LCTL", doubleTap: "MO(1)", tripleTap: "KC_NO", termMs: 0 };
+    await board.setAdvancedEntry("tapDances", 0, dance);
+    const override = { triggerMods: 0x02, triggerKey: "KC_BSPC", replacement: "KC_DEL", layers: [] };
+    await board.setAdvancedEntry("keyOverrides", 1, override);
+    const seq = { keys: ["KC_G", "KC_H"], result: "LSFT(KC_1)" };
+    await board.setAdvancedEntry("leader", 2, seq);
+    const rule = {
+      row: 3, col: 0, permissiveHold: true, holdOnOtherKeyPress: false, retroTap: true,
+      tappingTermMs: 220, quickTapMs: 100,
+    };
+    await board.setAdvancedEntry("tapHold", 3, rule);
+    const opts = await board.setAdvancedOptions({ autoShift: true, mouse: { ...before.options.mouse, maxSpeed: 40 } });
+    assert.equal(opts.autoShift, true);
 
-  const after = await board.getAdvancedKeys();
-  assert.deepEqual(after.combos[5], combo);
-  assert.deepEqual(after.tapDances[0], dance);
-  assert.deepEqual(after.keyOverrides[1], override);
-  assert.deepEqual(after.leader[2], seq);
-  assert.deepEqual(after.tapHold[3], rule);
-  assert.equal(after.options.mouse.maxSpeed, 40);
-  assert.equal(after.options.leaderTimeoutMs, before.options.leaderTimeoutMs);
+    const after = await board.getAdvancedKeys();
+    assert.deepEqual(after.combos[5], combo);
+    assert.deepEqual(after.tapDances[0], dance);
+    assert.deepEqual(after.keyOverrides[1], override);
+    assert.deepEqual(after.leader[2], seq);
+    assert.deepEqual(after.tapHold[3], rule);
+    assert.equal(after.options.mouse.maxSpeed, 40);
+    assert.equal(after.options.leaderTimeoutMs, before.options.leaderTimeoutMs);
 
-  // The board checks what the codec can't.
-  await rejectsWith(board.setAdvancedEntry("combos", 0, { ...combo, keys: [{ row: 2, col: 1 }] }), "invalid-value");
-  await rejectsWith(board.setAdvancedEntry("combos", 0, { ...combo, keys: [{ row: 6, col: 0 }, { row: 0, col: 0 }] }), "invalid-value");
-  await rejectsWith(board.setAdvancedEntry("tapDances", 1, { ...dance, hold: "LT(1,KC_A)" }), "invalid-value");
-  await rejectsWith(board.setAdvancedEntry("combos", 16, combo), "out-of-range");
-  await rejectsWith(board.setAdvancedOptions({ autoShiftMs: 10 }), "invalid-value");
-  assert.deepEqual((await board.getAdvancedKeys()).combos[0], before.combos[0]);
+    // The board checks what the codec can't.
+    await rejectsWith(board.setAdvancedEntry("combos", 0, { ...combo, keys: [{ row: 2, col: 1 }] }), "invalid-value");
+    await rejectsWith(board.setAdvancedEntry("combos", 0, { ...combo, keys: [{ row: 6, col: 0 }, { row: 0, col: 0 }] }), "invalid-value");
+    await rejectsWith(board.setAdvancedEntry("tapDances", 1, { ...dance, hold: "LT(1,KC_A)" }), "invalid-value");
+    await rejectsWith(board.setAdvancedEntry("combos", 0, { ...combo, result: "TD(0)" }), "invalid-value");
+    await rejectsWith(board.setAdvancedEntry("tapDances", 1, { ...dance, tap: "LCTL_T(KC_A)" }), "invalid-value");
+    await rejectsWith(board.setAdvancedEntry("keyOverrides", 0, { ...override, replacement: "MO(1)" }), "invalid-value");
+    await rejectsWith(board.setAdvancedEntry("keyOverrides", 0, { ...override, triggerMods: 0 }), "invalid-value");
+    await rejectsWith(board.setAdvancedEntry("tapHold", 0, { ...rule, tappingTermMs: 20 }), "invalid-value");
+    await board.setAdvancedEntry("leader", 3, { keys: ["KC_T"], result: "TD(1)" });
+    await board.setAdvancedEntry("leader", 3, { keys: [], result: "KC_NO" });
+    await rejectsWith(board.setAdvancedEntry("combos", 16, combo), "out-of-range");
+    await rejectsWith(board.setAdvancedOptions({ autoShiftMs: 10 }), "invalid-value");
+    assert.deepEqual((await board.getAdvancedKeys()).combos[0], before.combos[0]);
 
-  // Saved and reloaded with the keymap.
-  await board.save();
-  await board.reboot();
-  assert.deepEqual((await board.getAdvancedKeys()).combos[5], combo);
-  await board.factoryReset();
-  assert.deepEqual(await board.getAdvancedKeys(), before);
-});
+    // Saved (and reloaded with the keymap, on a board that restarts).
+    await board.save();
+    await board.setAdvancedEntry("combos", 5, before.combos[0]!);
+    await board.revert();
+    if (board instanceof HidBoard) await board.reboot();
+    assert.deepEqual((await board.getAdvancedKeys()).combos[5], combo);
+    await board.factoryReset();
+    assert.deepEqual(await board.getAdvancedKeys(), before);
+  });
 
-test("host-built firmware: macros", host.skip ? { skip: host.skip } : {}, async (t) => {
-  const board = await openHostDevice(t);
-  assert.deepEqual(await board.getMacros(), []);
-  const macros = [
-    [{ type: "text" as const, text: "Hello, world!" }, { type: "tap" as const, keycode: "KC_ENT" }],
-    [],
-    [
-      { type: "down" as const, keycode: "KC_LCTL" },
-      { type: "tap" as const, keycode: "KC_C" },
-      { type: "up" as const, keycode: "KC_LCTL" },
-      { type: "delay" as const, ms: 300 },
-      { type: "tap" as const, keycode: "LSFT(KC_INS)" },
-    ],
-  ];
-  await board.setMacros(macros);
-  assert.deepEqual(await board.getMacros(), macros);
-  assert.equal(await board.hasUnsavedChanges(), true);
+  test(`${name}: macros`, options, async (t) => {
+    const board = (await open(t)) as Required<Board>;
+    assert.deepEqual(await board.getMacros(), []);
+    const macros = [
+      [{ type: "text" as const, text: "Hello, world!" }, { type: "tap" as const, keycode: "KC_ENT" }],
+      [],
+      [
+        { type: "down" as const, keycode: "KC_LCTL" },
+        { type: "tap" as const, keycode: "KC_C" },
+        { type: "up" as const, keycode: "KC_LCTL" },
+        { type: "delay" as const, ms: 300 },
+        { type: "tap" as const, keycode: "LSFT(KC_INS)" },
+      ],
+    ];
+    await board.setMacros(macros);
+    assert.deepEqual(await board.getMacros(), macros);
+    assert.equal(await board.hasUnsavedChanges(), true);
 
-  // Shorter macros leave nothing of the longer ones behind.
-  await board.setMacros([[{ type: "text", text: "x" }]]);
-  assert.deepEqual(await board.getMacros(), [[{ type: "text", text: "x" }]]);
+    // Shorter macros leave nothing of the longer ones behind.
+    await board.setMacros([[{ type: "text", text: "x" }]]);
+    assert.deepEqual(await board.getMacros(), [[{ type: "text", text: "x" }]]);
 
-  await rejectsWith(board.setMacros([[{ type: "tap", keycode: "M(1)" }]]), "invalid-value");
-  await rejectsWith(board.setMacros([[{ type: "text", text: "é" }]]), "invalid-value");
-  await rejectsWith(board.setMacros([[{ type: "text", text: "a".repeat(1024) }]]), "storage-full");
-  assert.deepEqual(await board.getMacros(), [[{ type: "text", text: "x" }]]);
+    await rejectsWith(board.setMacros([[{ type: "tap", keycode: "M(1)" }]]), "invalid-value");
+    await rejectsWith(board.setMacros([[{ type: "text", text: "é" }]]), "invalid-value");
+    await rejectsWith(board.setMacros([[{ type: "tap", keycode: "LCTL_T(KC_A)" }]]), "invalid-value");
+    await rejectsWith(board.setMacros([[{ type: "tap", keycode: "MS_BTN1" }]]), "invalid-value");
+    await rejectsWith(board.setMacros([[{ type: "text", text: "a".repeat(1024) }]]), "storage-full");
+    assert.deepEqual(await board.getMacros(), [[{ type: "text", text: "x" }]]);
+    await board.setMacros([[{ type: "tap", keycode: "KC_VOLU" }, { type: "tap", keycode: "RALT(KC_E)" }]]);
 
-  await board.revert();
-  assert.deepEqual(await board.getMacros(), []);
-});
+    await board.revert();
+    assert.deepEqual(await board.getMacros(), []);
+  });
+}
 
 test("a board with another protocol version opens but refuses everything", async () => {
   const t = new FakeTransport(boardHandler("SER1", protocol.PROTOCOL_VERSION + 1));

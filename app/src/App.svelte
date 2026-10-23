@@ -1,25 +1,37 @@
 <script lang="ts">
   import { app } from "./lib/app-state.svelte.ts";
   import AboutPanel from "./lib/components/AboutPanel.svelte";
+  import AdvancedPanel from "./lib/components/AdvancedPanel.svelte";
   import BoardCard from "./lib/components/BoardCard.svelte";
   import BoardHeader from "./lib/components/BoardHeader.svelte";
   import Dachshund from "./lib/components/Dachshund.svelte";
   import KeymapEditor from "./lib/components/KeymapEditor.svelte";
   import Logo from "./lib/components/Logo.svelte";
+  import MacrosPanel from "./lib/components/MacrosPanel.svelte";
   import MockPanel from "./lib/components/MockPanel.svelte";
   import SettingsPanel from "./lib/components/SettingsPanel.svelte";
   import ThemeToggle from "./lib/components/ThemeToggle.svelte";
   import Toasts from "./lib/components/Toasts.svelte";
 
-  type Tab = "keys" | "settings" | "about";
-  const TABS: { id: Tab; label: string }[] = [
-    { id: "keys", label: "Keys" },
-    { id: "settings", label: "Settings" },
-    { id: "about", label: "About" },
-  ];
+  type Tab = "keys" | "advanced" | "macros" | "settings" | "about";
 
   let tab = $state<Tab>("keys");
   const session = $derived(app.selected);
+  // Advanced and Macros only for boards whose firmware has them.
+  const TABS = $derived(
+    (
+      [
+        { id: "keys", label: "Keys", show: true },
+        { id: "advanced", label: "Advanced", show: !!session?.advanced },
+        { id: "macros", label: "Macros", show: !!session?.macros },
+        { id: "settings", label: "Settings", show: true },
+        { id: "about", label: "About", show: true },
+      ] satisfies { id: Tab; label: string; show: boolean }[]
+    ).filter((t) => t.show),
+  );
+  $effect(() => {
+    if (!TABS.some((t) => t.id === tab)) tab = "keys";
+  });
 </script>
 
 <div class="shell">
@@ -86,6 +98,10 @@
             <p class="loading">Fetching…</p>
           {:else if tab === "keys"}
             <KeymapEditor {session} />
+          {:else if tab === "advanced" && session.advanced}
+            <AdvancedPanel {session} />
+          {:else if tab === "macros" && session.macros}
+            <MacrosPanel {session} />
           {:else if tab === "settings"}
             <SettingsPanel {session} />
           {:else}

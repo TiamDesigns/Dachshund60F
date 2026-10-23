@@ -20,6 +20,7 @@ export type KeycodeCategory =
   | "layers"
   | "connection"
   | "mouse"
+  | "macros"
   | "special";
 
 export const KEYCODE_CATEGORIES: readonly { id: KeycodeCategory; label: string }[] = [
@@ -31,6 +32,7 @@ export const KEYCODE_CATEGORIES: readonly { id: KeycodeCategory; label: string }
   { id: "layers", label: "Layers" },
   { id: "connection", label: "Connection" },
   { id: "mouse", label: "Mouse" },
+  { id: "macros", label: "Macros & dances" },
   { id: "special", label: "Special" },
 ];
 
@@ -141,14 +143,25 @@ const STATIC_KEYCODES: KeycodeInfo[] = [
   k("MS_BTN1", "Click", "Mouse button 1 (left)", "mouse"),
   k("MS_BTN2", "RClick", "Mouse button 2 (right)", "mouse"),
   k("MS_BTN3", "MClick", "Mouse button 3 (middle)", "mouse"),
+  k("MS_BTN4", "Back", "Mouse button 4 (back)", "mouse"),
+  k("MS_BTN5", "Fwd", "Mouse button 5 (forward)", "mouse"),
   k("MS_WHLU", "Wh↑", "Scroll up", "mouse"),
   k("MS_WHLD", "Wh↓", "Scroll down", "mouse"),
+  k("MS_WHLL", "Wh←", "Scroll left", "mouse"),
+  k("MS_WHLR", "Wh→", "Scroll right", "mouse"),
+
+  k("DM_REC1", "Rec 1", "Record dynamic macro 1", "macros"),
+  k("DM_REC2", "Rec 2", "Record dynamic macro 2", "macros"),
+  k("DM_RSTP", "Stop", "Stop recording", "macros"),
+  k("DM_PLY1", "Play 1", "Play dynamic macro 1", "macros"),
+  k("DM_PLY2", "Play 2", "Play dynamic macro 2", "macros"),
 
   k("KC_NO", "", "Nothing", "special"),
   k("KC_TRNS", "▽", "Transparent: use the key below on a lower layer", "special"),
   k("CW_TOGG", "CapsWd", "Caps Word: capitalise until the end of the word", "special"),
   k("QK_REP", "Repeat", "Repeat the last key", "special"),
   k("QK_LEAD", "Leader", "Leader key", "special"),
+  k("AS_TOGG", "AutoSh", "Turn Auto Shift on or off", "special"),
   k("QK_BOOT", "Boot", "Reboot into the firmware updater", "special"),
   k("QK_RBT", "Reboot", "Reboot the keyboard", "special"),
   k("NK_TOGG", "NKRO", "Turn N-key rollover on or off", "special"),
@@ -168,6 +181,10 @@ type LayerAction = keyof typeof LAYER_ACTIONS;
 /** Bluetooth host profiles reachable with BT_SEL(n). */
 export const BLE_PROFILE_COUNT = 3;
 
+/** Macros M(n) and tap dances TD(n) the firmware has slots for (kb/features.h). */
+export const MACRO_COUNT = 32;
+export const TAP_DANCE_COUNT = 16;
+
 const PARAM = /^([A-Z_]+)\((\d+)\)$/;
 
 /** Layer and profile keycodes for a board with layerCount layers. */
@@ -181,6 +198,8 @@ export function parameterisedKeycodes(layerCount: number): KeycodeInfo[] {
   for (let n = 0; n < BLE_PROFILE_COUNT; n++) {
     out.push(describe(`BT_SEL(${n})`, layerCount)!);
   }
+  for (let n = 0; n < MACRO_COUNT; n++) out.push(describe(`M(${n})`, layerCount)!);
+  for (let n = 0; n < TAP_DANCE_COUNT; n++) out.push(describe(`TD(${n})`, layerCount)!);
   return out;
 }
 
@@ -206,6 +225,8 @@ function describe(id: KeycodeId, layerCount: number): KeycodeInfo | undefined {
   if (fn === "BT_SEL" && n < BLE_PROFILE_COUNT) {
     return { id, label: `BT${n + 1}`, name: `Bluetooth host ${n + 1}`, category: "connection" };
   }
+  if (fn === "M" && n < MACRO_COUNT) return { id, label: `M${n}`, name: `Macro ${n}`, category: "macros" };
+  if (fn === "TD" && n < TAP_DANCE_COUNT) return { id, label: `TD${n}`, name: `Tap dance ${n}`, category: "macros" };
   return undefined;
 }
 
