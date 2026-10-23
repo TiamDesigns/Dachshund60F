@@ -2,9 +2,19 @@
 
 ## Current phase
 
-Phase 6 (persistence): done, in review as a PR. Phases 3 to 5 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 6 waits for fabricated boards.
+Phase 7 (host library): done, in review as a PR. Phases 3 to 6 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 7 waits for fabricated boards.
 
 ## Done
+
+### Phase 7: host library (2026-10-23)
+
+- `keycode-codec.ts`: keycode ids (`KC_A`, `MO(1)`, `LT(1,KC_SPC)`, `LSFT_T(KC_A)`, `OSM(MOD_LSFT)` and so on) to the firmware's 16-bit numbers and back. The numbers come from `keycodes.gen.ts`, which `protocol/gen/gen.py` now generates from `kb/keycodes.h`. A number with no name comes back as `RAW(0x....)` and encodes to the same number, so any keymap round-trips.
+- `transport.ts`: the Transport interface (write a report, listen for reports and for the device going away).
+- `client.ts`, `ProtocolClient`: one request in flight at a time, each with its own sequence number; responses are matched by command and sequence, so a late answer is never taken for the next request. A timeout is retried twice with a new sequence number, except `reboot`. Error statuses become `BoardError`s; `BoardErrorCode` gains `storage-error`, `not-supported`, `timeout` and `protocol-error`.
+- `hid-board.ts`, `HidBoard`: the typed `Board` over the protocol. Opening runs the handshake and `get_serial` (the board's id). Version negotiation: a board on another protocol version still opens and shows in the list, but every call fails with `version-mismatch` and nothing is sent after the handshake. The keymap is read in 28-key chunks. Unsaved changes are tracked per connection (the protocol can't ask). Commands the firmware lacks a capability for fail with `not-supported` without asking the board: today settings (phase 10) and encoders (phase 9). `BoardInfo.capabilities` lists the firmware's capabilities, and `reboot(bootloader)` restarts the board, into UF2 if asked.
+- `webhid.ts`, `WebHidBoardManager`: `request()` (from a click) asks for 1209:0001 with usage page 0xFF00 and usage 0x44; `start()` opens boards the site already may use; connect and disconnect events follow hotplug. The WebHID types are declared structurally, so there's no new dependency.
+- `node-hid.ts`, `NodeHidBoardManager`, from the separate `@dachshund60f/host-lib/node` entry so browser builds never see node-hid: loads node-hid v3 at run time (it isn't a dependency of host-lib; the desktop shell will install it), polls the device list once a second for hotplug, matches the config interface by usage page or, on Linux hidraw, by interface number 2, and puts report ID 0 before each write.
+- Round-trip tests: `kb_host_device` (in `firmware/core/tests/`) is the core protocol handler, store and settings code over a simulated flash with the firmware's default keymap, speaking hex frames on stdin and stdout. The same Board tests (default keymap, edit, save, revert, factory reset, bad input) run against the mock and against it, and a saved keymap survives its reboot. Other tests cover the client (sequence matching, serialising, retries, late answers, status mapping, disconnects), version mismatch, and both managers against stand-in WebHID and node-hid APIs. CI's host-lib job builds `kb_host_device` and runs them.
 
 ### Phase 6: persistence (2026-10-23)
 
@@ -350,7 +360,9 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Phase 4: all core tests (including `test_hid` and `test_indicators`) pass on Linux with GCC, also under ASan and UBSan. The firmware builds locally (NCS v3.4.1, Zephyr SDK 1.0.1) in debug, and in release with the 128×32 OLED, with no new warnings. host-lib (57 tests) and Doghouse (check, 14 tests, build) pass.
 - Phase 5: core tests (12, including `test_protocol` and `test_protocol_fuzz`) pass locally with GCC under ASan and UBSan; the libFuzzer target runs only in CI (the local clang has no compiler-rt). The firmware builds locally with no new warnings. host-lib (62 tests) passes.
 - Phase 6: core tests (14, including `test_store` and `test_settings`) pass locally with GCC under ASan and UBSan. The firmware builds locally with no new warnings.
-- Real hardware: nothing yet. Phase 6 is to be checked on a board: a saved keymap survives unplugging, revert and factory reset work, and a save cut short by unplugging leaves the previous settings.
+- Phase 7: host-lib 90 tests pass locally (Node 24), including the round trip against `kb_host_device`. Doghouse still checks, tests and builds.
+- Real hardware: nothing yet. Phase 7 is to be checked on a board: WebHID in Chrome or Edge finds the board after picking it once and follows unplugging; node-hid finds it on Windows (by usage page) and on Linux (by interface number, with a udev rule for hidraw access); the handshake, keymap read and a key change work over both.
+- Phase 6 is to be checked on a board: a saved keymap survives unplugging, revert and factory reset work, and a save cut short by unplugging leaves the previous settings.
 - Phase 5 is to be checked on a board: `lsusb -v` shows the vendor interface, and the handshake, `get_serial` and `identify` work once host-lib can talk to it (phase 7).
 - Phase 4 is to be checked on a board:
   - `lsusb -v`: two HID interfaces, the first with the boot keyboard subclass, the second with report IDs 1–3; both endpoints at bInterval 1; remote wakeup set in bmAttributes

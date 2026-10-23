@@ -64,8 +64,13 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: host-lib/package-lock.json
+      - name: Build the host-built firmware for the round-trip tests
+        working-directory: firmware/core
+        run: cmake -S . -B build && cmake --build build --target kb_host_device
       - run: npm ci
       - run: npm test
+        env:
+          KB_HOST_DEVICE: ${{ github.workspace }}/firmware/core/build/kb_host_device
 
   app:
     name: Doghouse app

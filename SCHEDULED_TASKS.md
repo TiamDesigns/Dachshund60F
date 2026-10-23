@@ -10,7 +10,6 @@ Last updated: 2026-10-23.
 
 ## Firmware and app, testable before boards arrive (in phase order)
 
-- **Phase 7: host library.** hidapi and WebHID transports, hotplug, request/response matching, version negotiation; round-trip tests against the mock and against the core built for the host.
 - **Phase 8: Doghouse MVP on host-lib.** Wire the existing app to the real typed API.
 - **Phase 9: advanced keys and encoders.** Tap-hold options, combos, tap dance, macros, key overrides, Caps Word, Auto Shift, Leader, Repeat, mouse keys and encoder mapping, host-tested. Code may be borrowed from ZMK or RMK (MIT/Apache), not QMK (GPL).
 - **Phase 13 note: battery reading with the power path.** On USB, VDDH shows the USB-fed VSYS, so read the cell only on battery and show charging from CHG_STAT (P0.15).
