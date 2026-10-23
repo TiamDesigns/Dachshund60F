@@ -1,12 +1,12 @@
 (version 1)
 
 # The SK6812MINI-E reverse-mount footprints (D2-D7) have a light cutout on
-# Edge.Cuts. Their own pads sit 0.247 mm from the cutout's rounded corners and
-# nearby tracks 0.234 mm, so the board-wide 0.5 mm edge rule can't apply here.
-# 0.2 mm is the floor most fabs accept for a non-plated internal cutout;
-# confirm it with the fab before ordering.
+# Edge.Cuts. The project footprint (lib/Dachshund60F.pretty) uses a plain
+# 3.4 x 3.4 mm cutout with 0.5 mm corners: its pads sit 0.35 mm from the edge
+# and the nearest track about 0.36 mm, so the board-wide 0.5 mm edge rule
+# can't apply here. 0.3 mm is the fabs' usual minimum for routed edges.
 (rule "LED cutout edge clearance"
-  (constraint edge_clearance (min 0.2mm))
+  (constraint edge_clearance (min 0.3mm))
   (condition "B.memberOfFootprint('D2') || B.memberOfFootprint('D3') || B.memberOfFootprint('D4') || B.memberOfFootprint('D5') || B.memberOfFootprint('D6') || B.memberOfFootprint('D7')"))
 
 # SW1 (PCM12) is an edge-mount slide switch: its no-net mounting tabs sit at

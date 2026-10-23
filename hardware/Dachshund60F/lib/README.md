@@ -18,3 +18,15 @@ were saved in the KiCad 5 format, which Konnect cannot parse, so the folder
 was run through `kicad-cli fp upgrade --force` (KiCad 10.0.3). Geometry is
 unchanged. To pick up an upstream fix, copy the file again and rerun that
 command.
+
+# Project footprints
+
+`Dachshund60F.pretty/` holds footprints changed for this board, registered
+as `Dachshund60F` in the project `fp-lib-table`.
+
+- `LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4`: KiCad's
+  `LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount` with its
+  corner-relief light cutout replaced by a plain 3.4 × 3.4 mm cutout with
+  0.5 mm corners. The relief corners came within 0.247 mm of the pads; the
+  plain cutout keeps them 0.35 mm away, and the LED body still clears the
+  rounded corners.
