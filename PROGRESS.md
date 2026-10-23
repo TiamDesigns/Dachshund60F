@@ -290,6 +290,13 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Saving with KiCad 10.0.7 re-wrote the zone fills and the 3D model blocks, so the PCB diff is large; only the parts above changed.
 - The STEP files in `hardware/step/` predate this change; re-export with `python hardware/export_step.py` for a fresh snapshot.
 
+### PCB: test pads (2026-10-23)
+
+- Nine test points on the mainboard's back for meter probing: TP1 VBUS, TP2 VBAT, TP3 VBAT_SW, TP4 VSYS, TP5 +3V3, TP6 LED_VDD, TP7 CHG_STAT, TP8 and TP9 GND. Each is KiCad's `TestPoint_Pad_D1.5mm`, a bare round SMD pad with no part to buy. The schematic symbols are excluded from the BOM.
+- Each pad sits on its net's existing track, so no new routing was needed. The net name is on the back silkscreen, and the reference is on the fab layer. Positions are in `docs/bringup-test-plan.md`.
+- To make room, 7 GND stitching vias were removed, SW1's reference moved below the switch, and the pours were refilled.
+- Checks: ERC unchanged. DRC with schematic parity: 0 errors, 0 unconnected items, and the same warning counts as before the pads.
+
 ### Licence (2026-10-23)
 
 - Code (firmware, host-lib, Doghouse, protocol, scripts): MIT, in `LICENSE`. host-lib and Doghouse carry `"license": "MIT"`.

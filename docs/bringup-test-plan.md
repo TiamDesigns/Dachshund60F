@@ -10,7 +10,7 @@ The boards, as designed on main (2026-10-23):
 
 | Board | KiCad project | What it carries | Test access |
 | --- | --- | --- | --- |
-| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-1MV2, MCP73831 charger (500 mA), JST-PH battery J2, slide switch, TPS22917 LED switch, 6× SK6812MINI-E, PEC12R encoder, 80 switch positions, display header J4, SWD J3 | No test points. Probe the decoupling-cap pads, J3, J4 and J1 |
+| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-1MV2, MCP73831 charger (500 mA), JST-PH battery J2, slide switch, TPS22917 LED switch, 6× SK6812MINI-E, PEC12R encoder, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
 | USB-C daughterboard | `hardware/Dachshund60F-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, JST-SH J2 | Connector pins and part pads |
 | Dongle | `hardware/Dachshund60F-Dongle/` | MDBT50Q-1MV2, HRO USB-C, USBLC6-2SC6, PTC, PAIR and RESET buttons, RGB LED, SWD J2 | No test points. Probe C1–C4 and J2 |
 
@@ -110,6 +110,24 @@ Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other,
 Battery polarity: look at J2's silkscreen, then at your cell's red lead. Many JST-PH cells from hobby suppliers are wired the opposite way from others. Fix the cable if they don't match; never plug a cell in to find out.
 
 Solder the three plate-mount switches (SW604, SW606, SW615) only after Stage 3, so you can still rework underneath. Leave the hot-swap switches and the plate out until Stage 3 too: a bare board is easier to probe, and you can test each matrix position by shorting its socket pads with tweezers.
+
+### Mainboard test pads
+
+Nine bare 1.5 mm round pads on the back, each labelled with its net on the silkscreen. They're flush and fit a standard meter probe tip.
+
+| Pad | Net | Where (back side, x, y mm) |
+| --- | --- | --- |
+| TP1 | VBUS | Next to C1, by the charger (325.6, 89.2) |
+| TP2 | VBAT | Below the charger, above J2 (322.0, 93.2) |
+| TP8 | GND | Just below TP2 (321.5, 96.5) |
+| TP7 | CHG_STAT | Left of the module, near C8/C9 (308.5, 71.5) |
+| TP3 | VBAT_SW (after the switch, before Q1) | Next to SW1 (331.5, 110.5) |
+| TP4 | VSYS | Above U3, below the J4 header (323.1, 116.0) |
+| TP5 | +3V3 | Beside SW2 (reset), above J4 (318.2, 110.4) |
+| TP6 | LED_VDD | Below U3, near D3/D4 (314.6, 123.4) |
+| TP9 | GND | Between U3 and TP4 (319.5, 120.5) |
+
+The tables below name capacitor pads from before the test pads existed; the matching TP gives the same reading.
 
 ## Stage 1: first power and rails
 
