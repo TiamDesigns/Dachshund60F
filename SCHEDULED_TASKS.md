@@ -6,7 +6,6 @@ Last updated: 2026-10-23.
 
 ## Before ordering boards
 
-- **Re-export the STEP models** after the power-path change: `python hardware/export_step.py`, then commit `hardware/step/`.
 - **Order the boards (Tiam, planned for the week of 2026-10-23).** Mainboard, USB-C daughterboard and dongle. Ordering also locks the proposed pin map in `boards/Dachshund60F/board.json`.
 
 ## Firmware and app, testable before boards arrive (in phase order)
