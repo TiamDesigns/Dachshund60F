@@ -2020,6 +2020,129 @@
 			)
 			(embedded_fonts no)
 		)
+	(symbol "Connector:TestPoint"
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0.762)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "TP"
+				(at 0 6.858 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "TestPoint"
+				(at 0 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "test point"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "test point tp"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Pin* Test*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "TestPoint_0_1"
+				(circle
+					(center 0 3.302)
+					(radius 0.762)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "TestPoint_1_1"
+				(pin passive line
+					(at 0 0 90)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -25766,6 +25889,726 @@
 			(justify left bottom)
 		)
 		(uuid "db1ca9eb-8526-47fe-b340-34da2e3a6500")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 40.64 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "4cb23965-4e85-4570-a9e4-65c2b9301591")
+		(property "Reference" "TP1"
+			(at 40.64 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VBUS"
+			(at 40.64 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 40.64 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 40.64 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 40.64 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 40.64 383.54) (xy 40.64 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "15680bac-91cf-46b0-94e2-c380d6e31e61")
+	)
+	(label "VBUS"
+		(at 40.64 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ba35bc45-8bcb-4dd8-9c76-14c506d04d55")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 58.42 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "911de25b-4dec-45f8-971a-f89b2fc833ac")
+		(property "Reference" "TP2"
+			(at 58.42 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VBAT"
+			(at 58.42 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 58.42 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 58.42 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 58.42 383.54) (xy 58.42 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "37f58ce1-21c9-465c-af94-e77ec64b7889")
+	)
+	(label "VBAT"
+		(at 58.42 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "2c9ff023-a3a5-4db9-aeeb-f3d5588ddcff")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 76.2 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "048836c0-9b0b-4115-b245-5c68c3a32305")
+		(property "Reference" "TP3"
+			(at 76.2 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VBAT_SW"
+			(at 76.2 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 76.2 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 76.2 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 76.2 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 76.2 383.54) (xy 76.2 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d6310594-41f5-472c-a8a1-4721a70ec230")
+	)
+	(label "VBAT_SW"
+		(at 76.2 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ad917153-8f23-4943-b334-5f3471458988")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 93.98 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "567e7ca0-d8ca-4a8f-90f6-46d075bebab3")
+		(property "Reference" "TP4"
+			(at 93.98 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "VSYS"
+			(at 93.98 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 93.98 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 93.98 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 93.98 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 93.98 383.54) (xy 93.98 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d17f14da-30a5-49b8-8b12-99abdab96e12")
+	)
+	(label "VSYS"
+		(at 93.98 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7577b85d-7cc8-43e0-ad13-e38886ee82e0")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 111.76 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "fb3cd56e-70ed-427e-adf8-c4f61ae5d264")
+		(property "Reference" "TP5"
+			(at 111.76 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 111.76 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 111.76 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 111.76 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 111.76 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 111.76 383.54) (xy 111.76 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f23ee95c-2f18-4866-baee-713d03cac410")
+	)
+	(label "+3V3"
+		(at 111.76 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e3db20b7-0cd1-4d7c-9a5d-39a0a51aec01")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 129.54000000000002 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "eba282b8-d2a1-44d1-9d3e-778d9041dcc6")
+		(property "Reference" "TP6"
+			(at 129.54000000000002 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED_VDD"
+			(at 129.54000000000002 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 129.54000000000002 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 129.54000000000002 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 129.54000000000002 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 129.54000000000002 383.54) (xy 129.54000000000002 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d46e3e34-dc3a-459d-86db-374a41f66d93")
+	)
+	(label "LED_VDD"
+		(at 129.54000000000002 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "aa88926a-4ffe-400b-bba4-83bca654e82a")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 147.32 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "4043fbf7-9c4e-4256-ad7b-71a931dcbebb")
+		(property "Reference" "TP7"
+			(at 147.32 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "CHG_STAT"
+			(at 147.32 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 147.32 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 147.32 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 147.32 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 147.32 383.54) (xy 147.32 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f2719b26-58f4-42ec-b3f5-f6c59108153a")
+	)
+	(label "CHG_STAT"
+		(at 147.32 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "5418f25a-fbba-478b-959b-7138c430670d")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 165.10000000000002 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "416b182f-e8ae-4cc3-ada3-93326647f72b")
+		(property "Reference" "TP8"
+			(at 165.10000000000002 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 165.10000000000002 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 165.10000000000002 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 165.10000000000002 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 165.10000000000002 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 165.10000000000002 383.54) (xy 165.10000000000002 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "458cdd05-cf41-4e79-afa9-827ac25d59fd")
+	)
+	(label "GND"
+		(at 165.10000000000002 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "e7ac407a-c89d-4687-bd9c-b0e29f0fed4c")
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 182.88 383.54 0)
+		(unit 1)
+		(in_bom no)
+		(on_board yes)
+		(dnp no)
+		(uuid "50f490b0-4e41-4a8b-916f-6262941a9afc")
+		(property "Reference" "TP9"
+			(at 182.88 376.682 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GND"
+			(at 182.88 378.46000000000004 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
+			(at 182.88 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 182.88 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "test point"
+			(at 182.88 383.54 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(instances
+			(project "Dachshund60F"
+				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
+					(reference "TP9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(wire
+		(pts
+			(xy 182.88 383.54) (xy 182.88 386.08000000000004)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0c0552a-9b90-4db1-80c4-84366d2174d7")
+	)
+	(label "GND"
+		(at 182.88 386.08000000000004 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "10bbef43-8287-45a3-96d1-b0b6dddd1b7a")
 	)
 	(sheet_instances
 		(path "/"

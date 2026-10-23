@@ -6,7 +6,7 @@ Last updated: 2026-10-23.
 
 ## Before ordering boards
 
-- **Review the USB power path in KiCad (Tiam, with Konnect).** Q1 (AO3401A), D8 (B5819W) and R3 (100 kΩ) were added to the mainboard schematic and PCB, on the back between J2, J3 and SW1, and U4/C19 above D3. Check the schematic, the placement, the hand routing, and the F.Cu VBUS track that runs down from the J1 via. Then run Update Footprints from Library and DRC in KiCad.
+- **Review the USB power path in KiCad (Tiam, with Konnect).** Q1 (AO3401A), D8 (B5819W) and R3 (100 kΩ) were added to the mainboard schematic and PCB, on the back between J2, J3 and SW1, and U4/C19 above D3. Test pads TP1–TP9 were added on the back too. Check the schematic, the placement, the hand routing, and the F.Cu VBUS track that runs down from the J1 via. Then run Update Footprints from Library and DRC in KiCad.
 - **Re-export the STEP models** after the power-path change: `python hardware/export_step.py`, then commit `hardware/step/`.
 - **Order the boards (Tiam, planned for the week of 2026-10-23).** Mainboard, USB-C daughterboard and dongle. Ordering also locks the proposed pin map in `boards/Dachshund60F/board.json`.
 
