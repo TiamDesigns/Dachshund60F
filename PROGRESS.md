@@ -235,7 +235,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 
 ### 3D models for case design (2026-10-23)
 
-`python hardware/export_step.py` writes STEP files of every board to `hardware/step/` (git-ignored): the mainboard, the plate, the mainboard and plate stacked, the daughterboard and the dongle. The mainboard, plate and assembly share an origin (the centre of the mainboard outline). The plate's bottom face is 5.0 mm above the PCB's bottom face, so the plate's top is 5.0 mm above the PCB's top (the MX spec).
+`python hardware/export_step.py` writes STEP files of every board to `hardware/step/` (committed since 2026-10-23, so they reach every device): the mainboard, the plate, the mainboard and plate stacked, the daughterboard and the dongle. The mainboard, plate and assembly share an origin (the centre of the mainboard outline). The plate's bottom face is 5.0 mm above the PCB's bottom face, so the plate's top is 5.0 mm above the PCB's top (the MX spec).
 
 - Mainboard: the footprints had lost their 3D model links (only J4 had one). Every footprint now carries its library's models again.
 - Keyswitch models (perigoso v2.4, CC-BY-SA-4.0) are vendored into `hardware/Dachshund60F/lib/keyswitch.3dshapes/`: the Kailh hot-swap socket, the Cherry MX switch (PCB and plate versions) and the 2u and 6.25u stabilizers. The vendored hot-swap footprints now show the switch body as well as the socket. The three soldered spacebar-row switches use the plate-mount switch model without a keycap.
