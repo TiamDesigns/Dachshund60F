@@ -20,8 +20,11 @@ can't drift apart.
   holes, and neither does the PCB: the PCB hangs from the switches.
 - **Switches:** 80 cutouts, 14 × 14 mm with 0.5 mm corner radii (a router can't cut a sharp inside
   corner). The cutouts have no side notches for opening switches in the plate.
-- **Stabilizers:** Cherry cutouts, 6.75 × 12.3 mm, taken from the stabilizer footprints' Eco1.User
-  layer. They fit plate-mount and PCB-mount (screw-in) Cherry-style stabilizers.
+- **Stabilizers:** 7.0 × 14.7 mm, from 6.5 mm above the key centre to 8.2 mm below, centred on the
+  footprints' stabilizer positions (11.938 mm out for 2u). These are for PCB-mount (screw-in) stabilizers
+  of any brand: Cherry's 6.65–6.75 × 12.3 mm cutout plus its bottom notch, with 0.125–0.175 mm extra on
+  each side, about 1 mm at the top and 0.23 mm below the notch. Plate-mount (clip-in) stabilizers won't
+  latch in these, and Costar stabilizers aren't supported. The size is `STAB_CUTOUT_*` in the script.
 - **Spacebar row:** both layouts are cut, so either one can be built. Where they overlap, the holes
   merge into one slot: the split 2.75u and the 6.25u switch cutouts become one long slot, and the 6.25u
   stabilizer's left cutout sits inside the 1.25u Mod cutout. The switches in the merged slot (SW604,
@@ -54,7 +57,7 @@ The tab count and positions are `TAB_FRACTIONS` in the script. If the socks feel
 ## Copper accents
 
 An accent ring follows every switch and stabilizer cutout: it starts 0.45 mm outside the cutout and is
-0.7 mm wide. A stabilizer cutout is only 1.56 mm from its switch cutout, which is too close for two
+0.7 mm wide. A stabilizer cutout is only 1.44 mm from its switch cutout, which is too close for two
 separate rings. Instead, copper fills that web, and one outline wraps the switch and both stabilizers.
 The merged spacebar slot gets one ring around the whole slot. The solder mask opening is 0.05 mm inside
 the copper, so the mask edge draws the line. All copper stays at least 0.4 mm from any routed edge (the
@@ -76,5 +79,5 @@ The sidebar (encoder, display, LEDs) has no copper, so nothing on the plate sits
 
 - kicad-cli DRC: 0 violations, 0 unconnected items.
 - Not checked against real switches yet. On the first plate, check that MX switches clip in firmly at
-  1.6 mm, that the stabilizers seat, that the socks fit the tabs snugly, and that the J4 slot and LED
+  1.6 mm, that screw-in stabilizers (Swagkeys Knight, plus whatever else is to hand) move freely in their cutouts, that the socks fit the tabs snugly, and that the J4 slot and LED
   windows line up with the PCB.

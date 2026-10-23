@@ -184,7 +184,7 @@ The USB-C port lives on its own board, `hardware/Dachshund60F-USB/` (KiCad 10, 2
 - Routing: Freerouting, with a 0.4 mm keep-out band inside the board edge. Power nets (VBUS, GND, SHIELD) are 0.4 mm. Both layers have a GND pour, with stitching vias.
 - Checks (kicad-cli): ERC 0 violations. DRC: 0 errors, 0 unconnected items, 0 schematic parity issues. Two warnings remain: the stock receptacle footprint draws silkscreen past the board edge, which the fab clips.
 - BOM fields: every part has an MPN, and LCSC numbers where checked (C165948, C160404, C7519, C25905). F1 and FB1 have no LCSC number yet.
-- KiCad's library has no 3D model for the HRO receptacle. A dimensioned stand-in is used for now (see "3D models for case design").
+- KiCad's library has no 3D model for the HRO receptacle. A generated model is used (see "3D models for case design").
 
 ### PCB: 2.4 GHz dongle (2026-10-23, merged to main in PR #1)
 
@@ -213,17 +213,17 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
   - A script checked every module pad and each GPIO's net through to its button, LED, SWD and USB pins against `board.json`: 0 mismatches.
 - Polling rate: **1000 Hz maximum.** The nRF52840 has full-speed USB only, which polls at most once per 1 ms frame. 4–8 kHz would need High-Speed USB, which means another receiver chip (for example the nRF54LM20A). That's out of v1 scope.
 - Estimated latency over the dongle, to be measured in phase 14: about 1 ms typical and about 2.5 ms worst case without retransmits, compared with 7.5–15 ms for BLE. The README lists the firmware settings this depends on: GPIO-sense wake, eager press debounce, ESB at 2 Mbit/s with fast ramp-up, HFXO kept on, BLE off in dongle mode, ACK payloads for host→keyboard data, and bInterval 1 on the dongle.
-- Not done: the case (light pipe, button caps, USB-C cutout; the M2 holes are placeholders), the manufacturer's STEP for the receptacle (a stand-in is used for now), and a Zephyr board target for the dongle (phase 14).
+- Not done: the case (light pipe, button caps, USB-C cutout; the M2 holes are placeholders), the manufacturer's STEP for the receptacle (a generated model is used for now), and a Zephyr board target for the dongle (phase 14).
 
 ### Plate: FR4 gasket-mount switch plate (2026-10-23)
 
 `hardware/Dachshund60F-Plate/` holds a generated 1.6 mm FR4 plate. `gen_plate.py` (run with KiCad's Python) reads the mainboard and writes `Dachshund60F-Plate.kicad_pcb`; the README has the full geometry.
 
 - Decision: the mainboard gets no mounting holes. The PCB hangs from the hot-swap switches, and the plate is gasket-mounted.
-- 80 switch cutouts (14 mm, 0.5 mm corners) and 12 Cherry stabilizer cutouts. Both spacebar layouts are cut; where they overlap the holes merge, and only soldered switches sit in the merged slot.
+- 80 switch cutouts (14 mm, 0.5 mm corners) and 12 stabilizer cutouts (screw-in stabilizers only since 2026-10-23; see below). Both spacebar layouts are cut; where they overlap the holes merge, and only soldered switches sit in the merged slot.
 - A notch at the top right for the roller encoder, a slot over the display header J4, and 4 mm windows over the indicator LEDs D3–D7.
 - 8 gasket tabs (4 top, 4 bottom), 2.8 × 6.5 mm, for 8 × 5 × 5 mm silicone socks. Sock outlines are on Cmts.User for the case design.
-- An exposed-copper accent ring around every switch and stabilizer cutout, ≥ 0.4 mm from every routed edge. A stabilizer and its switch share one outline, since the 1.56 mm web between them is too narrow for two rings. ENIG recommended.
+- An exposed-copper accent ring around every switch and stabilizer cutout, ≥ 0.4 mm from every routed edge. A stabilizer and its switch share one outline, since the 1.44 mm web between them is too narrow for two rings. ENIG recommended.
 - DRC (kicad-cli): 0 violations.
 
 ### PCB: LED cutout clearance (2026-10-23)
@@ -240,9 +240,16 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 - Mainboard: the footprints had lost their 3D model links (only J4 had one). Every footprint now carries its library's models again.
 - Keyswitch models (perigoso v2.4, CC-BY-SA-4.0) are vendored into `hardware/Dachshund60F/lib/keyswitch.3dshapes/`: the Kailh hot-swap socket, the Cherry MX switch (PCB and plate versions) and the 2u and 6.25u stabilizers. The vendored hot-swap footprints now show the switch body as well as the socket. The three soldered spacebar-row switches use the plate-mount switch model without a keycap.
 - The two spacebar layouts are both modelled, so their switches overlap in the 3D view.
-- USB-C receptacle (daughterboard and dongle J1): KiCad has no model for the HRO TYPE-C-31-M-12, so `hardware/3dmodels/` has a dimensioned stand-in: an 8.94 × 3.26 mm obround shell, 7.3 mm deep, on the board surface. It's enough for the case cutout but has no detail.
+- USB-C receptacle (daughterboard and dongle J1): KiCad has no model for the HRO TYPE-C-31-M-12, so `hardware/3dmodels/` has one (see below).
 - Dongle D1 uses KiCad's Würth PLCC4 3.2 × 2.8 mm RGB LED model (same package as the ASMB-MTB0).
 - Encoder SW3 and battery connector J2 use dimensioned stand-ins in `hardware/3dmodels/` (KiCad's 3D library has neither model). The real STEPs need a Bourns/SamacSys account and JST's emailed licence download; swap them in when you have them.
+
+### Stabilizer cutouts, USB-C and JST models (2026-10-23)
+
+- Plate stabilizer cutouts were the Cherry plate-mount size (6.75 × 12.3 mm), slightly smaller than the stabilizer model's housing at plate height (0.02 mm at the top, 0.025 mm on each side). They are now 7.0 × 14.7 mm, 6.5 mm above to 8.2 mm below the key centre, for screw-in stabilizers of any brand (the target is Swagkeys Knight). Plate-mount stabilizers no longer clip in. The size is `STAB_CUTOUT_*` in `gen_plate.py`. DRC: 0 violations.
+- The old USB-C stand-in sat 7.3 mm behind its footprint on both the daughterboard and the dongle (its rotation flipped it), so in the STEP files the receptacle was inside the board instead of at its edge. That was only the 3D model; the footprints and copper didn't move.
+- `hardware/3dmodels/gen_models.py` (run with FreeCAD 1.1's Python) now generates coloured models of the HRO receptacle (shell, opening, tongue and contacts, shell legs, SMD tails, locating posts) and the JST PH S2B-PH-SM4-TB (housing with cavity and latch window, contacts and tails, metal fittings), each in its footprint's frame. The footprints use them with no offset or rotation. On both boards the receptacle's front overhangs the board edge by 1.3 mm, as designed.
+- Checked: the STEP exports place both receptacles and J2 on their footprints, and `kicad-cli pcb render` shows them as expected. Not checked against real parts.
 
 ## Tested
 
