@@ -1,6 +1,6 @@
 /*
  * The report layer between the keyboard and its transports: reports go to
- * the output kb/output.h picks (USB or Bluetooth), and the keyboard follows
+ * the output kb/output.h picks (USB, Bluetooth or the dongle), and the keyboard follows
  * that output's boot protocol, lock LEDs and resync requests.
  */
 #ifndef OUTPUT_H
@@ -30,9 +30,13 @@ bool output_boot_protocol(void);
 enum kb_output output_active(void);
 uint8_t output_preferred(void);
 
+/* An output this build has: USB, Bluetooth, and the dongle when built in. */
+bool output_available(uint8_t output);
+
 /*
- * Prefer USB or Bluetooth (OUT_USB, OUT_BLE, set_output); kept across power
- * cycles. -EINVAL for anything else.
+ * Prefer USB, Bluetooth or the dongle (OUT_USB, OUT_BLE, OUT_2G4,
+ * set_output); kept across power cycles. -EINVAL for an output this build
+ * lacks.
  */
 int output_set_preferred(uint8_t output);
 

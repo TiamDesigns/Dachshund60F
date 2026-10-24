@@ -27,4 +27,5 @@ target_sources(app PRIVATE
   ${KB_CORE_SOURCES}
 )
 target_sources_ifdef(CONFIG_KB_SCREEN app PRIVATE src/status_screen.c)
+target_sources_ifdef(CONFIG_KB_DONGLE app PRIVATE src/kb_esb.c)
 target_include_directories(app PRIVATE ${KB_CORE_INCLUDE_DIRS})

@@ -598,6 +598,42 @@ size_t kb_proto_clear_profile_req_encode(const struct kb_proto_clear_profile_req
     return 1u;
 }
 
+int kb_proto_get_dongle_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_dongle_resp *out)
+{
+    if (len != 3u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->paired = p[0];
+    out->link = p[1];
+    out->pairing = p[2];
+    return 0;
+}
+
+size_t kb_proto_get_dongle_resp_encode(const struct kb_proto_get_dongle_resp *in, uint8_t *p)
+{
+    p[0] = in->paired;
+    p[1] = in->link;
+    p[2] = in->pairing;
+    return 3u;
+}
+
+int kb_proto_pair_dongle_req_decode(const uint8_t *p, size_t len, struct kb_proto_pair_dongle_req *out)
+{
+    if (len != 1u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->mode = p[0];
+    return 0;
+}
+
+size_t kb_proto_pair_dongle_req_encode(const struct kb_proto_pair_dongle_req *in, uint8_t *p)
+{
+    p[0] = in->mode;
+    return 1u;
+}
+
 int kb_proto_get_power_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_power_resp *out)
 {
     if (len != 5u) {

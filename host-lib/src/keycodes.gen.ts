@@ -185,6 +185,7 @@ export const KEYCODE_CONSTANTS: Readonly<Record<string, number>> = {
   OUT_USB: 0x7100,
   OUT_2G4: 0x7101,
   OUT_BLE: 0x7102,
+  RF_PAIR: 0x7103,
   BT_CLR: 0x7110,
   KB_BT_PROFILE_MAX: 0x0008,
   MS_UP: 0x7200,

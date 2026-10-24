@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-24.
+Last updated: 2026-10-24 (phase 14).
 
 ## Before ordering boards
 
@@ -17,6 +17,9 @@ Last updated: 2026-10-24.
 - **Keyboard firmware on an nRF52840 Dongle, to try Bluetooth before the boards arrive.** A test build with the dongle's button as the only key needs a `boards/` entry for it (pins come only from `boards/`), so ask Tiam first.
 - **Undo for advanced keys, macros, settings and colours.** Doghouse's undo and redo cover keys and encoders only; the Advanced, Macros and Settings tabs apply straight to the board (Revert still undoes everything unsaved).
 - **Power management on real hardware (phase 13).** With the PPK2 at 3.7 V on J2 (bring-up plan, Stage 4), measure the current while typing, idle with the lights on, lights out, advertising paused and in deep sleep. Check that a key wakes the board from deep sleep and how long it takes to type again over Bluetooth, and that the LED walk is skipped after a wake (if the UF2 bootloader clears the reset reason, keep a wake marker in GPREGRET2 instead). Check the gauge against a real cell (VDDH/5 reading, the curve in `kb/battery.c`) and CHG_STAT while charging. Tune `CONFIG_KB_IDLE_MS`, `CONFIG_KB_LIGHTS_OFF_S` and `CONFIG_KB_ADVERTISING_OFF_S` from the results.
+- **2.4 GHz dongle on real hardware (phase 14).** Flash an nRF52840 Dongle (`dongle/README.md`) and pair it with a board (or a second nRF52840 running the keyboard firmware, once it has a `boards/` entry). Check: pairing from the dongle button plus `RF_PAIR` and from Doghouse; typing with `OUT_2G4`; lock LEDs following the computer; Doghouse reaching the keyboard through the dongle, and showing nothing (then the board again) while the keyboard sleeps; unplugging the dongle mid-keypress leaves nothing stuck. Measure range through a desk, dropouts next to busy 2.4 GHz Wi-Fi, key-to-USB latency (logic analyser on a column and the USB D+ line, or the bring-up plan's end-to-end method), the keyboard's current while polling at 10 ms and 100 ms, and typing over the dongle while Bluetooth stays connected (MPSL timeslots). If 2475 MHz is noisy, add channel hopping.
+- **Encrypt the 2.4 GHz link.** Keys over the dongle are sent in the clear. Exchange a key at pairing (ECDH on both nRF52840s, or a key from the dongle in the PAIR_OFFER, accepting the pairing-window risk), then encrypt each packet with AES-CCM (the nRF52840's CCM peripheral, or the ECB block with a packet counter), with replay protection. Store the key with the dongle address on the keyboard and in the dongle's settings. Bump nothing in the config protocol; the link format in `kb/link.h` changes, so keyboard and dongle must update together.
+- **Dongle firmware updates.** The dongle is flashed with nrfutil today. For the Dachshund dongle PCB, settle its bootloader (see the open decision in `PROGRESS.md`), then let Doghouse update it like the keyboard (a reboot-to-bootloader command over the dongle's own config interface, which today relays everything to the keyboard).
 - **Input delay on real hardware.** Read Doghouse's About → Input timing after a minute of typing (matrix read time, key-to-report time, how many scans started on a key press), and compare with the end-to-end method in Stage 4 of the bring-up plan. If the matrix read takes long, try a lower `CONFIG_KB_MATRIX_SETTLE_US`.
 
 ## Tiam's own items

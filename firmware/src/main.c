@@ -7,7 +7,8 @@
  * after a power-on walk along the chain, the status screen when a
  * panel overlay is built in, and Bluetooth LE with host profiles
  * (phase 12), with keys going to USB or Bluetooth (output.c), and power
- * management: idle, deep sleep and the battery gauge (phase 13).
+ * management: idle, deep sleep and the battery gauge (phase 13), and the
+ * 2.4 GHz dongle (phase 14).
  */
 
 #include <zephyr/kernel.h>
@@ -19,6 +20,7 @@
 #include "config.h"
 #include "indicators.h"
 #include "kb_ble.h"
+#include "kb_esb.h"
 #include "kb_usb.h"
 #include "keyboard.h"
 #include "power.h"
@@ -58,6 +60,11 @@ int main(void)
     /* Also loads the preferred output; until then keys prefer USB. */
     if (kb_ble_init() != 0) {
         LOG_ERR("Bluetooth unavailable");
+    }
+
+    /* After the settings load (kb_ble_init), which has the paired dongle. */
+    if (IS_ENABLED(CONFIG_KB_DONGLE) && kb_esb_init() != 0) {
+        LOG_ERR("2.4 GHz radio unavailable");
     }
 
     /* No LED walk when a key just woke the board: it is in use. */

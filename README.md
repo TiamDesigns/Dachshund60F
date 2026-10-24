@@ -87,8 +87,8 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | 11 | In-app firmware updates | Done |
 | 12 | Bluetooth LE | Done |
 | 13 | Power management, battery and input delay | Done |
-| 14 | 2.4 GHz dongle firmware | Next |
-| 15 | Desktop app packaging and auto-update | Planned |
+| 14 | 2.4 GHz dongle firmware | Done |
+| 15 | Desktop app packaging and auto-update | Next |
 
 "Done" means built and tested on a PC and in CI. None of it has run on a real board yet, because there isn't one.
 
@@ -99,7 +99,7 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | `hardware/` | KiCad 10 projects: mainboard, USB-C daughterboard, dongle and plate, plus STEP exports for case design |
 | `boards/Dachshund60F/` | Pin map, keyboard definition, Zephyr board files and the UF2 bootloader board |
 | `firmware/` | The keyboard firmware. `firmware/core/` is the hardware-free keymap engine and its tests |
-| `dongle/` | 2.4 GHz receiver firmware (a stub for now) |
+| `dongle/` | 2.4 GHz receiver firmware (see `dongle/README.md` to flash and pair it) |
 | `protocol/` | `protocol.yaml` and the code generator |
 | `host-lib/` | The TypeScript host library, mock board and tests |
 | `app/` | Doghouse, the configurator (Svelte 5 + Vite) |

@@ -161,6 +161,26 @@ static uint8_t op_clear_profile(uint8_t profile, void *ctx)
     return KB_PROTO_OK;
 }
 
+/* A dongle is paired but out of range (link 1), as on a desk with it unplugged. */
+static struct kb_proto_get_dongle_resp dongle = {.paired = 1, .link = 1};
+
+static void op_get_dongle(struct kb_proto_get_dongle_resp *out, void *ctx)
+{
+    (void)ctx;
+    *out = dongle;
+}
+
+static uint8_t op_pair_dongle(uint8_t mode, void *ctx)
+{
+    (void)ctx;
+    dongle.pairing = mode == KB_PROTO_PAIR_START ? 1u : 0u;
+    if (mode == KB_PROTO_PAIR_FORGET) {
+        dongle.paired = 0;
+        dongle.link = 0;
+    }
+    return KB_PROTO_OK;
+}
+
 /* On USB, charging, last read at 72% on battery. */
 static void op_get_power(struct kb_proto_get_power_resp *out, void *ctx)
 {
@@ -193,6 +213,8 @@ static const struct kb_protocol_ops ops = {
     .get_timing = op_get_timing,
     .get_connection = op_get_connection,
     .set_output = op_set_output,
+    .get_dongle = op_get_dongle,
+    .pair_dongle = op_pair_dongle,
     .select_profile = op_select_profile,
     .clear_profile = op_clear_profile,
     .save = op_save,
@@ -230,7 +252,7 @@ int main(void)
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                         KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS |
                         KB_PROTO_CAP_SETTINGS | KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH |
-                        KB_PROTO_CAP_BATTERY | KB_PROTO_CAP_TIMING,
+                        KB_PROTO_CAP_BATTERY | KB_PROTO_CAP_TIMING | KB_PROTO_CAP_DONGLE,
         .encoders = 1,
         .ble_profiles = BLE_PROFILES,
         .macro_buffer_size = KB_MACRO_BUFFER,

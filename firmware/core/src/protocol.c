@@ -612,6 +612,11 @@ static bool has_bluetooth(const struct kb_protocol *p)
            p->ops->clear_profile;
 }
 
+static bool has_dongle(const struct kb_protocol *p)
+{
+    return p->ops && p->ops->get_dongle && p->ops->pair_dongle;
+}
+
 static size_t h_get_connection(const struct kb_protocol *p, const uint8_t *in, size_t len,
                                uint8_t *out, uint8_t *status)
 {
@@ -645,8 +650,8 @@ static size_t h_set_output(const struct kb_protocol *p, const uint8_t *in, size_
         *status = KB_PROTO_BAD_LENGTH;
         return 0;
     }
-    if (r.output == KB_OUTPUT_DONGLE) {
-        *status = KB_PROTO_NOT_SUPPORTED; /* not in this build (yet) */
+    if (r.output == KB_OUTPUT_DONGLE && !has_dongle(p)) {
+        *status = KB_PROTO_NOT_SUPPORTED;
         return 0;
     }
     if (!kb_output_preferable(r.output)) {
@@ -654,6 +659,46 @@ static size_t h_set_output(const struct kb_protocol *p, const uint8_t *in, size_
         return 0;
     }
     *status = p->ops->set_output(r.output, p->ctx);
+    return 0;
+}
+
+static size_t h_get_dongle(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                           uint8_t *out, uint8_t *status)
+{
+    (void)in;
+    if (!has_dongle(p)) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (len != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+
+    struct kb_proto_get_dongle_resp r;
+    memset(&r, 0, sizeof(r));
+    p->ops->get_dongle(&r, p->ctx);
+    return kb_proto_get_dongle_resp_encode(&r, out);
+}
+
+static size_t h_pair_dongle(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                            uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    struct kb_proto_pair_dongle_req r;
+    if (!has_dongle(p)) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_pair_dongle_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.mode > KB_PROTO_PAIR_FORGET) {
+        *status = KB_PROTO_BAD_VALUE;
+        return 0;
+    }
+    *status = p->ops->pair_dongle(r.mode, p->ctx);
     return 0;
 }
 
@@ -763,6 +808,8 @@ static handler_fn handler_for(uint8_t command)
     case KB_PROTO_CMD_SET_OUTPUT: return h_set_output;
     case KB_PROTO_CMD_SELECT_PROFILE: return h_select_profile;
     case KB_PROTO_CMD_CLEAR_PROFILE: return h_clear_profile;
+    case KB_PROTO_CMD_GET_DONGLE: return h_get_dongle;
+    case KB_PROTO_CMD_PAIR_DONGLE: return h_pair_dongle;
     case KB_PROTO_CMD_GET_POWER: return h_get_power;
     case KB_PROTO_CMD_GET_TIMING: return h_get_timing;
     default: return NULL;

@@ -1,5 +1,6 @@
 /*
- * Config protocol service. Requests arrive on the USB or Bluetooth thread,
+ * Config protocol service. Requests arrive on the USB or Bluetooth thread
+ * (or relayed by the dongle),
  * wait in a small queue and are handled one at a time on their own thread,
  * so a slow command (a flash save) never holds up either. Each response
  * goes back the way its request came.
@@ -24,6 +25,7 @@
 #include "indicators.h"
 #include "kb/protocol.h"
 #include "kb_ble.h"
+#include "kb_esb.h"
 #include "kb_usb.h"
 #include "keyboard.h"
 #include "output.h"
@@ -37,7 +39,7 @@ LOG_MODULE_REGISTER(config, LOG_LEVEL_INF);
 #define REBOOT_DELAY_MS 100
 
 struct request {
-    uint8_t source; /* KB_OUTPUT_USB or KB_OUTPUT_BLE */
+    uint8_t source; /* KB_OUTPUT_USB, KB_OUTPUT_BLE or KB_OUTPUT_DONGLE */
     uint8_t len;
     uint8_t data[KB_PROTO_REPORT_SIZE];
 };
@@ -163,6 +165,18 @@ static uint8_t op_clear_profile(uint8_t profile, void *ctx)
     return ble_status(kb_ble_clear_profile(profile));
 }
 
+static void op_get_dongle(struct kb_proto_get_dongle_resp *out, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    kb_esb_get(out);
+}
+
+static uint8_t op_pair_dongle(uint8_t mode, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    return kb_esb_pair(mode) == 0 ? KB_PROTO_OK : KB_PROTO_BUSY;
+}
+
 static void op_get_power(struct kb_proto_get_power_resp *out, void *ctx)
 {
     ARG_UNUSED(ctx);
@@ -204,7 +218,7 @@ static const struct kb_protocol_ops base_ops = {
     .unlock = op_unlock,
 };
 
-/* The ops, plus get_power when the board has a battery gauge (config_start). */
+/* The ops, plus get_power with a battery gauge and the dongle ops when built in (config_start). */
 static struct kb_protocol_ops ops_with_power;
 
 static struct kb_protocol protocol = {
@@ -237,6 +251,23 @@ static void on_ble_request(const uint8_t *data, size_t len)
     queue_request(KB_OUTPUT_BLE, data, len);
 }
 
+static void on_dongle_request(const uint8_t *data, size_t len)
+{
+    queue_request(KB_OUTPUT_DONGLE, data, len);
+}
+
+static int send_response(uint8_t source, const uint8_t *resp)
+{
+    switch (source) {
+    case KB_OUTPUT_BLE:
+        return kb_ble_send_config(resp);
+    case KB_OUTPUT_DONGLE:
+        return IS_ENABLED(CONFIG_KB_DONGLE) ? kb_esb_send_config(resp) : -EAGAIN;
+    default:
+        return kb_usb_send_config(resp);
+    }
+}
+
 /*
  * What Doghouse asks every few seconds while it is open. These don't count
  * as use, or an open app would keep a board on battery from ever sleeping.
@@ -244,7 +275,7 @@ static void on_ble_request(const uint8_t *data, size_t len)
 static bool polled(uint8_t command)
 {
     return command == KB_PROTO_CMD_GET_POWER || command == KB_PROTO_CMD_GET_CONNECTION ||
-           command == KB_PROTO_CMD_GET_TIMING;
+           command == KB_PROTO_CMD_GET_TIMING || command == KB_PROTO_CMD_GET_DONGLE;
 }
 
 static void config_thread(void *p1, void *p2, void *p3)
@@ -264,7 +295,7 @@ static void config_thread(void *p1, void *p2, void *p3)
         if (!kb_protocol_handle(&protocol, req.data, req.len, resp)) {
             continue; /* no header to answer */
         }
-        int err = req.source == KB_OUTPUT_BLE ? kb_ble_send_config(resp) : kb_usb_send_config(resp);
+        int err = send_response(req.source, resp);
         if (err) {
             LOG_WRN("config response dropped (%d)", err);
         }
@@ -308,6 +339,12 @@ int config_start(void)
     if (power_has_battery()) {
         protocol.capabilities |= KB_PROTO_CAP_BATTERY;
         ops_with_power.get_power = op_get_power;
+    }
+    if (IS_ENABLED(CONFIG_KB_DONGLE)) {
+        protocol.capabilities |= KB_PROTO_CAP_DONGLE;
+        ops_with_power.get_dongle = op_get_dongle;
+        ops_with_power.pair_dongle = op_pair_dongle;
+        kb_esb_set_config_rx(on_dongle_request);
     }
     load_serial();
     kb_usb_set_config_rx(on_usb_request);

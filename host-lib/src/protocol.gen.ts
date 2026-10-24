@@ -19,6 +19,7 @@ export const Status = {
   storageError: 7,
   versionMismatch: 8,
   notSupported: 9,
+  unreachable: 10,
 } as const;
 export type StatusName = keyof typeof Status;
 
@@ -34,6 +35,7 @@ export const STATUS_TEXT: Record<number, string> = {
   7: 'Settings storage failed',
   8: "The request's protocol version isn't the device's",
   9: "This build doesn't support the command",
+  10: "The dongle can't reach its keyboard (asleep, off or out of range); only a dongle answers this",
 };
 
 export const Command = {
@@ -63,6 +65,8 @@ export const Command = {
   setOutput: 0x51,
   selectProfile: 0x52,
   clearProfile: 0x53,
+  getDongle: 0x54,
+  pairDongle: 0x55,
   getPower: 0x60,
   getTiming: 0x61,
 } as const;
@@ -81,6 +85,7 @@ export const Capability = {
   identify: 1 << 9,
   bluetooth: 1 << 10,
   timing: 1 << 11,
+  dongle: 1 << 12,
 } as const;
 
 /** Advanced-key tables: id, entry size in bytes and most entries (see protocol.yaml). */
@@ -1105,7 +1110,7 @@ export function decodeGetConnectionRequest(p: Uint8Array): GetConnectionRequest 
 
 export interface GetConnectionResponse {
   activeOutput: number; /** where keys go now (0 when no host is ready) */
-  preferredOutput: number; /** 1-3: the output OUT_USB, OUT_BLE or set_output picked; the other one is used while it isn't ready */
+  preferredOutput: number; /** 1-3: the output OUT_USB, OUT_BLE, OUT_2G4 or set_output picked; while it isn't ready, the first ready of USB, dongle and Bluetooth is used */
   usb: number; /** 0 no host, 1 a host has configured the board */
   ble: number; /** 0 off, 1 advertising, 2 connected, 3 connected and encrypted (keys flow) */
   profile: number; /** the selected Bluetooth host profile */
@@ -1142,7 +1147,7 @@ export function decodeGetConnectionResponse(p: Uint8Array): GetConnectionRespons
   };
 }
 
-/** Prefer this output (1 USB, 2 Bluetooth), as OUT_USB and OUT_BLE do; kept across power cycles. bad_value for anything else, not_supported for an output this build lacks. */
+/** Prefer this output (1 USB, 2 Bluetooth, 3 the 2.4 GHz dongle), as OUT_USB, OUT_BLE and OUT_2G4 do; kept across power cycles. bad_value for anything else, not_supported for an output this build lacks. */
 export interface SetOutputRequest {
   output: number;
 }
@@ -1246,6 +1251,84 @@ export function encodeClearProfileResponse(_m: ClearProfileResponse): Uint8Array
 export function decodeClearProfileResponse(p: Uint8Array): ClearProfileResponse {
   if (p.length !== 0) {
     throw new PayloadError(`clear_profile response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** The 2.4 GHz dongle link. Only the keyboard answers this; a dongle passes it on like any other command. */
+export type GetDongleRequest = Record<string, never>;
+
+export function encodeGetDongleRequest(_m: GetDongleRequest): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeGetDongleRequest(p: Uint8Array): GetDongleRequest {
+  if (p.length !== 0) {
+    throw new PayloadError(`get_dongle request: bad length ${p.length}`);
+  }
+  return {};
+}
+
+export interface GetDongleResponse {
+  paired: number; /** 1: the keyboard knows a dongle */
+  link: number; /** 0 off (not paired, or the radio is asleep), 1 looking for the dongle, 2 in range, 3 in range and the dongle's host is ready (keys can flow) */
+  pairing: number; /** 1: looking for a dongle in pairing mode */
+}
+
+export function encodeGetDongleResponse(m: GetDongleResponse): Uint8Array {
+  const p = new Uint8Array(3);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.paired, "paired"));
+  v.setUint8(1, u8(m.link, "link"));
+  v.setUint8(2, u8(m.pairing, "pairing"));
+  return p;
+}
+
+export function decodeGetDongleResponse(p: Uint8Array): GetDongleResponse {
+  if (p.length !== 3) {
+    throw new PayloadError(`get_dongle response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    paired: v.getUint8(0),
+    link: v.getUint8(1),
+    pairing: v.getUint8(2),
+  };
+}
+
+/** Pair with a dongle, as RF_PAIR does: the keyboard looks for a dongle in pairing mode (press its button) for 30 s and keeps the first one it finds. Mode 0 stops looking, 1 starts, 2 forgets the paired dongle. */
+export interface PairDongleRequest {
+  mode: number;
+}
+
+export function encodePairDongleRequest(m: PairDongleRequest): Uint8Array {
+  const p = new Uint8Array(1);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.mode, "mode"));
+  return p;
+}
+
+export function decodePairDongleRequest(p: Uint8Array): PairDongleRequest {
+  if (p.length !== 1) {
+    throw new PayloadError(`pair_dongle request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    mode: v.getUint8(0),
+  };
+}
+
+export type PairDongleResponse = Record<string, never>;
+
+export function encodePairDongleResponse(_m: PairDongleResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodePairDongleResponse(p: Uint8Array): PairDongleResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`pair_dongle response: bad length ${p.length}`);
   }
   return {};
 }
