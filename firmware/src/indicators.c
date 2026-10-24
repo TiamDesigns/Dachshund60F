@@ -4,7 +4,8 @@
  * At power-up the chain walks once, one LED at a time in chain order, red
  * then green then blue (CONFIG_KB_LED_SELFTEST), which shows both the chain
  * order and the colour order at bring-up. Then the LEDs follow the host's
- * lock state, the active layer and USB suspend.
+ * lock state, the active layer, the battery, USB suspend and idle on
+ * battery. Waking from deep sleep skips the walk.
  *
  * LED power (the TPS22917 load switch) is on only while an LED is lit:
  * six idle SK6812s draw about 6 mA.
@@ -220,15 +221,53 @@ void indicators_set_config(const struct kb_indicator_config *cfg, uint8_t bright
     changed();
 }
 
+/* Dark while the USB host sleeps or the board idles on battery. Hold lock. */
+static bool usb_asleep, idle_dark;
+
 void indicators_set_asleep(bool asleep)
 {
     K_SPINLOCK(&lock) {
-        state.asleep = asleep;
+        usb_asleep = asleep;
+        state.asleep = usb_asleep || idle_dark;
     }
     changed();
 }
 
-int indicators_start(void)
+void indicators_set_dark(bool dark)
+{
+    K_SPINLOCK(&lock) {
+        idle_dark = dark;
+        state.asleep = usb_asleep || idle_dark;
+    }
+    changed();
+}
+
+void indicators_set_battery(uint8_t percent)
+{
+    K_SPINLOCK(&lock) {
+        state.battery = percent;
+    }
+    changed();
+}
+
+void indicators_off(void)
+{
+    struct k_work_sync sync;
+
+    (void)k_work_cancel_delayable_sync(&selftest_work, &sync);
+    (void)k_work_cancel_delayable_sync(&identify_work, &sync);
+    identify_end = 0;
+    started = true;
+    indicators_set_dark(true);
+    (void)k_work_flush(&redraw_work, &sync);
+    /* Nothing was queued: power off here (the load switch's pin keeps its level in System OFF). */
+    if (powered) {
+        memset(pixels, 0, sizeof(pixels));
+        show(false);
+    }
+}
+
+int indicators_start(bool selftest)
 {
     if (!device_is_ready(led_power) || !device_is_ready(strip)) {
         LOG_ERR("LED power or strip device not ready");
@@ -236,7 +275,7 @@ int indicators_start(void)
     }
 
 
-    if (IS_ENABLED(CONFIG_KB_LED_SELFTEST)) {
+    if (selftest && IS_ENABLED(CONFIG_KB_LED_SELFTEST)) {
         k_work_schedule(&selftest_work, K_NO_WAIT);
     } else {
         started = true;

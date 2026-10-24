@@ -4,6 +4,7 @@
 
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/spinlock.h>
 
 #include "kb/encoder.h"
 
@@ -18,6 +19,60 @@ static const struct gpio_dt_spec pin_b = GPIO_DT_SPEC_GET(USER_NODE, encoder_b_g
 static struct kb_encoder decoder;
 static bool ready;
 
+static struct gpio_callback pin_cb[2];
+static void (*wake_fn)(void);
+static struct k_spinlock wake_lock;
+static bool armed;
+
+void encoder_input_wake_disarm(void)
+{
+    K_SPINLOCK(&wake_lock) {
+        if (!armed) {
+            K_SPINLOCK_BREAK;
+        }
+        armed = false;
+        (void)gpio_pin_interrupt_configure_dt(&pin_a, GPIO_INT_DISABLE);
+        (void)gpio_pin_interrupt_configure_dt(&pin_b, GPIO_INT_DISABLE);
+    }
+}
+
+static void pin_isr(const struct device *port, struct gpio_callback *cb, gpio_port_pins_t pins)
+{
+    ARG_UNUSED(port);
+    ARG_UNUSED(cb);
+    ARG_UNUSED(pins);
+    encoder_input_wake_disarm();
+    if (wake_fn) {
+        wake_fn();
+    }
+}
+
+void encoder_input_set_wake_handler(void (*fn)(void))
+{
+    wake_fn = fn;
+}
+
+/* Either pin leaving the level it rests at now. */
+static gpio_flags_t away_from(const struct gpio_dt_spec *pin)
+{
+    return gpio_pin_get_dt(pin) > 0 ? GPIO_INT_LEVEL_INACTIVE : GPIO_INT_LEVEL_ACTIVE;
+}
+
+void encoder_input_wake_arm(void)
+{
+    if (!ready) {
+        return;
+    }
+    K_SPINLOCK(&wake_lock) {
+        if (armed) {
+            K_SPINLOCK_BREAK;
+        }
+        armed = true;
+        (void)gpio_pin_interrupt_configure_dt(&pin_a, away_from(&pin_a));
+        (void)gpio_pin_interrupt_configure_dt(&pin_b, away_from(&pin_b));
+    }
+}
+
 int encoder_input_init(void)
 {
     const struct gpio_dt_spec *pins[] = {&pin_a, &pin_b};
@@ -28,6 +83,12 @@ int encoder_input_init(void)
         int err = gpio_pin_configure_dt(pins[i], GPIO_INPUT);
         if (err) {
             LOG_ERR("encoder pin setup failed (%d)", err);
+            return err;
+        }
+        gpio_init_callback(&pin_cb[i], pin_isr, BIT(pins[i]->pin));
+        err = gpio_add_callback_dt(pins[i], &pin_cb[i]);
+        if (err) {
+            LOG_ERR("encoder interrupt setup failed (%d)", err);
             return err;
         }
     }
@@ -55,6 +116,19 @@ int encoder_input_poll(int i)
 int encoder_input_init(void)
 {
     return 0;
+}
+
+void encoder_input_set_wake_handler(void (*fn)(void))
+{
+    ARG_UNUSED(fn);
+}
+
+void encoder_input_wake_arm(void)
+{
+}
+
+void encoder_input_wake_disarm(void)
+{
 }
 
 int encoder_input_count(void)

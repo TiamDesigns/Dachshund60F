@@ -161,7 +161,36 @@ static uint8_t op_clear_profile(uint8_t profile, void *ctx)
     return KB_PROTO_OK;
 }
 
+/* On USB, charging, last read at 72% on battery. */
+static void op_get_power(struct kb_proto_get_power_resp *out, void *ctx)
+{
+    (void)ctx;
+    out->battery_percent = 72;
+    out->battery_mv = 3960;
+    out->charging = 1;
+    out->usb_power = 1;
+}
+
+static uint32_t timing_scans = 5000;
+
+static void op_get_timing(struct kb_proto_get_timing_resp *out, bool reset, void *ctx)
+{
+    (void)ctx;
+    out->scan_period_us = 1000;
+    out->scan_avg_us = 95;
+    out->scan_max_us = 140;
+    out->report_avg_us = 30;
+    out->report_max_us = 80;
+    out->key_wakes = 12;
+    out->scans = timing_scans;
+    if (reset) {
+        timing_scans = 0;
+    }
+}
+
 static const struct kb_protocol_ops ops = {
+    .get_power = op_get_power,
+    .get_timing = op_get_timing,
     .get_connection = op_get_connection,
     .set_output = op_set_output,
     .select_profile = op_select_profile,
@@ -200,7 +229,8 @@ int main(void)
         .serial = "HOST0001",
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                         KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS |
-                        KB_PROTO_CAP_SETTINGS | KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH,
+                        KB_PROTO_CAP_SETTINGS | KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH |
+                        KB_PROTO_CAP_BATTERY | KB_PROTO_CAP_TIMING,
         .encoders = 1,
         .ble_profiles = BLE_PROFILES,
         .macro_buffer_size = KB_MACRO_BUFFER,

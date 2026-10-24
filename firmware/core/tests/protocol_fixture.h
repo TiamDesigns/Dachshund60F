@@ -41,6 +41,10 @@ struct fx_state {
     bool usb_ready;
     uint8_t ble, preferred, profile, bonded, ble_status;
     int profile_selects, profile_clears;
+    /* get_power and get_timing */
+    struct kb_proto_get_power_resp power;
+    uint32_t scans;
+    int timing_resets;
 };
 
 static struct fx_state fx;
@@ -176,7 +180,26 @@ static uint8_t fx_clear_profile(uint8_t profile, void *ctx)
     return fx.ble_status;
 }
 
+static void fx_get_power(struct kb_proto_get_power_resp *out, void *ctx)
+{
+    (void)ctx;
+    *out = fx.power;
+}
+
+static void fx_get_timing(struct kb_proto_get_timing_resp *out, bool reset, void *ctx)
+{
+    (void)ctx;
+    out->scan_period_us = 1000;
+    out->scans = fx.scans;
+    if (reset) {
+        fx.scans = 0;
+        fx.timing_resets++;
+    }
+}
+
 static const struct kb_protocol_ops fx_ops = {
+    .get_power = fx_get_power,
+    .get_timing = fx_get_timing,
     .get_connection = fx_get_connection,
     .set_output = fx_set_output,
     .select_profile = fx_select_profile,
@@ -207,6 +230,9 @@ static void fx_init(void)
     fx.ble = KB_BLE_SECURE;
     fx.preferred = KB_OUTPUT_USB;
     fx.bonded = 0x1;
+    fx.power = (struct kb_proto_get_power_resp){
+        .battery_percent = 80, .battery_mv = 4020, .charging = 0, .usb_power = 1};
+    fx.scans = 1234;
     fx_proto = (struct kb_protocol){
         .keymap = &fx.keymap,
         .ops = &fx_ops,

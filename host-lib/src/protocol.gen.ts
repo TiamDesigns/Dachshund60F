@@ -63,6 +63,8 @@ export const Command = {
   setOutput: 0x51,
   selectProfile: 0x52,
   clearProfile: 0x53,
+  getPower: 0x60,
+  getTiming: 0x61,
 } as const;
 export type CommandName = keyof typeof Command;
 
@@ -78,6 +80,7 @@ export const Capability = {
   battery: 1 << 8,
   identify: 1 << 9,
   bluetooth: 1 << 10,
+  timing: 1 << 11,
 } as const;
 
 /** Advanced-key tables: id, entry size in bytes and most entries (see protocol.yaml). */
@@ -1245,4 +1248,110 @@ export function decodeClearProfileResponse(p: Uint8Array): ClearProfileResponse 
     throw new PayloadError(`clear_profile response: bad length ${p.length}`);
   }
   return {};
+}
+
+/** The battery and the power source. The cell is read only while it powers the board: on USB the power path feeds the board from VBUS, so the last reading stands (100 once the charger is done). */
+export type GetPowerRequest = Record<string, never>;
+
+export function encodeGetPowerRequest(_m: GetPowerRequest): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeGetPowerRequest(p: Uint8Array): GetPowerRequest {
+  if (p.length !== 0) {
+    throw new PayloadError(`get_power request: bad length ${p.length}`);
+  }
+  return {};
+}
+
+export interface GetPowerResponse {
+  batteryPercent: number; /** 0-100, 255 while unknown (no reading on battery yet) */
+  batteryMv: number; /** the cell at the last reading on battery, in mV; 0 while unknown */
+  charging: number; /** 1 while the charger is charging the cell */
+  usbPower: number; /** 1 while USB powers the board (it never sleeps then) */
+}
+
+export function encodeGetPowerResponse(m: GetPowerResponse): Uint8Array {
+  const p = new Uint8Array(5);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.batteryPercent, "battery_percent"));
+  v.setUint16(1, u16(m.batteryMv, "battery_mv"), true);
+  v.setUint8(3, u8(m.charging, "charging"));
+  v.setUint8(4, u8(m.usbPower, "usb_power"));
+  return p;
+}
+
+export function decodeGetPowerResponse(p: Uint8Array): GetPowerResponse {
+  if (p.length !== 5) {
+    throw new PayloadError(`get_power response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    batteryPercent: v.getUint8(0),
+    batteryMv: v.getUint16(1, true),
+    charging: v.getUint8(3),
+    usbPower: v.getUint8(4),
+  };
+}
+
+/** Input timing since power-up or the last reset, for measuring input delay. Times are in microseconds. */
+export interface GetTimingRequest {
+  reset: number; /** 1: zero the counters after reading them */
+}
+
+export function encodeGetTimingRequest(m: GetTimingRequest): Uint8Array {
+  const p = new Uint8Array(1);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.reset, "reset"));
+  return p;
+}
+
+export function decodeGetTimingRequest(p: Uint8Array): GetTimingRequest {
+  if (p.length !== 1) {
+    throw new PayloadError(`get_timing request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    reset: v.getUint8(0),
+  };
+}
+
+export interface GetTimingResponse {
+  scanPeriodUs: number; /** the matrix scan period while keys are in use */
+  scanAvgUs: number; /** time to read the whole matrix */
+  scanMaxUs: number;
+  reportAvgUs: number; /** from the start of the scan that saw a key change to its reports handed to the output */
+  reportMaxUs: number;
+  keyWakes: number; /** scans started at once by a key press, while the scan waited for one, instead of by the timer */
+  scans: number; /** every scan */
+}
+
+export function encodeGetTimingResponse(m: GetTimingResponse): Uint8Array {
+  const p = new Uint8Array(18);
+  const v = new DataView(p.buffer);
+  v.setUint16(0, u16(m.scanPeriodUs, "scan_period_us"), true);
+  v.setUint16(2, u16(m.scanAvgUs, "scan_avg_us"), true);
+  v.setUint16(4, u16(m.scanMaxUs, "scan_max_us"), true);
+  v.setUint16(6, u16(m.reportAvgUs, "report_avg_us"), true);
+  v.setUint16(8, u16(m.reportMaxUs, "report_max_us"), true);
+  v.setUint32(10, u32(m.keyWakes, "key_wakes"), true);
+  v.setUint32(14, u32(m.scans, "scans"), true);
+  return p;
+}
+
+export function decodeGetTimingResponse(p: Uint8Array): GetTimingResponse {
+  if (p.length !== 18) {
+    throw new PayloadError(`get_timing response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    scanPeriodUs: v.getUint16(0, true),
+    scanAvgUs: v.getUint16(2, true),
+    scanMaxUs: v.getUint16(4, true),
+    reportAvgUs: v.getUint16(6, true),
+    reportMaxUs: v.getUint16(8, true),
+    keyWakes: v.getUint32(10, true),
+    scans: v.getUint32(14, true),
+  };
 }

@@ -27,6 +27,7 @@
 #include "kb_usb.h"
 #include "keyboard.h"
 #include "output.h"
+#include "power.h"
 
 LOG_MODULE_REGISTER(config, LOG_LEVEL_INF);
 
@@ -162,6 +163,18 @@ static uint8_t op_clear_profile(uint8_t profile, void *ctx)
     return ble_status(kb_ble_clear_profile(profile));
 }
 
+static void op_get_power(struct kb_proto_get_power_resp *out, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    power_get(out);
+}
+
+static void op_get_timing(struct kb_proto_get_timing_resp *out, bool reset, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_timing(out, reset);
+}
+
 static void op_lock(void *ctx)
 {
     ARG_UNUSED(ctx);
@@ -174,7 +187,7 @@ static void op_unlock(void *ctx)
     keyboard_unlock();
 }
 
-static const struct kb_protocol_ops ops = {
+static const struct kb_protocol_ops base_ops = {
     .save = op_save,
     .revert = op_revert,
     .factory_reset = op_factory_reset,
@@ -186,17 +199,21 @@ static const struct kb_protocol_ops ops = {
     .set_output = op_set_output,
     .select_profile = op_select_profile,
     .clear_profile = op_clear_profile,
+    .get_timing = op_get_timing,
     .lock = op_lock,
     .unlock = op_unlock,
 };
 
+/* The ops, plus get_power when the board has a battery gauge (config_start). */
+static struct kb_protocol_ops ops_with_power;
+
 static struct kb_protocol protocol = {
-    .ops = &ops,
+    .ops = &ops_with_power,
     .build = BUILD_ID,
-    /* Matrix streaming and battery join in later phases. */
+    /* Matrix streaming joins in a later phase; battery once the gauge is up (config_start). */
     .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                     KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_SETTINGS |
-                    KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH,
+                    KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH | KB_PROTO_CAP_TIMING,
     .macro_buffer_size = KB_MACRO_BUFFER,
 };
 
@@ -220,6 +237,16 @@ static void on_ble_request(const uint8_t *data, size_t len)
     queue_request(KB_OUTPUT_BLE, data, len);
 }
 
+/*
+ * What Doghouse asks every few seconds while it is open. These don't count
+ * as use, or an open app would keep a board on battery from ever sleeping.
+ */
+static bool polled(uint8_t command)
+{
+    return command == KB_PROTO_CMD_GET_POWER || command == KB_PROTO_CMD_GET_CONNECTION ||
+           command == KB_PROTO_CMD_GET_TIMING;
+}
+
 static void config_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1);
@@ -231,6 +258,9 @@ static void config_thread(void *p1, void *p2, void *p3)
 
     for (;;) {
         k_msgq_get(&request_queue, &req, K_FOREVER);
+        if (req.len > KB_PROTO_OFF_COMMAND && !polled(req.data[KB_PROTO_OFF_COMMAND])) {
+            keyboard_note_activity();
+        }
         if (!kb_protocol_handle(&protocol, req.data, req.len, resp)) {
             continue; /* no header to answer */
         }
@@ -260,6 +290,7 @@ static void load_serial(void)
 int config_start(void)
 {
     /* From the info block, which also keeps it in the image. */
+    ops_with_power = base_ops;
     protocol.firmware_major = fw_info.major;
     protocol.firmware_minor = fw_info.minor;
     protocol.firmware_patch = fw_info.patch;
@@ -274,6 +305,10 @@ int config_start(void)
         protocol.capabilities |= KB_PROTO_CAP_ENCODERS;
     }
     protocol.ble_profiles = kb_ble_profile_count();
+    if (power_has_battery()) {
+        protocol.capabilities |= KB_PROTO_CAP_BATTERY;
+        ops_with_power.get_power = op_get_power;
+    }
     load_serial();
     kb_usb_set_config_rx(on_usb_request);
     kb_ble_set_config_rx(on_ble_request);

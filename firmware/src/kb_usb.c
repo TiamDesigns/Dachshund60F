@@ -37,6 +37,8 @@
 #include "indicators.h"
 #include "kb/protocol_gen.h"
 #include "kb/version.h"
+#include "keyboard.h"
+#include "power.h"
 
 LOG_MODULE_REGISTER(kb_usb, LOG_LEVEL_INF);
 
@@ -147,6 +149,7 @@ static void pipe_reset(struct hid_pipe *p, bool ready)
     atomic_set(&p->busy, 0);
     if (p != &config_pipe) {
         atomic_set(&resync, 1);
+        keyboard_poke();
     }
 }
 
@@ -179,6 +182,7 @@ static void iface_ready(const struct device *dev, const bool ready)
         atomic_set(&boot_protocol, 0);
         if (!ready) {
             atomic_set(&locks, 0);
+            keyboard_poke();
         }
         LOG_INF("keyboard interface %s", ready ? "ready" : "not ready");
     } else {
@@ -229,6 +233,7 @@ static int get_report(const struct device *dev, const uint8_t type, const uint8_
 static void set_locks(uint8_t value)
 {
     atomic_set(&locks, value);
+    keyboard_poke();
 }
 
 static int kbd_set_report(const struct device *dev, const uint8_t type, const uint8_t id,
@@ -361,10 +366,14 @@ static void on_usbd_msg(struct usbd_context *const ctx, const struct usbd_msg *c
         k_msgq_purge(kbd_pipe.queue);
         k_msgq_purge(extra_pipe.queue);
         atomic_set(&resync, 1);
+        keyboard_poke();
         indicators_set_asleep(false);
         LOG_INF("resumed");
         break;
     case USBD_MSG_VBUS_READY:
+        /* Power and the battery gauge follow the cable too. */
+        power_poke();
+        keyboard_poke();
         /* Cable in: start the device (unless it never stopped). */
         if (usbd_can_detect_vbus(ctx)) {
             int err = usbd_enable(ctx);
@@ -374,6 +383,8 @@ static void on_usbd_msg(struct usbd_context *const ctx, const struct usbd_msg *c
         }
         break;
     case USBD_MSG_VBUS_REMOVED:
+        power_poke();
+        keyboard_poke();
         /* Cable out: deconfigure, so keys move to Bluetooth at once. */
         if (usbd_can_detect_vbus(ctx)) {
             (void)usbd_disable(ctx);
@@ -451,6 +462,7 @@ int kb_usb_send(enum kb_hid_report report, const uint8_t *data, size_t len)
     if (atomic_get(&suspended)) {
         /* Sent again in full after the resume. */
         atomic_set(&resync, 1);
+        keyboard_poke();
         wake_host();
         return -EAGAIN;
     }
@@ -466,6 +478,7 @@ int kb_usb_send(enum kb_hid_report report, const uint8_t *data, size_t len)
          */
         k_msgq_purge(p->queue);
         atomic_set(&resync, 1);
+        keyboard_poke();
         return -ENOBUFS;
     }
 

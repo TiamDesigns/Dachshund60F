@@ -9,12 +9,19 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-/* Power-on self-test walk along the chain, then live indicators. */
-int indicators_start(void);
+/* The power-on self-test walk along the chain (if selftest), then live indicators. */
+int indicators_start(bool selftest);
 
 void indicators_set_locks(uint8_t locks);
 void indicators_set_layer(uint8_t layer);
+/* Percent, or KB_BATTERY_UNKNOWN (kb/indicators.h). */
+void indicators_set_battery(uint8_t percent);
+/* The USB host is suspended: all dark. */
 void indicators_set_asleep(bool asleep);
+/* Idle on battery: all dark (power management). */
+void indicators_set_dark(bool dark);
+/* Deep sleep: dark and the LED power off before this returns. Not from an interrupt. */
+void indicators_off(void);
 struct kb_indicator_config;
 
 /*

@@ -164,6 +164,7 @@ const STATIC_KEYCODES: KeycodeInfo[] = [
   k("AS_TOGG", "AutoSh", "Turn Auto Shift on or off", "special"),
   k("QK_BOOT", "Boot", "Reboot into the firmware updater", "special"),
   k("QK_RBT", "Reboot", "Reboot the keyboard", "special"),
+  k("QK_SLEEP", "Sleep", "Put the keyboard into deep sleep (on battery); any key wakes it", "special"),
   k("NK_TOGG", "NKRO", "Turn N-key rollover on or off", "special"),
 ];
 

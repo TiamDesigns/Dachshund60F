@@ -22,6 +22,7 @@ target_sources(app PRIVATE
   src/keyboard.c
   src/matrix.c
   src/output.c
+  src/power.c
   src/storage.c
   ${KB_CORE_SOURCES}
 )

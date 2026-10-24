@@ -6,7 +6,8 @@
  * interface (phase 5), indicator LEDs for layer and Caps Lock
  * after a power-on walk along the chain, the status screen when a
  * panel overlay is built in, and Bluetooth LE with host profiles
- * (phase 12), with keys going to USB or Bluetooth (output.c).
+ * (phase 12), with keys going to USB or Bluetooth (output.c), and power
+ * management: idle, deep sleep and the battery gauge (phase 13).
  */
 
 #include <zephyr/kernel.h>
@@ -20,6 +21,7 @@
 #include "kb_ble.h"
 #include "kb_usb.h"
 #include "keyboard.h"
+#include "power.h"
 #include "status_screen.h"
 
 LOG_MODULE_REGISTER(kb_main, LOG_LEVEL_INF);
@@ -28,6 +30,11 @@ int main(void)
 {
     LOG_INF("keyboard firmware %s, core api %u", APP_VERSION_STRING,
             (unsigned)kb_core_api_version());
+
+    /* First: it reads why the board started (a key waking it from deep sleep, or not). */
+    if (power_init() != 0) {
+        LOG_WRN("no battery gauge");
+    }
 
     /* Start the keyboard first: its hold-Esc recovery key works even if USB fails. */
     if (keyboard_start() != 0) {
@@ -53,7 +60,8 @@ int main(void)
         LOG_ERR("Bluetooth unavailable");
     }
 
-    if (indicators_start() != 0) {
+    /* No LED walk when a key just woke the board: it is in use. */
+    if (indicators_start(!power_woke_from_sleep()) != 0) {
         LOG_ERR("indicator LEDs unavailable");
     }
 

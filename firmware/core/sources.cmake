@@ -2,6 +2,7 @@
 # build (firmware/CMakeLists.txt) and the host test build (core/CMakeLists.txt).
 set(KB_CORE_INCLUDE_DIRS ${CMAKE_CURRENT_LIST_DIR}/include)
 set(KB_CORE_SOURCES
+  ${CMAKE_CURRENT_LIST_DIR}/src/battery.c
   ${CMAKE_CURRENT_LIST_DIR}/src/core.c
   ${CMAKE_CURRENT_LIST_DIR}/src/debounce.c
   ${CMAKE_CURRENT_LIST_DIR}/src/encoder.c
@@ -13,6 +14,7 @@ set(KB_CORE_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/src/keycodes.c
   ${CMAKE_CURRENT_LIST_DIR}/src/keymap.c
   ${CMAKE_CURRENT_LIST_DIR}/src/output.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/power.c
   ${CMAKE_CURRENT_LIST_DIR}/src/protocol.c
   ${CMAKE_CURRENT_LIST_DIR}/src/protocol_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/src/screen.c

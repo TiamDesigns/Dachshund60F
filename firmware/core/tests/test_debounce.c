@@ -1,6 +1,7 @@
 #include "kb/debounce.h"
 #include "kb_test.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 /* Feed one key, (0, 0), of a 1x1 matrix and return its debounced state. */
@@ -210,10 +211,34 @@ static void test_configure_keeps_state(void)
     KB_CHECK_EQ(db.ms, 10);
 }
 
+static void test_idle(void)
+{
+    static const enum kb_debounce_algo algos[] = {
+        KB_DEBOUNCE_DEFER_GLOBAL, KB_DEBOUNCE_DEFER_PER_KEY, KB_DEBOUNCE_EAGER_GLOBAL,
+        KB_DEBOUNCE_EAGER_PER_KEY, KB_DEBOUNCE_EAGER_PRESS};
+    for (size_t i = 0; i < sizeof(algos) / sizeof(algos[0]); i++) {
+        struct kb_debounce db;
+        kb_debounce_init(&db, 1, 1, algos[i], 5);
+        KB_CHECK(kb_debounce_idle(&db));
+        feed(&db, 1, 100);
+        KB_CHECK(!kb_debounce_idle(&db)); /* reads pressed */
+        feed(&db, 1, 110);
+        feed(&db, 0, 120);
+        /* Released but maybe not yet debounced released. */
+        uint32_t t = 120;
+        while (kb_debounce_state(&db)[0]) {
+            KB_CHECK(!kb_debounce_idle(&db));
+            feed(&db, 0, ++t);
+        }
+        KB_CHECK(kb_debounce_idle(&db));
+    }
+}
+
 int main(void)
 {
     printf("test_debounce\n");
     KB_RUN(test_init_validates);
+    KB_RUN(test_idle);
     KB_RUN(test_defer_per_key);
     KB_RUN(test_defer_per_key_rejects_a_glitch);
     KB_RUN(test_defer_is_per_key);

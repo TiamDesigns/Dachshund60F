@@ -5,6 +5,7 @@
     HOST_LIB_VERSION,
     makeUf2,
     protocol,
+    type InputTiming,
     type MockBoard,
   } from "@dachshund60f/host-lib";
 
@@ -44,6 +45,39 @@
     void app.prepareUpdate(session, file);
   }
 
+  const batteryText = $derived.by(() => {
+    const b = session.battery;
+    if (!b) return "Unknown";
+    const parts = [`${b.percent}%`];
+    if (b.millivolts) parts.push(`${(b.millivolts / 1000).toFixed(2)} V`);
+    if (b.charging) parts.push("charging");
+    else if (b.usbPower) parts.push("on USB power");
+    return parts.join(", ");
+  });
+
+  // Input timing: counters on the board since power-up or the last reset.
+  let timing = $state<InputTiming | null>(null);
+  let timingBusy = $state(false);
+
+  async function readTiming(reset: boolean) {
+    if (!session.board.getTiming) return;
+    timingBusy = true;
+    try {
+      const read = await session.board.getTiming(reset);
+      // After a reset the counters start from zero, so what was read is history.
+      timing = reset ? null : read;
+      if (reset) app.notify("Counters reset. Type for a while, then read them again.", "success");
+    } catch (err) {
+      app.notify(err instanceof Error ? err.message : String(err), "error");
+    } finally {
+      timingBusy = false;
+    }
+  }
+
+  function us(n: number): string {
+    return n >= 1000 ? `${(n / 1000).toFixed(2)} ms` : `${n} µs`;
+  }
+
   function enterBootloader() {
     if (confirm(`Restart ${session.displayName} into its bootloader? It stops typing until you copy firmware onto it or reset it.`)) {
       void session.enterBootloader();
@@ -72,9 +106,33 @@
         <dd>{info.capabilities.join(", ") || "None"}</dd>
       {/if}
       <dt>Battery</dt>
-      <dd>{session.battery ? `${session.battery.percent}%${session.battery.charging ? ", charging" : ""}` : "Unknown"}</dd>
+      <dd>{batteryText}</dd>
     </dl>
   </section>
+
+  {#if !session.problem && session.supports("timing") && session.board.getTiming}
+    <section class="card">
+      <h2>Input timing</h2>
+      <p>How quickly the board turns a key press into a report, measured on the board itself. Reset the counters, type for a minute, then read them.</p>
+      {#if timing}
+        <dl class="timing">
+          <dt>Scan rate</dt>
+          <dd>{Math.round(1_000_000 / timing.scanPeriodUs)} Hz</dd>
+          <dt>Matrix read</dt>
+          <dd>{us(timing.scanAvgUs)} average, {us(timing.scanMaxUs)} at most</dd>
+          <dt>Key to report</dt>
+          <dd>{us(timing.reportAvgUs)} average, {us(timing.reportMaxUs)} at most</dd>
+          <dt>Instant scans</dt>
+          <dd>{timing.keyWakes.toLocaleString()} of {timing.scans.toLocaleString()} scans started by a key press</dd>
+        </dl>
+        <small>The board's clock ticks every 30.5 µs, so single times are that coarse. USB adds up to 1 ms (its polling), Bluetooth up to one connection interval.</small>
+      {/if}
+      <div class="buttons">
+        <button class="btn" onclick={() => readTiming(false)} disabled={timingBusy}>Read counters</button>
+        <button class="btn ghost" onclick={() => readTiming(true)} disabled={timingBusy}>Reset</button>
+      </div>
+    </section>
+  {/if}
 
   <section class="card">
     <h2>Firmware updates</h2>
@@ -160,6 +218,16 @@
   p {
     margin: 0;
     color: var(--text-muted);
+  }
+
+  .timing {
+    margin: 12px 0 8px;
+  }
+
+  small {
+    display: block;
+    color: var(--text-faint);
+    font-size: 12px;
   }
 
   .foot {

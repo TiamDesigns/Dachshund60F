@@ -54,6 +54,13 @@ struct kb_protocol_ops {
     uint8_t (*set_output)(uint8_t output, void *ctx);
     uint8_t (*select_profile)(uint8_t profile, void *ctx);
     uint8_t (*clear_profile)(uint8_t profile, void *ctx);
+    /* The battery and the power source (get_power). NULL: not supported. */
+    void (*get_power)(struct kb_proto_get_power_resp *out, void *ctx);
+    /*
+     * Input timing (get_timing); with reset, the counters start again from
+     * zero after this reading. NULL: not supported.
+     */
+    void (*get_timing)(struct kb_proto_get_timing_resp *out, bool reset, void *ctx);
     /* Guard keymap changes against the scan thread. Optional. */
     void (*lock)(void *ctx);
     void (*unlock)(void *ctx);

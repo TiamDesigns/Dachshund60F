@@ -544,6 +544,43 @@ static void test_connection(void)
     KB_CHECK_EQ(call(KB_PROTO_CMD_CLEAR_PROFILE, &profile, 1), KB_PROTO_NOT_SUPPORTED);
 }
 
+static void test_power_and_timing(void)
+{
+    fx_init();
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_POWER, NULL, 0), KB_PROTO_OK);
+    struct kb_proto_get_power_resp pw;
+    KB_CHECK_EQ(kb_proto_get_power_resp_decode(payload(), payload_len(), &pw), 0);
+    KB_CHECK_EQ(pw.battery_percent, 80);
+    KB_CHECK_EQ(pw.battery_mv, 4020);
+    KB_CHECK_EQ(pw.charging, 0);
+    KB_CHECK_EQ(pw.usb_power, 1);
+    uint8_t one = 1;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_POWER, &one, 1), KB_PROTO_BAD_LENGTH);
+
+    uint8_t reset = 0;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_TIMING, &reset, 1), KB_PROTO_OK);
+    struct kb_proto_get_timing_resp t;
+    KB_CHECK_EQ(kb_proto_get_timing_resp_decode(payload(), payload_len(), &t), 0);
+    KB_CHECK_EQ(t.scan_period_us, 1000);
+    KB_CHECK_EQ(t.scans, 1234u);
+    KB_CHECK_EQ(fx.timing_resets, 0);
+    reset = 1;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_TIMING, &reset, 1), KB_PROTO_OK);
+    kb_proto_get_timing_resp_decode(payload(), payload_len(), &t);
+    KB_CHECK_EQ(t.scans, 1234u); /* read, then zeroed */
+    KB_CHECK_EQ(fx.scans, 0u);
+    KB_CHECK_EQ(fx.timing_resets, 1);
+    reset = 2;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_TIMING, &reset, 1), KB_PROTO_BAD_VALUE);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_TIMING, NULL, 0), KB_PROTO_BAD_LENGTH);
+    KB_CHECK_EQ(fx.timing_resets, 1);
+
+    static const struct kb_protocol_ops none = {0};
+    fx_proto.ops = &none;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_POWER, NULL, 0), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_TIMING, &reset, 1), KB_PROTO_NOT_SUPPORTED);
+}
+
 static void test_device_control(void)
 {
     fx_init();
@@ -620,6 +657,7 @@ int main(void)
     KB_RUN(test_indicators);
     KB_RUN(test_features_not_supported);
     KB_RUN(test_connection);
+    KB_RUN(test_power_and_timing);
     KB_RUN(test_device_control);
     KB_RUN(test_codec_round_trip);
     return KB_TEST_RESULT();

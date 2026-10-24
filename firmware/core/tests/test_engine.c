@@ -370,6 +370,23 @@ static void test_layer_tap_hold_by_timeout(void)
     KB_CHECK_EQ(reports, 2); /* no Space */
 }
 
+static void test_idle_only_without_timers(void)
+{
+    setup();
+    KB_CHECK(kb_engine_idle(&eng));
+    /* A plain key held waits on nothing. */
+    key(K_A, true, 0);
+    KB_CHECK(kb_engine_idle(&eng));
+    key(K_A, false, 10);
+    /* An undecided layer-tap waits on its tapping term. */
+    key(K_LT1, true, 20);
+    KB_CHECK(!kb_engine_idle(&eng));
+    kb_engine_tick(&eng, 220);
+    KB_CHECK(kb_engine_idle(&eng)); /* decided: a hold */
+    key(K_LT1, false, 300);
+    KB_CHECK(kb_engine_idle(&eng));
+}
+
 static void test_layer_tap_waits_for_decision(void)
 {
     /* Hold LT, press A within the term, keep holding: A waits, then lands on layer 1. */
@@ -615,6 +632,7 @@ int main(void)
     KB_RUN(test_one_shot_layer_and_mod_stack);
     KB_RUN(test_layer_tap_tap);
     KB_RUN(test_layer_tap_hold_by_timeout);
+    KB_RUN(test_idle_only_without_timers);
     KB_RUN(test_layer_tap_waits_for_decision);
     KB_RUN(test_layer_tap_rolled_over_is_a_tap);
     KB_RUN(test_mod_tap);

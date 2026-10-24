@@ -52,6 +52,40 @@ config KB_MATRIX_SCAN_PERIOD_US
 	help
 	  1000 scans at 1 kHz.
 
+config KB_WAKE_ON_PRESS
+	bool "Scan at once when a key goes down"
+	default y
+	help
+	  While no key is down, every column is driven high between scans
+	  and the rows wait on an interrupt, so the first key of a burst is
+	  scanned the moment it closes instead of at the next tick (half a
+	  period sooner on average). Costs a few microseconds per scan.
+	  Idle always waits this way, whatever this says.
+
+config KB_IDLE_MS
+	int "Quiet time before the scan stops and waits for a key, in ms (0 = never)"
+	default 500
+	range 0 60000
+	help
+	  Quiet: no key down, and nothing waiting on time (tap-hold, combos,
+	  Caps Word, Leader, macros, mouse keys). The scan then sleeps until
+	  a key or the encoder moves, and starts at once when one does, so
+	  this costs no delay.
+
+config KB_LIGHTS_OFF_S
+	int "On battery: quiet time before the indicators and an OLED go dark, in s (0 = never)"
+	default 60
+	range 0 3600
+
+config KB_ADVERTISING_OFF_S
+	int "On battery: quiet time before Bluetooth stops advertising, in s (0 = never)"
+	default 300
+	range 0 86400
+	help
+	  A connected host stays connected. Without a host, the board stops
+	  advertising until the next key. Deep sleep (the sleep timeout in
+	  the settings) stops it anyway.
+
 config KB_MATRIX_SETTLE_US
 	int "Wait after driving a column before reading the rows, in microseconds"
 	default 5
@@ -122,7 +156,9 @@ config KB_SLEEP_TIMEOUT_MIN
 	default 15
 	range 0 240
 	help
-	  Stored with the settings; power management uses it in phase 13.
+	  Stored with the settings. On battery, after this long without use
+	  the board goes into deep sleep (System OFF), and a key press wakes
+	  it. Never on USB power.
 
 config KB_INDICATOR_BRIGHTNESS
 	int "Default indicator LED brightness, in percent"

@@ -657,6 +657,48 @@ static size_t h_set_output(const struct kb_protocol *p, const uint8_t *in, size_
     return 0;
 }
 
+static size_t h_get_power(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                          uint8_t *out, uint8_t *status)
+{
+    (void)in;
+    if (!p->ops || !p->ops->get_power) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (len != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+
+    struct kb_proto_get_power_resp r;
+    memset(&r, 0, sizeof(r));
+    p->ops->get_power(&r, p->ctx);
+    return kb_proto_get_power_resp_encode(&r, out);
+}
+
+static size_t h_get_timing(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                           uint8_t *out, uint8_t *status)
+{
+    struct kb_proto_get_timing_req req;
+    if (!p->ops || !p->ops->get_timing) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_get_timing_req_decode(in, len, &req) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (req.reset > 1u) {
+        *status = KB_PROTO_BAD_VALUE;
+        return 0;
+    }
+
+    struct kb_proto_get_timing_resp r;
+    memset(&r, 0, sizeof(r));
+    p->ops->get_timing(&r, req.reset != 0, p->ctx);
+    return kb_proto_get_timing_resp_encode(&r, out);
+}
+
 /* select_profile and clear_profile share a request layout. */
 static size_t profile_command(const struct kb_protocol *p, const uint8_t *in, size_t len,
                               uint8_t *status, uint8_t (*op)(uint8_t, void *))
@@ -721,6 +763,8 @@ static handler_fn handler_for(uint8_t command)
     case KB_PROTO_CMD_SET_OUTPUT: return h_set_output;
     case KB_PROTO_CMD_SELECT_PROFILE: return h_select_profile;
     case KB_PROTO_CMD_CLEAR_PROFILE: return h_clear_profile;
+    case KB_PROTO_CMD_GET_POWER: return h_get_power;
+    case KB_PROTO_CMD_GET_TIMING: return h_get_timing;
     default: return NULL;
     }
 }

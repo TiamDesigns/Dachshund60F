@@ -60,9 +60,10 @@ capabilities:
   - {name: indicators, bit: 5, doc: indicator colours}
   - {name: settings, bit: 6, doc: global settings}
   - {name: matrix_stream, bit: 7, doc: live matrix state for the key tester}
-  - {name: battery, bit: 8, doc: battery level}
+  - {name: battery, bit: 8, doc: "battery level and power source (get_power)"}
   - {name: identify, bit: 9, doc: identify command}
   - {name: bluetooth, bit: 10, doc: "Bluetooth host profiles and output selection (get_connection and friends)"}
+  - {name: timing, bit: 11, doc: "input timing counters (get_timing)"}
 
 # Advanced-key tables (kb/features.h), read and written one entry at a time
 # with get_feature and set_feature. Each entry is `size` bytes in the layout
@@ -338,3 +339,27 @@ commands:
     request:
       - {name: profile, type: u8}
     response: []
+
+  - name: get_power
+    id: 0x60
+    doc: "The battery and the power source. The cell is read only while it powers the board: on USB the power path feeds the board from VBUS, so the last reading stands (100 once the charger is done)."
+    request: []
+    response:
+      - {name: battery_percent, type: u8, doc: "0-100, 255 while unknown (no reading on battery yet)"}
+      - {name: battery_mv, type: u16, doc: "the cell at the last reading on battery, in mV; 0 while unknown"}
+      - {name: charging, type: u8, doc: "1 while the charger is charging the cell"}
+      - {name: usb_power, type: u8, doc: "1 while USB powers the board (it never sleeps then)"}
+
+  - name: get_timing
+    id: 0x61
+    doc: "Input timing since power-up or the last reset, for measuring input delay. Times are in microseconds."
+    request:
+      - {name: reset, type: u8, doc: "1: zero the counters after reading them"}
+    response:
+      - {name: scan_period_us, type: u16, doc: the matrix scan period while keys are in use}
+      - {name: scan_avg_us, type: u16, doc: time to read the whole matrix}
+      - {name: scan_max_us, type: u16}
+      - {name: report_avg_us, type: u16, doc: "from the start of the scan that saw a key change to its reports handed to the output"}
+      - {name: report_max_us, type: u16}
+      - {name: key_wakes, type: u32, doc: "scans started at once by a key press, while the scan waited for one, instead of by the timer"}
+      - {name: scans, type: u32, doc: every scan}

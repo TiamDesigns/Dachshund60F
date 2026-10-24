@@ -14,4 +14,13 @@ int encoder_input_count(void);
 /* Sample encoder i: +1 for a detent clockwise, -1 counter-clockwise, else 0. */
 int encoder_input_poll(int i);
 
+/*
+ * Wake on a turn while the scan is idle: interrupts on both contacts
+ * leaving the level they rest at, calling fn from the interrupt once. The
+ * interrupt disarms itself. Set fn before arming.
+ */
+void encoder_input_set_wake_handler(void (*fn)(void));
+void encoder_input_wake_arm(void);
+void encoder_input_wake_disarm(void);
+
 #endif /* ENCODER_INPUT_H */

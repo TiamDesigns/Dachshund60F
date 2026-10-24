@@ -74,6 +74,12 @@ int kb_debounce_configure(struct kb_debounce *db, enum kb_debounce_algo algo, ui
  */
 bool kb_debounce_update(struct kb_debounce *db, const kb_matrix_row_t *raw, uint32_t now_ms);
 
+/*
+ * Every key reads released and is debounced released: nothing can change
+ * until a key goes down.
+ */
+bool kb_debounce_idle(const struct kb_debounce *db);
+
 static inline const kb_matrix_row_t *kb_debounce_state(const struct kb_debounce *db)
 {
     return db->stable;

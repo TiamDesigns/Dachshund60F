@@ -23,6 +23,11 @@ void status_screen_set_locks(uint8_t locks);
 void status_screen_set_battery(int8_t pct, bool charging);
 void status_screen_set_transport(uint8_t transport, uint8_t ble_profile);
 
+/* Idle on battery: an OLED goes dark until the next key (e-paper keeps its picture). */
+void status_screen_set_dark(bool dark);
+/* Deep sleep: no more drawing, and an OLED off. */
+void status_screen_off(void);
+
 /* Replace the layout. Rejected with -EINVAL unless it validates. */
 int status_screen_set_layout(const struct kb_screen_layout *layout);
 
@@ -53,6 +58,15 @@ static inline void status_screen_set_transport(uint8_t transport, uint8_t ble_pr
 {
     (void)transport;
     (void)ble_profile;
+}
+
+static inline void status_screen_set_dark(bool dark)
+{
+    (void)dark;
+}
+
+static inline void status_screen_off(void)
+{
 }
 
 static inline int status_screen_set_layout(const struct kb_screen_layout *layout)

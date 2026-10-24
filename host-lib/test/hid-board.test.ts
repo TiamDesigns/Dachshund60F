@@ -104,6 +104,19 @@ for (const [name, open, options] of subjects) {
     assert.equal(await board.hasUnsavedChanges(), false);
   });
 
+  test(`${name}: battery and input timing`, options, async (t) => {
+    const board = await open(t);
+    const battery = await board.getBattery();
+    if (battery) {
+      assert.ok(battery.percent >= 0 && battery.percent <= 100);
+      assert.equal(typeof battery.charging, "boolean");
+    }
+    const timing = await board.getTiming!();
+    assert.equal(timing.scanPeriodUs, 1000);
+    assert.ok(timing.scanAvgUs <= timing.scanMaxUs && timing.reportAvgUs <= timing.reportMaxUs);
+    assert.ok(timing.keyWakes <= timing.scans);
+  });
+
   test(`${name}: rejects bad positions and keycodes`, options, async (t) => {
     const board = await open(t);
     await rejectsWith(board.setKey({ layer: 4, row: 0, col: 0 }, "KC_A"), "out-of-range");
@@ -138,12 +151,26 @@ test("host-built firmware: info from the handshake", host.skip ? { skip: host.sk
     "advancedKeys",
     "indicators",
     "settings",
+    "battery",
     "identify",
     "bluetooth",
+    "timing",
   ]);
   assert.deepEqual((await board.getKeymap()).encoders, defaultKeymap("Dachshund60F")!.encoders);
   await board.identify();
-  assert.equal(await board.getBattery(), null);
+  // kb_host_device: on USB and charging, last read at 72% on battery.
+  assert.deepEqual(await board.getBattery(), { percent: 72, charging: true, millivolts: 3960, usbPower: true });
+  const timing = await board.getTiming(true);
+  assert.deepEqual(timing, {
+    scanPeriodUs: 1000,
+    scanAvgUs: 95,
+    scanMaxUs: 140,
+    reportAvgUs: 30,
+    reportMaxUs: 80,
+    keyWakes: 12,
+    scans: 5000,
+  });
+  assert.equal((await board.getTiming()).scans, 0);
 });
 
 test("host-built firmware: saved settings and colours survive a reboot", host.skip ? { skip: host.skip } : {}, async (t) => {

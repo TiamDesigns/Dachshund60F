@@ -73,7 +73,10 @@ static bool update_global(struct kb_debounce *db, const kb_matrix_row_t *raw,
         return changed;
     }
 
-    /* EAGER_GLOBAL */
+    /* EAGER_GLOBAL; last_raw only feeds kb_debounce_idle here. */
+    for (uint8_t r = 0; r < db->rows; r++) {
+        db->last_raw[r] = raw[r] & mask;
+    }
     db->global_timer = sat_sub(db->global_timer, elapsed);
     if (db->global_timer == 0) {
         for (uint8_t r = 0; r < db->rows; r++) {
@@ -143,4 +146,14 @@ bool kb_debounce_update(struct kb_debounce *db, const kb_matrix_row_t *raw, uint
         db->last_raw[r] = now_row;
     }
     return changed;
+}
+
+bool kb_debounce_idle(const struct kb_debounce *db)
+{
+    for (uint8_t r = 0; r < db->rows; r++) {
+        if (db->stable[r] || db->last_raw[r]) {
+            return false;
+        }
+    }
+    return true;
 }

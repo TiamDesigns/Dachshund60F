@@ -6,6 +6,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/logging/log_ctrl.h>
+#include <zephyr/sys/atomic.h>
 #include <zephyr/sys/reboot.h>
 
 #include "bootloader.h"
@@ -18,11 +19,13 @@
 #include "kb/hold.h"
 #include "kb/indicators.h"
 #include "kb/keymap.h"
+#include "kb/power.h"
 #include "kb/settings.h"
 #include "indicators.h"
 #include "kb_ble.h"
 #include "matrix.h"
 #include "output.h"
+#include "power.h"
 #include "status_screen.h"
 #include "storage.h"
 
@@ -85,7 +88,107 @@ static kb_matrix_row_t stable[ROWS];
 
 K_THREAD_STACK_DEFINE(scan_stack, SCAN_STACK_SIZE);
 static struct k_thread scan_thread_data;
-K_TIMER_DEFINE(scan_timer, NULL, NULL);
+
+/*
+ * The scan runs when this is given: by the scan timer every period, by a
+ * key interrupt (matrix or encoder) as soon as a key goes down, or by
+ * keyboard_poke() when a host changes something the scan passes on.
+ */
+static K_SEM_DEFINE(scan_sem, 0, 1);
+static atomic_t key_woke;
+
+static void scan_tick(struct k_timer *timer)
+{
+    ARG_UNUSED(timer);
+    k_sem_give(&scan_sem);
+}
+K_TIMER_DEFINE(scan_timer, scan_tick, NULL);
+
+/* From the matrix or encoder interrupt. */
+static void on_key_wake(void)
+{
+    atomic_set(&key_woke, 1);
+    k_sem_give(&scan_sem);
+}
+
+void keyboard_poke(void)
+{
+    k_sem_give(&scan_sem);
+}
+
+/* Power states (kb/power.h), under keymap_mutex like the settings they follow. */
+static struct kb_power power;
+static atomic_t host_activity;
+static atomic_t sleep_request;
+
+void keyboard_note_activity(void)
+{
+    atomic_set(&host_activity, 1);
+}
+
+static void power_config(struct kb_power_config *cfg)
+{
+    *cfg = (struct kb_power_config){
+        .idle_ms = CONFIG_KB_IDLE_MS,
+        .lights_off_ms = CONFIG_KB_LIGHTS_OFF_S * 1000u,
+        .radio_off_ms = CONFIG_KB_ADVERTISING_OFF_S * 1000u,
+        .sleep_timeout_min = settings.sleep_timeout_min,
+    };
+}
+
+/*
+ * Input timing for get_timing, in system clock cycles (30.5 us on the
+ * nRF52840's 32.768 kHz clock: single times are that coarse, averages over
+ * many scans finer).
+ */
+static struct k_spinlock timing_lock;
+static struct {
+    uint64_t scan_sum;
+    uint32_t scan_max;
+    uint32_t scans;
+    uint64_t report_sum;
+    uint32_t report_max;
+    uint32_t reports;
+    uint32_t key_wakes;
+} timing;
+
+static void timing_record(uint32_t scan_cyc, uint32_t report_cyc, bool reported, bool by_key)
+{
+    K_SPINLOCK(&timing_lock) {
+        timing.scans++;
+        timing.scan_sum += scan_cyc;
+        timing.scan_max = MAX(timing.scan_max, scan_cyc);
+        if (reported) {
+            timing.reports++;
+            timing.report_sum += report_cyc;
+            timing.report_max = MAX(timing.report_max, report_cyc);
+        }
+        if (by_key) {
+            timing.key_wakes++;
+        }
+    }
+}
+
+static uint16_t cyc_us(uint64_t cyc)
+{
+    return (uint16_t)MIN(k_cyc_to_us_near64(cyc), UINT16_MAX);
+}
+
+void keyboard_timing(struct kb_proto_get_timing_resp *out, bool reset)
+{
+    K_SPINLOCK(&timing_lock) {
+        out->scan_period_us = CONFIG_KB_MATRIX_SCAN_PERIOD_US;
+        out->scan_avg_us = timing.scans ? cyc_us(timing.scan_sum / timing.scans) : 0;
+        out->scan_max_us = cyc_us(timing.scan_max);
+        out->report_avg_us = timing.reports ? cyc_us(timing.report_sum / timing.reports) : 0;
+        out->report_max_us = cyc_us(timing.report_max);
+        out->key_wakes = timing.key_wakes;
+        out->scans = timing.scans;
+        if (reset) {
+            memset(&timing, 0, sizeof(timing));
+        }
+    }
+}
 
 /*
  * The engine callbacks below run on the scan thread, or on the config
@@ -141,6 +244,12 @@ static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
     case BT_CLR:
         (void)kb_ble_clear_profile(kb_ble_profile());
         break;
+    case QK_SLEEP:
+        /* Once every key is up, or the key that sent it would wake the board again. */
+        if (!power_usb()) {
+            atomic_set(&sleep_request, 1);
+        }
+        break;
     default:
         if ((kc & ~(kb_keycode_t)0x7u) == BT_SEL(0)) {
             /* -EINVAL for a profile this build doesn't have: nothing happens. */
@@ -177,26 +286,67 @@ static const struct kb_engine_ops engine_ops = {
     .mouse = on_mouse,
 };
 
+static bool any_down(const kb_matrix_row_t *rows)
+{
+    for (int r = 0; r < ROWS; r++) {
+        if (rows[r]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Lights and advertising, on battery when the board is left alone. */
+static void apply_power(const struct kb_power_status *st)
+{
+    static bool lights_off, radio_off;
+
+    if (st->lights_off != lights_off) {
+        lights_off = st->lights_off;
+        indicators_set_dark(lights_off);
+        status_screen_set_dark(lights_off);
+    }
+    if (st->radio_off != radio_off) {
+        radio_off = st->radio_off;
+        kb_ble_set_advertising(!radio_off);
+    }
+}
+
 static void scan_thread(void *p1, void *p2, void *p3)
 {
     ARG_UNUSED(p1);
     ARG_UNUSED(p2);
     ARG_UNUSED(p3);
 
-    k_timer_start(&scan_timer, K_USEC(CONFIG_KB_MATRIX_SCAN_PERIOD_US),
-                  K_USEC(CONFIG_KB_MATRIX_SCAN_PERIOD_US));
+    const k_timeout_t period = K_USEC(CONFIG_KB_MATRIX_SCAN_PERIOD_US);
+    bool ticking = true;
+    k_timeout_t idle_wait = K_FOREVER;
+
+    k_timer_start(&scan_timer, period, period);
 
     for (;;) {
-        k_timer_status_sync(&scan_timer);
+        k_sem_take(&scan_sem, ticking ? K_FOREVER : idle_wait);
+        bool by_key = atomic_set(&key_woke, 0) != 0;
+        encoder_input_wake_disarm();
+        if (by_key) {
+            /* Scan now, and the next one a full period later. */
+            k_timer_start(&scan_timer, period, period);
+            ticking = true;
+        }
         uint32_t now = k_uptime_get_32();
 
+        uint32_t t0 = k_cycle_get_32();
         matrix_scan(raw);
+        uint32_t t1 = k_cycle_get_32();
+
         k_mutex_lock(&keymap_mutex, K_FOREVER);
-        if (kb_debounce_update(&debounce, raw, now)) {
+        bool changed = kb_debounce_update(&debounce, raw, now);
+        if (changed) {
             const kb_matrix_row_t *next = kb_debounce_state(&debounce);
             kb_engine_matrix(&engine, stable, next, now);
             memcpy(stable, next, sizeof(stable));
         }
+        uint32_t t2 = k_cycle_get_32();
         for (int i = 0; i < encoder_input_count(); i++) {
             int detent = encoder_input_poll(i);
             if (detent) {
@@ -218,7 +368,21 @@ static void scan_thread(void *p1, void *p2, void *p3)
             /* Movement is never replayed, only the buttons held. */
             on_mouse(&(struct kb_mouse_report){.buttons = mouse_buttons}, NULL);
         }
+
+        if (atomic_set(&host_activity, 0)) {
+            kb_power_activity(&power, now);
+        }
+        bool down = any_down(raw);
+        struct kb_power_inputs in = {
+            /* A key interrupt counts as use: an encoder turn is several of them. */
+            .quiet = !by_key && !down && kb_debounce_idle(&debounce) && kb_engine_idle(&engine),
+            .usb_power = power_usb(),
+            .battery_critical = power_battery_critical(),
+        };
+        struct kb_power_status st = kb_power_update(&power, &in, now);
         k_mutex_unlock(&keymap_mutex);
+
+        timing_record(t1 - t0, t2 - t0, changed, by_key);
 
         /* Recovery: holding (0, 0) reboots into UF2 whatever the keymap says,
          * so a broken keymap can always be reflashed.
@@ -226,6 +390,29 @@ static void scan_thread(void *p1, void *p2, void *p3)
         bool recovery = (stable[RECOVERY_ROW] >> RECOVERY_COL) & 1u;
         if (kb_hold_update(&recovery_hold, recovery, now)) {
             bootloader_reboot_to_uf2();
+        }
+
+        apply_power(&st);
+        if (!down && (st.state == KB_POWER_OFF || atomic_get(&sleep_request))) {
+            k_timer_stop(&scan_timer);
+            power_off();
+        }
+
+        /* No key down: the next press starts a scan at once, not at the next tick. */
+        if (!down && IS_ENABLED(CONFIG_KB_WAKE_ON_PRESS)) {
+            matrix_wake_arm();
+        }
+        if (st.state == KB_POWER_IDLE && !down) {
+            if (ticking) {
+                k_timer_stop(&scan_timer);
+                ticking = false;
+            }
+            matrix_wake_arm();
+            encoder_input_wake_arm();
+            idle_wait = st.next_ms == UINT32_MAX ? K_FOREVER : K_MSEC(st.next_ms);
+        } else if (!ticking) {
+            k_timer_start(&scan_timer, period, period);
+            ticking = true;
         }
     }
 }
@@ -300,6 +487,9 @@ static int apply_settings(bool first)
     kb_engine_set_tapping_term(&engine, settings.tapping_term_ms);
     kb_hid_reporter_set_nkro(&reporter, settings.nkro, kb_engine_hid(&engine));
     indicators_set_config(&indicator_cfg, settings.indicator_brightness);
+    struct kb_power_config pc;
+    power_config(&pc);
+    kb_power_configure(&power, &pc);
     return 0;
 }
 
@@ -336,6 +526,11 @@ int keyboard_start(void)
 
     kb_hid_reporter_init(&reporter, settings.nkro, send_report, NULL);
     kb_engine_init(&engine, &keymap, &engine_ops, NULL);
+    struct kb_power_config pc;
+    power_config(&pc);
+    kb_power_init(&power, &pc, k_uptime_get_32());
+    matrix_set_wake_handler(on_key_wake);
+    encoder_input_set_wake_handler(on_key_wake);
     if (apply_settings(true) != 0) {
         return -EINVAL;
     }
@@ -346,8 +541,9 @@ int keyboard_start(void)
                     scan_thread, NULL, NULL, NULL, SCAN_PRIORITY, 0, K_NO_WAIT);
     k_thread_name_set(&scan_thread_data, "kb_scan");
 
-    LOG_INF("scanning %dx%d every %d us, debounce %d ms, NKRO %s", ROWS, COLS,
-            CONFIG_KB_MATRIX_SCAN_PERIOD_US, settings.debounce_ms, settings.nkro ? "on" : "off");
+    LOG_INF("scanning %dx%d every %d us (idle after %d ms), debounce %d ms, NKRO %s", ROWS, COLS,
+            CONFIG_KB_MATRIX_SCAN_PERIOD_US, CONFIG_KB_IDLE_MS, settings.debounce_ms,
+            settings.nkro ? "on" : "off");
     return 0;
 }
 

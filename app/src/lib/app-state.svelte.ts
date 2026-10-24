@@ -58,6 +58,8 @@ function errorText(err: unknown): string {
   return String(err);
 }
 
+const BATTERY_POLL_MS = 30_000;
+
 /** Protocol capability names a board's features need (see protocol.yaml). */
 export type Feature =
   | "keymap"
@@ -69,7 +71,8 @@ export type Feature =
   | "advancedKeys"
   | "macros"
   | "indicators"
-  | "bluetooth";
+  | "bluetooth"
+  | "timing";
 
 export class BoardSession {
   readonly board: Board;
@@ -93,6 +96,7 @@ export class BoardSession {
 
   private readonly history = new EditHistory();
   private readonly unsubscribe: () => void;
+  private batteryTimer: ReturnType<typeof setInterval> | null = null;
   private readonly app: AppState;
 
   constructor(board: Board, app: AppState) {
@@ -147,6 +151,7 @@ export class BoardSession {
       this.indicators =
         this.supports("indicators") && this.board.getIndicators ? await this.board.getIndicators() : null;
       this.battery = await this.board.getBattery();
+      this.watchBattery();
       this.problem = null;
     } catch (err) {
       if (err instanceof BoardError && err.code === "version-mismatch") {
@@ -350,8 +355,23 @@ export class BoardSession {
     });
   }
 
+  /** Real boards don't announce battery changes: ask every so often (the board reads its cell once a minute). */
+  private watchBattery(): void {
+    if (this.batteryTimer || !this.board.info.capabilities?.includes("battery")) return;
+    this.batteryTimer = setInterval(() => {
+      this.board.getBattery().then(
+        (b) => (this.battery = b),
+        () => {
+          /* gone; the manager drops the session */
+        },
+      );
+    }, BATTERY_POLL_MS);
+  }
+
   dispose(): void {
     this.unsubscribe();
+    if (this.batteryTimer) clearInterval(this.batteryTimer);
+    this.batteryTimer = null;
   }
 }
 
