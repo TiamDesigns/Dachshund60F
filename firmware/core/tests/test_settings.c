@@ -272,6 +272,61 @@ static void test_features_forward_compatible(void)
     KB_CHECK_EQ(loaded.combos[0].result, KC_NO);
 }
 
+static void test_indicators_round_trip(void)
+{
+    struct kb_indicator_config cfg, loaded;
+    kb_indicators_default_config(&cfg);
+    cfg.caps = (struct kb_rgb){1, 2, 3};
+    cfg.battery_low = (struct kb_rgb){4, 5, 6};
+    cfg.layer[1] = (struct kb_rgb){7, 8, 9};
+    cfg.layer[2] = (struct kb_rgb){10, 11, 12}; /* past the keymap's layers: not saved */
+    cfg.battery_low_pct = 30;
+
+    uint8_t b[64];
+    size_t n = kb_indicators_encode(&cfg, L, b, sizeof(b));
+    KB_CHECK_EQ(n, kb_indicators_encoded_size(L));
+    KB_CHECK_EQ(n, 3u + 1u + 3u * (5u + L));
+    KB_CHECK_EQ(kb_indicators_encode(&cfg, L, b, n - 1), 0);
+
+    kb_indicators_default_config(&loaded);
+    KB_CHECK_EQ(kb_indicators_decode(KB_SETTINGS_SCHEMA, b, n, &loaded), 1);
+    KB_CHECK_EQ(loaded.caps.b, 3);
+    KB_CHECK_EQ(loaded.battery_low.g, 5);
+    KB_CHECK_EQ(loaded.layer[1].r, 7);
+    KB_CHECK_EQ(loaded.layer[2].r, 0); /* the default (teal) */
+    KB_CHECK_EQ(loaded.battery_low_pct, 30);
+
+    /* A blob without the section, or another schema. */
+    kb_indicators_default_config(&loaded);
+    KB_CHECK_EQ(kb_indicators_decode(KB_SETTINGS_SCHEMA, b, 0, &loaded), 0);
+    KB_CHECK_EQ(kb_indicators_decode(2, b, n, &loaded), -1);
+
+    /* A shorter section (older firmware): the colours it has load. */
+    uint8_t shortb[3 + 1 + 3] = {KB_SECTION_INDICATORS, 4, 0, 50, 9, 9, 9};
+    KB_CHECK_EQ(kb_indicators_decode(KB_SETTINGS_SCHEMA, shortb, sizeof(shortb), &loaded), 1);
+    KB_CHECK_EQ(loaded.caps.r, 9);
+    KB_CHECK_EQ(loaded.num.r, 255);
+    KB_CHECK_EQ(loaded.battery_low_pct, 50);
+
+    /* A bad percentage loads nothing; a section longer than the blob is malformed. */
+    shortb[3] = 101;
+    shortb[4] = 1;
+    KB_CHECK_EQ(kb_indicators_decode(KB_SETTINGS_SCHEMA, shortb, sizeof(shortb), &loaded), 0);
+    KB_CHECK_EQ(loaded.caps.r, 9);
+    shortb[1] = 9;
+    KB_CHECK_EQ(kb_indicators_decode(KB_SETTINGS_SCHEMA, shortb, sizeof(shortb), &loaded), -1);
+
+    /* More layers than this firmware has: the extra ones are skipped. */
+    static uint8_t many[3 + 1 + 3 * (5 + KB_MAX_LAYERS + 2)];
+    size_t body = sizeof(many) - 3;
+    many[0] = KB_SECTION_INDICATORS;
+    many[1] = (uint8_t)body;
+    many[2] = 0;
+    memset(&many[3], 7, body);
+    KB_CHECK_EQ(kb_indicators_decode(KB_SETTINGS_SCHEMA, many, sizeof(many), &loaded), 1);
+    KB_CHECK_EQ(loaded.layer[KB_MAX_LAYERS - 1].b, 7);
+}
+
 static void test_everything_fits_a_sector(void)
 {
     /* The firmware's worst case: 4 layers of 6x15 and a full macro buffer, in a 4 KB sector. */
@@ -280,7 +335,8 @@ static void test_everything_fits_a_sector(void)
     kb_keymap_init(&big, big_keys, 4, 6, 15, NULL);
     kb_features_default(&feat);
     memset(feat.macros, 'x', KB_MACRO_BUFFER);
-    size_t n = kb_settings_encoded_size(&big) + kb_features_encoded_size(&feat, 4);
+    size_t n = kb_settings_encoded_size(&big) + kb_features_encoded_size(&feat, 4) +
+               kb_indicators_encoded_size(4);
     KB_CHECK(n + 16 <= 4096);
 }
 
@@ -295,6 +351,7 @@ int main(void)
     KB_RUN(test_features_round_trip);
     KB_RUN(test_features_invalid_keep_defaults);
     KB_RUN(test_features_forward_compatible);
+    KB_RUN(test_indicators_round_trip);
     KB_RUN(test_everything_fits_a_sector);
     return KB_TEST_RESULT();
 }

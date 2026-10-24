@@ -110,6 +110,12 @@ static void op_features_changed(void *ctx)
     keyboard_features_changed();
 }
 
+static void op_settings_changed(void *ctx)
+{
+    ARG_UNUSED(ctx);
+    keyboard_settings_changed();
+}
+
 static void op_lock(void *ctx)
 {
     ARG_UNUSED(ctx);
@@ -129,6 +135,7 @@ static const struct kb_protocol_ops ops = {
     .reboot = op_reboot,
     .identify = op_identify,
     .features_changed = op_features_changed,
+    .settings_changed = op_settings_changed,
     .lock = op_lock,
     .unlock = op_unlock,
 };
@@ -140,9 +147,10 @@ static struct kb_protocol protocol = {
     .firmware_patch = APP_PATCHLEVEL,
     .build = BUILD_ID,
     .model = CONFIG_KB_MODEL,
-    /* Settings, indicators, matrix streaming and battery join in later phases. */
+    /* Matrix streaming and battery join in later phases. */
     .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
-                    KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS,
+                    KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_SETTINGS |
+                    KB_PROTO_CAP_INDICATORS,
     .macro_buffer_size = KB_MACRO_BUFFER,
 };
 
@@ -198,6 +206,8 @@ int config_start(void)
     protocol.keymap = keyboard_keymap();
     protocol.features = keyboard_features();
     protocol.macro_edit = keyboard_macro_edit();
+    protocol.settings = keyboard_settings();
+    protocol.indicators = keyboard_indicators();
     protocol.encoders = (uint8_t)encoder_input_count();
     if (protocol.encoders > 0) {
         protocol.capabilities |= KB_PROTO_CAP_ENCODERS;

@@ -8,7 +8,9 @@
  */
 import * as codec from "./advanced-codec.js";
 import { ProtocolClient, type ClientOptions } from "./client.js";
+import { checkIndicatorColours, colourToNumber, numberToColour } from "./indicators.js";
 import { decodeKeycode, encodeKeycode, KeycodeError } from "./keycode-codec.js";
+import { checkSettings } from "./settings.js";
 import {
   Capability,
   Command,
@@ -20,10 +22,17 @@ import {
   encodeSetMacroChunkRequest,
   FeatureTable,
   type FeatureTableName,
+  decodeGetIndicatorsResponse,
   decodeGetKeymapChunkResponse,
+  decodeGetLayerColourResponse,
+  decodeGetSettingsResponse,
   decodeGetSerialResponse,
   decodeHandshakeResponse,
   encodeGetKeymapChunkRequest,
+  encodeGetLayerColourRequest,
+  encodeSetIndicatorsRequest,
+  encodeSetLayerColourRequest,
+  encodeSetSettingsRequest,
   encodeIdentifyRequest,
   encodeRebootRequest,
   encodeSetKeyRequest,
@@ -42,7 +51,9 @@ import {
   type BoardEvent,
   type BoardInfo,
   type BoardSettings,
+  DEBOUNCE_ALGORITHMS,
   type EncoderAction,
+  type IndicatorColours,
   type KeycodeId,
   type KeyPosition,
   type Keymap,
@@ -366,14 +377,95 @@ export class HidBoard implements Board {
   }
 
   async getSettings(): Promise<BoardSettings> {
-    this.check(Capability.settings, "settings");
-    throw new BoardError("not-supported", `settings aren't in protocol ${PROTOCOL_VERSION} yet`);
+    const r = decodeGetSettingsResponse(await this.call(Command.getSettings, undefined, Capability.settings, "settings"));
+    const debounceAlgorithm = DEBOUNCE_ALGORITHMS[r.debounceAlgorithm];
+    if (!debounceAlgorithm) {
+      throw new BoardError("protocol-error", `unknown debounce algorithm ${r.debounceAlgorithm}`);
+    }
+    return {
+      name: r.name,
+      debounceAlgorithm,
+      debounceMs: r.debounceMs,
+      tappingTermMs: r.tappingTermMs,
+      nkro: r.nkro !== 0,
+      sleepTimeoutMin: r.sleepTimeoutMin,
+      indicatorBrightness: r.indicatorBrightness,
+    };
   }
 
   async setSettings(patch: Partial<BoardSettings>): Promise<BoardSettings> {
-    void patch;
-    this.check(Capability.settings, "settings");
-    throw new BoardError("not-supported", `settings aren't in protocol ${PROTOCOL_VERSION} yet`);
+    const next = { ...(await this.getSettings()), ...patch };
+    checkSettings(next);
+    await this.client.request(
+      Command.setSettings,
+      encodeSetSettingsRequest({
+        debounceAlgorithm: DEBOUNCE_ALGORITHMS.indexOf(next.debounceAlgorithm),
+        debounceMs: next.debounceMs,
+        tappingTermMs: next.tappingTermMs,
+        nkro: next.nkro ? 1 : 0,
+        sleepTimeoutMin: next.sleepTimeoutMin,
+        indicatorBrightness: next.indicatorBrightness,
+        name: next.name,
+      }),
+    );
+    this.unsaved = true;
+    this.emit({ type: "changed" });
+    return next;
+  }
+
+  async getIndicators(): Promise<IndicatorColours> {
+    const r = decodeGetIndicatorsResponse(
+      await this.call(Command.getIndicators, undefined, Capability.indicators, "indicator colours"),
+    );
+    const layers: string[] = [];
+    for (let layer = 0; layer < this.info.layerCount; layer++) {
+      const c = decodeGetLayerColourResponse(
+        await this.client.request(Command.getLayerColour, encodeGetLayerColourRequest({ layer })),
+      );
+      if (c.layer !== layer) throw new BoardError("protocol-error", `layer ${layer} colour came back wrong`);
+      layers.push(numberToColour(c.colour));
+    }
+    return {
+      layers,
+      caps: numberToColour(r.caps),
+      num: numberToColour(r.num),
+      scroll: numberToColour(r.scroll),
+      battery: numberToColour(r.battery),
+      batteryLow: numberToColour(r.batteryLow),
+      batteryLowPercent: r.batteryLowPercent,
+    };
+  }
+
+  async setIndicators(patch: Partial<IndicatorColours>): Promise<IndicatorColours> {
+    const current = await this.getIndicators();
+    const next = { ...current, ...patch };
+    checkIndicatorColours(next, this.info.layerCount);
+    const { layers, ...fixed } = next;
+    const { layers: _, ...was } = current;
+    if (JSON.stringify(fixed) !== JSON.stringify(was)) {
+      await this.client.request(
+        Command.setIndicators,
+        encodeSetIndicatorsRequest({
+          caps: colourToNumber(next.caps),
+          num: colourToNumber(next.num),
+          scroll: colourToNumber(next.scroll),
+          battery: colourToNumber(next.battery),
+          batteryLow: colourToNumber(next.batteryLow),
+          batteryLowPercent: next.batteryLowPercent,
+        }),
+      );
+    }
+    for (let layer = 0; layer < layers.length; layer++) {
+      if (layers[layer] !== current.layers[layer]) {
+        await this.client.request(
+          Command.setLayerColour,
+          encodeSetLayerColourRequest({ layer, colour: colourToNumber(layers[layer]!) }),
+        );
+      }
+    }
+    this.unsaved = true;
+    this.emit({ type: "changed" });
+    return next;
   }
 
   /**

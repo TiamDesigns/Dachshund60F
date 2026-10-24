@@ -8,7 +8,9 @@
 #include <stdint.h>
 
 #include "kb/features.h"
+#include "kb/indicators.h"
 #include "kb/keymap.h"
+#include "kb/settings.h"
 
 /* Set up the matrix and keymap and start the scan thread. */
 int keyboard_start(void);
@@ -29,6 +31,15 @@ void keyboard_unlock(void);
 struct kb_features *keyboard_features(void);
 uint8_t *keyboard_macro_edit(void);
 void keyboard_features_changed(void);
+
+/*
+ * The live global settings and indicator colours. Change them under
+ * keyboard_lock() (with valid values), then call keyboard_settings_changed()
+ * (still locked) to put them into effect.
+ */
+struct kb_settings *keyboard_settings(void);
+struct kb_indicator_config *keyboard_indicators(void);
+void keyboard_settings_changed(void);
 
 /*
  * Save writes the live keymap and settings to flash; revert reads them

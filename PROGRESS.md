@@ -2,9 +2,21 @@
 
 ## Current phase
 
-Phase 9 (advanced keys and encoders) is done, split in three PRs: 9a (the core engine), 9b (firmware, protocol and host library) and 9c (the Doghouse editors and the mock). Phases 3 to 6 are merged to main, and 7 and 8 are in review. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 9 waits for fabricated boards.
+Phase 10 (indicator colours and global settings) is done. Phases 1 to 9 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 10 waits for fabricated boards (or the Nordic nRF52840 dongles Tiam is ordering). Next is phase 11, the in-app firmware updater.
 
 ## Done
+
+### Phase 10: indicator colours and global settings (2026-10-24)
+
+- Protocol (still version 1; only commands were added): `get_settings` and `set_settings` carry the debounce algorithm and time, tapping term, NKRO, sleep timeout, indicator brightness and the board's name (16 bytes of UTF-8) as one struct, checked whole with `kb_settings_valid()`. `get_indicators` and `set_indicators` carry the Caps, Num and Scroll Lock colours, the battery gauge's normal and low colours and the low level; `get_layer_colour` and `set_layer_colour` the layer LED's colour per layer. Colours are 0x00RRGGBB, and anything with a top byte set is refused. The firmware now reports the `settings` and `indicators` capabilities.
+- Firmware: `keyboard.c` owns the indicator colours with the settings. A change applies at once through a new `settings_changed` protocol op: debounce restarts only if it changed, the tapping term and NKRO switch over, and the LEDs redraw (`indicators_set_config()` replaces `indicators_set_brightness()`). Applying settings no longer resets the macro edit buffer. The sleep timeout is stored but used from phase 13.
+- Saving: a new `KB_SECTION_INDICATORS` section (the low level, then RGB for each colour and layer; no schema bump). An older blob without it keeps the default colours, and a section with fewer or more layers loads what fits.
+- host-lib: `BoardSettings` gains `debounceAlgorithm`, and `SETTINGS_LIMITS` now match the firmware (debounce 0-100 ms, tapping term 50-2000 ms, sleep up to 240 min, the name in bytes). `Board` gains optional `getIndicators` and `setIndicators` with an `IndicatorColours` type ("#rrggbb" strings). `HidBoard` implements settings and colours; `settings.ts` and `indicators.ts` hold the firmware's checks and defaults, shared by the mock.
+- Doghouse: the Settings tab now works on real boards. New: a debounce style picker, a "Light colours" group (layer light per layer, the lock lights and battery gauge the board actually has, and the low-battery level), and the name check counts bytes. Sliders keep their useful ranges but stretch to show a value set elsewhere.
+- Docs: Tiam chose not to register pid.codes PIDs while the board stays on their desk. The README warns anyone rebuilding the project to use their own VID/PID before giving boards away, and the design decisions page records the choice.
+- Tests: core `test_protocol` (every new command, each out-of-range field, not-supported, revert and factory reset), `test_settings` (the indicator section's round trip, older and newer layouts, malformed sections, the sector budget), and the protocol fuzz test now sends every command and checks the settings stay valid (also clean under ASan and UBSan). host-lib: settings and colour tests run against both the mock and the host-built firmware, plus a save and reboot round trip.
+- Size, debug without a screen: 94.0 KB flash, 40.3 KB RAM.
+- How to test: core and host-lib tests as in CLAUDE.md; `cd app && npm run dev`, open http://localhost:5173/?demo, change the colours and settings on the Settings tab, Save, change them again, and Revert. On a board: change the layer colour and switch layers, toggle Caps Lock, and change debounce while typing.
 
 ### README and design decisions (2026-10-24)
 

@@ -52,6 +52,12 @@ export const Command = {
   getMacroChunk: 0x32,
   setMacroChunk: 0x33,
   applyMacros: 0x34,
+  getSettings: 0x40,
+  setSettings: 0x41,
+  getIndicators: 0x42,
+  setIndicators: 0x43,
+  getLayerColour: 0x44,
+  setLayerColour: 0x45,
 } as const;
 export type CommandName = keyof typeof Command;
 
@@ -771,6 +777,304 @@ export function encodeApplyMacrosResponse(_m: ApplyMacrosResponse): Uint8Array {
 export function decodeApplyMacrosResponse(p: Uint8Array): ApplyMacrosResponse {
   if (p.length !== 0) {
     throw new PayloadError(`apply_macros response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Read the live global settings. */
+export type GetSettingsRequest = Record<string, never>;
+
+export function encodeGetSettingsRequest(_m: GetSettingsRequest): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeGetSettingsRequest(p: Uint8Array): GetSettingsRequest {
+  if (p.length !== 0) {
+    throw new PayloadError(`get_settings request: bad length ${p.length}`);
+  }
+  return {};
+}
+
+export interface GetSettingsResponse {
+  debounceAlgorithm: number; /** 0 defer global, 1 defer per key, 2 eager global, 3 eager per key, 4 eager on press */
+  debounceMs: number; /** 0-100 */
+  tappingTermMs: number; /** 50-2000 */
+  nkro: number; /** 0 6KRO, 1 NKRO (the boot protocol always gets 6KRO) */
+  sleepTimeoutMin: number; /** 0-240, 0 = never */
+  indicatorBrightness: number; /** 0-100 % */
+  name: string; /** the owner's name for the board, UTF-8 */
+}
+
+export function encodeGetSettingsResponse(m: GetSettingsResponse): Uint8Array {
+  const p = new Uint8Array(23);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.debounceAlgorithm, "debounce_algorithm"));
+  v.setUint8(1, u8(m.debounceMs, "debounce_ms"));
+  v.setUint16(2, u16(m.tappingTermMs, "tapping_term_ms"), true);
+  v.setUint8(4, u8(m.nkro, "nkro"));
+  v.setUint8(5, u8(m.sleepTimeoutMin, "sleep_timeout_min"));
+  v.setUint8(6, u8(m.indicatorBrightness, "indicator_brightness"));
+  const nameBytes = enc.encode(m.name);
+  if (nameBytes.length > 16) throw new PayloadError("name: at most 16 bytes");
+  p.set(nameBytes, 7);
+  return p;
+}
+
+export function decodeGetSettingsResponse(p: Uint8Array): GetSettingsResponse {
+  if (p.length !== 23) {
+    throw new PayloadError(`get_settings response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    debounceAlgorithm: v.getUint8(0),
+    debounceMs: v.getUint8(1),
+    tappingTermMs: v.getUint16(2, true),
+    nkro: v.getUint8(4),
+    sleepTimeoutMin: v.getUint8(5),
+    indicatorBrightness: v.getUint8(6),
+    name: text(p, 7, 16),
+  };
+}
+
+/** Replace the live global settings; they take effect at once, and save makes them permanent. Every field is checked first; on an error nothing changes. */
+export interface SetSettingsRequest {
+  debounceAlgorithm: number; /** 0 defer global, 1 defer per key, 2 eager global, 3 eager per key, 4 eager on press */
+  debounceMs: number; /** 0-100 */
+  tappingTermMs: number; /** 50-2000 */
+  nkro: number; /** 0 6KRO, 1 NKRO (the boot protocol always gets 6KRO) */
+  sleepTimeoutMin: number; /** 0-240, 0 = never */
+  indicatorBrightness: number; /** 0-100 % */
+  name: string; /** the owner's name for the board, UTF-8 */
+}
+
+export function encodeSetSettingsRequest(m: SetSettingsRequest): Uint8Array {
+  const p = new Uint8Array(23);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.debounceAlgorithm, "debounce_algorithm"));
+  v.setUint8(1, u8(m.debounceMs, "debounce_ms"));
+  v.setUint16(2, u16(m.tappingTermMs, "tapping_term_ms"), true);
+  v.setUint8(4, u8(m.nkro, "nkro"));
+  v.setUint8(5, u8(m.sleepTimeoutMin, "sleep_timeout_min"));
+  v.setUint8(6, u8(m.indicatorBrightness, "indicator_brightness"));
+  const nameBytes = enc.encode(m.name);
+  if (nameBytes.length > 16) throw new PayloadError("name: at most 16 bytes");
+  p.set(nameBytes, 7);
+  return p;
+}
+
+export function decodeSetSettingsRequest(p: Uint8Array): SetSettingsRequest {
+  if (p.length !== 23) {
+    throw new PayloadError(`set_settings request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    debounceAlgorithm: v.getUint8(0),
+    debounceMs: v.getUint8(1),
+    tappingTermMs: v.getUint16(2, true),
+    nkro: v.getUint8(4),
+    sleepTimeoutMin: v.getUint8(5),
+    indicatorBrightness: v.getUint8(6),
+    name: text(p, 7, 16),
+  };
+}
+
+export type SetSettingsResponse = Record<string, never>;
+
+export function encodeSetSettingsResponse(_m: SetSettingsResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeSetSettingsResponse(p: Uint8Array): SetSettingsResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`set_settings response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Read the indicator colours that don't depend on the layer. Colours are 0x00RRGGBB, before brightness; black is off. */
+export type GetIndicatorsRequest = Record<string, never>;
+
+export function encodeGetIndicatorsRequest(_m: GetIndicatorsRequest): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeGetIndicatorsRequest(p: Uint8Array): GetIndicatorsRequest {
+  if (p.length !== 0) {
+    throw new PayloadError(`get_indicators request: bad length ${p.length}`);
+  }
+  return {};
+}
+
+export interface GetIndicatorsResponse {
+  caps: number;
+  num: number;
+  scroll: number;
+  battery: number; /** the battery gauge */
+  batteryLow: number; /** the whole gauge, at or below battery_low_percent */
+  batteryLowPercent: number; /** 0-100 */
+}
+
+export function encodeGetIndicatorsResponse(m: GetIndicatorsResponse): Uint8Array {
+  const p = new Uint8Array(21);
+  const v = new DataView(p.buffer);
+  v.setUint32(0, u32(m.caps, "caps"), true);
+  v.setUint32(4, u32(m.num, "num"), true);
+  v.setUint32(8, u32(m.scroll, "scroll"), true);
+  v.setUint32(12, u32(m.battery, "battery"), true);
+  v.setUint32(16, u32(m.batteryLow, "battery_low"), true);
+  v.setUint8(20, u8(m.batteryLowPercent, "battery_low_percent"));
+  return p;
+}
+
+export function decodeGetIndicatorsResponse(p: Uint8Array): GetIndicatorsResponse {
+  if (p.length !== 21) {
+    throw new PayloadError(`get_indicators response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    caps: v.getUint32(0, true),
+    num: v.getUint32(4, true),
+    scroll: v.getUint32(8, true),
+    battery: v.getUint32(12, true),
+    batteryLow: v.getUint32(16, true),
+    batteryLowPercent: v.getUint8(20),
+  };
+}
+
+/** Replace the colours of get_indicators (live, like set_settings). bad_value if a colour's top byte isn't 0. */
+export interface SetIndicatorsRequest {
+  caps: number;
+  num: number;
+  scroll: number;
+  battery: number; /** the battery gauge */
+  batteryLow: number; /** the whole gauge, at or below battery_low_percent */
+  batteryLowPercent: number; /** 0-100 */
+}
+
+export function encodeSetIndicatorsRequest(m: SetIndicatorsRequest): Uint8Array {
+  const p = new Uint8Array(21);
+  const v = new DataView(p.buffer);
+  v.setUint32(0, u32(m.caps, "caps"), true);
+  v.setUint32(4, u32(m.num, "num"), true);
+  v.setUint32(8, u32(m.scroll, "scroll"), true);
+  v.setUint32(12, u32(m.battery, "battery"), true);
+  v.setUint32(16, u32(m.batteryLow, "battery_low"), true);
+  v.setUint8(20, u8(m.batteryLowPercent, "battery_low_percent"));
+  return p;
+}
+
+export function decodeSetIndicatorsRequest(p: Uint8Array): SetIndicatorsRequest {
+  if (p.length !== 21) {
+    throw new PayloadError(`set_indicators request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    caps: v.getUint32(0, true),
+    num: v.getUint32(4, true),
+    scroll: v.getUint32(8, true),
+    battery: v.getUint32(12, true),
+    batteryLow: v.getUint32(16, true),
+    batteryLowPercent: v.getUint8(20),
+  };
+}
+
+export type SetIndicatorsResponse = Record<string, never>;
+
+export function encodeSetIndicatorsResponse(_m: SetIndicatorsResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeSetIndicatorsResponse(p: Uint8Array): SetIndicatorsResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`set_indicators response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** The layer indicator's colour on one layer (0x00RRGGBB; black leaves it off). */
+export interface GetLayerColourRequest {
+  layer: number;
+}
+
+export function encodeGetLayerColourRequest(m: GetLayerColourRequest): Uint8Array {
+  const p = new Uint8Array(1);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.layer, "layer"));
+  return p;
+}
+
+export function decodeGetLayerColourRequest(p: Uint8Array): GetLayerColourRequest {
+  if (p.length !== 1) {
+    throw new PayloadError(`get_layer_colour request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    layer: v.getUint8(0),
+  };
+}
+
+export interface GetLayerColourResponse {
+  layer: number;
+  colour: number;
+}
+
+export function encodeGetLayerColourResponse(m: GetLayerColourResponse): Uint8Array {
+  const p = new Uint8Array(5);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.layer, "layer"));
+  v.setUint32(1, u32(m.colour, "colour"), true);
+  return p;
+}
+
+export function decodeGetLayerColourResponse(p: Uint8Array): GetLayerColourResponse {
+  if (p.length !== 5) {
+    throw new PayloadError(`get_layer_colour response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    layer: v.getUint8(0),
+    colour: v.getUint32(1, true),
+  };
+}
+
+export interface SetLayerColourRequest {
+  layer: number;
+  colour: number;
+}
+
+export function encodeSetLayerColourRequest(m: SetLayerColourRequest): Uint8Array {
+  const p = new Uint8Array(5);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.layer, "layer"));
+  v.setUint32(1, u32(m.colour, "colour"), true);
+  return p;
+}
+
+export function decodeSetLayerColourRequest(p: Uint8Array): SetLayerColourRequest {
+  if (p.length !== 5) {
+    throw new PayloadError(`set_layer_colour request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    layer: v.getUint8(0),
+    colour: v.getUint32(1, true),
+  };
+}
+
+export type SetLayerColourResponse = Record<string, never>;
+
+export function encodeSetLayerColourResponse(_m: SetLayerColourResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeSetLayerColourResponse(p: Uint8Array): SetLayerColourResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`set_layer_colour response: bad length ${p.length}`);
   }
   return {};
 }

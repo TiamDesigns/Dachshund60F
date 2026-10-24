@@ -19,10 +19,11 @@ import {
 import { decodeMacros, encodeMacros } from "./advanced-codec.js";
 import { defaultKeymap } from "./default-keymaps.js";
 import { isMatrixPositionUsed, type KeyboardDefinition } from "./keyboard-definition.js";
+import { checkIndicatorColours, defaultIndicatorColours } from "./indicators.js";
 import { isValidKeycode } from "./keycodes.js";
+import { checkSettings } from "./settings.js";
 import {
   BoardError,
-  SETTINGS_LIMITS,
   type AdvancedKeys,
   type AdvancedOptions,
   type AdvancedTable,
@@ -34,6 +35,7 @@ import {
   type BoardSettings,
   type ConnectionKind,
   type EncoderAction,
+  type IndicatorColours,
   type KeyPosition,
   type Keymap,
   type KeycodeId,
@@ -46,6 +48,7 @@ const LAYER_COUNT = 4;
 
 export const DEFAULT_SETTINGS: Readonly<BoardSettings> = {
   name: "",
+  debounceAlgorithm: "eager-press",
   debounceMs: 5,
   tappingTermMs: 200,
   nkro: true,
@@ -58,6 +61,7 @@ interface StoredState {
   settings: BoardSettings;
   advanced: AdvancedKeys;
   macros: MacroStep[][];
+  indicators: IndicatorColours;
 }
 
 export interface MockBoardOptions {
@@ -68,10 +72,6 @@ export interface MockBoardOptions {
   name?: string;
   /** Simulated round-trip time per call. Default 0. */
   latencyMs?: number;
-}
-
-function inRange(value: number, limits: { min: number; max: number }): boolean {
-  return Number.isInteger(value) && value >= limits.min && value <= limits.max;
 }
 
 export class MockBoard implements Board {
@@ -105,6 +105,7 @@ export class MockBoard implements Board {
       settings: { ...DEFAULT_SETTINGS, name: options.name ?? "" },
       advanced: defaultAdvancedKeys(),
       macros: [],
+      indicators: defaultIndicatorColours(LAYER_COUNT),
     };
     this.live = structuredClone(this.saved);
     this.battery = options.battery ?? { percent: 100, charging: false };
@@ -181,28 +182,24 @@ export class MockBoard implements Board {
   setSettings(patch: Partial<BoardSettings>): Promise<BoardSettings> {
     return this.call(() => {
       const next = { ...this.live.settings, ...patch };
-      const L = SETTINGS_LIMITS;
-      if (typeof next.name !== "string" || [...next.name].length > L.nameMaxLength) {
-        throw new BoardError("invalid-value", `name must be at most ${L.nameMaxLength} characters`);
-      }
-      if (!inRange(next.debounceMs, L.debounceMs)) {
-        throw new BoardError("invalid-value", "debounce out of range");
-      }
-      if (!inRange(next.tappingTermMs, L.tappingTermMs)) {
-        throw new BoardError("invalid-value", "tapping term out of range");
-      }
-      if (!inRange(next.sleepTimeoutMin, L.sleepTimeoutMin)) {
-        throw new BoardError("invalid-value", "sleep timeout out of range");
-      }
-      if (!inRange(next.indicatorBrightness, L.indicatorBrightness)) {
-        throw new BoardError("invalid-value", "indicator brightness out of range");
-      }
-      if (typeof next.nkro !== "boolean") {
-        throw new BoardError("invalid-value", "nkro must be true or false");
-      }
+      checkSettings(next);
       this.live.settings = next;
       this.emit({ type: "changed" });
       return { ...next };
+    });
+  }
+
+  getIndicators(): Promise<IndicatorColours> {
+    return this.call(() => structuredClone(this.live.indicators));
+  }
+
+  setIndicators(patch: Partial<IndicatorColours>): Promise<IndicatorColours> {
+    return this.call(() => {
+      const next = { ...this.live.indicators, ...patch };
+      checkIndicatorColours(next, this.info.layerCount);
+      this.live.indicators = structuredClone(next);
+      this.emit({ type: "changed" });
+      return structuredClone(next);
     });
   }
 
@@ -227,7 +224,13 @@ export class MockBoard implements Board {
   factoryReset(): Promise<void> {
     return this.call(() => {
       const keymap = defaultKeymap(this.definition.name)!;
-      this.saved = { keymap, settings: { ...DEFAULT_SETTINGS }, advanced: defaultAdvancedKeys(), macros: [] };
+      this.saved = {
+        keymap,
+        settings: { ...DEFAULT_SETTINGS },
+        advanced: defaultAdvancedKeys(),
+        macros: [],
+        indicators: defaultIndicatorColours(LAYER_COUNT),
+      };
       this.live = structuredClone(this.saved);
       this.emit({ type: "reverted" });
     });

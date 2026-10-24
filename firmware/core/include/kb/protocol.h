@@ -18,6 +18,7 @@
 #include "kb/features.h"
 #include "kb/keymap.h"
 #include "kb/protocol_gen.h"
+#include "kb/settings.h"
 
 /* What the firmware does for the commands that reach beyond the keymap. */
 struct kb_protocol_ops {
@@ -37,6 +38,11 @@ struct kb_protocol_ops {
      * engine can drop state that refers to the old ones. Optional.
      */
     void (*features_changed)(void *ctx);
+    /*
+     * The settings or indicator colours changed (called with the lock
+     * held), so the firmware can put them into effect. Optional.
+     */
+    void (*settings_changed)(void *ctx);
     /* Guard keymap changes against the scan thread. Optional. */
     void (*lock)(void *ctx);
     void (*unlock)(void *ctx);
@@ -64,6 +70,13 @@ struct kb_protocol {
      */
     struct kb_features *features;
     uint8_t *macro_edit;
+    /*
+     * The live global settings and indicator colours (the colours'
+     * brightness comes from the settings). NULL: their commands answer
+     * not_supported. Revert and factory reset replace them themselves.
+     */
+    struct kb_settings *settings;
+    struct kb_indicator_config *indicators;
 };
 
 /*

@@ -15,8 +15,13 @@ int indicators_start(void);
 void indicators_set_locks(uint8_t locks);
 void indicators_set_layer(uint8_t layer);
 void indicators_set_asleep(bool asleep);
-/* LED brightness from the settings, 0-100 %. */
-void indicators_set_brightness(uint8_t percent);
+struct kb_indicator_config;
+
+/*
+ * The colours to show (copied), at a brightness from the settings, 0-100 %.
+ * Until the first call the compiled-in defaults show.
+ */
+void indicators_set_config(const struct kb_indicator_config *cfg, uint8_t brightness_percent);
 
 /* Blink every LED for this many seconds, so the user can spot the board. */
 void indicators_identify(uint8_t seconds);

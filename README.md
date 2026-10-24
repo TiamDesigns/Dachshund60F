@@ -83,8 +83,8 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | 7 | Host library (WebHID and node-hid) | Done |
 | 8 | Doghouse on real boards | Done |
 | 9 | Advanced keys, macros and the encoder | Done |
-| 10 | Indicator colours and global settings | Next |
-| 11 | In-app firmware updates | Planned |
+| 10 | Indicator colours and global settings | Done |
+| 11 | In-app firmware updates | Next |
 | 12 | Bluetooth LE | Planned |
 | 13 | Power management and battery | Planned |
 | 14 | 2.4 GHz dongle firmware | Planned |
@@ -164,5 +164,5 @@ Please read this before you build one:
 
 - **No warranty.** This is a personal learning project, provided as is. At the time of writing no board has been manufactured or tested, so the designs may have mistakes. Check them yourself before ordering.
 - **Lithium batteries can be dangerous.** The board charges a LiPo cell. Use a cell with its own protection circuit, check the connector polarity (JST-PH polarity isn't standard between vendors), and don't leave it charging unattended until you've tested your build.
-- **USB IDs.** The firmware uses pid.codes *test* PIDs, which are only for development. If you distribute boards, get your own VID/PID or a registered pid.codes PID and change them in `firmware/Kconfig` and `boards/Dachshund60F/board.json`.
+- **USB IDs: change them before you give a board to anyone.** I've chosen not to register USB IDs for this project, because my board only lives on my desk. The firmware uses pid.codes *test* PIDs (1209:0001, 0002 and 0003), which anyone may use for in-house testing but which **must not** be used on a device that's given away, sold or manufactured. Every board using them looks identical to the OS, and to every other project that uses the same test IDs. If your boards will leave your hands, get your own VID/PID (a free PID from [pid.codes](https://pid.codes/howto/) for open-source hardware, or a VID from the USB-IF) and change them in `firmware/Kconfig`, the dongle and bootloader configs, and `boards/Dachshund60F/board.json`.
 - **Certification.** The radio module is pre-certified, but a finished product may still need its own testing (FCC, CE and so on) before you sell it. That's on you.

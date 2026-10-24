@@ -42,8 +42,8 @@ Last updated 2026-10-24.
 | Decision | What I chose | Why |
 | --- | --- | --- |
 | Licence | MIT for code, CERN-OHL-P-2.0 for hardware | Permissive, so anyone can build on it. |
-| Openness | The repo is public (since October 24) | It's a learning project worth sharing, and a pid.codes PID needs a public design. |
-| USB IDs | pid.codes test PIDs for development, with a registered PID before any board leaves my hands | Never ship a borrowed or test VID/PID. |
+| Openness | The repo is public (since October 24) | It's a learning project worth sharing. |
+| USB IDs | Stay on the pid.codes test PIDs and don't register my own (decided October 24) | The board is only for my desk, which is what test PIDs are for. If a board ever leaves my hands, I'll register a PID first. The README warns anyone who rebuilds it. |
 | CAD files | Nothing CAD-related is git-ignored, and STEP exports are committed | I work across several devices and want every file everywhere. |
 | Code generation | Python + PyYAML for the protocol generator | It's already part of the nRF Connect SDK, so it adds no new dependency. |
 | Workflow | One PR per phase, ten required CI checks, and rebase merges | Every phase is reviewable on its own, and `main` always builds. |

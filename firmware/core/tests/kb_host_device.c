@@ -30,6 +30,7 @@
 static kb_keycode_t keys[LAYERS * ROWS * COLS];
 static struct kb_keymap keymap;
 static struct kb_settings settings;
+static struct kb_indicator_config indicators;
 static struct kb_features features;
 static uint8_t macro_edit[KB_MACRO_BUFFER];
 static struct sim_flash flash;
@@ -39,11 +40,13 @@ static uint8_t blob[SIM_SECTOR];
 static void load_defaults(void)
 {
     memset(&settings, 0, sizeof(settings));
+    settings.debounce_algo = 4; /* eager on press, as the firmware */
     settings.debounce_ms = 5;
     settings.tapping_term_ms = 200;
     settings.nkro = true;
     settings.sleep_timeout_min = 15;
     settings.indicator_brightness = 13;
+    kb_indicators_default_config(&indicators);
     (void)kb_keymap_init(&keymap, keys, LAYERS, ROWS, COLS, &default_keymap[0][0][0]);
     default_features(&features);
 }
@@ -57,7 +60,8 @@ static int load_saved(void)
         return err;
     }
     if (kb_settings_decode(schema, blob, len, &keymap, &settings) < 0 ||
-        kb_features_decode(schema, blob, len, &features, LAYERS, ROWS, COLS) < 0) {
+        kb_features_decode(schema, blob, len, &features, LAYERS, ROWS, COLS) < 0 ||
+        kb_indicators_decode(schema, blob, len, &indicators) < 0) {
         return -KB_STORE_EIO;
     }
     return 0;
@@ -76,6 +80,8 @@ static uint8_t op_save(void *ctx)
     (void)ctx;
     size_t len = kb_settings_encode(&keymap, &settings, blob, sizeof(blob));
     size_t more = len ? kb_features_encode(&features, LAYERS, blob + len, sizeof(blob) - len) : 0;
+    len = more ? len + more : 0;
+    more = len ? kb_indicators_encode(&indicators, LAYERS, blob + len, sizeof(blob) - len) : 0;
     return status_of(more ? kb_store_save(&store, KB_SETTINGS_SCHEMA, blob, len + more)
                           : -KB_STORE_ENOSPC);
 }
@@ -147,11 +153,14 @@ int main(void)
         .model = "Dachshund60F",
         .serial = "HOST0001",
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
-                        KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS,
+                        KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS |
+                        KB_PROTO_CAP_SETTINGS | KB_PROTO_CAP_INDICATORS,
         .encoders = 1,
         .macro_buffer_size = KB_MACRO_BUFFER,
         .features = &features,
         .macro_edit = macro_edit,
+        .settings = &settings,
+        .indicators = &indicators,
     };
 
     sim_init(&flash);

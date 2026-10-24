@@ -32,9 +32,20 @@ export interface BoardInfo {
   capabilities?: readonly string[];
 }
 
+/** Debounce algorithms, in the firmware's order (kb/debounce.h). */
+export const DEBOUNCE_ALGORITHMS = [
+  "defer-global",
+  "defer-per-key",
+  "eager-global",
+  "eager-per-key",
+  "eager-press",
+] as const;
+export type DebounceAlgorithm = (typeof DEBOUNCE_ALGORITHMS)[number];
+
 export interface BoardSettings {
-  /** The owner's name for this board, shown in the app. Up to 16 characters. */
+  /** The owner's name for this board, shown in the app. Up to 16 bytes of UTF-8. */
   name: string;
+  debounceAlgorithm: DebounceAlgorithm;
   debounceMs: number;
   tappingTermMs: number;
   nkro: boolean;
@@ -44,14 +55,32 @@ export interface BoardSettings {
   indicatorBrightness: number;
 }
 
-/** Inclusive limits the firmware enforces; the GUI uses them for its controls. */
+/** Inclusive limits the firmware enforces (kb/settings.h). */
 export const SETTINGS_LIMITS = {
+  /** In bytes of UTF-8, so 16 letters of plain ASCII. */
   nameMaxLength: 16,
-  debounceMs: { min: 1, max: 20 },
-  tappingTermMs: { min: 100, max: 500 },
-  sleepTimeoutMin: { min: 0, max: 120 },
+  debounceMs: { min: 0, max: 100 },
+  tappingTermMs: { min: 50, max: 2000 },
+  sleepTimeoutMin: { min: 0, max: 240 },
   indicatorBrightness: { min: 0, max: 100 },
 } as const;
+
+/** A colour as "#rrggbb" (lowercase); "#000000" leaves the LED off. */
+export type Colour = string;
+
+/** What each indicator LED shows, before the brightness setting scales it. */
+export interface IndicatorColours {
+  /** The layer LED's colour on each layer (one per layer the board has). */
+  layers: Colour[];
+  caps: Colour;
+  num: Colour;
+  scroll: Colour;
+  /** The battery gauge. */
+  battery: Colour;
+  /** The whole gauge at or below batteryLowPercent. */
+  batteryLow: Colour;
+  batteryLowPercent: number;
+}
 
 /**
  * Keycode identifier, e.g. "KC_A", "MO(1)", "BT_SEL(0)". The numeric 16-bit
@@ -213,6 +242,11 @@ export interface Board {
 
   getSettings(): Promise<BoardSettings>;
   setSettings(patch: Partial<BoardSettings>): Promise<BoardSettings>;
+
+  /** Indicator colours (live). Absent on boards without settable colours. */
+  getIndicators?(): Promise<IndicatorColours>;
+  /** Change some of them; layers, if given, has one colour per layer. */
+  setIndicators?(patch: Partial<IndicatorColours>): Promise<IndicatorColours>;
 
   /** True when live keymap or settings differ from what is saved in flash. */
   hasUnsavedChanges(): Promise<boolean>;

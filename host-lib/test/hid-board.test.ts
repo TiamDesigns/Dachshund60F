@@ -101,11 +101,34 @@ test("host-built firmware: info from the handshake", host.skip ? { skip: host.sk
   const board = await openHostDevice(t);
   assert.equal(board.info.id, "HOST0001");
   assert.equal(board.build, "host");
-  assert.deepEqual(board.info.capabilities, ["keymap", "persistence", "encoders", "macros", "advancedKeys", "identify"]);
+  assert.deepEqual(board.info.capabilities, [
+    "keymap",
+    "persistence",
+    "encoders",
+    "macros",
+    "advancedKeys",
+    "indicators",
+    "settings",
+    "identify",
+  ]);
   assert.deepEqual((await board.getKeymap()).encoders, defaultKeymap("Dachshund60F")!.encoders);
   await board.identify();
-  await rejectsWith(board.getSettings(), "not-supported");
   assert.equal(await board.getBattery(), null);
+});
+
+test("host-built firmware: saved settings and colours survive a reboot", host.skip ? { skip: host.skip } : {}, async (t) => {
+  const board = await openHostDevice(t);
+  await board.setSettings({ name: "Brötchen", tappingTermMs: 180 });
+  await board.setIndicators({ caps: "#123456", layers: ["#000000", "#ff0000", "#00ff00", "#0000ff"] });
+  await board.save();
+  await board.setSettings({ name: "unsaved" });
+  await board.reboot();
+  const settings = await board.getSettings();
+  assert.equal(settings.name, "Brötchen");
+  assert.equal(settings.tappingTermMs, 180);
+  const colours = await board.getIndicators();
+  assert.equal(colours.caps, "#123456");
+  assert.deepEqual(colours.layers, ["#000000", "#ff0000", "#00ff00", "#0000ff"]);
 });
 
 test("host-built firmware: encoders", host.skip ? { skip: host.skip } : {}, async (t) => {
@@ -179,6 +202,72 @@ for (const [name, open, options] of subjects) {
     assert.deepEqual(await board.getAdvancedKeys(), before);
   });
 
+  test(`${name}: settings`, options, async (t) => {
+    const board = await open(t);
+    const before = await board.getSettings();
+    assert.equal(before.debounceAlgorithm, "eager-press");
+    const next = await board.setSettings({
+      name: "Wiener 🐶",
+      debounceAlgorithm: "defer-per-key",
+      debounceMs: 0,
+      tappingTermMs: 2000,
+      nkro: false,
+      sleepTimeoutMin: 240,
+      indicatorBrightness: 100,
+    });
+    assert.deepEqual(await board.getSettings(), next);
+    assert.equal(next.name, "Wiener 🐶");
+    assert.equal(await board.hasUnsavedChanges(), true);
+
+    for (const bad of [
+      { name: "x".repeat(17) },
+      { name: "🐶🐶🐶🐶🐶" }, // 20 bytes
+      { debounceAlgorithm: "slow" as never },
+      { debounceMs: 101 },
+      { tappingTermMs: 49 },
+      { tappingTermMs: 2001 },
+      { sleepTimeoutMin: 241 },
+      { indicatorBrightness: 101 },
+      { debounceMs: 1.5 },
+    ]) {
+      await rejectsWith(board.setSettings(bad), "invalid-value");
+    }
+    assert.deepEqual(await board.getSettings(), next);
+
+    await board.revert();
+    assert.deepEqual(await board.getSettings(), before);
+  });
+
+  test(`${name}: indicator colours`, options, async (t) => {
+    const board = (await open(t)) as Required<Board>;
+    const before = await board.getIndicators();
+    assert.equal(before.layers.length, 4);
+    assert.equal(before.layers[0], "#000000");
+    assert.equal(before.caps, "#ffdcb4");
+    assert.equal(before.batteryLowPercent, 15);
+
+    const next = await board.setIndicators({ battery: "#00ff00", batteryLowPercent: 25 });
+    assert.equal(next.layers[1], before.layers[1]);
+    await board.setIndicators({ layers: ["#000000", "#ff0000", before.layers[2]!, "#abcdef"] });
+    const got = await board.getIndicators();
+    assert.equal(got.battery, "#00ff00");
+    assert.equal(got.batteryLowPercent, 25);
+    assert.deepEqual(got.layers, ["#000000", "#ff0000", before.layers[2], "#abcdef"]);
+
+    for (const bad of [
+      { caps: "red" },
+      { num: "#FFFFFF" },
+      { batteryLowPercent: 101 },
+      { layers: ["#000000"] },
+      { layers: ["#000000", "#000000", "#000000", "#00000g"] },
+    ]) {
+      await rejectsWith(board.setIndicators(bad), "invalid-value");
+    }
+
+    await board.factoryReset();
+    assert.deepEqual(await board.getIndicators(), before);
+  });
+
   test(`${name}: macros`, options, async (t) => {
     const board = (await open(t)) as Required<Board>;
     assert.deepEqual(await board.getMacros(), []);
@@ -239,6 +328,9 @@ test("a board missing a capability says not-supported without asking it", async 
   await rejectsWith(board.setEncoder(0, 0, { cw: "KC_A", ccw: "KC_B" }), "not-supported");
   await rejectsWith(board.getAdvancedKeys(), "not-supported");
   await rejectsWith(board.getMacros(), "not-supported");
+  await rejectsWith(board.getSettings(), "not-supported");
+  await rejectsWith(board.setSettings({ nkro: false }), "not-supported");
+  await rejectsWith(board.getIndicators(), "not-supported");
   assert.equal(t.requests.length, before);
 });
 
