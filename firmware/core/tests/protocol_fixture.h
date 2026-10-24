@@ -28,7 +28,10 @@ struct fx_state {
     struct kb_keymap keymap;
     struct kb_features features, saved_features;
     uint8_t macro_edit[KB_MACRO_BUFFER];
-    int saves, reverts, resets, reboots, identifies, locks, unlocks, feature_changes;
+    struct kb_settings settings, saved_settings;
+    struct kb_indicator_config indicators, saved_indicators;
+    int saves, reverts, resets, reboots, identifies, locks, unlocks, feature_changes,
+        settings_changes;
     bool locked;
     bool reboot_bootloader;
     uint8_t identify_seconds;
@@ -44,6 +47,8 @@ static uint8_t fx_save(void *ctx)
     if (fx.save_status == KB_PROTO_OK) {
         memcpy(fx.saved, fx.live, sizeof(fx.saved));
         fx.saved_features = fx.features;
+        fx.saved_settings = fx.settings;
+        fx.saved_indicators = fx.indicators;
     }
     return fx.save_status;
 }
@@ -54,7 +59,23 @@ static uint8_t fx_revert(void *ctx)
     fx.reverts++;
     memcpy(fx.live, fx.saved, sizeof(fx.live));
     fx.features = fx.saved_features;
+    fx.settings = fx.saved_settings;
+    fx.indicators = fx.saved_indicators;
     return KB_PROTO_OK;
+}
+
+static void fx_default_settings(void)
+{
+    memset(&fx.settings, 0, sizeof(fx.settings));
+    fx.settings.debounce_algo = 4;
+    fx.settings.debounce_ms = 5;
+    fx.settings.tapping_term_ms = 200;
+    fx.settings.nkro = true;
+    fx.settings.sleep_timeout_min = 15;
+    fx.settings.indicator_brightness = 13;
+    kb_indicators_default_config(&fx.indicators);
+    fx.saved_settings = fx.settings;
+    fx.saved_indicators = fx.indicators;
 }
 
 static uint8_t fx_factory_reset(void *ctx)
@@ -65,6 +86,7 @@ static uint8_t fx_factory_reset(void *ctx)
     memcpy(fx.saved, fx_default, sizeof(fx.saved));
     kb_features_default(&fx.features);
     fx.saved_features = fx.features;
+    fx_default_settings();
     return KB_PROTO_OK;
 }
 
@@ -103,6 +125,12 @@ static void fx_features_changed(void *ctx)
     fx.feature_changes += fx.locked ? 1 : 1000;
 }
 
+static void fx_settings_changed(void *ctx)
+{
+    (void)ctx;
+    fx.settings_changes += fx.locked ? 1 : 1000;
+}
+
 static const struct kb_protocol_ops fx_ops = {
     .save = fx_save,
     .revert = fx_revert,
@@ -112,6 +140,7 @@ static const struct kb_protocol_ops fx_ops = {
     .lock = fx_lock,
     .unlock = fx_unlock,
     .features_changed = fx_features_changed,
+    .settings_changed = fx_settings_changed,
 };
 
 static struct kb_protocol fx_proto;
@@ -124,6 +153,7 @@ static void fx_init(void)
     kb_features_default(&fx.features);
     fx.saved_features = fx.features;
     memcpy(fx.macro_edit, fx.features.macros, KB_MACRO_BUFFER);
+    fx_default_settings();
     fx_proto = (struct kb_protocol){
         .keymap = &fx.keymap,
         .ops = &fx_ops,
@@ -138,6 +168,8 @@ static void fx_init(void)
         .macro_buffer_size = KB_MACRO_BUFFER,
         .features = &fx.features,
         .macro_edit = fx.macro_edit,
+        .settings = &fx.settings,
+        .indicators = &fx.indicators,
     };
 }
 

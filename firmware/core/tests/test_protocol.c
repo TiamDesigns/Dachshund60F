@@ -340,6 +340,127 @@ static void test_macros(void)
     KB_CHECK_EQ(call(KB_PROTO_CMD_APPLY_MACROS, c1, 1), KB_PROTO_BAD_LENGTH);
 }
 
+static void test_settings(void)
+{
+    fx_init();
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_SETTINGS, NULL, 0), KB_PROTO_OK);
+    struct kb_proto_get_settings_resp g;
+    KB_CHECK_EQ(kb_proto_get_settings_resp_decode(payload(), payload_len(), &g), 0);
+    KB_CHECK_EQ(g.debounce_algorithm, 4);
+    KB_CHECK_EQ(g.tapping_term_ms, 200);
+    KB_CHECK_EQ(g.nkro, 1);
+    KB_CHECK(strcmp(g.name, "") == 0);
+
+    struct kb_proto_set_settings_req r = {
+        .debounce_algorithm = 1,
+        .debounce_ms = 8,
+        .tapping_term_ms = 250,
+        .nkro = 0,
+        .sleep_timeout_min = 30,
+        .indicator_brightness = 60,
+        .name = "Frankfurter Long",
+    };
+    uint8_t buf[KB_PROTO_SET_SETTINGS_REQ_SIZE];
+    KB_CHECK_EQ(kb_proto_set_settings_req_encode(&r, buf), sizeof(buf));
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_SETTINGS, buf, sizeof(buf)), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.settings.debounce_algo, 1);
+    KB_CHECK_EQ(fx.settings.tapping_term_ms, 250);
+    KB_CHECK(!fx.settings.nkro);
+    KB_CHECK(strcmp(fx.settings.name, "Frankfurter Long") == 0);
+    KB_CHECK_EQ(fx.settings_changes, 1);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_SETTINGS, NULL, 0), KB_PROTO_OK);
+    KB_CHECK_EQ(kb_proto_get_settings_resp_decode(payload(), payload_len(), &g), 0);
+    KB_CHECK(strcmp(g.name, "Frankfurter Long") == 0);
+    KB_CHECK_EQ(g.sleep_timeout_min, 30);
+
+    /* Each field out of range: refused, nothing changes. */
+    struct kb_proto_set_settings_req bad[] = {r, r, r, r, r, r, r, r};
+    bad[0].debounce_algorithm = 5;
+    bad[1].debounce_ms = 101;
+    bad[2].tapping_term_ms = 49;
+    bad[3].tapping_term_ms = 2001;
+    bad[4].nkro = 2;
+    bad[5].sleep_timeout_min = 241;
+    bad[6].indicator_brightness = 101;
+    bad[7].debounce_ms = 0;
+    for (size_t i = 0; i < 7; i++) {
+        bad[i].name[0] = 'X';
+        kb_proto_set_settings_req_encode(&bad[i], buf);
+        KB_CHECK_EQ(call(KB_PROTO_CMD_SET_SETTINGS, buf, sizeof(buf)), KB_PROTO_BAD_VALUE);
+        KB_CHECK_EQ(fx.settings.name[0], 'F');
+    }
+    /* 0 ms debounce is allowed. */
+    kb_proto_set_settings_req_encode(&bad[7], buf);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_SETTINGS, buf, sizeof(buf)), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_SETTINGS, buf, sizeof(buf) - 1), KB_PROTO_BAD_LENGTH);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_SETTINGS, buf, 1), KB_PROTO_BAD_LENGTH);
+    KB_CHECK_EQ(fx.settings_changes, 2);
+
+    /* Revert brings back the saved settings. */
+    KB_CHECK_EQ(call(KB_PROTO_CMD_REVERT, NULL, 0), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.settings.tapping_term_ms, 200);
+    KB_CHECK_EQ(fx.locks, fx.unlocks);
+}
+
+static void test_indicators(void)
+{
+    fx_init();
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_INDICATORS, NULL, 0), KB_PROTO_OK);
+    struct kb_proto_get_indicators_resp g;
+    KB_CHECK_EQ(kb_proto_get_indicators_resp_decode(payload(), payload_len(), &g), 0);
+    KB_CHECK_EQ(g.caps, 0xFFDCB4u);
+    KB_CHECK_EQ(g.battery_low_percent, 15);
+
+    struct kb_proto_set_indicators_req r = {
+        .caps = 0x112233,
+        .num = 0,
+        .scroll = 0xFFFFFF,
+        .battery = 0x00FF00,
+        .battery_low = 0xFF0000,
+        .battery_low_percent = 20,
+    };
+    uint8_t buf[KB_PROTO_SET_INDICATORS_REQ_SIZE];
+    kb_proto_set_indicators_req_encode(&r, buf);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_INDICATORS, buf, sizeof(buf)), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.indicators.caps.r, 0x11);
+    KB_CHECK_EQ(fx.indicators.caps.g, 0x22);
+    KB_CHECK_EQ(fx.indicators.caps.b, 0x33);
+    KB_CHECK_EQ(fx.indicators.battery_low_pct, 20);
+    KB_CHECK_EQ(fx.settings_changes, 1);
+
+    r.battery = 0x01000000; /* not a colour */
+    kb_proto_set_indicators_req_encode(&r, buf);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_INDICATORS, buf, sizeof(buf)), KB_PROTO_BAD_VALUE);
+    r.battery = 0;
+    r.battery_low_percent = 101;
+    kb_proto_set_indicators_req_encode(&r, buf);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_INDICATORS, buf, sizeof(buf)), KB_PROTO_BAD_VALUE);
+    KB_CHECK_EQ(fx.indicators.battery.g, 0xFF);
+
+    /* Layer colours, for the layers the keymap has. */
+    uint8_t set[5] = {2, 0x56, 0x34, 0x12, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_LAYER_COLOUR, set, sizeof(set)), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.indicators.layer[2].r, 0x12);
+    KB_CHECK_EQ(fx.indicators.layer[2].b, 0x56);
+    uint8_t get = 2;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_LAYER_COLOUR, &get, 1), KB_PROTO_OK);
+    KB_CHECK_EQ(payload_len(), 5);
+    KB_CHECK(memcmp(payload(), set, 5) == 0);
+    get = FX_LAYERS;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_LAYER_COLOUR, &get, 1), KB_PROTO_OUT_OF_RANGE);
+    set[0] = FX_LAYERS;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_LAYER_COLOUR, set, sizeof(set)), KB_PROTO_OUT_OF_RANGE);
+    set[0] = 1;
+    set[4] = 1;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_LAYER_COLOUR, set, sizeof(set)), KB_PROTO_BAD_VALUE);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_LAYER_COLOUR, set, 4), KB_PROTO_BAD_LENGTH);
+    KB_CHECK_EQ(fx.settings_changes, 2);
+
+    KB_CHECK_EQ(call(KB_PROTO_CMD_FACTORY_RESET, NULL, 0), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.indicators.layer[2].r, 0);
+    KB_CHECK_EQ(fx.locks, fx.unlocks);
+}
+
 static void test_features_not_supported(void)
 {
     fx_init();
@@ -348,6 +469,12 @@ static void test_features_not_supported(void)
     KB_CHECK_EQ(call(KB_PROTO_CMD_GET_FEATURE, get, 3), KB_PROTO_NOT_SUPPORTED);
     KB_CHECK_EQ(call(KB_PROTO_CMD_GET_MACRO_CHUNK, get, 3), KB_PROTO_NOT_SUPPORTED);
     KB_CHECK_EQ(call(KB_PROTO_CMD_APPLY_MACROS, NULL, 0), KB_PROTO_NOT_SUPPORTED);
+
+    fx_proto.settings = NULL;
+    fx_proto.indicators = NULL;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_SETTINGS, NULL, 0), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_INDICATORS, NULL, 0), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_LAYER_COLOUR, get, 1), KB_PROTO_NOT_SUPPORTED);
 }
 
 static void test_device_control(void)
@@ -422,6 +549,8 @@ int main(void)
     KB_RUN(test_save_revert_reset);
     KB_RUN(test_features);
     KB_RUN(test_macros);
+    KB_RUN(test_settings);
+    KB_RUN(test_indicators);
     KB_RUN(test_features_not_supported);
     KB_RUN(test_device_control);
     KB_RUN(test_codec_round_trip);

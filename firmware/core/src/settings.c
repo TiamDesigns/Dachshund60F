@@ -300,3 +300,87 @@ int kb_features_decode(uint16_t schema, const uint8_t *buf, size_t len, struct k
     *f = next;
     return 1;
 }
+
+/* Indicator section */
+
+/* The colours in section order: caps, num, scroll, battery, battery_low, then the layers. */
+#define FIXED_COLOURS 5u
+
+static struct kb_rgb *colour_slot(struct kb_indicator_config *cfg, size_t i)
+{
+    struct kb_rgb *fixed[FIXED_COLOURS] = {&cfg->caps, &cfg->num, &cfg->scroll, &cfg->battery,
+                                           &cfg->battery_low};
+    if (i < FIXED_COLOURS) {
+        return fixed[i];
+    }
+    return i - FIXED_COLOURS < KB_MAX_LAYERS ? &cfg->layer[i - FIXED_COLOURS] : NULL;
+}
+
+static size_t indicators_body(uint8_t layers)
+{
+    return 1u + 3u * (FIXED_COLOURS + (layers < KB_MAX_LAYERS ? layers : KB_MAX_LAYERS));
+}
+
+size_t kb_indicators_encoded_size(uint8_t layers)
+{
+    return SECTION_HEADER + indicators_body(layers);
+}
+
+size_t kb_indicators_encode(const struct kb_indicator_config *cfg, uint8_t layers, uint8_t *buf,
+                            size_t cap)
+{
+    size_t body = indicators_body(layers);
+    if (cap < SECTION_HEADER + body) {
+        return 0;
+    }
+    struct kb_indicator_config c = *cfg; /* colour_slot takes a writable config */
+    uint8_t *p = section(buf, KB_SECTION_INDICATORS, body);
+    *p++ = cfg->battery_low_pct;
+    for (size_t i = 0; i < (body - 1u) / 3u; i++) {
+        const struct kb_rgb *rgb = colour_slot(&c, i);
+        *p++ = rgb->r;
+        *p++ = rgb->g;
+        *p++ = rgb->b;
+    }
+    return (size_t)(p - buf);
+}
+
+int kb_indicators_decode(uint16_t schema, const uint8_t *buf, size_t len,
+                         struct kb_indicator_config *cfg)
+{
+    if (schema != 1) {
+        return -1;
+    }
+    for (size_t off = 0; off < len;) {
+        if (len - off < SECTION_HEADER) {
+            return -1;
+        }
+        size_t n = (size_t)(buf[off + 1] | (buf[off + 2] << 8));
+        if (n > len - off - SECTION_HEADER) {
+            return -1;
+        }
+        off += SECTION_HEADER + n;
+    }
+
+    for (size_t off = 0; off < len;) {
+        uint8_t tag = buf[off];
+        size_t n = (size_t)(buf[off + 1] | (buf[off + 2] << 8));
+        const uint8_t *body = &buf[off + SECTION_HEADER];
+        if (tag == KB_SECTION_INDICATORS) {
+            if (n < 1 || body[0] > 100u) {
+                return 0;
+            }
+            cfg->battery_low_pct = body[0];
+            for (size_t i = 0; 1u + 3u * i + 3u <= n; i++) {
+                struct kb_rgb *rgb = colour_slot(cfg, i);
+                if (!rgb) {
+                    break; /* more layers than this firmware has */
+                }
+                *rgb = (struct kb_rgb){body[1 + 3 * i], body[2 + 3 * i], body[3 + 3 * i]};
+            }
+            return 1;
+        }
+        off += SECTION_HEADER + n;
+    }
+    return 0;
+}

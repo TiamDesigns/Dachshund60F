@@ -140,10 +140,10 @@ test("settings are validated and saved with the keymap", async () => {
   assert.equal(next.nkro, false);
   assert.equal(await board.hasUnsavedChanges(), true);
 
-  await rejectsWith(board.setSettings({ debounceMs: 0 }), "invalid-value");
+  await rejectsWith(board.setSettings({ debounceMs: 101 }), "invalid-value");
   await rejectsWith(board.setSettings({ debounceMs: 2.5 }), "invalid-value");
-  await rejectsWith(board.setSettings({ tappingTermMs: 99 }), "invalid-value");
-  await rejectsWith(board.setSettings({ sleepTimeoutMin: 121 }), "invalid-value");
+  await rejectsWith(board.setSettings({ tappingTermMs: 49 }), "invalid-value");
+  await rejectsWith(board.setSettings({ sleepTimeoutMin: 241 }), "invalid-value");
   await rejectsWith(board.setSettings({ indicatorBrightness: 101 }), "invalid-value");
   await rejectsWith(board.setSettings({ name: "Sir Wigglesworth III" }), "invalid-value");
   // A rejected patch changes nothing.

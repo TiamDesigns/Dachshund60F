@@ -11,6 +11,8 @@
  *                        entries (the advanced-key tables, in the layout
  *                        of protocol.yaml's feature_tables)
  *   KB_SECTION_MACROS:   the macro buffer, without its trailing zeros
+ *   KB_SECTION_INDICATORS: battery_low_pct u8, then r g b for caps, num,
+ *                        scroll, battery, battery_low and each layer
  * Unknown sections are skipped and missing ones keep their defaults, so
  * adding a section or appending a field to one needs no new schema. A
  * change that can't be read that way bumps KB_SETTINGS_SCHEMA and adds a
@@ -24,6 +26,7 @@
 #include <stdint.h>
 
 #include "kb/features.h"
+#include "kb/indicators.h"
 #include "kb/keymap.h"
 
 #define KB_SETTINGS_SCHEMA 1u
@@ -32,6 +35,7 @@
 #define KB_SECTION_SETTINGS 2u
 #define KB_SECTION_FEATURES 3u
 #define KB_SECTION_MACROS 4u
+#define KB_SECTION_INDICATORS 5u
 
 #define KB_SETTINGS_NAME_MAX 16u
 
@@ -94,5 +98,22 @@ size_t kb_features_encode(const struct kb_features *f, uint8_t layers, uint8_t *
  */
 int kb_features_decode(uint16_t schema, const uint8_t *buf, size_t len, struct kb_features *f,
                        uint8_t layers, uint8_t rows, uint8_t cols);
+
+/*
+ * The indicator colours, as one more section to append (brightness is in
+ * the settings section). Returns the length, or 0 if cap is too small.
+ */
+size_t kb_indicators_encoded_size(uint8_t layers);
+size_t kb_indicators_encode(const struct kb_indicator_config *cfg, uint8_t layers, uint8_t *buf,
+                            size_t cap);
+
+/*
+ * Load the indicator section of a blob over cfg, which holds the defaults
+ * on entry; colours it doesn't have (fewer layers, older firmware) keep
+ * theirs, and an invalid section loads nothing. Returns 1 if it loaded, 0
+ * if not, or -1 like kb_settings_decode.
+ */
+int kb_indicators_decode(uint16_t schema, const uint8_t *buf, size_t len,
+                         struct kb_indicator_config *cfg);
 
 #endif /* KB_SETTINGS_H */

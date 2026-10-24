@@ -53,7 +53,7 @@ static struct kb_indicator_state state = {.battery = KB_BATTERY_UNKNOWN};
 static struct kb_indicator_config config;
 static bool config_ready;
 
-/* Defaults on first use: the keyboard sets the brightness before indicators_start. Hold lock. */
+/* Defaults on first use: the keyboard sets the config before indicators_start. Hold lock. */
 static void config_init_locked(void)
 {
     if (!config_ready) {
@@ -210,11 +210,12 @@ void indicators_set_layer(uint8_t layer)
     changed();
 }
 
-void indicators_set_brightness(uint8_t percent)
+void indicators_set_config(const struct kb_indicator_config *cfg, uint8_t brightness_percent)
 {
     K_SPINLOCK(&lock) {
-        config_init_locked();
-        config.brightness = (uint8_t)(MIN(percent, 100u) * 255u / 100u);
+        config = *cfg;
+        config.brightness = (uint8_t)(MIN(brightness_percent, 100u) * 255u / 100u);
+        config_ready = true;
     }
     changed();
 }

@@ -16,7 +16,7 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 - Host library: TypeScript (Node ≥ 20, ESM), `node-hid` on desktop and WebHID in the browser; tests use `node:test`
 - GUI: **Doghouse** in `app/`, Svelte 5 + TypeScript + Vite. It runs in Chrome or Edge against real boards over WebHID, or simulated ones in demo mode (`?demo`); a Tauri shell comes later (needs Rust and the MSVC build tools). Design language: warm earth tones, dog-themed (boards are named after dogs).
 - Board: `Dachshund60F` (MDBT50Q-1MV2, 6×15 COL2ROW matrix, 1 encoder, 2× SK6812MINI-E). Pins are in `boards/Dachshund60F/board.json` and are still proposed, since no PCB exists yet.
-- USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard), 0x1209:0x0002 (dongle) and 0x1209:0x0003 (UF2 bootloader). They're for in-house testing only; get a registered pid.codes PID before any board is sold or given away.
+- USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard), 0x1209:0x0002 (dongle) and 0x1209:0x0003 (UF2 bootloader). They're for in-house testing only. Tiam has chosen not to register PIDs while the board stays on their desk; anyone who gives away or sells a board must use their own VID/PID (the README warns them).
 
 ## Repo layout
 

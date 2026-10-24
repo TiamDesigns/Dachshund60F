@@ -359,3 +359,165 @@ size_t kb_proto_set_macro_chunk_req_encode(const struct kb_proto_set_macro_chunk
     memcpy(p + 2, in->data, n);
     return 2u + n;
 }
+
+int kb_proto_get_settings_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_settings_resp *out)
+{
+    if (len != 23u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->debounce_algorithm = p[0];
+    out->debounce_ms = p[1];
+    out->tapping_term_ms = get16(p + 2);
+    out->nkro = p[4];
+    out->sleep_timeout_min = p[5];
+    out->indicator_brightness = p[6];
+    memcpy(out->name, p + 7, 16);
+    return 0;
+}
+
+size_t kb_proto_get_settings_resp_encode(const struct kb_proto_get_settings_resp *in, uint8_t *p)
+{
+    p[0] = in->debounce_algorithm;
+    p[1] = in->debounce_ms;
+    put16(p + 2, in->tapping_term_ms);
+    p[4] = in->nkro;
+    p[5] = in->sleep_timeout_min;
+    p[6] = in->indicator_brightness;
+    memset(p + 7, 0, 16);
+    memcpy(p + 7, in->name, text_len(in->name, 16));
+    return 23u;
+}
+
+int kb_proto_set_settings_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_settings_req *out)
+{
+    if (len != 23u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->debounce_algorithm = p[0];
+    out->debounce_ms = p[1];
+    out->tapping_term_ms = get16(p + 2);
+    out->nkro = p[4];
+    out->sleep_timeout_min = p[5];
+    out->indicator_brightness = p[6];
+    memcpy(out->name, p + 7, 16);
+    return 0;
+}
+
+size_t kb_proto_set_settings_req_encode(const struct kb_proto_set_settings_req *in, uint8_t *p)
+{
+    p[0] = in->debounce_algorithm;
+    p[1] = in->debounce_ms;
+    put16(p + 2, in->tapping_term_ms);
+    p[4] = in->nkro;
+    p[5] = in->sleep_timeout_min;
+    p[6] = in->indicator_brightness;
+    memset(p + 7, 0, 16);
+    memcpy(p + 7, in->name, text_len(in->name, 16));
+    return 23u;
+}
+
+int kb_proto_get_indicators_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_indicators_resp *out)
+{
+    if (len != 21u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->caps = get32(p + 0);
+    out->num = get32(p + 4);
+    out->scroll = get32(p + 8);
+    out->battery = get32(p + 12);
+    out->battery_low = get32(p + 16);
+    out->battery_low_percent = p[20];
+    return 0;
+}
+
+size_t kb_proto_get_indicators_resp_encode(const struct kb_proto_get_indicators_resp *in, uint8_t *p)
+{
+    put32(p + 0, in->caps);
+    put32(p + 4, in->num);
+    put32(p + 8, in->scroll);
+    put32(p + 12, in->battery);
+    put32(p + 16, in->battery_low);
+    p[20] = in->battery_low_percent;
+    return 21u;
+}
+
+int kb_proto_set_indicators_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_indicators_req *out)
+{
+    if (len != 21u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->caps = get32(p + 0);
+    out->num = get32(p + 4);
+    out->scroll = get32(p + 8);
+    out->battery = get32(p + 12);
+    out->battery_low = get32(p + 16);
+    out->battery_low_percent = p[20];
+    return 0;
+}
+
+size_t kb_proto_set_indicators_req_encode(const struct kb_proto_set_indicators_req *in, uint8_t *p)
+{
+    put32(p + 0, in->caps);
+    put32(p + 4, in->num);
+    put32(p + 8, in->scroll);
+    put32(p + 12, in->battery);
+    put32(p + 16, in->battery_low);
+    p[20] = in->battery_low_percent;
+    return 21u;
+}
+
+int kb_proto_get_layer_colour_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_layer_colour_req *out)
+{
+    if (len != 1u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->layer = p[0];
+    return 0;
+}
+
+size_t kb_proto_get_layer_colour_req_encode(const struct kb_proto_get_layer_colour_req *in, uint8_t *p)
+{
+    p[0] = in->layer;
+    return 1u;
+}
+
+int kb_proto_get_layer_colour_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_layer_colour_resp *out)
+{
+    if (len != 5u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->layer = p[0];
+    out->colour = get32(p + 1);
+    return 0;
+}
+
+size_t kb_proto_get_layer_colour_resp_encode(const struct kb_proto_get_layer_colour_resp *in, uint8_t *p)
+{
+    p[0] = in->layer;
+    put32(p + 1, in->colour);
+    return 5u;
+}
+
+int kb_proto_set_layer_colour_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_layer_colour_req *out)
+{
+    if (len != 5u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->layer = p[0];
+    out->colour = get32(p + 1);
+    return 0;
+}
+
+size_t kb_proto_set_layer_colour_req_encode(const struct kb_proto_set_layer_colour_req *in, uint8_t *p)
+{
+    p[0] = in->layer;
+    put32(p + 1, in->colour);
+    return 5u;
+}

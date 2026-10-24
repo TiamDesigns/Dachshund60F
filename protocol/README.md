@@ -57,6 +57,20 @@ Macros are one 1 KB buffer. The host writes it in chunks with
 `set_macro_chunk` (nothing changes on the keyboard meanwhile) and then sends
 `apply_macros`, which checks every step and swaps it in, or drops the edit.
 
+## Settings and indicator colours
+
+`get_settings` and `set_settings` carry the global settings as one struct:
+debounce algorithm and time, tapping term, NKRO, sleep timeout, indicator
+brightness and the board's name (16 bytes of UTF-8). A write replaces all of
+them, is checked whole (the limits are in `kb/settings.h`), and takes effect
+at once; `save` keeps it.
+
+Indicator colours are 0x00RRGGBB, before the brightness setting scales
+them; black is off. `get_indicators` and `set_indicators` hold the Caps,
+Num and Scroll Lock colours, the battery gauge's normal and low colours, and
+the low level. The layer LED's colour is per layer, read and written with
+`get_layer_colour` and `set_layer_colour` for the layers the keymap has.
+
 ## Rules (see CLAUDE.md)
 
 - Bump `version` on any breaking change: removing or renumbering a command,

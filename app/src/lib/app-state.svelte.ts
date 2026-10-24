@@ -21,6 +21,7 @@ import {
   type BoardSettings,
   type ConnectionKind,
   type EncoderAction,
+  type IndicatorColours,
   type KeyboardDefinition,
   type KeyPosition,
   type Keymap,
@@ -60,7 +61,8 @@ export type Feature =
   | "identify"
   | "battery"
   | "advancedKeys"
-  | "macros";
+  | "macros"
+  | "indicators";
 
 export class BoardSession {
   readonly board: Board;
@@ -73,6 +75,8 @@ export class BoardSession {
   /** Null when the board has no advanced keys (or macros). */
   advanced = $state<AdvancedKeys | null>(null);
   macros = $state<MacroStep[][] | null>(null);
+  /** Null when the board's indicator colours can't be set. */
+  indicators = $state<IndicatorColours | null>(null);
   unsaved = $state(false);
   busy = $state(false);
   canUndo = $state(false);
@@ -133,6 +137,8 @@ export class BoardSession {
       this.advanced =
         this.supports("advancedKeys") && this.board.getAdvancedKeys ? await this.board.getAdvancedKeys() : null;
       this.macros = this.supports("macros") && this.board.getMacros ? await this.board.getMacros() : null;
+      this.indicators =
+        this.supports("indicators") && this.board.getIndicators ? await this.board.getIndicators() : null;
       this.battery = await this.board.getBattery();
       this.problem = null;
     } catch (err) {
@@ -228,6 +234,13 @@ export class BoardSession {
   async updateSettings(patch: Partial<BoardSettings>): Promise<void> {
     const next = await this.run(() => this.board.setSettings(patch));
     if (next) this.settings = next;
+  }
+
+  async updateIndicators(patch: Partial<IndicatorColours>): Promise<void> {
+    const set = this.board.setIndicators?.bind(this.board);
+    if (!set) return;
+    const next = await this.run(() => set(patch));
+    if (next) this.indicators = next;
   }
 
   /** Replace one slot of an advanced-key table. Resolves true if the board took it. */

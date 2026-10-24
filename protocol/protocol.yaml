@@ -247,3 +247,56 @@ commands:
     doc: Check the edited macro buffer and make it the live one. bad_value if a step is malformed; the live macros stay and the edit is dropped.
     request: []
     response: []
+
+  - name: get_settings
+    id: 0x40
+    doc: Read the live global settings.
+    request: []
+    response: &settings
+      - {name: debounce_algorithm, type: u8, doc: "0 defer global, 1 defer per key, 2 eager global, 3 eager per key, 4 eager on press"}
+      - {name: debounce_ms, type: u8, doc: 0-100}
+      - {name: tapping_term_ms, type: u16, doc: 50-2000}
+      - {name: nkro, type: u8, doc: "0 6KRO, 1 NKRO (the boot protocol always gets 6KRO)"}
+      - {name: sleep_timeout_min, type: u8, doc: "0-240, 0 = never"}
+      - {name: indicator_brightness, type: u8, doc: "0-100 %"}
+      - {name: name, type: "char[16]", doc: "the owner's name for the board, UTF-8"}
+
+  - name: set_settings
+    id: 0x41
+    doc: Replace the live global settings; they take effect at once, and save makes them permanent. Every field is checked first; on an error nothing changes.
+    request: *settings
+    response: []
+
+  - name: get_indicators
+    id: 0x42
+    doc: "Read the indicator colours that don't depend on the layer. Colours are 0x00RRGGBB, before brightness; black is off."
+    request: []
+    response: &indicators
+      - {name: caps, type: u32}
+      - {name: num, type: u32}
+      - {name: scroll, type: u32}
+      - {name: battery, type: u32, doc: the battery gauge}
+      - {name: battery_low, type: u32, doc: "the whole gauge, at or below battery_low_percent"}
+      - {name: battery_low_percent, type: u8, doc: 0-100}
+
+  - name: set_indicators
+    id: 0x43
+    doc: Replace the colours of get_indicators (live, like set_settings). bad_value if a colour's top byte isn't 0.
+    request: *indicators
+    response: []
+
+  - name: get_layer_colour
+    id: 0x44
+    doc: The layer indicator's colour on one layer (0x00RRGGBB; black leaves it off).
+    request:
+      - {name: layer, type: u8}
+    response:
+      - {name: layer, type: u8}
+      - {name: colour, type: u32}
+
+  - name: set_layer_colour
+    id: 0x45
+    request:
+      - {name: layer, type: u8}
+      - {name: colour, type: u32}
+    response: []

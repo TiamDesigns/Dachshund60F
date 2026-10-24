@@ -1,5 +1,13 @@
 <script lang="ts">
-  import { DEFAULT_SETTINGS, SETTINGS_LIMITS, type BoardSettings } from "@dachshund60f/host-lib";
+  import {
+    DEBOUNCE_ALGORITHMS,
+    DEFAULT_SETTINGS,
+    nameBytes,
+    SETTINGS_LIMITS,
+    type BoardSettings,
+    type DebounceAlgorithm,
+    type IndicatorColours,
+  } from "@dachshund60f/host-lib";
 
   const DEFAULT_VIEW: BoardSettings = { ...DEFAULT_SETTINGS };
 
@@ -8,6 +16,18 @@
   let { session }: { session: BoardSession } = $props();
 
   const L = SETTINGS_LIMITS;
+  // The board takes 0-100 ms and 50-2000 ms; the sliders cover the useful part (and any value already set).
+  const DEBOUNCE_SLIDER_MAX = 30;
+  const TAPPING_SLIDER = { min: 100, max: 1000 };
+
+  const DEBOUNCE_LABELS: Record<DebounceAlgorithm, string> = {
+    "eager-press": "Eager on press",
+    "eager-per-key": "Eager, per key",
+    "eager-global": "Eager, whole board",
+    "defer-per-key": "Wait to settle, per key",
+    "defer-global": "Wait to settle, whole board",
+  };
+
   const SLEEP_CHOICES = [
     { value: 0, label: "Never" },
     { value: 5, label: "5 minutes" },
@@ -16,6 +36,7 @@
     { value: 30, label: "30 minutes" },
     { value: 60, label: "1 hour" },
     { value: 120, label: "2 hours" },
+    { value: 240, label: "4 hours" },
   ];
 
   // Writable deriveds: sliders move smoothly while dragged, commit on change,
@@ -26,6 +47,40 @@
   let debounce = $derived(s.debounceMs);
   let tapping = $derived(s.tappingTermMs);
   let brightness = $derived(s.indicatorBrightness);
+  const sleepChoices = $derived(
+    SLEEP_CHOICES.some((c) => c.value === s.sleepTimeoutMin)
+      ? SLEEP_CHOICES
+      : [...SLEEP_CHOICES, { value: s.sleepTimeoutMin, label: `${s.sleepTimeoutMin} minutes` }].sort((a, b) => a.value - b.value),
+  );
+  const nameTooLong = $derived(nameBytes(name.trim()) > L.nameMaxLength);
+
+  // Which indicator colours this board can show, from its keyboard definition (all of them if unknown).
+  const lights = $derived.by(() => {
+    const leds = session.definition?.indicators;
+    const lock = (word: string) => !leds || leds.some((i) => i.role === "lock" && i.label.includes(word));
+    return {
+      layer: !leds || leds.some((i) => i.role === "layer"),
+      caps: lock("Caps"),
+      num: lock("Num"),
+      scroll: lock("Scroll"),
+      battery: !leds || leds.some((i) => i.role === "battery"),
+    };
+  });
+  const layerNames = $derived(
+    Array.from({ length: session.board.info.layerCount }, (_, i) => (i === 0 ? "Base" : i === 1 ? "Fn" : `Layer ${i}`)),
+  );
+  let lowPercent = $derived(session.indicators?.batteryLowPercent ?? 15);
+
+  function setColour(key: "caps" | "num" | "scroll" | "battery" | "batteryLow", value: string) {
+    void session.updateIndicators({ [key]: value } as Partial<IndicatorColours>);
+  }
+
+  function setLayerColour(layer: number, value: string) {
+    if (!session.indicators) return;
+    const layers = [...session.indicators.layers];
+    layers[layer] = value;
+    void session.updateIndicators({ layers });
+  }
 
   function commit(patch: Partial<BoardSettings>) {
     void session.updateSettings(patch);
@@ -45,16 +100,21 @@
     <label class="row">
       <span class="label">
         Board name
-        <small>How Doghouse lists this board in your pack. Up to {L.nameMaxLength} characters.</small>
+        <small class:error={nameTooLong}>
+          How Doghouse lists this board in your pack. Up to {L.nameMaxLength} letters; accents and emoji take up more than one.
+        </small>
       </span>
       <input
         class="text"
         type="text"
         maxlength={L.nameMaxLength}
         placeholder={session.board.info.model}
+        aria-invalid={nameTooLong}
         value={name}
         oninput={(e) => (name = e.currentTarget.value)}
-        onchange={() => commit({ name: name.trim() })}
+        onchange={() => {
+          if (!nameTooLong) commit({ name: name.trim() });
+        }}
       />
     </label>
   </section>
@@ -70,7 +130,7 @@
         <input
           type="range"
           min={L.debounceMs.min}
-          max={L.debounceMs.max}
+          max={Math.max(DEBOUNCE_SLIDER_MAX, s.debounceMs)}
           value={debounce}
           oninput={(e) => (debounce = Number(e.currentTarget.value))}
           onchange={() => commit({ debounceMs: debounce })}
@@ -80,14 +140,25 @@
     </label>
     <label class="row">
       <span class="label">
+        Debounce style
+        <small>Eager sends a press the moment a switch closes; waiting to settle ignores noise first, but adds the debounce time.</small>
+      </span>
+      <select value={s.debounceAlgorithm} onchange={(e) => commit({ debounceAlgorithm: e.currentTarget.value as DebounceAlgorithm })}>
+        {#each DEBOUNCE_ALGORITHMS as a (a)}
+          <option value={a}>{DEBOUNCE_LABELS[a]}</option>
+        {/each}
+      </select>
+    </label>
+    <label class="row">
+      <span class="label">
         Tapping term
         <small>Hold longer than this and a dual-role key acts as its hold action.</small>
       </span>
       <span class="control">
         <input
           type="range"
-          min={L.tappingTermMs.min}
-          max={L.tappingTermMs.max}
+          min={Math.min(TAPPING_SLIDER.min, s.tappingTermMs)}
+          max={Math.max(TAPPING_SLIDER.max, s.tappingTermMs)}
           step="10"
           value={tapping}
           oninput={(e) => (tapping = Number(e.currentTarget.value))}
@@ -113,7 +184,7 @@
         <small>Idle time before the board sleeps on battery. Any key wakes it.</small>
       </span>
       <select value={s.sleepTimeoutMin} onchange={(e) => commit({ sleepTimeoutMin: Number(e.currentTarget.value) })}>
-        {#each SLEEP_CHOICES as c (c.value)}
+        {#each sleepChoices as c (c.value)}
           <option value={c.value}>{c.label}</option>
         {/each}
       </select>
@@ -137,6 +208,78 @@
       </span>
     </label>
   </section>
+
+  {#if session.indicators}
+    {@const c = session.indicators}
+    <section class="group">
+      <h2>Light colours</h2>
+      {#if lights.layer}
+        <div class="row">
+          <span class="label">
+            Layer light
+            <small>Its colour on each layer. Black keeps it off, as it is on Base by default.</small>
+          </span>
+          <span class="swatches">
+            {#each layerNames as layerName, i (i)}
+              <label class="swatch">
+                <input type="color" value={c.layers[i]} onchange={(e) => setLayerColour(i, e.currentTarget.value)} />
+                <span>{layerName}</span>
+              </label>
+            {/each}
+          </span>
+        </div>
+      {/if}
+      {#if lights.caps || lights.num || lights.scroll}
+        <div class="row">
+          <span class="label">
+            Lock lights
+            <small>Shown while the computer has the lock on.</small>
+          </span>
+          <span class="swatches">
+            {#if lights.caps}
+              <label class="swatch"><input type="color" value={c.caps} onchange={(e) => setColour("caps", e.currentTarget.value)} /><span>Caps Lock</span></label>
+            {/if}
+            {#if lights.num}
+              <label class="swatch"><input type="color" value={c.num} onchange={(e) => setColour("num", e.currentTarget.value)} /><span>Num Lock</span></label>
+            {/if}
+            {#if lights.scroll}
+              <label class="swatch"><input type="color" value={c.scroll} onchange={(e) => setColour("scroll", e.currentTarget.value)} /><span>Scroll Lock</span></label>
+            {/if}
+          </span>
+        </div>
+      {/if}
+      {#if lights.battery}
+        <div class="row">
+          <span class="label">
+            Battery gauge
+            <small>Its usual colour, and the colour of the whole gauge once the battery runs low.</small>
+          </span>
+          <span class="swatches">
+            <label class="swatch"><input type="color" value={c.battery} onchange={(e) => setColour("battery", e.currentTarget.value)} /><span>Charged</span></label>
+            <label class="swatch"><input type="color" value={c.batteryLow} onchange={(e) => setColour("batteryLow", e.currentTarget.value)} /><span>Low</span></label>
+          </span>
+        </div>
+        <label class="row">
+          <span class="label">
+            Low battery at
+            <small>The gauge turns to its low colour at or below this level.</small>
+          </span>
+          <span class="control">
+            <input
+              type="range"
+              min="0"
+              max={Math.max(50, c.batteryLowPercent)}
+              step="5"
+              value={lowPercent}
+              oninput={(e) => (lowPercent = Number(e.currentTarget.value))}
+              onchange={() => void session.updateIndicators({ batteryLowPercent: lowPercent })}
+            />
+            <output>{lowPercent}%</output>
+          </span>
+        </label>
+      {/if}
+    </section>
+  {/if}
 
   <p class="note">Changes take effect right away. Use <strong>Save to board</strong> to keep them after the board powers off.</p>
   {:else}
@@ -267,6 +410,37 @@
   .note {
     margin: 0;
     color: var(--text-muted);
+  }
+
+  small.error {
+    color: var(--danger);
+  }
+
+  .swatches {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .swatch input {
+    width: 40px;
+    height: 32px;
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    cursor: pointer;
   }
 
   .danger {

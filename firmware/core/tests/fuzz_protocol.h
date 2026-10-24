@@ -70,6 +70,10 @@ static bool fuzz_protocol_one(const uint8_t *data, size_t size)
             fprintf(stderr, "the advanced-key tables are invalid\n");
             return false;
         }
+        if (!kb_settings_valid(&fx.settings) || fx.indicators.battery_low_pct > 100) {
+            fprintf(stderr, "the settings are invalid\n");
+            return false;
+        }
         if (fx.locks != fx.unlocks) {
             fprintf(stderr, "lock and unlock calls don't pair\n");
             return false;

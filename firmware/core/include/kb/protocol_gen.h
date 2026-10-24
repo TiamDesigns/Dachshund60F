@@ -49,6 +49,12 @@ enum kb_proto_command {
     KB_PROTO_CMD_GET_MACRO_CHUNK = 0x32,
     KB_PROTO_CMD_SET_MACRO_CHUNK = 0x33,
     KB_PROTO_CMD_APPLY_MACROS = 0x34,
+    KB_PROTO_CMD_GET_SETTINGS = 0x40,
+    KB_PROTO_CMD_SET_SETTINGS = 0x41,
+    KB_PROTO_CMD_GET_INDICATORS = 0x42,
+    KB_PROTO_CMD_SET_INDICATORS = 0x43,
+    KB_PROTO_CMD_GET_LAYER_COLOUR = 0x44,
+    KB_PROTO_CMD_SET_LAYER_COLOUR = 0x45,
 };
 
 /* Handshake capability bits */
@@ -285,5 +291,99 @@ struct kb_proto_set_macro_chunk_req {
 int kb_proto_set_macro_chunk_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_macro_chunk_req *out);
 /* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
 size_t kb_proto_set_macro_chunk_req_encode(const struct kb_proto_set_macro_chunk_req *in, uint8_t *p);
+
+/* get_settings response */
+#define KB_PROTO_GET_SETTINGS_RESP_SIZE 23u
+struct kb_proto_get_settings_resp {
+    uint8_t debounce_algorithm;
+    uint8_t debounce_ms;
+    uint16_t tapping_term_ms;
+    uint8_t nkro;
+    uint8_t sleep_timeout_min;
+    uint8_t indicator_brightness;
+    char name[17]; /* NUL-terminated */
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_settings_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_settings_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_settings_resp_encode(const struct kb_proto_get_settings_resp *in, uint8_t *p);
+
+/* set_settings request */
+#define KB_PROTO_SET_SETTINGS_REQ_SIZE 23u
+struct kb_proto_set_settings_req {
+    uint8_t debounce_algorithm;
+    uint8_t debounce_ms;
+    uint16_t tapping_term_ms;
+    uint8_t nkro;
+    uint8_t sleep_timeout_min;
+    uint8_t indicator_brightness;
+    char name[17]; /* NUL-terminated */
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_set_settings_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_settings_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_set_settings_req_encode(const struct kb_proto_set_settings_req *in, uint8_t *p);
+
+/* get_indicators response */
+#define KB_PROTO_GET_INDICATORS_RESP_SIZE 21u
+struct kb_proto_get_indicators_resp {
+    uint32_t caps;
+    uint32_t num;
+    uint32_t scroll;
+    uint32_t battery;
+    uint32_t battery_low;
+    uint8_t battery_low_percent;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_indicators_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_indicators_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_indicators_resp_encode(const struct kb_proto_get_indicators_resp *in, uint8_t *p);
+
+/* set_indicators request */
+#define KB_PROTO_SET_INDICATORS_REQ_SIZE 21u
+struct kb_proto_set_indicators_req {
+    uint32_t caps;
+    uint32_t num;
+    uint32_t scroll;
+    uint32_t battery;
+    uint32_t battery_low;
+    uint8_t battery_low_percent;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_set_indicators_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_indicators_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_set_indicators_req_encode(const struct kb_proto_set_indicators_req *in, uint8_t *p);
+
+/* get_layer_colour request */
+#define KB_PROTO_GET_LAYER_COLOUR_REQ_SIZE 1u
+struct kb_proto_get_layer_colour_req {
+    uint8_t layer;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_layer_colour_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_layer_colour_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_layer_colour_req_encode(const struct kb_proto_get_layer_colour_req *in, uint8_t *p);
+
+/* get_layer_colour response */
+#define KB_PROTO_GET_LAYER_COLOUR_RESP_SIZE 5u
+struct kb_proto_get_layer_colour_resp {
+    uint8_t layer;
+    uint32_t colour;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_layer_colour_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_layer_colour_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_layer_colour_resp_encode(const struct kb_proto_get_layer_colour_resp *in, uint8_t *p);
+
+/* set_layer_colour request */
+#define KB_PROTO_SET_LAYER_COLOUR_REQ_SIZE 5u
+struct kb_proto_set_layer_colour_req {
+    uint8_t layer;
+    uint32_t colour;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_set_layer_colour_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_layer_colour_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_set_layer_colour_req_encode(const struct kb_proto_set_layer_colour_req *in, uint8_t *p);
 
 #endif /* KB_PROTOCOL_GEN_H */

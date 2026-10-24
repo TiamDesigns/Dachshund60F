@@ -16,6 +16,7 @@
 #include "kb/features.h"
 #include "kb/hid.h"
 #include "kb/hold.h"
+#include "kb/indicators.h"
 #include "kb/keymap.h"
 #include "kb/settings.h"
 #include "indicators.h"
@@ -62,6 +63,8 @@ BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_col_gpios) == COLS,
 #define KEYMAP_LEN (DEFAULT_KEYMAP_LAYERS * ROWS * COLS)
 static kb_keycode_t keymap_keys[KEYMAP_LEN];
 static struct kb_settings settings;
+/* Indicator colours; their brightness is settings.indicator_brightness. */
+static struct kb_indicator_config indicator_cfg;
 /* Advanced keys (combos, tap dance, macros, encoder mapping...), and the macros the host is editing. */
 static struct kb_features features;
 static uint8_t macro_edit[KB_MACRO_BUFFER];
@@ -228,6 +231,7 @@ static void default_settings(struct kb_settings *st)
 static int load_defaults(void)
 {
     default_settings(&settings);
+    kb_indicators_default_config(&indicator_cfg);
     default_features(&features);
     return kb_keymap_init(&keymap, keymap_keys, DEFAULT_KEYMAP_LAYERS, ROWS, COLS,
                           &default_keymap[0][0][0]);
@@ -252,12 +256,14 @@ static int load_saved(void)
         return -EINVAL;
     }
     int advanced = kb_features_decode(schema, blob, len, &features, keymap.layers, ROWS, COLS);
-    LOG_INF("loaded saved%s%s%s", (loaded & KB_LOADED_KEYMAP) ? " keymap" : "",
-            (loaded & KB_LOADED_SETTINGS) ? " settings" : "", advanced > 0 ? " advanced keys" : "");
+    int colours = kb_indicators_decode(schema, blob, len, &indicator_cfg);
+    LOG_INF("loaded saved%s%s%s%s", (loaded & KB_LOADED_KEYMAP) ? " keymap" : "",
+            (loaded & KB_LOADED_SETTINGS) ? " settings" : "", advanced > 0 ? " advanced keys" : "",
+            colours > 0 ? " indicator colours" : "");
     return 0;
 }
 
-/* Put the settings into effect. Debounce restarts only if it changed (or on first). */
+/* Put the settings and colours into effect. Debounce restarts only if it changed (or on first). */
 static int apply_settings(bool first)
 {
     static uint8_t debounce_algo, debounce_ms;
@@ -276,12 +282,16 @@ static int apply_settings(bool first)
         debounce_ms = settings.debounce_ms;
     }
     kb_engine_set_tapping_term(&engine, settings.tapping_term_ms);
-    /* New tables (revert, factory reset): the engine lets go of the old ones. */
+    kb_hid_reporter_set_nkro(&reporter, settings.nkro, kb_engine_hid(&engine));
+    indicators_set_config(&indicator_cfg, settings.indicator_brightness);
+    return 0;
+}
+
+/* New tables (start, revert, factory reset): the engine lets go of the old ones. */
+static void apply_features(void)
+{
     kb_engine_set_features(&engine, &features);
     memcpy(macro_edit, features.macros, sizeof(macro_edit));
-    kb_hid_reporter_set_nkro(&reporter, settings.nkro, kb_engine_hid(&engine));
-    indicators_set_brightness(settings.indicator_brightness);
-    return 0;
 }
 
 int keyboard_start(void)
@@ -313,6 +323,7 @@ int keyboard_start(void)
     if (apply_settings(true) != 0) {
         return -EINVAL;
     }
+    apply_features();
     kb_hold_init(&recovery_hold, CONFIG_KB_BOOTLOADER_HOLD_MS);
 
     k_thread_create(&scan_thread_data, scan_stack, K_THREAD_STACK_SIZEOF(scan_stack),
@@ -344,6 +355,22 @@ void keyboard_features_changed(void)
     kb_engine_set_features(&engine, &features);
 }
 
+struct kb_settings *keyboard_settings(void)
+{
+    return &settings;
+}
+
+struct kb_indicator_config *keyboard_indicators(void)
+{
+    return &indicator_cfg;
+}
+
+void keyboard_settings_changed(void)
+{
+    /* The protocol checked every field, so this can't fail. */
+    (void)apply_settings(false);
+}
+
 void keyboard_lock(void)
 {
     k_mutex_lock(&keymap_mutex, K_FOREVER);
@@ -362,6 +389,8 @@ int keyboard_save(void)
     size_t len = kb_settings_encode(&keymap, &settings, blob, sizeof(blob));
     size_t more = len ? kb_features_encode(&features, keymap.layers, blob + len, sizeof(blob) - len) : 0;
     len = more ? len + more : 0;
+    more = len ? kb_indicators_encode(&indicator_cfg, keymap.layers, blob + len, sizeof(blob) - len) : 0;
+    len = more ? len + more : 0;
     /* The flash write stalls the CPU anyway (an erase takes up to 85 ms), so
      * keep the lock: nothing can change the blob or the keymap meanwhile.
      */
@@ -376,6 +405,7 @@ int keyboard_revert(void)
     (void)load_defaults();
     int err = load_saved();
     (void)apply_settings(false);
+    apply_features();
     keyboard_unlock();
     /* Nothing saved yet: the defaults are what's saved. */
     return err == -ENOENT ? 0 : err;
@@ -387,6 +417,7 @@ int keyboard_factory_reset(void)
     int err = storage_wipe();
     (void)load_defaults();
     (void)apply_settings(false);
+    apply_features();
     keyboard_unlock();
     return err;
 }

@@ -416,6 +416,195 @@ static size_t h_apply_macros(const struct kb_protocol *p, const uint8_t *in, siz
     return 0;
 }
 
+static void settings_changed(const struct kb_protocol *p)
+{
+    if (p->ops && p->ops->settings_changed) {
+        p->ops->settings_changed(p->ctx);
+    }
+}
+
+static size_t h_get_settings(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                             uint8_t *out, uint8_t *status)
+{
+    (void)in;
+    if (!p->settings) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (len != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+
+    struct kb_proto_get_settings_resp r;
+    memset(&r, 0, sizeof(r));
+    lock(p);
+    r.debounce_algorithm = p->settings->debounce_algo;
+    r.debounce_ms = p->settings->debounce_ms;
+    r.tapping_term_ms = p->settings->tapping_term_ms;
+    r.nkro = p->settings->nkro ? 1u : 0u;
+    r.sleep_timeout_min = p->settings->sleep_timeout_min;
+    r.indicator_brightness = p->settings->indicator_brightness;
+    copy_text(r.name, sizeof(r.name), p->settings->name);
+    unlock(p);
+    return kb_proto_get_settings_resp_encode(&r, out);
+}
+
+static size_t h_set_settings(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                             uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    struct kb_proto_set_settings_req r;
+    if (!p->settings) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_set_settings_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+
+    struct kb_settings next;
+    memset(&next, 0, sizeof(next));
+    next.debounce_algo = r.debounce_algorithm;
+    next.debounce_ms = r.debounce_ms;
+    next.tapping_term_ms = r.tapping_term_ms;
+    next.nkro = r.nkro != 0;
+    next.sleep_timeout_min = r.sleep_timeout_min;
+    next.indicator_brightness = r.indicator_brightness;
+    copy_text(next.name, sizeof(next.name), r.name);
+    if (r.nkro > 1 || !kb_settings_valid(&next)) {
+        *status = KB_PROTO_BAD_VALUE;
+        return 0;
+    }
+
+    lock(p);
+    *p->settings = next;
+    settings_changed(p);
+    unlock(p);
+    return 0;
+}
+
+static uint32_t rgb_to_u32(struct kb_rgb c)
+{
+    return (uint32_t)c.r << 16 | (uint32_t)c.g << 8 | c.b;
+}
+
+static struct kb_rgb u32_to_rgb(uint32_t v)
+{
+    return (struct kb_rgb){(uint8_t)(v >> 16), (uint8_t)(v >> 8), (uint8_t)v};
+}
+
+static size_t h_get_indicators(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                               uint8_t *out, uint8_t *status)
+{
+    (void)in;
+    if (!p->indicators) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (len != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+
+    struct kb_proto_get_indicators_resp r;
+    lock(p);
+    r.caps = rgb_to_u32(p->indicators->caps);
+    r.num = rgb_to_u32(p->indicators->num);
+    r.scroll = rgb_to_u32(p->indicators->scroll);
+    r.battery = rgb_to_u32(p->indicators->battery);
+    r.battery_low = rgb_to_u32(p->indicators->battery_low);
+    r.battery_low_percent = p->indicators->battery_low_pct;
+    unlock(p);
+    return kb_proto_get_indicators_resp_encode(&r, out);
+}
+
+static size_t h_set_indicators(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                               uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    struct kb_proto_set_indicators_req r;
+    if (!p->indicators) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_set_indicators_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (((r.caps | r.num | r.scroll | r.battery | r.battery_low) >> 24) != 0 ||
+        r.battery_low_percent > 100) {
+        *status = KB_PROTO_BAD_VALUE;
+        return 0;
+    }
+
+    lock(p);
+    p->indicators->caps = u32_to_rgb(r.caps);
+    p->indicators->num = u32_to_rgb(r.num);
+    p->indicators->scroll = u32_to_rgb(r.scroll);
+    p->indicators->battery = u32_to_rgb(r.battery);
+    p->indicators->battery_low = u32_to_rgb(r.battery_low);
+    p->indicators->battery_low_pct = r.battery_low_percent;
+    settings_changed(p);
+    unlock(p);
+    return 0;
+}
+
+static size_t h_get_layer_colour(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                                 uint8_t *out, uint8_t *status)
+{
+    struct kb_proto_get_layer_colour_req r;
+    if (!p->indicators) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_get_layer_colour_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.layer >= p->keymap->layers || r.layer >= KB_MAX_LAYERS) {
+        *status = KB_PROTO_OUT_OF_RANGE;
+        return 0;
+    }
+
+    struct kb_proto_get_layer_colour_resp resp;
+    resp.layer = r.layer;
+    lock(p);
+    resp.colour = rgb_to_u32(p->indicators->layer[r.layer]);
+    unlock(p);
+    return kb_proto_get_layer_colour_resp_encode(&resp, out);
+}
+
+static size_t h_set_layer_colour(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                                 uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    struct kb_proto_set_layer_colour_req r;
+    if (!p->indicators) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_set_layer_colour_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.layer >= p->keymap->layers || r.layer >= KB_MAX_LAYERS) {
+        *status = KB_PROTO_OUT_OF_RANGE;
+        return 0;
+    }
+    if ((r.colour >> 24) != 0) {
+        *status = KB_PROTO_BAD_VALUE;
+        return 0;
+    }
+
+    lock(p);
+    p->indicators->layer[r.layer] = u32_to_rgb(r.colour);
+    settings_changed(p);
+    unlock(p);
+    return 0;
+}
+
 static handler_fn handler_for(uint8_t command)
 {
     switch (command) {
@@ -435,6 +624,12 @@ static handler_fn handler_for(uint8_t command)
     case KB_PROTO_CMD_GET_MACRO_CHUNK: return h_get_macro_chunk;
     case KB_PROTO_CMD_SET_MACRO_CHUNK: return h_set_macro_chunk;
     case KB_PROTO_CMD_APPLY_MACROS: return h_apply_macros;
+    case KB_PROTO_CMD_GET_SETTINGS: return h_get_settings;
+    case KB_PROTO_CMD_SET_SETTINGS: return h_set_settings;
+    case KB_PROTO_CMD_GET_INDICATORS: return h_get_indicators;
+    case KB_PROTO_CMD_SET_INDICATORS: return h_set_indicators;
+    case KB_PROTO_CMD_GET_LAYER_COLOUR: return h_get_layer_colour;
+    case KB_PROTO_CMD_SET_LAYER_COLOUR: return h_set_layer_colour;
     default: return NULL;
     }
 }
