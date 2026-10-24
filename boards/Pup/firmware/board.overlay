@@ -1,0 +1,56 @@
+/*
+ * The Pup: the keyboard firmware on Nordic's nRF52840 Dongle (PCA10059),
+ * on top of Zephyr's nrf52840dongle/nrf52840 board. Pins are in
+ * ../board.json (from Nordic's PCA10059 documentation); the host-lib board
+ * tests check this file against it.
+ */
+
+/*
+ * Flash: Nordic's MBR at 0, the application from 0x1000, the settings
+ * last, and Nordic's USB bootloader from 0xe0000 (it and the MBR keep
+ * their settings in the last two pages). The same two data partitions as
+ * the Dachshund60F: Zephyr settings (Bluetooth bonds, the dongle pairing),
+ * then the keymap storage.
+ */
+/delete-node/ &boot_partition;
+/delete-node/ &slot0_partition;
+/delete-node/ &slot1_partition;
+/delete-node/ &storage_partition;
+
+&flash0 {
+	partitions {
+		code_partition: partition@1000 {
+			compatible = "zephyr,mapped-partition";
+			label = "code_partition";
+			reg = <0x00001000 0x000d5000>;
+		};
+
+		bt_settings_partition: partition@d6000 {
+			compatible = "zephyr,mapped-partition";
+			label = "bt_settings";
+			reg = <0x000d6000 0x00002000>;
+		};
+
+		storage_partition: partition@d8000 {
+			compatible = "zephyr,mapped-partition";
+			label = "storage";
+			reg = <0x000d8000 0x00008000>;
+		};
+	};
+};
+
+/ {
+	chosen {
+		zephyr,code-partition = &code_partition;
+		zephyr,settings-partition = &bt_settings_partition;
+	};
+
+	zephyr,user {
+		/* SW1, to ground: wired directly, no columns (firmware/src/matrix.h). */
+		matrix-row-gpios = <&gpio1 6 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		/* LD2, common anode, red, green, blue: Caps Lock (firmware/src/indicators.c). */
+		indicator-rgb-gpios = <&gpio0 8 GPIO_ACTIVE_LOW>,
+				      <&gpio1 9 GPIO_ACTIVE_LOW>,
+				      <&gpio0 12 GPIO_ACTIVE_LOW>;
+	};
+};

@@ -9,6 +9,10 @@
  *
  * LED power (the TPS22917 load switch) is on only while an LED is lit:
  * six idle SK6812s draw about 6 mA.
+ *
+ * A board without a chain (the Pup) has one RGB LED on three GPIOs
+ * instead, zephyr,user indicator-rgb-gpios (red, green, blue), showing
+ * Caps Lock. Each colour channel is on or off.
  */
 
 #include "indicators.h"
@@ -17,6 +21,7 @@
 #include <string.h>
 
 #include <zephyr/device.h>
+#include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/led_strip.h>
 #include <zephyr/drivers/regulator.h>
 #include <zephyr/kernel.h>
@@ -27,6 +32,9 @@
 LOG_MODULE_REGISTER(indicators, LOG_LEVEL_INF);
 
 #define STRIP_NODE DT_ALIAS(led_strip)
+#define HAS_STRIP DT_NODE_EXISTS(STRIP_NODE)
+
+#if HAS_STRIP
 #define STRIP_LEN DT_PROP(STRIP_NODE, chain_length)
 
 /*
@@ -43,11 +51,25 @@ static const struct kb_led_def chain[] = {
 };
 BUILD_ASSERT(ARRAY_SIZE(chain) == STRIP_LEN, "indicator table must cover the LED chain");
 
-#define SELFTEST_STEP_MS 200
-#define SELFTEST_LEVEL 24
-
 static const struct device *const strip = DEVICE_DT_GET(STRIP_NODE);
 static const struct device *const led_power = DEVICE_DT_GET(DT_NODELABEL(led_power));
+#else
+/* Must match the indicators in the board's keyboard.json (host-lib's board tests). */
+static const struct kb_led_def rgb_chain[] = {
+    {KB_LED_ROLE_CAPS, 0},
+};
+#define chain rgb_chain
+#define STRIP_LEN 1
+
+#define USER_NODE DT_PATH(zephyr_user)
+#define GPIO_SPEC(node, prop, idx) GPIO_DT_SPEC_GET_BY_IDX(node, prop, idx),
+static const struct gpio_dt_spec rgb[] = {
+    DT_FOREACH_PROP_ELEM(USER_NODE, indicator_rgb_gpios, GPIO_SPEC)};
+BUILD_ASSERT(ARRAY_SIZE(rgb) == 3, "indicator-rgb-gpios: red, green and blue");
+#endif
+
+#define SELFTEST_STEP_MS 200
+#define SELFTEST_LEVEL 24
 
 static struct k_spinlock lock;
 static struct kb_indicator_state state = {.battery = KB_BATTERY_UNKNOWN};
@@ -80,6 +102,7 @@ static K_WORK_DELAYABLE_DEFINE(selftest_work, selftest_step_fn);
 static void identify_fn(struct k_work *work);
 static K_WORK_DELAYABLE_DEFINE(identify_work, identify_fn);
 
+#if HAS_STRIP
 static void set_power(bool on)
 {
     if (on == powered) {
@@ -109,6 +132,16 @@ static void show(bool lit)
         set_power(false);
     }
 }
+#else
+static void show(bool lit)
+{
+    ARG_UNUSED(lit);
+    gpio_pin_set_dt(&rgb[0], pixels[0].r > 0);
+    gpio_pin_set_dt(&rgb[1], pixels[0].g > 0);
+    gpio_pin_set_dt(&rgb[2], pixels[0].b > 0);
+    powered = pixels[0].r || pixels[0].g || pixels[0].b;
+}
+#endif
 
 static void redraw(struct k_work *work)
 {
@@ -269,11 +302,21 @@ void indicators_off(void)
 
 int indicators_start(bool selftest)
 {
+#if HAS_STRIP
     if (!device_is_ready(led_power) || !device_is_ready(strip)) {
         LOG_ERR("LED power or strip device not ready");
         return -ENODEV;
     }
-
+#else
+    for (size_t i = 0; i < ARRAY_SIZE(rgb); i++) {
+        int err = gpio_is_ready_dt(&rgb[i]) ? gpio_pin_configure_dt(&rgb[i], GPIO_OUTPUT_INACTIVE)
+                                            : -ENODEV;
+        if (err) {
+            LOG_ERR("indicator LED setup failed (%d)", err);
+            return err;
+        }
+    }
+#endif
 
     if (selftest && IS_ENABLED(CONFIG_KB_LED_SELFTEST)) {
         k_work_schedule(&selftest_work, K_NO_WAIT);

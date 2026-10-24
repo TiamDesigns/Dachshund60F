@@ -8,14 +8,16 @@
 
 LOG_MODULE_REGISTER(bootloader, LOG_LEVEL_INF);
 
-/* GPREGRET value the Adafruit bootloader checks to stay in UF2 mode. */
-#define ADAFRUIT_DFU_MAGIC_UF2_RESET 0x57
+/*
+ * GPREGRET value the bootloader checks to stay in update mode: 0x57 for the
+ * Adafruit UF2 bootloader (Kconfig KB_BOOTLOADER_GPREGRET).
+ */
 
 void bootloader_reboot_to_uf2(void)
 {
     LOG_INF("rebooting into UF2 bootloader");
     LOG_PANIC();
 
-    NRF_POWER->GPREGRET = ADAFRUIT_DFU_MAGIC_UF2_RESET;
+    NRF_POWER->GPREGRET = CONFIG_KB_BOOTLOADER_GPREGRET;
     NVIC_SystemReset();
 }

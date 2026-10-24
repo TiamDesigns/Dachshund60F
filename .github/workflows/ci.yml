@@ -121,12 +121,17 @@ jobs:
           - variant: dongle
             app: dongle
             board: nrf52840dongle/nrf52840
+          # The Pup: the keyboard firmware on an nRF52840 Dongle (boards/Pup/).
+          - variant: pup
+            app: firmware
+            board: nrf52840dongle/nrf52840
+            artifact: pup
     env:
       # BOARD_ROOT makes Zephyr find boards/Dachshund60F/board.yml in this repo.
       EXTRA_ARGS: >-
         -DBOARD_ROOT=${{ github.workspace }}/kb
         ${{ matrix.display && format('-DEXTRA_DTC_OVERLAY_FILE=displays/{0}.overlay', matrix.display) || '' }}
-      ARTIFACT: ${{ matrix.app }}${{ matrix.display && format('-{0}', matrix.display) || '' }}
+      ARTIFACT: ${{ matrix.artifact || format('{0}{1}', matrix.app, matrix.display && format('-{0}', matrix.display) || '') }}
     steps:
       # West workspace: repo in ./kb, NCS projects alongside it.
       - uses: actions/checkout@v4

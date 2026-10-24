@@ -56,6 +56,16 @@ config KB_BOOTLOADER_HOLD_MS
 	  keymap can always be reflashed. QK_BOOT in the keymap reboots at
 	  once.
 
+config KB_BOOTLOADER_GPREGRET
+	hex "GPREGRET value that keeps the bootloader in update mode"
+	default 0x57
+	range 0x00 0xff
+	help
+	  Written before the reboot into the bootloader (recovery key,
+	  QK_BOOT, the protocol's bootloader command). 0x57 is the Adafruit
+	  UF2 bootloader's; Nordic's nRF5 SDK bootloader, on the nRF52840
+	  Dongle, takes 0xB1.
+
 config KB_MATRIX_SCAN_PERIOD_US
 	int "Matrix scan period, in microseconds"
 	default 1000

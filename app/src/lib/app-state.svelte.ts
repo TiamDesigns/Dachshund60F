@@ -32,6 +32,7 @@ import {
   protocol,
 } from "@dachshund60f/host-lib";
 import dachshund60f from "@boards/Dachshund60F/keyboard.json";
+import pup from "@boards/Pup/keyboard.json";
 
 import { FirmwareUpdate } from "./firmware-update.svelte.ts";
 import { EditHistory, type Edit } from "./history.ts";
@@ -40,11 +41,13 @@ const { PROTOCOL_VERSION } = protocol;
 
 export const definitions: Record<string, KeyboardDefinition> = {
   Dachshund60F: dachshund60f as KeyboardDefinition,
+  Pup: pup as KeyboardDefinition,
 };
 
 /** Dog breed shown for each board model. */
 export const BREEDS: Record<string, string> = {
   Dachshund60F: "Dachshund",
+  Pup: "Puppy",
 };
 
 /** How each link is named in messages. */

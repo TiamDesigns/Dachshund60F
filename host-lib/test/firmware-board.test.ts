@@ -202,3 +202,79 @@ for (const file of overlays) {
     assert.match(text, /&display_(i2c|spi)\b/, "must sit on display_i2c or display_spi");
   });
 }
+
+// Boards built on one of Nordic's own boards (the Pup on the nRF52840
+// Dongle): pins in boards/<name>/firmware/board.overlay, Kconfig in
+// firmware/boards/<zephyr board>.conf, which Zephyr picks up by board name.
+const nordicBoards = readdirSync(boardsDir, { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .map((d) => d.name)
+  .filter((name) => existsSync(path.join(boardsDir, name, "firmware", "board.overlay")));
+
+test("the Pup is built on Nordic's nRF52840 Dongle", () => {
+  assert.ok(nordicBoards.includes("Pup"));
+});
+
+for (const name of nordicBoards) {
+  const dir = path.join(boardsDir, name);
+  const board = JSON.parse(readFileSync(path.join(dir, "board.json"), "utf8")) as BoardDef & {
+    zephyrBoard: string;
+    matrix: { diodeDirection: string };
+    indicators: { pins?: { red: string; green: string; blue: string } };
+  };
+  const overlay = readFileSync(path.join(dir, "firmware", "board.overlay"), "utf8");
+  // nrf52840dongle/nrf52840 -> firmware/boards/nrf52840dongle_nrf52840.*
+  const appBoard = path.join(repoDir, "firmware", "boards", board.zephyrBoard.replace(/\//g, "_"));
+
+  test(`${name}: the firmware's ${board.zephyrBoard} overlay brings this board and app.overlay`, () => {
+    const text = readFileSync(`${appBoard}.overlay`, "utf8");
+    assert.match(text, /#include "\.\.\/app\.overlay"/);
+    assert.match(text, new RegExp(`#include "\\.\\./\\.\\./boards/${name}/firmware/board\\.overlay"`));
+  });
+
+  test(`${name}: devicetree matrix pins match board.json`, () => {
+    assert.deepEqual(gpioPins(dtProp(overlay, "matrix-row-gpios")), board.matrix.rowPins);
+    if (board.matrix.diodeDirection === "direct") {
+      assert.doesNotMatch(overlay, /matrix-col-gpios/, "direct wiring has no columns");
+    } else {
+      assert.deepEqual(gpioPins(dtProp(overlay, "matrix-col-gpios")), board.matrix.colPins);
+    }
+  });
+
+  test(`${name}: devicetree indicator LED pins match board.json`, () => {
+    const pins = board.indicators.pins;
+    assert.ok(pins, "board.json indicators.pins: red, green, blue");
+    assert.deepEqual(gpioPins(dtProp(overlay, "indicator-rgb-gpios")), [pins.red, pins.green, pins.blue]);
+  });
+
+  test(`${name}: firmware Kconfig names and USB IDs match board.json`, () => {
+    const conf = readFileSync(`${appBoard}.conf`, "utf8");
+    const kconfig = readFileSync(path.join(repoDir, "firmware", "Kconfig"), "utf8").replace(/\r\n/g, "\n");
+    const value = (symbol: string) => {
+      const m = new RegExp(`^CONFIG_${symbol}=(.+)$`, "m").exec(conf);
+      return m ? m[1]!.trim().replace(/^"(.*)"$/, "$1") : kconfigDefault(kconfig, symbol);
+    };
+    const usb = board.usb.keyboard;
+    assert.equal(value("KB_MODEL"), name);
+    assert.equal(Number(value("KB_USB_VID")), Number(usb.vid));
+    assert.equal(Number(value("KB_USB_PID")), Number(usb.pid));
+    assert.equal(value("KB_USB_MANUFACTURER"), usb.manufacturer);
+    assert.equal(value("KB_USB_PRODUCT"), usb.product);
+    assert.match(conf, new RegExp(`^CONFIG_BT_DEVICE_NAME="${usb.product}"$`, "m"));
+  });
+
+  test(`${name}: firmware indicator LED matches keyboard.json`, () => {
+    const layout = JSON.parse(readFileSync(path.join(dir, "keyboard.json"), "utf8")) as {
+      indicators: { role: string; label: string }[];
+    };
+    const source = readFileSync(path.join(repoDir, "firmware", "src", "indicators.c"), "utf8");
+    const table = /static const struct kb_led_def rgb_chain\[\] = \{([^;]*)\};/.exec(source);
+    assert.ok(table, "rgb_chain table not found in firmware/src/indicators.c");
+    const firmware = [...table[1]!.matchAll(/\{KB_LED_ROLE_(\w+), (\d+)\}/g)].map((m) => `${m[1]} ${m[2]}`);
+    assert.deepEqual(firmware, ["CAPS 0"]);
+    assert.deepEqual(
+      layout.indicators.map((i) => `${i.role} ${i.label}`),
+      ["lock Caps Lock"],
+    );
+  });
+}

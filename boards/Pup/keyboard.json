@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "name": "Pup",
+  "keys": [
+    { "row": 0, "col": 0, "x": 0, "y": 0, "legend": ["SW1"] }
+  ],
+  "matrix": { "rows": 1, "cols": 1 },
+  "layoutOptions": [],
+  "encoders": [],
+  "indicators": [
+    { "id": 0, "role": "lock", "label": "Caps Lock", "at": { "x": 1.5, "y": 0.5 } }
+  ]
+}

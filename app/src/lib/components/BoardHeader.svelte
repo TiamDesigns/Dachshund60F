@@ -30,7 +30,7 @@
   <div class="ident">
     <h1>{session.displayName}</h1>
     <p class="sub">
-      {info.model || "Unknown model"} · {BREEDS[info.model] ?? "Good dog"}{#if keyCount} · {keyCount} switches{/if} · serial {info.id}
+      {info.model || "Unknown model"} · {BREEDS[info.model] ?? "Good dog"}{#if keyCount}{" · "}{keyCount} {keyCount === 1 ? "switch" : "switches"}{/if} · serial {info.id}
     </p>
     <div class="status">
       <ConnectionChip connection={info.connection} />

@@ -32,9 +32,10 @@ interface KeyboardDef {
 
 interface BoardDef {
   name: string;
-  matrix: { rows: number; cols: number; rowPins: string[]; colPins: string[] };
+  matrix: { rows: number; cols: number; diodeDirection: string; rowPins: string[]; colPins: string[] };
   encoders: { pinA: string; pinB: string }[];
-  indicators: { count: number; dataPin: string; powerEnablePin: string };
+  // An LED chain (data pin and power switch), or LEDs on their own pins.
+  indicators: { count: number; dataPin?: string; powerEnablePin?: string; pins?: Record<string, string> };
   display?: { pins: Record<string, string> };
   power: { chargeStatusPin?: string };
   reserved: Record<string, string>;
@@ -104,7 +105,10 @@ for (const name of boardNames) {
   test(`${name}: matrix size agrees between files and pin lists`, () => {
     assert.deepEqual(kb.matrix, { rows: board.matrix.rows, cols: board.matrix.cols });
     assert.equal(board.matrix.rowPins.length, board.matrix.rows);
-    assert.equal(board.matrix.colPins.length, board.matrix.cols);
+    // Direct wiring: one key per row pin, read as column 0, no column pins.
+    const direct = board.matrix.diodeDirection === "direct";
+    assert.equal(board.matrix.colPins.length, direct ? 0 : board.matrix.cols);
+    if (direct) assert.equal(board.matrix.cols, 1);
   });
 
   test(`${name}: every matrix position is in range`, () => {
@@ -163,8 +167,8 @@ for (const name of boardNames) {
       ...board.matrix.rowPins,
       ...board.matrix.colPins,
       ...board.encoders.flatMap((e) => [e.pinA, e.pinB]),
-      board.indicators.dataPin,
-      board.indicators.powerEnablePin,
+      ...[board.indicators.dataPin, board.indicators.powerEnablePin].filter((p) => p !== undefined),
+      ...Object.values(board.indicators.pins ?? {}),
       ...Object.values(board.display?.pins ?? {}),
       ...(board.power.chargeStatusPin ? [board.power.chargeStatusPin] : []),
     ];

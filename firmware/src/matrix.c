@@ -15,11 +15,21 @@ LOG_MODULE_REGISTER(matrix, LOG_LEVEL_INF);
 
 static const struct gpio_dt_spec rows[] = {
     DT_FOREACH_PROP_ELEM(USER_NODE, matrix_row_gpios, GPIO_SPEC)};
+
+#if DT_NODE_HAS_PROP(USER_NODE, matrix_col_gpios)
 static const struct gpio_dt_spec cols[] = {
     DT_FOREACH_PROP_ELEM(USER_NODE, matrix_col_gpios, GPIO_SPEC)};
+#define NUM_COLS ARRAY_SIZE(cols)
+#define MATRIX_COLS NUM_COLS
+#else
+/* Direct wiring, no columns: each row pin is one key, read as column 0. */
+static const struct gpio_dt_spec *const cols;
+#define NUM_COLS 0
+#define MATRIX_COLS 1
+#endif
 
 BUILD_ASSERT(ARRAY_SIZE(rows) <= KB_MATRIX_MAX_ROWS, "too many matrix rows");
-BUILD_ASSERT(ARRAY_SIZE(cols) <= KB_MATRIX_MAX_COLS, "too many matrix columns");
+BUILD_ASSERT(MATRIX_COLS <= KB_MATRIX_MAX_COLS, "too many matrix columns");
 
 int matrix_rows(void)
 {
@@ -28,7 +38,7 @@ int matrix_rows(void)
 
 int matrix_cols(void)
 {
-    return ARRAY_SIZE(cols);
+    return MATRIX_COLS;
 }
 
 static struct gpio_callback row_cb[ARRAY_SIZE(rows)];
@@ -47,7 +57,7 @@ void matrix_wake_disarm(void)
         for (size_t r = 0; r < ARRAY_SIZE(rows); r++) {
             (void)gpio_pin_interrupt_configure_dt(&rows[r], GPIO_INT_DISABLE);
         }
-        for (size_t c = 0; c < ARRAY_SIZE(cols); c++) {
+        for (size_t c = 0; c < NUM_COLS; c++) {
             gpio_pin_set_dt(&cols[c], 0);
         }
     }
@@ -77,7 +87,7 @@ void matrix_wake_arm(void)
             K_SPINLOCK_BREAK;
         }
         armed = true;
-        for (size_t c = 0; c < ARRAY_SIZE(cols); c++) {
+        for (size_t c = 0; c < NUM_COLS; c++) {
             gpio_pin_set_dt(&cols[c], 1);
         }
         k_busy_wait(CONFIG_KB_MATRIX_SETTLE_US);
@@ -90,7 +100,7 @@ void matrix_wake_arm(void)
 
 int matrix_init(void)
 {
-    for (size_t i = 0; i < ARRAY_SIZE(cols); i++) {
+    for (size_t i = 0; i < NUM_COLS; i++) {
         if (!gpio_is_ready_dt(&cols[i])) {
             return -ENODEV;
         }
@@ -143,7 +153,14 @@ void matrix_scan(kb_matrix_row_t *out)
         out[r] = 0;
     }
 
-    for (size_t c = 0; c < ARRAY_SIZE(cols); c++) {
+    if (NUM_COLS == 0) {
+        for (size_t r = 0; r < ARRAY_SIZE(rows); r++) {
+            out[r] = gpio_pin_get_dt(&rows[r]) > 0;
+        }
+        return;
+    }
+
+    for (size_t c = 0; c < NUM_COLS; c++) {
         gpio_pin_set_dt(&cols[c], 1);
         k_busy_wait(CONFIG_KB_MATRIX_SETTLE_US);
 
