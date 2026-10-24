@@ -6,6 +6,11 @@ Phase 9 (advanced keys and encoders) is done, split in three PRs: 9a (the core e
 
 ## Done
 
+### README and design decisions (2026-10-24)
+
+- The repo is public. `README.md` covers why the project exists, its goals (hardware, firmware, wireless, driver and app, process), the board, phase status, how to try it, and the licences with a disclaimer (no warranty, LiPo safety, test USB PIDs, certification).
+- `docs/design-decisions.md` lists the decisions Tiam made personally (scope, hardware, process) and the topics the project has covered.
+
 ### Phase 9c: Doghouse editors for advanced keys and macros (2026-10-23)
 
 - Doghouse gets two tabs, shown only for boards whose firmware has the `advancedKeys` and `macros` capabilities. **Advanced** edits the options (Leader timeout, Caps Word on both Shifts, Auto Shift, mouse keys) and the five tables: combos, tap dances, key overrides, Leader sequences and per-key tap-hold rules. Each entry is edited in a small form, checked as the firmware checks it before Apply, and summarised in one line. **Macros** edits M0 to M31 as steps (type text, tap, hold, release, pause), shows how much of the 1 KB macro buffer they use, and sends them together.
