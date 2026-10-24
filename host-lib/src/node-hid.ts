@@ -50,7 +50,7 @@ export interface NodeHidModule {
 /** Load node-hid. Throws if it isn't installed. */
 export async function loadNodeHid(): Promise<NodeHidModule> {
   const name = "node-hid"; // not a static import: it's an optional dependency
-  const mod = (await import(name)) as NodeHidModule & { default?: NodeHidModule };
+  const mod = (await import(/* @vite-ignore */ name)) as NodeHidModule & { default?: NodeHidModule };
   return typeof mod.devicesAsync === "function" ? mod : mod.default!;
 }
 

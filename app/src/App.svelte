@@ -63,11 +63,25 @@
 
     {#if app.hid}
       <button class="btn primary connect" onclick={() => app.connect()}>Connect a board…</button>
-    {:else}
+    {:else if !app.desktop}
       <p class="no-hid">This browser can't reach USB devices. Open Doghouse in Chrome or Edge to edit a real board; until then you're looking at demo boards.</p>
     {/if}
 
     <div class="sidebar-foot">
+      {#if app.appUpdate}
+        <div class="app-update" role="status">
+          <p>Doghouse {app.appUpdate.version} is out.</p>
+          <button class="btn primary" disabled={app.appUpdating !== false} onclick={() => app.installAppUpdate()}>
+            {#if app.appUpdating === false}
+              Install and restart
+            {:else if app.appUpdating === null}
+              Installing…
+            {:else}
+              Downloading {Math.round(app.appUpdating * 100)}%
+            {/if}
+          </button>
+        </div>
+      {/if}
       {#if app.mock}
         <MockPanel mock={app.mock} selectedId={app.selectedId} />
       {/if}
@@ -196,6 +210,21 @@
 
   .welcome a:hover {
     color: var(--accent-hover);
+  }
+
+  .app-update {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .app-update p {
+    margin: 0;
+    font-size: 13px;
   }
 
   .no-hid {

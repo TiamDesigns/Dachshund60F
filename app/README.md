@@ -2,9 +2,9 @@
 
 The configurator for Dachshund60F and future dog-named boards. Svelte 5 +
 TypeScript, built with Vite. It runs in Chrome or Edge and talks to real
-boards over WebHID, or to simulated ones in demo mode; a Tauri shell will wrap
-the same frontend into a signed desktop app later (that needs Rust and the
-MSVC build tools).
+boards over WebHID, or to simulated ones in demo mode. The same frontend also
+runs as a desktop app for Windows, macOS and Linux (Tauri, `src-tauri/`), which
+reaches boards through hidapi and updates itself; see `src-tauri/README.md`.
 
 ```
 cd app
@@ -13,7 +13,8 @@ npm run dev        # http://localhost:5173, or http://localhost:5173/?demo
 ```
 
 Other scripts: `npm run check` (svelte-check), `npm test` (pure logic, with
-Node's built-in test runner) and `npm run build` (static files in `dist/`).
+Node's built-in test runner), `npm run build` (static files in `dist/`) and
+`npm run tauri dev` / `npm run tauri build` (the desktop app, which needs Rust).
 
 ## What it does
 

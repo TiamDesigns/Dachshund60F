@@ -1,0 +1,32 @@
+[package]
+name = "doghouse"
+version = "0.1.0"
+description = "Doghouse, the configurator for Dachshund keyboards, as a desktop app"
+authors = ["Tiam Bennett"]
+license = "MIT"
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "doghouse_lib"
+crate-type = ["rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-process = "2"
+tauri-plugin-updater = "2"
+serde = { version = "1", features = ["derive"] }
+# tauri::generate_context! needs it once the config has plugin settings (the updater).
+serde_json = "1"
+# Shared on macOS, where hidapi otherwise seizes the device: the board would
+# stop typing while Doghouse has it open.
+hidapi = { version = "2.6", features = ["macos-shared-device"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

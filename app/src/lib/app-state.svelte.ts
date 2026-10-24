@@ -11,6 +11,7 @@ import {
   CombinedBoardManager,
   restoreBoard,
   MockBoardManager,
+  TauriHidBoardManager,
   webHid,
   WebHidBoardManager,
   type AdvancedKeys,
@@ -34,6 +35,7 @@ import {
 import dachshund60f from "@boards/Dachshund60F/keyboard.json";
 import pup from "@boards/Pup/keyboard.json";
 
+import { desktopApp, inDesktopApp, type AppUpdate, type Desktop } from "./desktop.ts";
 import { FirmwareUpdate } from "./firmware-update.svelte.ts";
 import { EditHistory, type Edit } from "./history.ts";
 
@@ -387,17 +389,27 @@ export class AppState {
   update = $state<FirmwareUpdate | null>(null);
 
   readonly manager: BoardManager;
-  /** Real boards over WebHID; absent when the browser has no WebHID. */
+  /** Real boards over WebHID; absent when the browser has no WebHID, and in the desktop app. */
   readonly hid: WebHidBoardManager | undefined;
+  /** The desktop app, when Doghouse runs in it: boards come in by themselves. */
+  readonly desktop: Desktop | undefined;
+  /** A newer Doghouse for the desktop app, once found. */
+  appUpdate = $state<AppUpdate | null>(null);
+  /** Installing it: the download's progress (0-1), or null when unknown. */
+  appUpdating = $state<number | null | false>(false);
   /** Simulated boards; present only in demo mode. */
   readonly mock: MockBoardManager | undefined;
   private nextToast = 1;
   /** Boards with no keyboard definition here, already reported. */
   private readonly unknown = new Set<Board>();
 
-  constructor(manager: BoardManager, sources: { hid?: WebHidBoardManager; mock?: MockBoardManager } = {}) {
+  constructor(
+    manager: BoardManager,
+    sources: { hid?: WebHidBoardManager; mock?: MockBoardManager; desktop?: Desktop } = {},
+  ) {
     this.manager = manager;
     this.hid = sources.hid;
+    this.desktop = sources.desktop;
     this.mock = sources.mock;
     manager.subscribe((boards) => this.sync(boards));
     this.sync(manager.list());
@@ -422,9 +434,31 @@ export class AppState {
       this.update = new FirmwareUpdate(session.board, session.displayName, session.definition, { name: file.name, bytes }, {
         notify: (text, kind) => this.notify(text, kind),
         mock: this.mock,
+        desktop: this.desktop,
       });
     } catch (err) {
       this.notify(`${file.name}: ${errorText(err)}`, "error");
+    }
+  }
+
+  /** Look for a newer Doghouse (desktop app only). Quiet unless one is found. */
+  async checkForAppUpdate(): Promise<void> {
+    try {
+      this.appUpdate = (await this.desktop?.checkForUpdate()) ?? null;
+    } catch (err) {
+      console.warn("checking for a Doghouse update:", err);
+    }
+  }
+
+  /** Download and install the newer Doghouse, then restart into it. */
+  async installAppUpdate(): Promise<void> {
+    if (!this.appUpdate || this.appUpdating !== false) return;
+    this.appUpdating = null;
+    try {
+      await this.appUpdate.install((fraction) => (this.appUpdating = fraction));
+    } catch (err) {
+      this.appUpdating = false;
+      this.notify(`Couldn't update Doghouse: ${errorText(err)}`, "error");
     }
   }
 
@@ -496,8 +530,10 @@ export class AppState {
 }
 
 function createApp(): AppState {
-  const browserHid = webHid();
-  const demo = !browserHid || new URLSearchParams(globalThis.location?.search ?? "").has("demo");
+  // The desktop app reaches boards through its own bridge, even where its WebView has WebHID.
+  const desktop = inDesktopApp() ? desktopApp() : undefined;
+  const browserHid = desktop ? undefined : webHid();
+  const demo = (!browserHid && !desktop) || new URLSearchParams(globalThis.location?.search ?? "").has("demo");
 
   let notify: (text: string) => void = () => {};
   const hid = browserHid
@@ -510,10 +546,20 @@ function createApp(): AppState {
     mock.plug("Dachshund60F", "dongle", { name: "Noodle", battery: { percent: 46, charging: false } });
   }
 
-  const managers: BoardManager[] = [hid, mock].filter((m): m is NonNullable<typeof m> => m !== undefined);
-  const app = new AppState(new CombinedBoardManager(managers), { ...(hid && { hid }), ...(mock && { mock }) });
+  const native = desktop
+    ? new TauriHidBoardManager(desktop.hid, { onError: (err) => notify(`A board didn't answer: ${errorText(err)}`) })
+    : undefined;
+
+  const managers: BoardManager[] = [hid, native, mock].filter((m): m is NonNullable<typeof m> => m !== undefined);
+  const app = new AppState(new CombinedBoardManager(managers), {
+    ...(hid && { hid }),
+    ...(mock && { mock }),
+    ...(desktop && { desktop }),
+  });
   notify = (text) => app.notify(text, "error");
   hid?.start().catch((err) => app.notify(errorText(err), "error"));
+  native?.start().catch((err) => app.notify(`Doghouse can't reach USB devices: ${errorText(err)}`, "error"));
+  void app.checkForAppUpdate();
   return app;
 }
 
