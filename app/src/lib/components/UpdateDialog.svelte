@@ -75,8 +75,12 @@
         <p class="warn">{w}</p>
       {/each}
       <p>
-        Doghouse backs up the keymap and settings first, then restarts the board into its bootloader. You'll pick its drive
-        {#if !update.demo}(<strong>{update.volume}</strong>){/if} to copy the firmware onto, and Doghouse checks the result when it comes back.
+        Doghouse backs up the keymap and settings first, then restarts the board into its bootloader.
+        {#if update.findsDrive && !update.demo}
+          It copies the firmware onto the board's drive (<strong>{update.volume}</strong>) and checks the result when the board comes back.
+        {:else}
+          You'll pick its drive {#if !update.demo}(<strong>{update.volume}</strong>){/if} to copy the firmware onto, and Doghouse checks the result when it comes back.
+        {/if}
       </p>
       <div class="actions">
         <button class="btn ghost" onclick={onclose}>Cancel</button>
@@ -98,6 +102,11 @@
           <p>This is a demo board, so there's no real drive. Doghouse pretends to copy the file.</p>
           <div class="actions">
             <button class="btn primary" onclick={() => update.writeToDrive()}>Copy to the pretend drive</button>
+          </div>
+        {:else if update.findsDrive}
+          <p>Doghouse looks for the <strong>{update.volume}</strong> drive and copies the file onto it.</p>
+          <div class="actions">
+            <button class="btn primary" onclick={() => update.writeToDrive()}>Try again</button>
           </div>
         {:else if update.canPickDrive}
           <p>A drive called <strong>{update.volume}</strong> has appeared. Choose it, and let the browser edit files there.</p>
@@ -124,10 +133,10 @@
         {#if update.slow}
           <p class="warn">
             Still waiting. If its drive is still showing, the file didn't copy: try again. Otherwise unplug the board and plug it back in.
-            {#if !update.demo}If Doghouse doesn't see it, click <strong>Connect a board…</strong>.{/if}
+            {#if !update.demo && !update.findsDrive}If Doghouse doesn't see it, click <strong>Connect a board…</strong>.{/if}
           </p>
           {#if !update.demo && update.canPickDrive}
-            <div class="actions"><button class="btn" onclick={() => (update.stage = "drive")}>Pick the drive again</button></div>
+            <div class="actions"><button class="btn" onclick={() => (update.stage = "drive")}>{update.findsDrive ? "Copy it again" : "Pick the drive again"}</button></div>
           {/if}
         {/if}
       {:else if update.stage === "done"}

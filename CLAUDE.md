@@ -14,7 +14,7 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 - Core keymap logic: plain C11 in `firmware/core/`, host-tested with CMake/CTest and the header-only harness in `firmware/core/tests/kb_test.h`
 - Bootloader: UF2 (Adafruit nRF52 bootloader)
 - Host library: TypeScript (Node ≥ 20, ESM), `node-hid` on desktop and WebHID in the browser; tests use `node:test`
-- GUI: **Doghouse** in `app/`, Svelte 5 + TypeScript + Vite. It runs in Chrome or Edge against real boards over WebHID, or simulated ones in demo mode (`?demo`); a Tauri shell comes later (needs Rust and the MSVC build tools). Design language: warm earth tones, dog-themed (boards are named after dogs).
+- GUI: **Doghouse** in `app/`, Svelte 5 + TypeScript + Vite. It runs in Chrome or Edge against real boards over WebHID, or simulated ones in demo mode (`?demo`), and as a Tauri 2 desktop app (`app/src-tauri/`: hidapi instead of WebHID, UF2 drive writes, auto-update from GitHub Releases; needs Rust, and the MSVC build tools on Windows). Design language: warm earth tones, dog-themed (boards are named after dogs).
 - Board: `Dachshund60F` (MDBT50Q-1MV2, 6×15 COL2ROW matrix, 1 encoder, 2× SK6812MINI-E). Pins are in `boards/Dachshund60F/board.json` and are still proposed, since no PCB exists yet.
 - USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard), 0x1209:0x0002 (dongle) and 0x1209:0x0003 (UF2 bootloader). They're for in-house testing only. Tiam has chosen not to register PIDs while the board stays on their desk; anyone who gives away or sells a board must use their own VID/PID (the README warns them).
 
@@ -47,7 +47,9 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Fuzz the protocol parser (Linux, clang): `cd firmware/core && clang -g -O1 -fsanitize=fuzzer,address,undefined -Iinclude -Itests fuzz/fuzz_protocol.c src/*.c -o fuzz_protocol && ./fuzz_protocol -max_total_time=60 corpus`. A deterministic random-frame test (`test_protocol_fuzz`) also runs with the core tests.
 - Export STEP models of every board for case design: `python hardware/export_step.py` (writes `hardware/step/`, which is committed so the files reach every device; commit a fresh export when you want a snapshot; needs KiCad 10's `kicad-cli`)
 - Run the GUI: `cd app && npm install && npm run dev`, then open http://localhost:5173 in Chrome or Edge (http://localhost:5173/?demo for simulated boards). Check, test and build with `npm run check`, `npm test` and `npm run build`.
-- CI: `.github/workflows/ci.yml` runs core tests (plus the protocol generator check), host-lib tests, the Doghouse app (check, test, build), two minutes of protocol fuzzing, and debug and release firmware builds. It runs on pull requests and on pushes to `main`, so a branch gets CI once it has a PR (or from the Actions tab with "Run workflow").
+- Run or build the desktop app: `cd app && npm run tauri dev` or `npm run tauri build` (setup and the release steps are in `app/src-tauri/README.md`). Rust checks, from `app/src-tauri` after `npm run build`: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test`.
+- Release the desktop app: bump `version` in `app/package.json`, then run the "Doghouse release" workflow (or push a `doghouse-v<version>` tag); it makes a draft GitHub release with the installers and the signed update files.
+- CI: `.github/workflows/ci.yml` runs core tests (plus the protocol generator check), host-lib tests, the Doghouse app (check, test, build), the desktop app's Rust checks, two minutes of protocol fuzzing, and debug and release firmware builds. It runs on pull requests and on pushes to `main`, so a branch gets CI once it has a PR (or from the Actions tab with "Run workflow").
 
 ## Hard rules
 

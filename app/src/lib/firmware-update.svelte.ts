@@ -5,7 +5,7 @@
  *   ready      the file is checked and its version compared with the board's
  *   backup     every setting is read off the board (and kept in this browser)
  *   bootloader the board restarts into its UF2 bootloader and leaves
- *   drive      the user picks the board's drive; the file is written to it
+ *   drive      the user picks the board's drive (the desktop app finds it); the file is written to it
  *   waiting    the board restarts and comes back over WebHID
  *   restoring  its version is checked, and anything the update lost is put back
  *   done / failed
@@ -27,7 +27,13 @@ import {
   type Uf2Image,
 } from "@dachshund60f/host-lib";
 
+import type { Desktop } from "./desktop.ts";
+
 export type UpdateStage = "ready" | "backup" | "bootloader" | "drive" | "writing" | "waiting" | "restoring" | "done" | "failed";
+
+/** How long the desktop app looks for the board's drive to mount. */
+const DRIVE_WAIT_MS = 20_000;
+const DRIVE_POLL_MS = 500;
 
 /** How long to wait for the board before suggesting a replug. */
 const SLOW_RETURN_MS = 30_000;
@@ -49,6 +55,8 @@ export interface UpdateHost {
   notify(text: string, kind?: "info" | "success" | "error"): void;
   /** Present in demo mode, for simulated boards. */
   mock: MockBoardManager | undefined;
+  /** The desktop app, which writes to the drive itself. */
+  desktop?: Desktop | undefined;
 }
 
 export class FirmwareUpdate {
@@ -127,7 +135,12 @@ export class FirmwareUpdate {
 
 
   get canPickDrive(): boolean {
-    return !!directoryPicker();
+    return !!this.host.desktop || !!directoryPicker();
+  }
+
+  /** In the desktop app Doghouse finds the drive itself; no picker. */
+  get findsDrive(): boolean {
+    return !!this.host.desktop;
   }
 
   get volume(): string {
@@ -149,6 +162,8 @@ export class FirmwareUpdate {
       this.stage = "bootloader";
       await this.board.reboot(true);
       this.stage = "drive";
+      // The desktop app finds the drive itself, so there's nothing to click.
+      if (this.host.desktop && !this.demo) void this.writeToDrive();
     } catch (err) {
       this.fail(`Couldn't get the board ready: ${errorText(err)}`);
     }
@@ -161,6 +176,10 @@ export class FirmwareUpdate {
       this.stage = "writing";
       this.waitForBoard();
       await this.host.mock!.flash(this.boardId, this.toVersion).catch((err) => this.fail(errorText(err)));
+      return;
+    }
+    if (this.host.desktop) {
+      await this.writeFromDesktop(this.host.desktop);
       return;
     }
     const pick = directoryPicker();
@@ -200,6 +219,47 @@ export class FirmwareUpdate {
       console.warn("writing firmware.uf2:", err);
     }
     this.waitForBoard();
+  }
+
+  /** The desktop app: wait for the board's drive to mount, then write onto it. */
+  private async writeFromDesktop(desktop: Desktop): Promise<void> {
+    const expected = this.definition.bootloader?.uf2BoardId;
+    this.message = null;
+    this.stage = "writing";
+    const deadline = Date.now() + DRIVE_WAIT_MS;
+    let others: string[] = [];
+    for (;;) {
+      let drives: { path: string; info: string }[] = [];
+      try {
+        drives = await desktop.uf2Drives();
+      } catch (err) {
+        console.warn("listing UF2 drives:", err);
+      }
+      const ours = drives.filter((d) => !expected || uf2BoardId(d.info) === expected);
+      others = drives.filter((d) => !ours.includes(d)).map((d) => uf2BoardId(d.info) ?? "unknown");
+      if (ours.length === 1) {
+        try {
+          await desktop.uf2Write(ours[0]!.path, this.bytes);
+        } catch (err) {
+          // As in the browser: the bootloader may restart before the write returns.
+          console.warn("writing firmware.uf2:", err);
+        }
+        this.waitForBoard();
+        return;
+      }
+      if (ours.length > 1) {
+        this.stage = "drive";
+        this.message = `There are ${ours.length} ${this.volume} drives. Unplug the other boards, then try again.`;
+        return;
+      }
+      if (Date.now() >= deadline || this.stage !== "writing") break;
+      await new Promise((resolve) => setTimeout(resolve, DRIVE_POLL_MS));
+    }
+    if (this.stage !== "writing") return;
+    this.stage = "drive";
+    this.message = others.length
+      ? `Only another board's drive showed up (${others.join(", ")}). Check that ${this.volume} is mounted, then try again.`
+      : `The ${this.volume} drive didn't show up. Check that it's mounted (double-tap the board's reset if not), then try again.`;
   }
 
   /** For browsers without the drive picker: the user copies the file over. */

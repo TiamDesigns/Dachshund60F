@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-24 (the Pup test board).
+Last updated: 2026-10-24 (phase 15).
 
 ## Before ordering boards
 
@@ -20,6 +20,9 @@ Last updated: 2026-10-24 (the Pup test board).
 - **Pup on real hardware.** Flash a PCA10059 with the Pup build (`boards/Pup/README.md`) and check: SW1 types `a`; LD2 walks red, green, blue at power-up and then follows Caps Lock over USB, Bluetooth and the dongle; Doghouse finds it as "Pup" and remaps the key; holding SW1 for 10 s enters Nordic's bootloader (GPREGRET 0xB1; if it only reboots, that bootloader doesn't take GPREGRET and the reset button is the way in); settings survive an nrfutil update.
 - **Encrypt the 2.4 GHz link.** Keys over the dongle are sent in the clear. Exchange a key at pairing (ECDH on both nRF52840s, or a key from the dongle in the PAIR_OFFER, accepting the pairing-window risk), then encrypt each packet with AES-CCM (the nRF52840's CCM peripheral, or the ECB block with a packet counter), with replay protection. Store the key with the dongle address on the keyboard and in the dongle's settings. Bump nothing in the config protocol; the link format in `kb/link.h` changes, so keyboard and dongle must update together.
 - **Dongle firmware updates.** The dongle is flashed with nrfutil today. For the Dachshund dongle PCB, settle its bootloader (see the open decision in `PROGRESS.md`), then let Doghouse update it like the keyboard (a reboot-to-bootloader command over the dongle's own config interface, which today relays everything to the keyboard).
+- **Set up the Doghouse update key and make the first release (Tiam).** Make the signing key and add the secret and variable as in `app/src-tauri/README.md`, then run the "Doghouse release" workflow, check the draft (Windows, macOS and Linux installers, `latest.json`) and publish it. Then bump the version, release again and check that an installed copy offers the update and installs it on each OS.
+- **Doghouse desktop app on real hardware.** On Windows, macOS and Linux: a board (or a Pup) shows up over USB with no Connect step; over Bluetooth (hidapi's BLE support differs by OS); through the dongle, including the wait while its keyboard is away; a firmware update finds the UF2 drive and writes it. On Linux check the udev rule from the .deb.
+- **Code signing for the desktop app.** The installers are unsigned, so Windows SmartScreen and macOS Gatekeeper warn. Windows: an Authenticode certificate (or Azure Trusted Signing) and `bundle.windows.signCommand` or the certificate settings in `app/src-tauri/tauri.conf.json`. macOS: an Apple Developer ID, then the `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD` and `APPLE_TEAM_ID` secrets passed to tauri-action in `doghouse-release.yml` for signing and notarisation. Both cost money each year, so it's Tiam's call.
 - **Input delay on real hardware.** Read Doghouse's About → Input timing after a minute of typing (matrix read time, key-to-report time, how many scans started on a key press), and compare with the end-to-end method in Stage 4 of the bring-up plan. If the matrix read takes long, try a lower `CONFIG_KB_MATRIX_SETTLE_US`.
 
 ## Tiam's own items

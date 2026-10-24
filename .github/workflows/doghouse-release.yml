@@ -1,0 +1,89 @@
+name: Doghouse release
+
+# Builds the Doghouse desktop app for Windows, macOS and Linux and puts the
+# installers on a draft GitHub release, doghouse-v<version> (the version in
+# app/package.json). Publishing the draft makes it the update that installed
+# copies find. Steps and the one-time key setup: app/src-tauri/README.md.
+on:
+  push:
+    tags: ["doghouse-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Doghouse (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows
+            os: windows-latest
+            args: ""
+          - name: macOS
+            os: macos-latest
+            args: --target universal-apple-darwin
+          # The oldest supported Ubuntu, so the AppImage runs on older distributions too.
+          - name: Linux
+            os: ubuntu-22.04
+            args: ""
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Tauri's Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libudev-dev librsvg2-dev libxdo-dev libayatana-appindicator3-dev
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ runner.os == 'macOS' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+      - run: npm ci
+        working-directory: app
+      # The updater only goes into builds when the repo has its public key
+      # (variable TAURI_UPDATER_PUBKEY); the matching private key signs the
+      # update files (secret TAURI_SIGNING_PRIVATE_KEY).
+      - name: Updater config
+        id: updater
+        shell: bash
+        env:
+          PUBKEY: ${{ vars.TAURI_UPDATER_PUBKEY }}
+        run: |
+          if [ -z "$PUBKEY" ]; then
+            echo "::warning::No TAURI_UPDATER_PUBKEY variable: building without auto-update."
+            exit 0
+          fi
+          file="$GITHUB_WORKSPACE/app/src-tauri/updater.conf.json"
+          node -e '
+            const [file, pubkey, repo] = process.argv.slice(1);
+            require("fs").writeFileSync(file, JSON.stringify({
+              bundle: { createUpdaterArtifacts: true },
+              plugins: { updater: {
+                pubkey,
+                endpoints: [`https://github.com/${repo}/releases/latest/download/latest.json`],
+              } },
+            }, null, 2));
+          ' "$file" "$PUBKEY" "$GITHUB_REPOSITORY"
+          echo "args=--config $file" >> "$GITHUB_OUTPUT"
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: app
+          tagName: doghouse-v__VERSION__
+          releaseName: Doghouse __VERSION__
+          releaseBody: Installers for Doghouse __VERSION__. See the assets below.
+          releaseDraft: true
+          args: ${{ matrix.args }} ${{ steps.updater.outputs.args }}

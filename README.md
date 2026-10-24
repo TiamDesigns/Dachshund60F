@@ -43,7 +43,7 @@ And at the end of it I want a keyboard I actually enjoy using every day.
 
 - No kernel driver. The board shows up as a normal HID keyboard plus one vendor-defined HID interface for configuration, so it works anywhere with nothing to install.
 - A TypeScript host library (the "driver") that talks to that interface over WebHID in the browser or node-hid on the desktop.
-- **Doghouse**, the configurator: keymap editing, advanced keys, macros, settings and firmware updates. It's in warm earth tones and dog-themed, because the boards are named after dogs.
+- **Doghouse**, the configurator: keymap editing, advanced keys, macros, settings and firmware updates. It runs in Chrome or Edge, or as a desktop app for Windows, macOS and Linux that updates itself. It's in warm earth tones and dog-themed, because the boards are named after dogs.
 
 ### Doing it properly
 
@@ -88,7 +88,7 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | 12 | Bluetooth LE | Done |
 | 13 | Power management, battery and input delay | Done |
 | 14 | 2.4 GHz dongle firmware | Done |
-| 15 | Desktop app packaging and auto-update | Next |
+| 15 | Desktop app packaging and auto-update | Done |
 
 "Done" means built and tested on a PC and in CI. None of it has run on a real board yet, because there isn't one.
 
@@ -103,7 +103,7 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | `dongle/` | 2.4 GHz receiver firmware (see `dongle/README.md` to flash and pair it) |
 | `protocol/` | `protocol.yaml` and the code generator |
 | `host-lib/` | The TypeScript host library, mock board and tests |
-| `app/` | Doghouse, the configurator (Svelte 5 + Vite) |
+| `app/` | Doghouse, the configurator (Svelte 5 + Vite), and its desktop app in `app/src-tauri/` (Tauri) |
 | `docs/` | Bring-up and test plan, and my design decisions |
 
 ## Trying it out

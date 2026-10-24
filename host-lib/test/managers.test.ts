@@ -7,11 +7,14 @@ import {
   isNodeHidBoard,
   NodeHidBoardManager,
   protocol,
+  TauriHidBoardManager,
   WebHidBoardManager,
   type Board,
   type NodeHidDevice,
   type NodeHidDeviceInfo,
   type NodeHidModule,
+  type TauriHidBridge,
+  type TauriHidEvent,
   type WebHid,
   type WebHidCollection,
   type WebHidConnectionEvent,
@@ -303,4 +306,70 @@ test("node-hid: a board over Bluetooth gets its report ID on every write", async
   const writes = hid.open.get("bt")!.writes;
   assert.ok(writes.length > 0 && writes.every((w) => w[0] === protocol.HID_BLE_REPORT_ID));
   await manager.close();
+});
+
+/** The desktop app's hid_* commands (app/src-tauri/src/hid.rs), with boards behind them. */
+class FakeTauriBridge implements TauriHidBridge {
+  devices: NodeHidDeviceInfo[] = [];
+  readonly calls: string[] = [];
+  readonly writes: number[][] = [];
+  private next = 1;
+  readonly open = new Map<number, { path: string; fake: FakeTransport; send: (e: TauriHidEvent) => void }>();
+
+  channel<T>(onMessage: (message: T) => void): unknown {
+    return { onMessage };
+  }
+
+  async invoke<T>(command: string, args: Record<string, unknown> = {}): Promise<T> {
+    this.calls.push(command);
+    switch (command) {
+      case "hid_devices":
+        return this.devices as T;
+      case "hid_open": {
+        const path = args.path as string;
+        const send = (args.onEvent as { onMessage: (e: TauriHidEvent) => void }).onMessage;
+        const fake = new FakeTransport(boardHandler(`SN-${path}`));
+        // Reports arrive as JSON arrays, as Tauri serialises Vec<u8>.
+        fake.onReport((r) => send({ type: "report", data: [...r] }));
+        const handle = this.next++;
+        this.open.set(handle, { path, fake, send });
+        return handle as T;
+      }
+      case "hid_write": {
+        const data = args.data as number[];
+        this.writes.push(data);
+        await this.open.get(args.handle as number)!.fake.write(Uint8Array.from(data.slice(1)));
+        return data.length as T;
+      }
+      case "hid_close":
+        this.open.delete(args.handle as number);
+        return undefined as T;
+      default:
+        throw new Error(`unknown command ${command}`);
+    }
+  }
+}
+
+test("Tauri: the desktop app's bridge opens boards, writes with report ID 0 and closes them", async () => {
+  const bridge = new FakeTauriBridge();
+  const config = { vendorId: 0x1209, productId: 0x0001, usagePage: 0xff00, usage: 0x44 };
+  bridge.devices = [
+    { ...config, path: "a", busType: 1 },
+    { vendorId: 0x1209, productId: 0x0001, usagePage: 1, usage: 6, path: "kbd", busType: 1 },
+  ];
+  const manager = new TauriHidBoardManager(bridge, { pollMs: 60_000 });
+  await manager.start();
+  assert.deepEqual(manager.list().map((b) => b.info.id), ["SN-a"]);
+  assert.deepEqual([...bridge.open.values()].map((o) => o.path), ["a"]);
+  assert.ok(bridge.writes.length > 0);
+  assert.ok(bridge.writes.every((w) => w.length === protocol.REPORT_SIZE + 1 && w[0] === 0), "report ID 0 first");
+
+  // The app's reader ends (unplugged): the board leaves.
+  const changed = new Promise<Board[]>((resolve) => manager.subscribe(resolve));
+  const [open] = bridge.open.values();
+  open!.send({ type: "closed" });
+  assert.deepEqual(await changed, []);
+
+  await manager.close();
+  assert.ok(bridge.calls.includes("hid_close"));
 });

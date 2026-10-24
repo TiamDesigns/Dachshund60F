@@ -1,0 +1,7 @@
+# Dachshund keyboards (1209:0001) and their 2.4 GHz receiver (1209:0002),
+# pid.codes test IDs: let the logged-in user open their HID interfaces, over
+# USB and Bluetooth, so Doghouse (the app, or Chrome over WebHID) can reach
+# them. Installed with the .deb; otherwise copy it to /etc/udev/rules.d/ and
+# run: sudo udevadm control --reload && sudo udevadm trigger
+KERNEL=="hidraw*", KERNELS=="*:1209:0001.*", TAG+="uaccess"
+KERNEL=="hidraw*", KERNELS=="*:1209:0002.*", TAG+="uaccess"
