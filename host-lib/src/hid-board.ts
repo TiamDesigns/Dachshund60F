@@ -23,6 +23,9 @@ import {
   FeatureTable,
   type FeatureTableName,
   decodeGetConnectionResponse,
+  decodeGetPowerResponse,
+  decodeGetTimingResponse,
+  encodeGetTimingRequest,
   decodeGetIndicatorsResponse,
   decodeGetKeymapChunkResponse,
   decodeGetLayerColourResponse,
@@ -61,6 +64,7 @@ import {
   DEBOUNCE_ALGORITHMS,
   type EncoderAction,
   type IndicatorColours,
+  type InputTiming,
   type KeycodeId,
   type KeyPosition,
   type Keymap,
@@ -211,10 +215,33 @@ export class HidBoard implements Board {
     return this.client.request(command, payload);
   }
 
+  /** null when the firmware has no gauge, or hasn't read the cell yet (it reads it only on battery). */
   async getBattery(): Promise<BatteryStatus | null> {
     this.check();
-    // Battery reading arrives with power management (phase 13).
-    return null;
+    if ((this.capabilities & Capability.battery) === 0) return null;
+    const r = decodeGetPowerResponse(await this.client.request(Command.getPower));
+    if (r.batteryPercent > 100) return null;
+    return {
+      percent: r.batteryPercent,
+      charging: r.charging !== 0,
+      millivolts: r.batteryMv,
+      usbPower: r.usbPower !== 0,
+    };
+  }
+
+  async getTiming(reset = false): Promise<InputTiming> {
+    const r = decodeGetTimingResponse(
+      await this.call(Command.getTiming, encodeGetTimingRequest({ reset: reset ? 1 : 0 }), Capability.timing, "input timing"),
+    );
+    return {
+      scanPeriodUs: r.scanPeriodUs,
+      scanAvgUs: r.scanAvgUs,
+      scanMaxUs: r.scanMaxUs,
+      reportAvgUs: r.reportAvgUs,
+      reportMaxUs: r.reportMaxUs,
+      keyWakes: r.keyWakes,
+      scans: r.scans,
+    };
   }
 
   async getKeymap(): Promise<Keymap> {

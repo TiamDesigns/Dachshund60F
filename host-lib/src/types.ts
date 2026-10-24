@@ -14,6 +14,29 @@ export interface BatteryStatus {
   /** 0-100. */
   percent: number;
   charging: boolean;
+  /** The cell at the last reading on battery, in mV, when the board says. */
+  millivolts?: number;
+  /** USB powers the board (it never sleeps then), when the board says. */
+  usbPower?: boolean;
+}
+
+/**
+ * Input timing counters from the board (get_timing), in microseconds. The
+ * board's clock ticks every 30.5 us, so single times (the maxima) are that
+ * coarse; averages over many scans are finer.
+ */
+export interface InputTiming {
+  /** Matrix scan period while keys are in use. */
+  scanPeriodUs: number;
+  /** Time to read the whole matrix. */
+  scanAvgUs: number;
+  scanMaxUs: number;
+  /** From the start of the scan that saw a key change to its reports handed to USB or Bluetooth. */
+  reportAvgUs: number;
+  reportMaxUs: number;
+  /** Scans started at once by a key going down, rather than by the scan timer. */
+  keyWakes: number;
+  scans: number;
 }
 
 export interface BoardInfo {
@@ -290,6 +313,12 @@ export interface Board {
    * forgetting the computer that's asking drops this connection.
    */
   clearProfile?(profile: number): Promise<void>;
+
+  /**
+   * Input timing since power-up or the last reset; with reset, the counters
+   * start again after this reading. Absent on boards that don't count.
+   */
+  getTiming?(reset?: boolean): Promise<InputTiming>;
 
   /** True when live keymap or settings differ from what is saved in flash. */
   hasUnsavedChanges(): Promise<boolean>;

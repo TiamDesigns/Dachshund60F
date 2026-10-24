@@ -4,6 +4,7 @@
 
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/kernel.h>
+#include <zephyr/spinlock.h>
 #include <zephyr/logging/log.h>
 
 LOG_MODULE_REGISTER(matrix, LOG_LEVEL_INF);
@@ -30,6 +31,63 @@ int matrix_cols(void)
     return ARRAY_SIZE(cols);
 }
 
+static struct gpio_callback row_cb[ARRAY_SIZE(rows)];
+static void (*wake_fn)(void);
+/* Arming and disarming as a whole, so a row firing midway can't interleave. */
+static struct k_spinlock wake_lock;
+static bool armed;
+
+void matrix_wake_disarm(void)
+{
+    K_SPINLOCK(&wake_lock) {
+        if (!armed) {
+            K_SPINLOCK_BREAK;
+        }
+        armed = false;
+        for (size_t r = 0; r < ARRAY_SIZE(rows); r++) {
+            (void)gpio_pin_interrupt_configure_dt(&rows[r], GPIO_INT_DISABLE);
+        }
+        for (size_t c = 0; c < ARRAY_SIZE(cols); c++) {
+            gpio_pin_set_dt(&cols[c], 0);
+        }
+    }
+}
+
+static void row_isr(const struct device *port, struct gpio_callback *cb, gpio_port_pins_t pins)
+{
+    ARG_UNUSED(port);
+    ARG_UNUSED(cb);
+    ARG_UNUSED(pins);
+    /* A level interrupt fires for as long as the key is down: off first. */
+    matrix_wake_disarm();
+    if (wake_fn) {
+        wake_fn();
+    }
+}
+
+void matrix_set_wake_handler(void (*fn)(void))
+{
+    wake_fn = fn;
+}
+
+void matrix_wake_arm(void)
+{
+    K_SPINLOCK(&wake_lock) {
+        if (armed) {
+            K_SPINLOCK_BREAK;
+        }
+        armed = true;
+        for (size_t c = 0; c < ARRAY_SIZE(cols); c++) {
+            gpio_pin_set_dt(&cols[c], 1);
+        }
+        k_busy_wait(CONFIG_KB_MATRIX_SETTLE_US);
+        /* A key already down fires as soon as the lock is let go. */
+        for (size_t r = 0; r < ARRAY_SIZE(rows); r++) {
+            (void)gpio_pin_interrupt_configure_dt(&rows[r], GPIO_INT_LEVEL_ACTIVE);
+        }
+    }
+}
+
 int matrix_init(void)
 {
     for (size_t i = 0; i < ARRAY_SIZE(cols); i++) {
@@ -50,6 +108,12 @@ int matrix_init(void)
         int err = gpio_pin_configure_dt(&rows[i], GPIO_INPUT);
         if (err) {
             LOG_ERR("row %zu setup failed (%d)", i, err);
+            return err;
+        }
+        gpio_init_callback(&row_cb[i], row_isr, BIT(rows[i].pin));
+        err = gpio_add_callback_dt(&rows[i], &row_cb[i]);
+        if (err) {
+            LOG_ERR("row %zu interrupt setup failed (%d)", i, err);
             return err;
         }
     }
@@ -74,6 +138,7 @@ static void wait_rows_low(void)
 
 void matrix_scan(kb_matrix_row_t *out)
 {
+    matrix_wake_disarm();
     for (size_t r = 0; r < ARRAY_SIZE(rows); r++) {
         out[r] = 0;
     }

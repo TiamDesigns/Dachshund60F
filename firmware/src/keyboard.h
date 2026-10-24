@@ -5,15 +5,29 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "kb/features.h"
 #include "kb/indicators.h"
 #include "kb/keymap.h"
+#include "kb/protocol_gen.h"
 #include "kb/settings.h"
 
 /* Set up the matrix and keymap and start the scan thread. */
 int keyboard_start(void);
+
+/*
+ * Run a scan soon, even while idle: a host changed something the scan
+ * passes on (lock LEDs, a connection, the output). Safe from any thread.
+ */
+void keyboard_poke(void);
+
+/* A host request: counts as use, so the board doesn't sleep under it. */
+void keyboard_note_activity(void);
+
+/* The get_timing counters; reset zeroes them after reading. */
+void keyboard_timing(struct kb_proto_get_timing_resp *out, bool reset);
 
 /*
  * The live keymap. Hold keyboard_lock() while changing it, so the scan

@@ -1312,6 +1312,13 @@ void kb_engine_encoder(struct kb_engine *e, uint8_t encoder, bool clockwise, uin
     enqueue(e, &ev);
 }
 
+bool kb_engine_idle(const struct kb_engine *e)
+{
+    return e->combo_buf_len == 0 && e->pending == KB_PENDING_NONE && e->queue_len == 0 &&
+           !e->caps_word && !e->leader && e->macro_off < 0 && e->mouse_dirs == 0 &&
+           e->wheel_dirs == 0;
+}
+
 void kb_engine_tick(struct kb_engine *e, uint32_t now_ms)
 {
     e->now = now_ms;

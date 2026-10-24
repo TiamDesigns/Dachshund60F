@@ -597,3 +597,69 @@ size_t kb_proto_clear_profile_req_encode(const struct kb_proto_clear_profile_req
     p[0] = in->profile;
     return 1u;
 }
+
+int kb_proto_get_power_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_power_resp *out)
+{
+    if (len != 5u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->battery_percent = p[0];
+    out->battery_mv = get16(p + 1);
+    out->charging = p[3];
+    out->usb_power = p[4];
+    return 0;
+}
+
+size_t kb_proto_get_power_resp_encode(const struct kb_proto_get_power_resp *in, uint8_t *p)
+{
+    p[0] = in->battery_percent;
+    put16(p + 1, in->battery_mv);
+    p[3] = in->charging;
+    p[4] = in->usb_power;
+    return 5u;
+}
+
+int kb_proto_get_timing_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_timing_req *out)
+{
+    if (len != 1u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->reset = p[0];
+    return 0;
+}
+
+size_t kb_proto_get_timing_req_encode(const struct kb_proto_get_timing_req *in, uint8_t *p)
+{
+    p[0] = in->reset;
+    return 1u;
+}
+
+int kb_proto_get_timing_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_timing_resp *out)
+{
+    if (len != 18u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->scan_period_us = get16(p + 0);
+    out->scan_avg_us = get16(p + 2);
+    out->scan_max_us = get16(p + 4);
+    out->report_avg_us = get16(p + 6);
+    out->report_max_us = get16(p + 8);
+    out->key_wakes = get32(p + 10);
+    out->scans = get32(p + 14);
+    return 0;
+}
+
+size_t kb_proto_get_timing_resp_encode(const struct kb_proto_get_timing_resp *in, uint8_t *p)
+{
+    put16(p + 0, in->scan_period_us);
+    put16(p + 2, in->scan_avg_us);
+    put16(p + 4, in->scan_max_us);
+    put16(p + 6, in->report_avg_us);
+    put16(p + 8, in->report_max_us);
+    put32(p + 10, in->key_wakes);
+    put32(p + 14, in->scans);
+    return 18u;
+}

@@ -8,6 +8,8 @@
 
 /dts-v1/;
 #include <nordic/nrf52840_qiaa.dtsi>
+#include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/adc/nrf-saadc.h>
 #include <zephyr/dt-bindings/i2c/i2c.h>
 #include <zephyr/dt-bindings/led/led.h>
 #include "dachshund60f-pinctrl.dtsi"
@@ -37,8 +39,8 @@
 	};
 
 	/*
-	 * Raw pin groups until the matrix, encoder and charger drivers exist
-	 * (phases 3, 9 and 13). COL2ROW: columns are driven high, rows read with
+	 * Raw pin groups for the matrix, encoder and charger (firmware/src).
+	 * COL2ROW: columns are driven high, rows read with
 	 * pull-downs.
 	 */
 	zephyr,user {
@@ -66,6 +68,8 @@
 		encoder-a-gpios = <&gpio0 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		encoder-b-gpios = <&gpio0 12 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
 		charge-status-gpios = <&gpio0 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+		/* The battery gauge: VDDH/5 (board.json power.batterySense). */
+		io-channels = <&adc 0>;
 	};
 
 	/*
@@ -104,6 +108,23 @@ display_spi: &spi2 {
 	pinctrl-0 = <&spi2_default>;
 	pinctrl-1 = <&spi2_sleep>;
 	pinctrl-names = "default", "sleep";
+};
+
+/* VDDH/5 on an internal SAADC input: no pin. The cell while it powers the board. */
+&adc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_2";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10)>;
+		zephyr,input-positive = <NRF_SAADC_VDDHDIV5>;
+		zephyr,resolution = <12>;
+		zephyr,oversampling = <3>;
+	};
 };
 
 &uicr {

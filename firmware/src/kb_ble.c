@@ -36,6 +36,7 @@
 
 #include "kb/keycodes.h"
 #include "kb/output.h"
+#include "keyboard.h"
 
 LOG_MODULE_REGISTER(kb_ble, LOG_LEVEL_INF);
 
@@ -163,6 +164,7 @@ static void tx_thread(void *p1, void *p2, void *p3)
              * yet): send the whole state again once it can take it.
              */
             atomic_set(&resync, 1);
+            keyboard_poke();
         } else if (err) {
             LOG_WRN("config response dropped (%d)", err);
         }
@@ -201,6 +203,7 @@ int kb_ble_send(enum kb_hid_report report, const uint8_t *data, size_t len)
          */
         k_msgq_purge(&tx_queue);
         atomic_set(&resync, 1);
+        keyboard_poke();
     }
     return err;
 }
@@ -237,6 +240,7 @@ static void leds_written(struct bt_hids_rep *rep, struct bt_conn *conn, bool wri
     ARG_UNUSED(conn);
     if (write && rep->size >= 1) {
         atomic_set(&locks, rep->data[0]);
+        keyboard_poke();
     }
 }
 
@@ -254,6 +258,7 @@ static void notify_changed(enum bt_hids_notify_evt evt)
     /* Reports sent before the host listened were lost. */
     if (evt == BT_HIDS_CCCD_EVT_NOTIFY_ENABLED) {
         atomic_set(&resync, 1);
+        keyboard_poke();
     }
 }
 
@@ -263,6 +268,7 @@ static void protocol_mode(enum bt_hids_pm_evt evt, struct bt_conn *conn)
     bool boot = evt == BT_HIDS_PM_EVT_BOOT_MODE_ENTERED;
     atomic_set(&boot_protocol, boot);
     atomic_set(&resync, 1);
+    keyboard_poke();
     LOG_INF("host selected %s protocol", boot ? "boot" : "report");
 }
 
@@ -377,20 +383,86 @@ static const struct bt_data sd[] = {
     BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME, sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
 
+/*
+ * Advertising: fast for a while (quick to find and reconnect), then slow;
+ * power management pauses it on battery when the board has been left
+ * alone, and the next key starts it again.
+ */
+#define ADV_FAST_MS 30000
+static atomic_t adv_paused;
+static void advertise_if_free(void);
+
+static void adv_slow_fn(struct k_work *work);
+static K_WORK_DELAYABLE_DEFINE(adv_slow_work, adv_slow_fn);
+
+static int adv_start(bool fast)
+{
+    struct bt_le_adv_param param =
+        fast ? (struct bt_le_adv_param)BT_LE_ADV_PARAM_INIT(BT_LE_ADV_OPT_CONN,
+                                                            BT_GAP_ADV_FAST_INT_MIN_2,
+                                                            BT_GAP_ADV_FAST_INT_MAX_2, NULL)
+             : (struct bt_le_adv_param)BT_LE_ADV_PARAM_INIT(
+                   BT_LE_ADV_OPT_CONN, BT_GAP_ADV_SLOW_INT_MIN, BT_GAP_ADV_SLOW_INT_MAX, NULL);
+    param.id = kb_ble_profile();
+    return bt_le_adv_start(&param, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+}
+
 static void advertise(void)
 {
-    struct bt_le_adv_param param = BT_LE_ADV_PARAM_INIT(
-        BT_LE_ADV_OPT_CONN, BT_GAP_ADV_FAST_INT_MIN_2, BT_GAP_ADV_FAST_INT_MAX_2, NULL);
-    param.id = kb_ble_profile();
-
-    int err = bt_le_adv_start(&param, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+    if (atomic_get(&adv_paused)) {
+        atomic_set(&state, KB_BLE_OFF);
+        keyboard_poke();
+        return;
+    }
+    int err = adv_start(true);
     if (err && err != -EALREADY) {
         LOG_ERR("advertising failed (%d)", err);
         atomic_set(&state, KB_BLE_OFF);
+        keyboard_poke();
         return;
     }
     atomic_set(&state, KB_BLE_ADVERTISING);
-    LOG_INF("advertising for host %u", param.id + 1);
+    keyboard_poke();
+    k_work_reschedule(&adv_slow_work, K_MSEC(ADV_FAST_MS));
+    LOG_INF("advertising for host %u", kb_ble_profile() + 1);
+}
+
+/* On the system work queue, like everything that starts or stops advertising. */
+static void adv_slow_fn(struct k_work *work)
+{
+    ARG_UNUSED(work);
+    if (atomic_get(&state) != KB_BLE_ADVERTISING || atomic_get(&adv_paused)) {
+        return;
+    }
+    (void)bt_le_adv_stop();
+    int err = adv_start(false);
+    if (err && err != -EALREADY) {
+        LOG_ERR("slow advertising failed (%d)", err);
+        atomic_set(&state, KB_BLE_OFF);
+        keyboard_poke();
+    }
+}
+
+static void adv_pause_fn(struct k_work *work)
+{
+    ARG_UNUSED(work);
+    if (atomic_get(&adv_paused)) {
+        if (atomic_cas(&state, KB_BLE_ADVERTISING, KB_BLE_OFF)) {
+            (void)bt_le_adv_stop();
+            keyboard_poke();
+            LOG_INF("advertising paused");
+        }
+    } else if (atomic_get(&state) == KB_BLE_OFF) {
+        advertise_if_free();
+    }
+}
+static K_WORK_DEFINE(adv_pause_work, adv_pause_fn);
+
+void kb_ble_set_advertising(bool on)
+{
+    if (atomic_set(&adv_paused, on ? 0 : 1) != (on ? 0 : 1) && atomic_get(&up)) {
+        k_work_submit(&adv_pause_work);
+    }
 }
 
 /* Profile changes, on the system work queue (they write flash). */
@@ -431,6 +503,14 @@ static void reconnect(void)
     }
     (void)bt_le_adv_stop();
     advertise();
+}
+
+/* Advertise unless a host is connected (or connecting). */
+static void advertise_if_free(void)
+{
+    if (!current) {
+        advertise();
+    }
 }
 
 static void profile_work_fn(struct k_work *work)
@@ -491,9 +571,7 @@ int kb_ble_clear_profile(uint8_t p)
 static void advertise_work_fn(struct k_work *work)
 {
     ARG_UNUSED(work);
-    if (!current) {
-        advertise();
-    }
+    advertise_if_free();
 }
 static K_WORK_DEFINE(advertise_work, advertise_work_fn);
 
@@ -534,6 +612,7 @@ static void connected(struct bt_conn *conn, uint8_t err)
     }
     atomic_set(&boot_protocol, 0);
     atomic_set(&state, KB_BLE_CONNECTED);
+    keyboard_poke();
     int e = bt_hids_connected(&hids, conn);
     if (e) {
         LOG_ERR("HID service didn't take the connection (%d)", e);
@@ -562,7 +641,9 @@ static void disconnected(struct bt_conn *conn, uint8_t reason)
     bt_conn_unref(was);
     atomic_set(&boot_protocol, 0);
     atomic_set(&locks, 0);
+    keyboard_poke();
     atomic_set(&state, KB_BLE_OFF);
+    keyboard_poke();
     k_msgq_purge(&tx_queue);
     LOG_INF("disconnected (0x%02x)", reason);
 }
@@ -584,7 +665,9 @@ static void security_changed(struct bt_conn *conn, bt_security_t level, enum bt_
         return;
     }
     atomic_set(&state, KB_BLE_SECURE);
+    keyboard_poke();
     atomic_set(&resync, 1);
+    keyboard_poke();
     refresh_bonded();
 
     mtu_params.func = mtu_done;
@@ -648,6 +731,26 @@ static struct bt_conn_auth_info_cb auth_info_callbacks = {
     .pairing_complete = pairing_complete,
     .pairing_failed = pairing_failed,
 };
+
+/* Deep sleep */
+
+#define SHUTDOWN_WAIT_MS 100
+
+void kb_ble_shutdown(void)
+{
+    if (!atomic_get(&up)) {
+        return;
+    }
+    atomic_set(&adv_paused, 1);
+    (void)bt_le_adv_stop();
+    struct bt_conn *c = conn_get();
+    if (c) {
+        /* Tell the host now, rather than leaving it to time out. */
+        (void)bt_conn_disconnect(c, BT_HCI_ERR_REMOTE_POWER_OFF);
+        bt_conn_unref(c);
+        k_msleep(SHUTDOWN_WAIT_MS);
+    }
+}
 
 /* Battery */
 

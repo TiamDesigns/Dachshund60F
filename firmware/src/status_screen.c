@@ -140,6 +140,41 @@ int status_screen_set_layout(const struct kb_screen_layout *new_layout)
     return 0;
 }
 
+static void blank(bool on)
+{
+    /* E-paper keeps its picture without power; only an OLED goes dark. */
+    if (is_epd) {
+        return;
+    }
+    int err = on ? display_blanking_on(display) : display_blanking_off(display);
+    if (err && err != -ENOSYS) {
+        LOG_WRN("blanking %s failed (%d)", on ? "on" : "off", err);
+    }
+}
+
+void status_screen_set_dark(bool dark)
+{
+    static bool is_dark;
+
+    if (!ready || dark == is_dark) {
+        return;
+    }
+    is_dark = dark;
+    blank(dark);
+}
+
+void status_screen_off(void)
+{
+    struct k_work_sync sync;
+
+    if (!ready) {
+        return;
+    }
+    ready = false;
+    (void)k_work_cancel_delayable_sync(&draw_work, &sync);
+    blank(true);
+}
+
 /* Index of the configured font, or of the shortest one if none is set. */
 static int pick_font(void)
 {

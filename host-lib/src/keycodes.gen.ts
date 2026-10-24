@@ -181,6 +181,7 @@ export const KEYCODE_CONSTANTS: Readonly<Record<string, number>> = {
   QK_LEAD: 0x7004,
   NK_TOGG: 0x7005,
   AS_TOGG: 0x7006,
+  QK_SLEEP: 0x7007,
   OUT_USB: 0x7100,
   OUT_2G4: 0x7101,
   OUT_BLE: 0x7102,

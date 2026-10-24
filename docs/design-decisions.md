@@ -35,6 +35,7 @@ Last updated 2026-10-24.
 | LED data line | A SN74LV1T34 level-shifting buffer | On USB the LEDs get about 4.7 V, so a 3.3 V data line has no margin. I chose a proper buffer over a diode drop or testing as-is. |
 | Test pads | Nine labelled pads on the back for every rail | I want to measure the boards properly, not just see if they work. |
 | Mounting | No mounting holes on the mainboard: the switches hold it, and an FR4 plate is gasket-mounted | A softer, more even typing feel, and a simpler PCB. I'm handling the case and mounting myself. |
+| Polling rate | Stay on the nRF52840 at 1 kHz, and cut input delay in the firmware instead | Its USB is full-speed, so 1 kHz is the ceiling. An nRF54H20 (high-speed USB) could go higher, but it meant a new module, a new bootloader and redoing most of the board. The firmware now scans the moment a key goes down, and the biggest delays I control are tap-hold and debounce anyway. |
 | Stabilisers | Screw-in only, with plate cutouts sized for brands like Swagkeys Knight | The stabilisers I want to use. Plate-mount ones no longer clip in. |
 
 ### Project and process

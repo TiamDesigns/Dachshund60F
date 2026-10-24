@@ -86,8 +86,8 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | 10 | Indicator colours and global settings | Done |
 | 11 | In-app firmware updates | Done |
 | 12 | Bluetooth LE | Done |
-| 13 | Power management and battery | Next |
-| 14 | 2.4 GHz dongle firmware | Planned |
+| 13 | Power management, battery and input delay | Done |
+| 14 | 2.4 GHz dongle firmware | Next |
 | 15 | Desktop app packaging and auto-update | Planned |
 
 "Done" means built and tested on a PC and in CI. None of it has run on a real board yet, because there isn't one.

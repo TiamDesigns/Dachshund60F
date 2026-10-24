@@ -265,6 +265,14 @@ void kb_engine_encoder(struct kb_engine *e, uint8_t encoder, bool clockwise, uin
  */
 void kb_engine_tick(struct kb_engine *e, uint32_t now_ms);
 
+/*
+ * Nothing waits on time: no undecided key or combo, no Caps Word or Leader
+ * timeout, no macro playing and no mouse movement. The firmware may then
+ * stop calling kb_engine_tick until the next key event (held keys that
+ * wait on nothing, such as a plain letter or a layer key, don't count).
+ */
+bool kb_engine_idle(const struct kb_engine *e);
+
 /* Active layers (including the default layer) and the highest of them. */
 uint32_t kb_engine_layer_mask(const struct kb_engine *e);
 uint8_t kb_engine_highest_layer(const struct kb_engine *e);

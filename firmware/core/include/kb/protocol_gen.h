@@ -60,6 +60,8 @@ enum kb_proto_command {
     KB_PROTO_CMD_SET_OUTPUT = 0x51,
     KB_PROTO_CMD_SELECT_PROFILE = 0x52,
     KB_PROTO_CMD_CLEAR_PROFILE = 0x53,
+    KB_PROTO_CMD_GET_POWER = 0x60,
+    KB_PROTO_CMD_GET_TIMING = 0x61,
 };
 
 /* Handshake capability bits */
@@ -71,9 +73,10 @@ enum kb_proto_command {
 #define KB_PROTO_CAP_INDICATORS (1u << 5) /* indicator colours */
 #define KB_PROTO_CAP_SETTINGS (1u << 6) /* global settings */
 #define KB_PROTO_CAP_MATRIX_STREAM (1u << 7) /* live matrix state for the key tester */
-#define KB_PROTO_CAP_BATTERY (1u << 8) /* battery level */
+#define KB_PROTO_CAP_BATTERY (1u << 8) /* battery level and power source (get_power) */
 #define KB_PROTO_CAP_IDENTIFY (1u << 9) /* identify command */
 #define KB_PROTO_CAP_BLUETOOTH (1u << 10) /* Bluetooth host profiles and output selection (get_connection and friends) */
+#define KB_PROTO_CAP_TIMING (1u << 11) /* input timing counters (get_timing) */
 
 /* Advanced-key tables: id, entry size in bytes and entry count */
 #define KB_PROTO_TABLE_OPTIONS 0u
@@ -437,5 +440,44 @@ struct kb_proto_clear_profile_req {
 int kb_proto_clear_profile_req_decode(const uint8_t *p, size_t len, struct kb_proto_clear_profile_req *out);
 /* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
 size_t kb_proto_clear_profile_req_encode(const struct kb_proto_clear_profile_req *in, uint8_t *p);
+
+/* get_power response */
+#define KB_PROTO_GET_POWER_RESP_SIZE 5u
+struct kb_proto_get_power_resp {
+    uint8_t battery_percent;
+    uint16_t battery_mv;
+    uint8_t charging;
+    uint8_t usb_power;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_power_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_power_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_power_resp_encode(const struct kb_proto_get_power_resp *in, uint8_t *p);
+
+/* get_timing request */
+#define KB_PROTO_GET_TIMING_REQ_SIZE 1u
+struct kb_proto_get_timing_req {
+    uint8_t reset;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_timing_req_decode(const uint8_t *p, size_t len, struct kb_proto_get_timing_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_timing_req_encode(const struct kb_proto_get_timing_req *in, uint8_t *p);
+
+/* get_timing response */
+#define KB_PROTO_GET_TIMING_RESP_SIZE 18u
+struct kb_proto_get_timing_resp {
+    uint16_t scan_period_us;
+    uint16_t scan_avg_us;
+    uint16_t scan_max_us;
+    uint16_t report_avg_us;
+    uint16_t report_max_us;
+    uint32_t key_wakes;
+    uint32_t scans;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_timing_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_timing_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_timing_resp_encode(const struct kb_proto_get_timing_resp *in, uint8_t *p);
 
 #endif /* KB_PROTOCOL_GEN_H */

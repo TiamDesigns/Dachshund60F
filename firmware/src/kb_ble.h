@@ -59,6 +59,17 @@ void kb_ble_set_config_rx(kb_usb_config_rx_fn rx);
 /* Queue one config response frame. -EAGAIN if no host is connected. */
 int kb_ble_send_config(const uint8_t frame[KB_PROTO_REPORT_SIZE]);
 
+/*
+ * Advertise for the selected profile, or stop (power management, on
+ * battery when the board has been left alone). A connected host stays
+ * connected either way; with advertising off, a lost one can't come back
+ * until it is on again.
+ */
+void kb_ble_set_advertising(bool on);
+
+/* Before deep sleep: stop advertising and disconnect the host (waits up to 100 ms). */
+void kb_ble_shutdown(void);
+
 /* The Battery Service level, 0-100 (from power management). */
 void kb_ble_set_battery(uint8_t percent);
 

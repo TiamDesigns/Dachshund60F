@@ -253,7 +253,7 @@ typedef uint16_t kb_keycode_t;
 /*
  * Firmware actions. The engine runs Caps Word, Repeat, Leader, Auto Shift,
  * mouse keys and dynamic macros itself and hands the rest (QK_BOOT, QK_RBT,
- * NK_TOGG, connection keys) to the firmware's action callback.
+ * QK_SLEEP, NK_TOGG, connection keys) to the firmware's action callback.
  */
 #define QK_BOOT 0x7000u
 #define QK_RBT 0x7001u
@@ -262,6 +262,7 @@ typedef uint16_t kb_keycode_t;
 #define QK_LEAD 0x7004u
 #define NK_TOGG 0x7005u /* N-key rollover on or off */
 #define AS_TOGG 0x7006u /* Auto Shift on or off */
+#define QK_SLEEP 0x7007u /* deep sleep now, on battery (once every key is up) */
 
 #define OUT_USB 0x7100u
 #define OUT_2G4 0x7101u

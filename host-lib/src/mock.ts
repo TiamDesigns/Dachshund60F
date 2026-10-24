@@ -36,6 +36,7 @@ import {
   type BluetoothState,
   type ConnectionKind,
   type ConnectionStatus,
+  type InputTiming,
   type EncoderAction,
   type IndicatorColours,
   type KeyPosition,
@@ -157,6 +158,28 @@ export class MockBoard implements Board {
   getBattery(): Promise<BatteryStatus | null> {
     return this.call(() => ({ ...this.battery }));
   }
+
+  private timing: InputTiming = {
+    scanPeriodUs: 1000,
+    scanAvgUs: 92,
+    scanMaxUs: 122,
+    reportAvgUs: 31,
+    reportMaxUs: 61,
+    keyWakes: 0,
+    scans: 0,
+  };
+
+  /** Simulated counters: a scan a millisecond since the last reset, a key wake every few hundred. */
+  getTiming(reset = false): Promise<InputTiming> {
+    return this.call(() => {
+      const now = Date.now();
+      const scans = Math.floor(now - this.timingSince);
+      const out = { ...this.timing, scans, keyWakes: Math.floor(scans / 400) };
+      if (reset) this.timingSince = now;
+      return out;
+    });
+  }
+  private timingSince = Date.now();
 
   getKeymap(): Promise<Keymap> {
     return this.call(() => structuredClone(this.live.keymap));
