@@ -84,8 +84,8 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | 8 | Doghouse on real boards | Done |
 | 9 | Advanced keys, macros and the encoder | Done |
 | 10 | Indicator colours and global settings | Done |
-| 11 | In-app firmware updates | Next |
-| 12 | Bluetooth LE | Planned |
+| 11 | In-app firmware updates | Done |
+| 12 | Bluetooth LE | Next |
 | 13 | Power management and battery | Planned |
 | 14 | 2.4 GHz dongle firmware | Planned |
 | 15 | Desktop app packaging and auto-update | Planned |

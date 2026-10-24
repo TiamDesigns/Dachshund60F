@@ -20,6 +20,8 @@ export * from "./mock.js";
 export * from "./advanced.js";
 export * from "./indicators.js";
 export * from "./settings.js";
+export * from "./uf2.js";
+export * from "./backup.js";
 export { encodeMacros, decodeMacros } from "./advanced-codec.js";
 export { encodeKeycode, decodeKeycode, KeycodeError } from "./keycode-codec.js";
 export * from "./transport.js";

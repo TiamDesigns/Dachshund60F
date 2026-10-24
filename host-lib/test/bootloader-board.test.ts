@@ -2,6 +2,7 @@
 // (boards/<name>/bootloader/board.h) and its devicetree flash layout agree with
 // boards/<name>/board.json and with the layout the bootloader expects.
 import { test } from "node:test";
+import { APP_FLASH } from "../src/index.js";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -85,6 +86,18 @@ for (const name of bootloaderBoards) {
     assert.equal(cString(define(header, "BLEDIS_MANUFACTURER")), usb.manufacturer);
     assert.equal(cString(define(header, "UF2_PRODUCT_NAME")), usb.product);
     assert.ok(cString(define(header, "UF2_VOLUME_LABEL")).length <= 11, "FAT volume labels are at most 11 characters");
+  });
+
+  test(`${name}: keyboard.json names the bootloader Doghouse updates through`, () => {
+    const def = JSON.parse(readFileSync(path.join(dir, "keyboard.json"), "utf8")) as {
+      bootloader?: { uf2BoardId: string; volume: string };
+    };
+    assert.equal(def.bootloader?.uf2BoardId, cString(define(header, "UF2_BOARD_ID")));
+    assert.equal(def.bootloader?.volume, cString(define(header, "UF2_VOLUME_LABEL")));
+  });
+
+  test(`${name}: the updater's firmware area is the one UF2 can write`, () => {
+    assert.deepEqual(APP_FLASH, { start: APP_START, end: USER_FLASH_END });
   });
 
   test(`${name}: devicetree flash layout fits the bootloader`, () => {

@@ -12,6 +12,7 @@
   import SettingsPanel from "./lib/components/SettingsPanel.svelte";
   import ThemeToggle from "./lib/components/ThemeToggle.svelte";
   import Toasts from "./lib/components/Toasts.svelte";
+  import UpdateDialog from "./lib/components/UpdateDialog.svelte";
 
   type Tab = "keys" | "advanced" | "macros" | "settings" | "about";
 
@@ -124,6 +125,9 @@
     {/if}
   </main>
 
+  {#if app.update}
+    <UpdateDialog update={app.update} onclose={() => app.closeUpdate()} />
+  {/if}
   <Toasts toasts={app.toasts} />
 </div>
 

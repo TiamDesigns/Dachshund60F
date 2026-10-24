@@ -49,6 +49,8 @@ export interface KeyboardDefinition {
   layoutOptions: LayoutOption[];
   encoders: DefinitionEncoder[];
   indicators: DefinitionIndicator[];
+  /** The board's UF2 bootloader, for firmware updates: its INFO_UF2.TXT Board-ID and drive name. */
+  bootloader?: { uf2BoardId: string; volume: string };
 }
 
 /** Default choice for every layout option. */

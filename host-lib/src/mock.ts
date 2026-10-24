@@ -72,6 +72,8 @@ export interface MockBoardOptions {
   name?: string;
   /** Simulated round-trip time per call. Default 0. */
   latencyMs?: number;
+  /** What reboot() does; the manager supplies it. Without it the board can't reboot. */
+  onReboot?: (board: MockBoard, bootloader: boolean) => void;
 }
 
 export class MockBoard implements Board {
@@ -83,6 +85,7 @@ export class MockBoard implements Board {
   private battery: BatteryStatus;
   private connected = true;
   private readonly latencyMs: number;
+  private readonly onReboot: ((board: MockBoard, bootloader: boolean) => void) | undefined;
   private readonly listeners = new Set<(event: BoardEvent) => void>();
 
   constructor(options: MockBoardOptions) {
@@ -110,6 +113,7 @@ export class MockBoard implements Board {
     this.live = structuredClone(this.saved);
     this.battery = options.battery ?? { percent: 100, charging: false };
     this.latencyMs = options.latencyMs ?? 0;
+    this.onReboot = options.onReboot;
   }
 
   private async call<T>(fn: () => T): Promise<T> {
@@ -236,6 +240,20 @@ export class MockBoard implements Board {
     });
   }
 
+  /** Restart: unsaved edits are lost, as on a real board. The manager unplugs it and plugs it back. */
+  reboot(bootloader = false): Promise<void> {
+    return this.call(() => {
+      this.onReboot?.(this, bootloader);
+    });
+  }
+
+  /** Back from a reboot (with new firmware if a version is given). */
+  reconnect(firmwareVersion?: string): void {
+    if (firmwareVersion) (this.info as { firmwareVersion: string }).firmwareVersion = firmwareVersion;
+    this.live = structuredClone(this.saved);
+    this.connected = true;
+  }
+
   identify(): Promise<void> {
     return this.call(() => undefined);
   }
@@ -333,8 +351,13 @@ export interface MockBoardManagerOptions {
   latencyMs?: number;
 }
 
+/** How long a simulated board takes to come back after a reboot or an update. */
+const MOCK_REBOOT_MS = 1200;
+
 export class MockBoardManager implements BoardManager {
   private readonly boards = new Map<string, MockBoard>();
+  /** Boards sitting in their (simulated) UF2 bootloader, by id. */
+  private readonly inBootloader = new Map<string, MockBoard>();
   private readonly listeners = new Set<(boards: Board[]) => void>();
   private readonly definitions: Record<string, KeyboardDefinition>;
   private readonly latencyMs: number;
@@ -385,12 +408,53 @@ export class MockBoardManager implements BoardManager {
       connection,
       definition,
       latencyMs: this.latencyMs,
+      onReboot: (b, bootloader) => this.rebooted(b, bootloader),
       ...(options.battery ? { battery: options.battery } : {}),
       ...(options.name !== undefined ? { name: options.name } : {}),
     });
     this.boards.set(id, board);
     this.notify();
     return board;
+  }
+
+  private rebooted(board: MockBoard, bootloader: boolean): void {
+    const id = board.info.id;
+    // After the reply, as the firmware does.
+    setTimeout(() => {
+      if (this.boards.get(id) !== board) return;
+      this.boards.delete(id);
+      board.disconnect();
+      this.notify();
+      if (bootloader) {
+        this.inBootloader.set(id, board);
+      } else {
+        setTimeout(() => this.comeBack(board), MOCK_REBOOT_MS);
+      }
+    }, 0);
+  }
+
+  private comeBack(board: MockBoard, firmwareVersion?: string): void {
+    if (this.boards.has(board.info.id)) return;
+    board.reconnect(firmwareVersion);
+    this.boards.set(board.info.id, board);
+    this.notify();
+  }
+
+  /** Ids of boards waiting in their bootloader for firmware. */
+  bootloaderIds(): string[] {
+    return [...this.inBootloader.keys()];
+  }
+
+  /**
+   * Simulate copying firmware onto a board's UF2 drive: it restarts with
+   * that version and its saved settings. Resolves once it's back.
+   */
+  async flash(id: string, firmwareVersion: string): Promise<void> {
+    const board = this.inBootloader.get(id);
+    if (!board) throw new Error(`${id} isn't in its bootloader`);
+    this.inBootloader.delete(id);
+    await new Promise((resolve) => setTimeout(resolve, MOCK_REBOOT_MS));
+    this.comeBack(board, firmwareVersion);
   }
 
   /** Simulate unplugging a board. */

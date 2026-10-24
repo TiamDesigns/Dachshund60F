@@ -15,6 +15,7 @@ target_sources(app PRIVATE
   src/config.c
   src/default_keymap.c
   src/encoder_input.c
+  src/fw_info.c
   src/indicators.c
   src/kb_usb.c
   src/keyboard.c

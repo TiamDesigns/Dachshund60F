@@ -36,7 +36,7 @@ Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrf
 - Build with the status screen: add `-DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay` after the `--`. Panels are listed in `firmware/displays/README.md`: `oled-ssd1306-128x32`, `oled-ssd1306-128x64`, `oled-sh1106-128x64` and `eink-2in13-v4`. Without one, the firmware has no screen.
 - Build dongle: `west build -p -b nrf52840dongle/nrf52840 -d build/dongle dongle`
 - Release build (logging compiled out): add `-DEXTRA_CONF_FILE=release.conf` after the `--`
-- Flash (UF2): double-tap reset, or hold Esc for 3 s, so the board mounts as a UF2 drive. Then copy `build/firmware/firmware/zephyr/zephyr.uf2` onto it, or run `west flash -d build/firmware` (the default runner is `uf2`).
+- Flash (UF2): double-tap reset, or hold Esc for 3 s, so the board mounts as a UF2 drive. Then copy `build/firmware/firmware/zephyr/zephyr.uf2` onto it, or run `west flash -d build/firmware` (the default runner is `uf2`). Or use Doghouse: About → Update firmware… checks the file, backs up the settings, reboots the board into UF2, writes the file to its drive (Chrome or Edge) and restores anything the update lost.
 - Build the UF2 bootloader (Linux or WSL; needs `arm-none-eabi-gcc`, CMake, Ninja and Python `intelhex`): `boards/Dachshund60F/bootloader/build.sh`. CI builds it too and uploads `dachshund60f_bootloader_s140_6.1.1.hex` as the `bootloader-<sha>` artifact.
 - First-time bootloader flash: program that hex over the SWD header with a chip erase (`nrfutil device program --firmware <hex> --options chip_erase_mode=ERASE_ALL`, or pyocd/J-Link). Steps and checks are in `boards/Dachshund60F/bootloader/README.md`.
 - Debug logs: SEGGER RTT over SWD (the board has no UART). Release builds have none.

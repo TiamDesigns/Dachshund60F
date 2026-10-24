@@ -9,6 +9,7 @@
 import {
   BoardError,
   CombinedBoardManager,
+  restoreBoard,
   MockBoardManager,
   webHid,
   WebHidBoardManager,
@@ -16,6 +17,7 @@ import {
   type AdvancedOptions,
   type AdvancedTable,
   type BatteryStatus,
+  type BoardBackup,
   type Board,
   type BoardManager,
   type BoardSettings,
@@ -31,6 +33,7 @@ import {
 } from "@dachshund60f/host-lib";
 import dachshund60f from "@boards/Dachshund60F/keyboard.json";
 
+import { FirmwareUpdate } from "./firmware-update.svelte.ts";
 import { EditHistory, type Edit } from "./history.ts";
 
 const { PROTOCOL_VERSION } = protocol;
@@ -323,6 +326,26 @@ export class BoardSession {
     });
   }
 
+  /** Put back a backup file's keymap and settings, and save. */
+  async restoreBackup(file: File): Promise<void> {
+    await this.run(async () => {
+      let backup: BoardBackup;
+      try {
+        backup = JSON.parse(await file.text()) as BoardBackup;
+      } catch {
+        throw new Error(`${file.name} isn't a Doghouse backup.`);
+      }
+      const writes = await restoreBoard(this.board, backup);
+      await this.load();
+      this.history.clear();
+      this.syncHistory();
+      this.app.notify(
+        writes ? `${this.displayName} has its settings back from ${file.name}.` : `${this.displayName} already matches that backup.`,
+        "success",
+      );
+    });
+  }
+
   dispose(): void {
     this.unsubscribe();
   }
@@ -332,6 +355,8 @@ export class AppState {
   sessions = $state<BoardSession[]>([]);
   selectedId = $state<string | null>(null);
   toasts = $state<Toast[]>([]);
+  /** A firmware update in progress (or just finished), shown as a dialog. */
+  update = $state<FirmwareUpdate | null>(null);
 
   readonly manager: BoardManager;
   /** Real boards over WebHID; absent when the browser has no WebHID. */
@@ -360,6 +385,26 @@ export class AppState {
     }
   }
 
+  /** Check a .uf2 file for this board and open the update dialog. */
+  async prepareUpdate(session: BoardSession, file: File): Promise<void> {
+    if (!session.definition) return;
+    try {
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      this.update?.dispose();
+      this.update = new FirmwareUpdate(session.board, session.displayName, session.definition, { name: file.name, bytes }, {
+        notify: (text, kind) => this.notify(text, kind),
+        mock: this.mock,
+      });
+    } catch (err) {
+      this.notify(`${file.name}: ${errorText(err)}`, "error");
+    }
+  }
+
+  closeUpdate(): void {
+    this.update?.dispose();
+    this.update = null;
+  }
+
   get selected(): BoardSession | undefined {
     return this.sessions.find((s) => s.id === this.selectedId);
   }
@@ -379,7 +424,8 @@ export class AppState {
     for (const s of this.sessions) {
       if (!ids.has(s.id)) {
         s.dispose();
-        this.notify(`${s.displayName} left the kennel.`, "info");
+        // Leaving for its bootloader is part of an update, which says so itself.
+        if (this.update?.boardId !== s.id) this.notify(`${s.displayName} left the kennel.`, "info");
       }
     }
     const kept = this.sessions.filter((s) => ids.has(s.id));
@@ -388,7 +434,16 @@ export class AppState {
     this.sessions = [...kept, ...added];
 
     for (const session of added) {
-      session.load().catch((err) => this.notify(errorText(err), "error"));
+      session
+        .load()
+        .then(async () => {
+          // A board back from a firmware update: check it and put its settings back.
+          if (this.update && (await this.update.boardBack(session.board))) {
+            if (this.update.restored) await session.load();
+            this.selectedId = session.id;
+          }
+        })
+        .catch((err) => this.notify(errorText(err), "error"));
     }
     if (!this.selected) this.selectedId = this.sessions[0]?.id ?? null;
   }
