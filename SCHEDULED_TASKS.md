@@ -12,6 +12,7 @@ Last updated: 2026-10-24.
 
 - **Encoder on real hardware (bring-up).** Check that one click is one step with `CONFIG_KB_ENCODER_STEPS_PER_DETENT=4` and that clockwise is clockwise; if not, change the setting or swap A and B in the devicetree.
 - **Matrix test mode and a Doghouse key tester.** Protocol v1 has the `matrix_stream` capability bit but no command for it. Add one (a new command isn't a breaking change), stream raw matrix state while Doghouse's key tester is open, and light up pressed keys. The bring-up plan's smoke test and every-key check want it.
+- **Firmware update on real hardware.** Run Doghouse's About → Update firmware… against a board (or an nRF52840 dongle running the Adafruit bootloader): the drive picker must accept the DACHSHUND drive's root, the write must complete before the bootloader resets, and the board must come back over WebHID by itself. Check Windows and macOS.
 - **Undo for advanced keys, macros, settings and colours.** Doghouse's undo and redo cover keys and encoders only; the Advanced, Macros and Settings tabs apply straight to the board (Revert still undoes everything unsaved).
 - **Phase 13 note: battery reading with the power path.** On USB, VDDH shows the USB-fed VSYS, so read the cell only on battery and show charging from CHG_STAT (P0.15).
 

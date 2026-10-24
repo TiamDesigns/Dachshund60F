@@ -116,5 +116,6 @@
     {"id": 3, "role": "battery", "label": "Battery 75%", "level": 3, "at": {"x": 16.14, "y": 4.75}},
     {"id": 4, "role": "battery", "label": "Battery 100%", "level": 4, "at": {"x": 16.43, "y": 4.75}},
     {"id": 5, "role": "lock", "label": "Caps Lock", "underKey": {"row": 3, "col": 0}}
-  ]
+  ],
+  "bootloader": {"uf2BoardId": "nRF52840-Dachshund60F-v1", "volume": "DACHSHUND"}
 }

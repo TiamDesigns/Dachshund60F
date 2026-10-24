@@ -19,6 +19,7 @@
 
 #include "bootloader.h"
 #include "encoder_input.h"
+#include "fw_info.h"
 #include "indicators.h"
 #include "kb/protocol.h"
 #include "kb_usb.h"
@@ -142,11 +143,7 @@ static const struct kb_protocol_ops ops = {
 
 static struct kb_protocol protocol = {
     .ops = &ops,
-    .firmware_major = APP_VERSION_MAJOR,
-    .firmware_minor = APP_VERSION_MINOR,
-    .firmware_patch = APP_PATCHLEVEL,
     .build = BUILD_ID,
-    .model = CONFIG_KB_MODEL,
     /* Matrix streaming and battery join in later phases. */
     .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                     KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_SETTINGS |
@@ -203,6 +200,11 @@ static void load_serial(void)
 
 int config_start(void)
 {
+    /* From the info block, which also keeps it in the image. */
+    protocol.firmware_major = fw_info.major;
+    protocol.firmware_minor = fw_info.minor;
+    protocol.firmware_patch = fw_info.patch;
+    protocol.model = fw_info.model;
     protocol.keymap = keyboard_keymap();
     protocol.features = keyboard_features();
     protocol.macro_edit = keyboard_macro_edit();

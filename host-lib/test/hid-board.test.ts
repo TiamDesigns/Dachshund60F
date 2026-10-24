@@ -5,8 +5,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import {
+  backupBoard,
   BoardError,
   defaultKeymap,
+  restoreBoard,
   HidBoard,
   MockBoardManager,
   protocol,
@@ -266,6 +268,36 @@ for (const [name, open, options] of subjects) {
 
     await board.factoryReset();
     assert.deepEqual(await board.getIndicators(), before);
+  });
+
+  test(`${name}: back up, factory reset and restore`, options, async (t) => {
+    const board = (await open(t)) as Required<Board>;
+    const fresh = await backupBoard(board);
+    assert.equal(fresh.board.model, "Dachshund60F");
+    assert.ok(fresh.settings && fresh.advanced && fresh.macros && fresh.indicators);
+
+    await board.setKey({ layer: 1, row: 1, col: 1 }, "KC_MUTE");
+    await board.setEncoder(1, 0, { cw: "KC_RGHT", ccw: "KC_LEFT" });
+    await board.setSettings({ name: "Pretzel", tappingTermMs: 220 });
+    await board.setAdvancedEntry("tapDances", 3, { tap: "KC_A", hold: "KC_B", doubleTap: "KC_NO", tripleTap: "KC_NO", termMs: 0 });
+    await board.setAdvancedOptions({ autoShift: true });
+    await board.setMacros([[{ type: "text", text: "woof" }]]);
+    await board.setIndicators({ caps: "#00ff00", layers: ["#000000", "#010203", "#040506", "#070809"] });
+    await board.save();
+    const backup = JSON.parse(JSON.stringify(await backupBoard(board))) as typeof fresh; // as from a file
+
+    // Nothing to do on a board that still has it all.
+    assert.equal(await restoreBoard(board, backup), 0);
+
+    await board.factoryReset();
+    assert.deepEqual({ ...(await backupBoard(board)), takenAt: "" }, { ...fresh, takenAt: "" });
+    const writes = await restoreBoard(board, backup);
+    assert.equal(writes, 7);
+    assert.equal(await board.hasUnsavedChanges(), false, "restore saves");
+    await board.revert();
+    assert.deepEqual({ ...(await backupBoard(board)), takenAt: "" }, { ...backup, takenAt: "" });
+
+    await rejectsWith(restoreBoard(board, { ...backup, board: { ...backup.board, model: "Corgi65" } }), "invalid-value");
   });
 
   test(`${name}: macros`, options, async (t) => {

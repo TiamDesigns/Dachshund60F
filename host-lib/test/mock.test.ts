@@ -197,3 +197,27 @@ test("a combined manager lists every manager's boards and passes on changes", ()
   a.unplug(combined.list()[0]!.info.id);
   assert.deepEqual(seen, [1, 2, 1]);
 });
+
+test("a mock board reboots, and in its bootloader takes new firmware", async () => {
+  const mgr = new MockBoardManager({ definitions: { Dachshund60F: definition } });
+  const board = mgr.plug("Dachshund60F", "usb", { id: "D60F-TEST" });
+  await board.setSettings({ name: "Saved" });
+  await board.save();
+  await board.setSettings({ name: "Unsaved" });
+
+  const lists: number[] = [];
+  mgr.subscribe((boards) => lists.push(boards.length));
+  await board.reboot(true);
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.deepEqual(mgr.list(), []);
+  assert.deepEqual(mgr.bootloaderIds(), ["D60F-TEST"]);
+
+  await mgr.flash("D60F-TEST", "0.2.0");
+  const back = mgr.list()[0]!;
+  assert.equal(back.info.id, "D60F-TEST");
+  assert.equal(back.info.firmwareVersion, "0.2.0");
+  assert.equal((await back.getSettings()).name, "Saved");
+  assert.deepEqual(lists, [0, 1]);
+  await assert.rejects(mgr.flash("D60F-TEST", "0.3.0"));
+  mgr.dispose();
+});

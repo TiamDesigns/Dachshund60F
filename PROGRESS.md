@@ -2,9 +2,20 @@
 
 ## Current phase
 
-Phase 10 (indicator colours and global settings) is done. Phases 1 to 9 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 10 waits for fabricated boards (or the Nordic nRF52840 dongles Tiam is ordering). Next is phase 11, the in-app firmware updater.
+Phase 11 (in-app firmware updates) is done. Phases 1 to 10 are merged to main. Core tests pass locally and the firmware builds locally and in CI. Hardware testing for phases 2 to 11 waits for fabricated boards (or the Nordic nRF52840 dongles Tiam is ordering). Next is phase 12, Bluetooth LE.
 
 ## Done
+
+### Phase 11: in-app firmware updates (2026-10-24)
+
+- Firmware: every image carries a 32-byte info block (`struct kb_fw_info` in `kb/version.h`: the magic `KBFWINFO`, layout, protocol version, firmware version and model), so Doghouse can tell what a `.uf2` file holds before flashing it. The handshake now takes its version and model from the same block, which also keeps it in the image.
+- host-lib: `uf2.ts` checks a UF2 file block by block (magic numbers, numbering, nothing missing), refuses another chip family or any block outside the application flash (0x26000-0xEA000, so never the SoftDevice, the bootloader or the settings), and reads the info block; `compareVersions` and `uf2BoardId` (the Board-ID from the drive's INFO_UF2.TXT). `backup.ts`: `backupBoard` reads the keymap, encoders, settings, advanced keys, macros and colours into one JSON object, and `restoreBoard` writes back only what differs, then saves. The mock board can now reboot (unsaved edits are lost) and, in its simulated bootloader, take "firmware" through `MockBoardManager.flash()`.
+- `keyboard.json` names the board's bootloader (`uf2BoardId`, `volume`), checked against the bootloader's `board.h`.
+- Doghouse: About → **Update firmware…** picks a `.uf2`, checks it is firmware for this model, shows the version change and warns about downgrades and a different protocol version. Then a dialog runs the steps: back up the settings (also kept in the browser, and downloadable), restart into the bootloader, choose the DACHSHUND drive (File System Access API in Chrome and Edge; the drive's Board-ID is checked) and write the file, wait for the board to come back, check it runs the new version, and put back anything the update lost. Browsers without the drive picker get a download link and "I've copied it". About also gets **Restore a backup…**, and demo boards a **Try a pretend update** button that runs the whole flow.
+- Tests: core `test_version` pins the info block's layout; host-lib `uf2.test.ts` (round trip, the info block across a block boundary, every refusal, versions, Board-ID) plus a check against the real `zephyr.uf2` done by hand (found 0.1.0, Dachshund60F, protocol 1); back up, factory reset and restore against both the mock and the host-built firmware; the mock's reboot and flash. The demo update flow was run end to end in Chromium.
+- Size, debug without a screen: 94.1 KB flash, 40.3 KB RAM.
+- Not yet tested: writing to a real UF2 drive from the browser (needs a board or an nRF52840 dongle with the Adafruit bootloader).
+- How to test: `cd app && npm run dev`, open http://localhost:5173/?demo, About → Try a pretend update. On a board: build a firmware with a higher `VERSION`, then About → Update firmware….
 
 ### Phase 10: indicator colours and global settings (2026-10-24)
 
