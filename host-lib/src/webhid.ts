@@ -6,9 +6,10 @@
  * The WebHID types are declared here (structurally) so the library needs no
  * extra type package.
  */
-import { HidManagerBase, isConfigUsage, KEYBOARD_USB_IDS, type HidManagerOptions } from "./hid-manager.js";
+import { BOARD_USB_IDS, HidManagerBase, isConfigUsage, isDongleUsbId, type HidManagerOptions } from "./hid-manager.js";
 import { HID_USAGE, HID_USAGE_PAGE, REPORT_SIZE } from "./protocol.gen.js";
 import { TransportEvents, type Transport } from "./transport.js";
+import type { ConnectionKind } from "./types.js";
 
 export interface WebHidReportInfo {
   reportId?: number;
@@ -59,10 +60,10 @@ export function webHid(): WebHid | undefined {
   return nav?.hid;
 }
 
-/** True for the config interface of one of our keyboards. */
+/** True for the config interface of one of our keyboards (or its dongle). */
 export function isWebHidBoard(device: WebHidDevice): boolean {
   return (
-    KEYBOARD_USB_IDS.some((id) => id.vendorId === device.vendorId && id.productId === device.productId) &&
+    BOARD_USB_IDS.some((id) => id.vendorId === device.vendorId && id.productId === device.productId) &&
     device.collections.some((c) => isConfigUsage(c.usagePage, c.usage))
   );
 }
@@ -78,7 +79,7 @@ export function configReportId(device: WebHidDevice): number {
 }
 
 class WebHidTransport implements Transport {
-  readonly connection: "usb" | "ble";
+  readonly connection: ConnectionKind;
   private readonly reportId: number;
   private readonly events = new TransportEvents();
   private readonly onInput = (event: WebHidInputReportEvent): void => {
@@ -88,7 +89,8 @@ class WebHidTransport implements Transport {
 
   constructor(readonly device: WebHidDevice) {
     this.reportId = configReportId(device);
-    this.connection = this.reportId === 0 ? "usb" : "ble";
+    this.connection =
+      this.reportId !== 0 ? "ble" : isDongleUsbId(device.vendorId, device.productId) ? "dongle" : "usb";
     device.addEventListener("inputreport", this.onInput);
   }
 
@@ -129,7 +131,10 @@ export class WebHidBoardManager extends HidManagerBase {
   private readonly onDisconnect = (event: WebHidConnectionEvent): void => {
     this.transports.get(event.device)?.lost();
     this.transports.delete(event.device);
+    this.gone.add(this.key(event.device));
   };
+  /** Keys of devices unplugged: no retrying those. */
+  private readonly gone = new Set<string>();
 
   constructor(
     private readonly hid: WebHid,
@@ -147,7 +152,7 @@ export class WebHidBoardManager extends HidManagerBase {
 
   /** Ask the user to pick a board (call from a click handler), then open it. */
   async request(): Promise<void> {
-    const filters = KEYBOARD_USB_IDS.map((id) => ({ ...id, usagePage: HID_USAGE_PAGE, usage: HID_USAGE }));
+    const filters = BOARD_USB_IDS.map((id) => ({ ...id, usagePage: HID_USAGE_PAGE, usage: HID_USAGE }));
     const devices = await this.hid.requestDevice({ filters });
     await Promise.all(devices.map((device) => this.open(device)));
   }
@@ -168,8 +173,13 @@ export class WebHidBoardManager extends HidManagerBase {
     return id;
   }
 
+  protected override canRetry(key: string): boolean {
+    return !this.gone.has(key);
+  }
+
   private async open(device: WebHidDevice): Promise<void> {
     if (!isWebHidBoard(device)) return;
+    this.gone.delete(this.key(device));
     await this.add(this.key(device), async () => {
       if (!device.opened) await device.open();
       const transport = new WebHidTransport(device);

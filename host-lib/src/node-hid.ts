@@ -6,9 +6,17 @@
  *
  * hidapi has no hotplug events, so the manager polls the device list.
  */
-import { CONFIG_INTERFACE_NUMBER, HidManagerBase, isConfigUsage, isKeyboardUsbId, type HidManagerOptions } from "./hid-manager.js";
+import {
+  CONFIG_INTERFACE_NUMBER,
+  HidManagerBase,
+  isBoardUsbId,
+  isConfigUsage,
+  isDongleUsbId,
+  type HidManagerOptions,
+} from "./hid-manager.js";
 import { HID_BLE_REPORT_ID, REPORT_SIZE } from "./protocol.gen.js";
 import { TransportEvents, type Transport } from "./transport.js";
+import type { ConnectionKind } from "./types.js";
 
 /** The parts of node-hid's device list entries this uses. */
 export interface NodeHidDeviceInfo {
@@ -47,27 +55,30 @@ export async function loadNodeHid(): Promise<NodeHidModule> {
 }
 
 /**
- * True for the config interface of one of our keyboards. Linux's hidraw
+ * True for the config interface of one of our keyboards (or its dongle). Linux's hidraw
  * backend reports no usage page, so there the interface number decides.
  */
 export function isNodeHidBoard(info: NodeHidDeviceInfo): boolean {
-  if (!isKeyboardUsbId(info.vendorId, info.productId) || !info.path) return false;
+  if (!isBoardUsbId(info.vendorId, info.productId) || !info.path) return false;
   if (info.usagePage) return isConfigUsage(info.usagePage, info.usage);
   return info.interface === CONFIG_INTERFACE_NUMBER;
 }
 
+function connectionOf(info: NodeHidDeviceInfo): ConnectionKind {
+  if (info.busType === BUS_BLUETOOTH) return "ble";
+  return isDongleUsbId(info.vendorId, info.productId) ? "dongle" : "usb";
+}
+
 class NodeHidTransport implements Transport {
-  readonly connection: "usb" | "ble";
-  /** 0 over USB; over Bluetooth the config reports carry HID_BLE_REPORT_ID. */
+  /** 0 over USB (and the dongle); over Bluetooth the config reports carry HID_BLE_REPORT_ID. */
   private readonly reportId: number;
   private readonly events = new TransportEvents();
 
   constructor(
     private readonly device: NodeHidDevice,
-    bluetooth: boolean,
+    readonly connection: ConnectionKind,
   ) {
-    this.connection = bluetooth ? "ble" : "usb";
-    this.reportId = bluetooth ? HID_BLE_REPORT_ID : 0;
+    this.reportId = connection === "ble" ? HID_BLE_REPORT_ID : 0;
     device.on("data", (data) => {
       // hidapi puts the report ID first when the device uses them.
       if (this.reportId === 0) this.events.report(Uint8Array.from(data));
@@ -141,6 +152,11 @@ export class NodeHidBoardManager extends HidManagerBase {
     await super.close();
   }
 
+  /** The next scan tries a dongle again anyway. */
+  protected override canRetry(): boolean {
+    return false;
+  }
+
   /** Look for boards plugged in or out since the last scan. */
   scan(): Promise<void> {
     this.scanning ??= this.scanOnce().finally(() => (this.scanning = undefined));
@@ -164,7 +180,7 @@ export class NodeHidBoardManager extends HidManagerBase {
       devices.map((info) =>
         this.add(
           info.path!,
-          async () => new NodeHidTransport(await hid.HIDAsync.open(info.path!), info.busType === BUS_BLUETOOTH),
+          async () => new NodeHidTransport(await hid.HIDAsync.open(info.path!), connectionOf(info)),
           info.serialNumber,
         ),
       ),

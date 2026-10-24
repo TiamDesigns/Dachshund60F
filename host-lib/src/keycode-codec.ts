@@ -18,7 +18,7 @@ const c = (name: string): number => {
 
 /** Keycode names: everything in keycodes.h that is a keycode, not a range or bit. */
 const NAMED = new Map<string, number>(
-  Object.entries(K).filter(([name]) => /^(KC|QK|CW|NK|AS|OUT|BT|MS|DM)_/.test(name)),
+  Object.entries(K).filter(([name]) => /^(KC|QK|CW|NK|AS|OUT|BT|RF|MS|DM)_/.test(name)),
 );
 const BY_NUMBER = new Map<number, string>();
 for (const [name, value] of NAMED) {

@@ -21,6 +21,11 @@
 #include "kb/settings.h"
 
 /* What the firmware does for the commands that reach beyond the keymap. */
+/* pair_dongle modes */
+#define KB_PROTO_PAIR_STOP 0u
+#define KB_PROTO_PAIR_START 1u
+#define KB_PROTO_PAIR_FORGET 2u
+
 struct kb_protocol_ops {
     /*
      * Save, revert, factory reset: return a KB_PROTO_* status. Revert and
@@ -61,6 +66,13 @@ struct kb_protocol_ops {
      * zero after this reading. NULL: not supported.
      */
     void (*get_timing)(struct kb_proto_get_timing_resp *out, bool reset, void *ctx);
+    /*
+     * The 2.4 GHz dongle (get_dongle, pair_dongle, and set_output 3). Both
+     * or neither; NULL: not in this build. pair_dongle gets a checked mode
+     * (KB_PROTO_PAIR_*) and returns a KB_PROTO_* status.
+     */
+    void (*get_dongle)(struct kb_proto_get_dongle_resp *out, void *ctx);
+    uint8_t (*pair_dongle)(uint8_t mode, void *ctx);
     /* Guard keymap changes against the scan thread. Optional. */
     void (*lock)(void *ctx);
     void (*unlock)(void *ctx);

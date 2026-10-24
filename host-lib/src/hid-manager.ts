@@ -6,16 +6,32 @@
 import { HidBoard, type HidBoardOptions } from "./hid-board.js";
 import { HID_USAGE, HID_USAGE_PAGE } from "./protocol.gen.js";
 import type { Transport } from "./transport.js";
-import type { Board, BoardManager } from "./types.js";
+import { BoardError, type Board, type BoardManager } from "./types.js";
 
 /** USB IDs of the keyboard (pid.codes test PID; see CLAUDE.md). */
 export const KEYBOARD_USB_IDS = [{ vendorId: 0x1209, productId: 0x0001 }] as const;
+/** USB IDs of its 2.4 GHz dongle, which relays the config protocol to the keyboard. */
+export const DONGLE_USB_IDS = [{ vendorId: 0x1209, productId: 0x0002 }] as const;
+/** Everything a board can be reached through over USB. */
+export const BOARD_USB_IDS = [...KEYBOARD_USB_IDS, ...DONGLE_USB_IDS] as const;
+
+/** How often to try a dongle again while its keyboard is out of reach (default). */
+export const DONGLE_RETRY_MS = 2000;
 
 /** The config interface's number, for hosts that don't report usage pages (Linux hidraw). */
 export const CONFIG_INTERFACE_NUMBER = 2;
 
 export function isKeyboardUsbId(vendorId: number, productId: number): boolean {
   return KEYBOARD_USB_IDS.some((id) => id.vendorId === vendorId && id.productId === productId);
+}
+
+export function isDongleUsbId(vendorId: number, productId: number): boolean {
+  return DONGLE_USB_IDS.some((id) => id.vendorId === vendorId && id.productId === productId);
+}
+
+/** A keyboard or its dongle. */
+export function isBoardUsbId(vendorId: number, productId: number): boolean {
+  return isKeyboardUsbId(vendorId, productId) || isDongleUsbId(vendorId, productId);
 }
 
 export function isConfigUsage(usagePage: number | undefined, usage: number | undefined): boolean {
@@ -25,12 +41,16 @@ export function isConfigUsage(usagePage: number | undefined, usage: number | und
 export interface HidManagerOptions extends HidBoardOptions {
   /** Called when a device that looked like a board couldn't be opened. */
   onError?: (error: unknown) => void;
+  /** How often to try a dongle again while its keyboard is asleep or away. Default DONGLE_RETRY_MS. */
+  dongleRetryMs?: number;
 }
 
 export abstract class HidManagerBase implements BoardManager {
   private readonly boards = new Map<string, HidBoard>();
   private readonly pending = new Set<string>();
   private readonly listeners = new Set<(boards: Board[]) => void>();
+  private readonly retries = new Map<string, ReturnType<typeof setTimeout>>();
+  private closing = false;
 
   constructor(protected readonly options: HidManagerOptions = {}) {}
 
@@ -55,6 +75,9 @@ export abstract class HidManagerBase implements BoardManager {
 
   /** Close every board. */
   async close(): Promise<void> {
+    this.closing = true;
+    for (const timer of this.retries.values()) clearTimeout(timer);
+    this.retries.clear();
     await Promise.all([...this.boards.values()].map((board) => board.close().catch(() => undefined)));
   }
 
@@ -77,16 +100,37 @@ export abstract class HidManagerBase implements BoardManager {
         if (event.type === "disconnected" && this.boards.get(key) === board) {
           this.boards.delete(key);
           this.notify();
+          if (board.unreachable) this.retryLater(key, open, serialNumber);
         }
       });
       this.notify();
       return board;
     } catch (err) {
-      this.options.onError?.(err);
+      // A dongle whose keyboard is asleep or away isn't an error: try again in a while.
+      if (err instanceof BoardError && err.code === "unreachable") this.retryLater(key, open, serialNumber);
+      else this.options.onError?.(err);
       return null;
     } finally {
       this.pending.delete(key);
     }
+  }
+
+  /**
+   * Whether the device behind key is still there to try again. Managers
+   * that rescan by themselves (node-hid) say no and let the scan do it.
+   */
+  protected canRetry(_key: string): boolean {
+    return true;
+  }
+
+  private retryLater(key: string, open: () => Promise<Transport>, serialNumber?: string): void {
+    if (this.closing || this.retries.has(key) || !this.canRetry(key)) return;
+    const timer = setTimeout(() => {
+      this.retries.delete(key);
+      if (!this.closing && this.canRetry(key)) void this.add(key, open, serialNumber);
+    }, this.options.dongleRetryMs ?? DONGLE_RETRY_MS);
+    (timer as { unref?: () => void }).unref?.();
+    this.retries.set(key, timer);
   }
 
   protected keys(): string[] {

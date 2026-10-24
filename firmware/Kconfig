@@ -30,6 +30,17 @@ config KB_USB_MAX_POWER_MA
 	help
 	  The charger draws up to 500 mA from VBUS.
 
+config KB_DONGLE
+	bool "2.4 GHz dongle output"
+	default y
+	select ESB
+	select ESB_MPSL_TIMESLOT
+	help
+	  Keys can also go to a Dachshund receiver (dongle/) over Enhanced
+	  ShockBurst, sharing the radio with Bluetooth through the MPSL
+	  timeslot API: OUT_2G4, RF_PAIR, get_dongle and pair_dongle. The
+	  link isn't encrypted yet.
+
 config KB_MODEL
 	string "Keyboard definition name, reported to the host"
 	default "Dachshund60F"

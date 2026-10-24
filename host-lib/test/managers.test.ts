@@ -18,7 +18,7 @@ import {
   type WebHidDevice,
   type WebHidInputReportEvent,
 } from "../src/node.js";
-import { boardHandler, FakeTransport, type Handler } from "./fake-device.js";
+import { boardHandler, FakeTransport, response, type Handler } from "./fake-device.js";
 
 const CONFIG = [{ usagePage: protocol.HID_USAGE_PAGE, usage: protocol.HID_USAGE }];
 /** The same board over Bluetooth: one HID service, so the config reports carry an ID. */
@@ -140,7 +140,10 @@ test("WebHID: request() asks for our config interface and opens the pick", async
   hid.picked = [new FakeWebHidDevice(0x1209, 0x0001, CONFIG, boardHandler("CCCC"))];
   const manager = new WebHidBoardManager(hid);
   await manager.request();
-  assert.deepEqual(hid.filters, [{ vendorId: 0x1209, productId: 0x0001, usagePage: 0xff00, usage: 0x44 }]);
+  assert.deepEqual(hid.filters, [
+    { vendorId: 0x1209, productId: 0x0001, usagePage: 0xff00, usage: 0x44 },
+    { vendorId: 0x1209, productId: 0x0002, usagePage: 0xff00, usage: 0x44 },
+  ]);
   assert.deepEqual(manager.list().map((b) => b.info.id), ["CCCC"]);
   await manager.close();
 });
@@ -175,6 +178,48 @@ test("WebHID: a board over Bluetooth uses its config report ID, and USB wins whi
   // Unplugged: Bluetooth carries on.
   hid.fire("disconnect", usb);
   assert.deepEqual(manager.list().map((b) => [b.info.id, b.info.connection]), [["DDDD", "ble"]]);
+  await manager.close();
+});
+
+/** A dongle: it answers for its keyboard, or with unreachable while the keyboard is away. */
+function dongleHandler(serial: string, link: { away: boolean }): Handler {
+  const board = boardHandler(serial);
+  return (req) =>
+    link.away ? response(req.command, req.sequence, protocol.Status.unreachable) : board(req);
+}
+
+test("WebHID: a dongle waits for its keyboard, and lets the board go while it is away", async () => {
+  const hid = new FakeWebHid();
+  const link = { away: true };
+  const dongle = new FakeWebHidDevice(0x1209, 0x0002, CONFIG, dongleHandler("EEEE", link));
+  hid.granted = [dongle];
+  const errors: unknown[] = [];
+  const manager = new WebHidBoardManager(hid, { dongleRetryMs: 20, onError: (e) => errors.push(e) });
+  await manager.start();
+  // The keyboard is asleep: nothing to list, and nothing wrong either.
+  assert.equal(manager.list().length, 0);
+
+  link.away = false;
+  await new Promise((r) => setTimeout(r, 60));
+  const [board] = manager.list();
+  assert.deepEqual([board?.info.id, board?.info.connection], ["EEEE", "dongle"]);
+
+  // Out of range mid-session: the call fails and the board leaves the list...
+  link.away = true;
+  await assert.rejects(board!.identify(), (e: { code?: string }) => e.code === "unreachable");
+  await settle();
+  assert.equal(manager.list().length, 0);
+  // ...and comes back with the keyboard.
+  link.away = false;
+  await new Promise((r) => setTimeout(r, 60));
+  assert.deepEqual(manager.list().map((b) => b.info.id), ["EEEE"]);
+
+  // Unplugged: no more retries.
+  link.away = true;
+  hid.fire("disconnect", dongle);
+  await new Promise((r) => setTimeout(r, 60));
+  assert.equal(manager.list().length, 0);
+  assert.deepEqual(errors, []);
   await manager.close();
 });
 
@@ -220,7 +265,9 @@ test("node-hid: picks the config interface by usage page, or by interface number
   assert.equal(isNodeHidBoard({ ...base, usagePage: 0x01, usage: 0x06, interface: 0 }), false);
   assert.equal(isNodeHidBoard({ ...base, usagePage: 0, interface: 2 }), true);
   assert.equal(isNodeHidBoard({ ...base, interface: 0 }), false);
-  assert.equal(isNodeHidBoard({ ...base, productId: 0x0002, usagePage: 0xff00, usage: 0x44 }), false);
+  // The dongle's config interface is one too; another PID isn't.
+  assert.equal(isNodeHidBoard({ ...base, productId: 0x0002, usagePage: 0xff00, usage: 0x44 }), true);
+  assert.equal(isNodeHidBoard({ ...base, productId: 0x0003, usagePage: 0xff00, usage: 0x44 }), false);
 });
 
 test("node-hid: scans open new boards and close unplugged ones", async () => {

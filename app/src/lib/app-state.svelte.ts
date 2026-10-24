@@ -72,7 +72,8 @@ export type Feature =
   | "macros"
   | "indicators"
   | "bluetooth"
-  | "timing";
+  | "timing"
+  | "dongle";
 
 export class BoardSession {
   readonly board: Board;

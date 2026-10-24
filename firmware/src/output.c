@@ -9,6 +9,7 @@
 
 #include "indicators.h"
 #include "kb_ble.h"
+#include "kb_esb.h"
 #include "kb_usb.h"
 #include "status_screen.h"
 
@@ -20,6 +21,27 @@ static atomic_t active = ATOMIC_INIT(KB_OUTPUT_NONE);
 /* Scan thread only. */
 static uint8_t shown_locks;
 static uint8_t shown_profile = 0xFF;
+
+#define HAS_DONGLE IS_ENABLED(CONFIG_KB_DONGLE)
+
+bool output_available(uint8_t output)
+{
+    return kb_output_preferable(output) && (output != KB_OUTPUT_DONGLE || HAS_DONGLE);
+}
+
+static const char *output_name(uint8_t output)
+{
+    switch (output) {
+    case KB_OUTPUT_USB:
+        return "USB";
+    case KB_OUTPUT_BLE:
+        return "Bluetooth";
+    case KB_OUTPUT_DONGLE:
+        return "the dongle";
+    default:
+        return "no host";
+    }
+}
 
 /* The preferred output, in Zephyr settings next to the Bluetooth bonds. */
 
@@ -36,7 +58,7 @@ static int output_set(const char *name, size_t len, settings_read_cb read_cb, vo
         return -ENOENT;
     }
     if (len == sizeof(v) && read_cb(cb_arg, &v, sizeof(v)) == sizeof(v) &&
-        v.version == SAVED_OUTPUT_VERSION && kb_output_preferable(v.output)) {
+        v.version == SAVED_OUTPUT_VERSION && output_available(v.output)) {
         atomic_set(&preferred, v.output);
     }
     return 0;
@@ -56,11 +78,11 @@ static K_WORK_DEFINE(save_work, save_fn);
 
 int output_set_preferred(uint8_t output)
 {
-    if (!kb_output_preferable(output)) {
+    if (!output_available(output)) {
         return -EINVAL;
     }
     if (atomic_set(&preferred, output) != output) {
-        LOG_INF("preferring %s", output == KB_OUTPUT_USB ? "USB" : "Bluetooth");
+        LOG_INF("preferring %s", output_name(output));
         /* Flash writes stall the CPU: not on the scan thread. */
         k_work_submit(&save_work);
     }
@@ -87,6 +109,8 @@ static int send_on(enum kb_output out, enum kb_hid_report report, const uint8_t 
         return kb_usb_send(report, data, len);
     case KB_OUTPUT_BLE:
         return kb_ble_send(report, data, len);
+    case KB_OUTPUT_DONGLE:
+        return HAS_DONGLE ? kb_esb_send(report, data, len) : -EAGAIN;
     default:
         return -EAGAIN;
     }
@@ -109,6 +133,8 @@ bool output_boot_protocol(void)
         return kb_usb_boot_protocol();
     case KB_OUTPUT_BLE:
         return kb_ble_boot_protocol();
+    case KB_OUTPUT_DONGLE:
+        return HAS_DONGLE && kb_esb_boot_protocol();
     default:
         return false;
     }
@@ -121,6 +147,8 @@ static uint8_t active_locks(enum kb_output out)
         return kb_usb_locks();
     case KB_OUTPUT_BLE:
         return kb_ble_locks();
+    case KB_OUTPUT_DONGLE:
+        return HAS_DONGLE ? kb_esb_locks() : 0;
     default:
         return 0;
     }
@@ -132,6 +160,7 @@ bool output_poll(void)
         .preferred = output_preferred(),
         .usb_ready = kb_usb_ready(),
         .ble = kb_ble_state(),
+        .dongle_ready = HAS_DONGLE && kb_esb_ready(),
     };
     enum kb_output next = kb_output_select(&st);
     enum kb_output was = (enum kb_output)atomic_set(&active, next);
@@ -139,16 +168,16 @@ bool output_poll(void)
     /* Both flags are taken every time, so a stale one never fires later. */
     bool usb_resync = kb_usb_take_resync();
     bool ble_resync = kb_ble_take_resync();
-    bool resync = (next == KB_OUTPUT_USB && usb_resync) || (next == KB_OUTPUT_BLE && ble_resync);
+    bool esb_resync = HAS_DONGLE && kb_esb_take_resync();
+    bool resync = (next == KB_OUTPUT_USB && usb_resync) || (next == KB_OUTPUT_BLE && ble_resync) ||
+                  (next == KB_OUTPUT_DONGLE && esb_resync);
 
     if (next != was) {
         /* Let go of everything on the host the keys are leaving. */
         if (was != KB_OUTPUT_NONE) {
             kb_hid_send_released(send_released, (void *)(uintptr_t)was);
         }
-        LOG_INF("keys go to %s", next == KB_OUTPUT_USB   ? "USB"
-                                 : next == KB_OUTPUT_BLE ? "Bluetooth"
-                                                         : "no host");
+        LOG_INF("keys go to %s", output_name(next));
         resync = true;
     }
 

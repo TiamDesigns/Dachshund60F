@@ -134,6 +134,7 @@ const STATIC_KEYCODES: KeycodeInfo[] = [
   k("OUT_USB", "USB", "Send keys over USB", "connection"),
   k("OUT_2G4", "2.4G", "Send keys over the 2.4 GHz dongle", "connection"),
   k("OUT_BLE", "BT", "Send keys over Bluetooth", "connection"),
+  k("RF_PAIR", "2.4G Pair", "Pair with a 2.4 GHz dongle (press the dongle's button too)", "connection"),
   k("BT_CLR", "BT Clr", "Forget the current Bluetooth host", "connection"),
 
   k("MS_UP", "M↑", "Mouse up", "mouse"),

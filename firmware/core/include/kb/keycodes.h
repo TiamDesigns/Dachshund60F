@@ -267,6 +267,7 @@ typedef uint16_t kb_keycode_t;
 #define OUT_USB 0x7100u
 #define OUT_2G4 0x7101u
 #define OUT_BLE 0x7102u
+#define RF_PAIR 0x7103u /* pair with a 2.4 GHz dongle in pairing mode */
 #define BT_CLR 0x7110u
 #define KB_BT_PROFILE_MAX 8u
 #define BT_SEL(n) ((kb_keycode_t)(0x7120u | ((n) & 0x7u)))

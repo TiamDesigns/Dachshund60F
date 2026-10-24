@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BoardError, type ConnectionStatus } from "@dachshund60f/host-lib";
+  import { BoardError, type ConnectionStatus, type DonglePairing, type DongleStatus, type Output } from "@dachshund60f/host-lib";
 
   import { app, type BoardSession } from "../app-state.svelte.ts";
 
@@ -9,17 +9,23 @@
   const POLL_MS = 2000;
 
   let status = $state<ConnectionStatus | null>(null);
+  let dongle = $state<DongleStatus | null>(null);
   let working = $state(false);
 
   const board = $derived(session.board);
   const overBluetooth = $derived(board.info.connection === "ble");
+  const overDongle = $derived(board.info.connection === "dongle");
+  const hasDongle = $derived(!!board.getDongle && session.supports("dongle"));
 
   async function refresh(): Promise<void> {
     try {
       status = (await board.getConnection?.()) ?? null;
+      dongle = hasDongle ? ((await board.getDongle?.()) ?? null) : null;
     } catch (err) {
       // The board went away (it shows up again by itself); anything else is worth a word.
-      if (!(err instanceof BoardError && err.code === "disconnected")) app.notify(text(err), "error");
+      if (!(err instanceof BoardError && (err.code === "disconnected" || err.code === "unreachable"))) {
+        app.notify(text(err), "error");
+      }
     }
   }
 
@@ -47,8 +53,44 @@
     }
   }
 
-  function prefer(output: "usb" | "ble") {
+  function prefer(output: Output) {
     void act(() => board.setOutput!(output));
+  }
+
+  const PREFER: { output: Output; label: string }[] = $derived([
+    { output: "usb", label: "USB" },
+    ...(hasDongle ? [{ output: "dongle" as const, label: "2.4 GHz" }] : []),
+    { output: "ble", label: "Bluetooth" },
+  ]);
+
+  function pair(action: DonglePairing) {
+    if (action === "forget") {
+      const question = overDongle
+        ? `Forget the dongle? It's how Doghouse reaches ${session.displayName} right now, so the connection drops until you pair them again.`
+        : `Forget the dongle? ${session.displayName} stops sending keys to it until you pair them again.`;
+      if (!confirm(question)) return;
+    }
+    const done = {
+      start: `${session.displayName} is looking for a dongle. Press the dongle's button now.`,
+      stop: undefined,
+      forget: "Dongle forgotten.",
+    }[action];
+    void act(() => board.pairDongle!(action), done);
+  }
+
+  function dongleState(d: DongleStatus): string {
+    if (d.pairing) return "Looking for a dongle in pairing mode…";
+    if (!d.paired) return "No dongle paired";
+    switch (d.link) {
+      case "connected":
+        return "Connected";
+      case "in-range":
+        return "In range, waiting for its computer";
+      case "searching":
+        return "Paired, but the dongle isn't answering (unplugged or out of range)";
+      default:
+        return "Radio asleep";
+    }
   }
 
   function select(profile: number) {
@@ -100,20 +142,47 @@
       <p class="now"><span class="dot" class:on={!!status.active}></span>{where}</p>
       <fieldset class="segmented" disabled={working}>
         <legend>Prefer</legend>
-        <label class:checked={status.preferred === "usb"}>
-          <input type="radio" name="prefer" checked={status.preferred === "usb"} onchange={() => prefer("usb")} />
-          USB
-        </label>
-        <label class:checked={status.preferred === "ble"}>
-          <input type="radio" name="prefer" checked={status.preferred === "ble"} onchange={() => prefer("ble")} />
-          Bluetooth
-        </label>
+        {#each PREFER as p (p.output)}
+          <label class:checked={status.preferred === p.output}>
+            <input type="radio" name="prefer" checked={status.preferred === p.output} onchange={() => prefer(p.output)} />
+            {p.label}
+          </label>
+        {/each}
       </fieldset>
       <p class="muted">
-        Keys go to the one you prefer while its computer is there, and to the other one otherwise, so unplugging the cable carries on over
-        Bluetooth. The <kbd>USB</kbd> and <kbd>BT</kbd> keys do the same. The board remembers this by itself.
+        {#if hasDongle}
+          Keys go to the one you prefer while its computer is there. Otherwise they go to the first one ready of USB, the dongle and
+          Bluetooth, so unplugging the cable carries on wirelessly. The <kbd>USB</kbd>, <kbd>2.4G</kbd> and <kbd>BT</kbd> keys do the same.
+        {:else}
+          Keys go to the one you prefer while its computer is there, and to the other one otherwise, so unplugging the cable carries on over
+          Bluetooth. The <kbd>USB</kbd> and <kbd>BT</kbd> keys do the same.
+        {/if}
+        The board remembers this by itself.
       </p>
     </section>
+
+    {#if dongle}
+      <section class="card">
+        <h2>2.4 GHz dongle</h2>
+        <p class="now"><span class="dot" class:on={dongle.link === "connected"}></span>{dongleState(dongle)}</p>
+        <div class="buttons">
+          {#if dongle.pairing}
+            <button class="btn small" onclick={() => pair("stop")} disabled={working}>Stop looking</button>
+          {:else}
+            <button class="btn small" onclick={() => pair("start")} disabled={working}>
+              {dongle.paired ? "Pair another dongle" : "Pair a dongle"}
+            </button>
+          {/if}
+          {#if dongle.paired}
+            <button class="btn small ghost" onclick={() => pair("forget")} disabled={working}>Forget</button>
+          {/if}
+        </div>
+        <p class="muted">
+          To pair, plug the dongle in and press its button (it blinks blue), then press <strong>Pair a dongle</strong> or the
+          <kbd>2.4G Pair</kbd> key within 30 seconds. The dongle blinks green when they find each other.
+        </p>
+      </section>
+    {/if}
 
     <section class="card">
       <h2>Bluetooth hosts</h2>

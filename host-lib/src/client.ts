@@ -29,6 +29,7 @@ const STATUS_CODES: Record<number, BoardErrorCode> = {
   [Status.storageError]: "storage-error",
   [Status.versionMismatch]: "version-mismatch",
   [Status.notSupported]: "not-supported",
+  [Status.unreachable]: "unreachable",
 };
 
 /** The BoardError for a response status other than ok. */
@@ -45,6 +46,9 @@ export class ProtocolClient {
   private waiting: ((frame: ResponseFrame | null) => void) | null = null;
   private readonly stopReports: () => void;
   private readonly stopClose: () => void;
+
+  /** Closed because a dongle answered that its keyboard is out of reach. */
+  unreachable = false;
 
   /** Protocol version sent in each request; set from the handshake. */
   version: number = PROTOCOL_VERSION;
@@ -83,6 +87,11 @@ export class ProtocolClient {
     for (let i = 0; i < tries; i++) {
       const frame = await this.once(command, payload);
       if (frame === null) continue; // timed out
+      if (frame.status === Status.unreachable) {
+        // A dongle without its keyboard: the board is gone until it comes back.
+        this.unreachable = true;
+        void this.close().catch(() => undefined);
+      }
       if (frame.status !== Status.ok) throw statusError(frame.status);
       return frame.payload;
     }

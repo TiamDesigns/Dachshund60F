@@ -99,9 +99,28 @@ for (const [name, open, options] of subjects) {
     assert.equal((await board.getConnection!()).paired[1], false);
     await rejectsWith(board.selectProfile!(3), "out-of-range");
     await rejectsWith(board.clearProfile!(-1), "out-of-range");
-    await rejectsWith(board.setOutput!("dongle" as "usb"), "invalid-value");
+    await rejectsWith(board.setOutput!("serial" as "usb"), "invalid-value");
     // None of it is an unsaved edit: the board keeps it by itself.
     assert.equal(await board.hasUnsavedChanges(), false);
+  });
+
+  test(`${name}: the 2.4 GHz dongle`, options, async (t) => {
+    const board = await open(t);
+    // Paired, but the dongle isn't plugged in here: keys stay on USB even when it is preferred.
+    assert.deepEqual(await board.getDongle!(), { paired: true, link: "searching", pairing: false });
+    await board.setOutput!("dongle");
+    const c = await board.getConnection!();
+    assert.equal(c.preferred, "dongle");
+    assert.equal(c.active, "usb");
+    await board.setOutput!("usb");
+
+    await board.pairDongle!("start");
+    assert.equal((await board.getDongle!()).pairing, true);
+    await board.pairDongle!("stop");
+    assert.equal((await board.getDongle!()).pairing, false);
+    await board.pairDongle!("forget");
+    assert.deepEqual(await board.getDongle!(), { paired: false, link: "off", pairing: false });
+    await rejectsWith(board.pairDongle!("again" as "start"), "invalid-value");
   });
 
   test(`${name}: battery and input timing`, options, async (t) => {
@@ -155,6 +174,7 @@ test("host-built firmware: info from the handshake", host.skip ? { skip: host.sk
     "identify",
     "bluetooth",
     "timing",
+    "dongle",
   ]);
   assert.deepEqual((await board.getKeymap()).encoders, defaultKeymap("Dachshund60F")!.encoders);
   await board.identify();

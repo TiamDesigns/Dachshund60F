@@ -17,7 +17,7 @@ interface BoardDef {
   indicators: { count: number; dataPin: string; powerEnablePin: string };
   power: { chargeStatusPin?: string };
   display?: { pins: { din: string; clk: string; cs: string; dc: string; rst: string; busy: string } };
-  usb: { keyboard: { vid: string; pid: string; manufacturer: string; product: string } };
+  usb: Record<"keyboard" | "dongle", { vid: string; pid: string; manufacturer: string; product: string }>;
 }
 
 // "&gpio1 10 (...)" -> "P1.10", in order of appearance.
@@ -129,6 +129,21 @@ for (const name of zephyrBoards) {
     assert.equal(Number(kconfigDefault(kconfig, "KB_USB_PID")), Number(usb.pid));
     assert.equal(kconfigDefault(kconfig, "KB_USB_MANUFACTURER"), usb.manufacturer);
     assert.equal(kconfigDefault(kconfig, "KB_USB_PRODUCT"), usb.product);
+  });
+
+  test(`${name}: dongle Kconfig USB IDs match board.json, and its radio matches the keyboard's`, () => {
+    const kconfig = readFileSync(path.join(repoDir, "dongle", "Kconfig"), "utf8").replace(/\r\n/g, "\n");
+    const usb = board.usb.dongle;
+    assert.equal(Number(kconfigDefault(kconfig, "KB_USB_VID")), Number(usb.vid));
+    assert.equal(Number(kconfigDefault(kconfig, "KB_USB_PID")), Number(usb.pid));
+    assert.equal(kconfigDefault(kconfig, "KB_USB_MANUFACTURER"), usb.manufacturer);
+    assert.equal(kconfigDefault(kconfig, "KB_USB_PRODUCT"), usb.product);
+    // Both ends must agree on the largest ESB payload, or config frames don't get through.
+    const payload = (app: string) => /^CONFIG_ESB_MAX_PAYLOAD_LENGTH=(\d+)$/m.exec(
+      readFileSync(path.join(repoDir, app, "prj.conf"), "utf8"),
+    )?.[1];
+    assert.ok(payload("firmware"), "firmware/prj.conf sets CONFIG_ESB_MAX_PAYLOAD_LENGTH");
+    assert.equal(payload("dongle"), payload("firmware"));
   });
 
   test(`${name}: Bluetooth PnP IDs match board.json, and the profiles match host-lib`, () => {

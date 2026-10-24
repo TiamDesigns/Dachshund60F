@@ -1,0 +1,36 @@
+# Dongle firmware options. USB IDs and strings must match the "dongle"
+# entry under "usb" in boards/Dachshund60F/board.json (checked by the
+# host-lib board tests). firmware/src/kb_usb.c reads the same symbols.
+
+menu "Dachshund60F receiver"
+
+config KB_USB_VID
+	hex "USB vendor ID"
+	default 0x1209
+	help
+	  pid.codes VID. The default PID below is a pid.codes TEST PID: not
+	  unique, in-house testing only. Never ship it on a dongle that is
+	  sold or redistributed.
+
+config KB_USB_PID
+	hex "USB product ID"
+	default 0x0002
+
+config KB_USB_MANUFACTURER
+	string "USB manufacturer string"
+	default "Dachshund"
+
+config KB_USB_PRODUCT
+	string "USB product string"
+	default "Dachshund60F Receiver"
+
+config KB_USB_MAX_POWER_MA
+	int "USB bMaxPower in mA"
+	default 50
+	range 2 500
+	help
+	  The radio listens all the time: about 10 mA, plus the LED.
+
+endmenu
+
+source "Kconfig.zephyr"

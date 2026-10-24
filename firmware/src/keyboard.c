@@ -23,6 +23,7 @@
 #include "kb/settings.h"
 #include "indicators.h"
 #include "kb_ble.h"
+#include "kb_esb.h"
 #include "matrix.h"
 #include "output.h"
 #include "power.h"
@@ -241,6 +242,15 @@ static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
     case OUT_BLE:
         (void)output_set_preferred(KB_OUTPUT_BLE);
         break;
+    case OUT_2G4:
+        /* -EINVAL in a build without the dongle: nothing happens. */
+        (void)output_set_preferred(KB_OUTPUT_DONGLE);
+        break;
+    case RF_PAIR:
+        if (IS_ENABLED(CONFIG_KB_DONGLE)) {
+            (void)kb_esb_pair(KB_PROTO_PAIR_START);
+        }
+        break;
     case BT_CLR:
         (void)kb_ble_clear_profile(kb_ble_profile());
         break;
@@ -255,7 +265,6 @@ static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
             /* -EINVAL for a profile this build doesn't have: nothing happens. */
             (void)kb_ble_select_profile((uint8_t)(kc & 0x7u));
         }
-        /* OUT_2G4 waits for the dongle (phase 14). */
         break;
     }
 }
@@ -296,19 +305,26 @@ static bool any_down(const kb_matrix_row_t *rows)
     return false;
 }
 
-/* Lights and advertising, on battery when the board is left alone. */
+/* Lights and radios, on battery when the board is left alone. */
 static void apply_power(const struct kb_power_status *st)
 {
-    static bool lights_off, radio_off;
+    static bool lights_off, radio_off, idle;
 
     if (st->lights_off != lights_off) {
         lights_off = st->lights_off;
         indicators_set_dark(lights_off);
         status_screen_set_dark(lights_off);
     }
-    if (st->radio_off != radio_off) {
+    bool now_idle = st->state != KB_POWER_ACTIVE;
+    if (st->radio_off != radio_off || now_idle != idle) {
+        if (st->radio_off != radio_off) {
+            kb_ble_set_advertising(!st->radio_off);
+        }
         radio_off = st->radio_off;
-        kb_ble_set_advertising(!radio_off);
+        idle = now_idle;
+        if (IS_ENABLED(CONFIG_KB_DONGLE)) {
+            kb_esb_set_power(idle, radio_off);
+        }
     }
 }
 

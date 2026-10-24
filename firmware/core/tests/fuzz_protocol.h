@@ -74,7 +74,8 @@ static bool fuzz_protocol_one(const uint8_t *data, size_t size)
             fprintf(stderr, "the settings are invalid\n");
             return false;
         }
-        if (!kb_output_preferable(fx.preferred) || fx.profile >= fx_proto.ble_profiles) {
+        if (!kb_output_preferable(fx.preferred) || fx.profile >= fx_proto.ble_profiles ||
+            fx.pair_mode > KB_PROTO_PAIR_FORGET) {
             fprintf(stderr, "the output or profile is out of range\n");
             return false;
         }

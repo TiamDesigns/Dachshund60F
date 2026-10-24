@@ -23,6 +23,8 @@ import {
   FeatureTable,
   type FeatureTableName,
   decodeGetConnectionResponse,
+  decodeGetDongleResponse,
+  encodePairDongleRequest,
   decodeGetPowerResponse,
   decodeGetTimingResponse,
   encodeGetTimingRequest,
@@ -50,6 +52,10 @@ import type { Transport } from "./transport.js";
 import {
   BLUETOOTH_STATES,
   BoardError,
+  DONGLE_LINKS,
+  type DongleStatus,
+  type DonglePairing,
+  type Output,
   OUTPUTS,
   type ConnectionStatus,
   type AdvancedKeys,
@@ -76,6 +82,9 @@ function profileByte(profile: number): number {
   }
   return profile;
 }
+
+/** pair_dongle modes (KB_PROTO_PAIR_* in kb/protocol.h). */
+const PAIR_MODES: Record<DonglePairing, number> = { stop: 0, start: 1, forget: 2 };
 
 /** Keycodes per get_keymap_chunk request (the most a response holds). */
 const CHUNK = 28;
@@ -187,6 +196,11 @@ export class HidBoard implements Board {
 
   get connected(): boolean {
     return !this.client.isClosed;
+  }
+
+  /** Closed because its dongle lost the keyboard; it comes back when the keyboard does. */
+  get unreachable(): boolean {
+    return this.client.unreachable;
   }
 
   /** Close the transport. The board then reports "disconnected". */
@@ -533,10 +547,24 @@ export class HidBoard implements Board {
     };
   }
 
-  async setOutput(output: "usb" | "ble"): Promise<void> {
+  async setOutput(output: Output): Promise<void> {
     const n = OUTPUTS.indexOf(output);
-    if (output !== "usb" && output !== "ble") throw new BoardError("invalid-value", `can't prefer output ${String(output)}`);
+    if (n < 1) throw new BoardError("invalid-value", `can't prefer output ${String(output)}`);
+    if (output === "dongle") this.check(Capability.dongle, "the 2.4 GHz dongle");
     await this.call(Command.setOutput, encodeSetOutputRequest({ output: n }), Capability.bluetooth, "Bluetooth");
+  }
+
+  async getDongle(): Promise<DongleStatus> {
+    const r = decodeGetDongleResponse(await this.call(Command.getDongle, undefined, Capability.dongle, "the 2.4 GHz dongle"));
+    const link = DONGLE_LINKS[r.link];
+    if (link === undefined) throw new BoardError("protocol-error", "the board reported a dongle state this app doesn't know");
+    return { paired: r.paired !== 0, link, pairing: r.pairing !== 0 };
+  }
+
+  async pairDongle(action: DonglePairing): Promise<void> {
+    const mode = PAIR_MODES[action];
+    if (mode === undefined) throw new BoardError("invalid-value", `no such pairing action ${String(action)}`);
+    await this.call(Command.pairDongle, encodePairDongleRequest({ mode }), Capability.dongle, "the 2.4 GHz dongle");
   }
 
   async selectProfile(profile: number): Promise<void> {

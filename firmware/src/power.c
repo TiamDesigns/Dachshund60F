@@ -17,6 +17,7 @@
 #include "indicators.h"
 #include "kb/battery.h"
 #include "kb_ble.h"
+#include "kb_esb.h"
 #include "matrix.h"
 #include "status_screen.h"
 
@@ -186,6 +187,9 @@ FUNC_NORETURN void power_off(void)
     LOG_INF("deep sleep; a key wakes the board");
 
     kb_ble_shutdown();
+    if (IS_ENABLED(CONFIG_KB_DONGLE)) {
+        kb_esb_shutdown();
+    }
     struct k_work_sync sync;
     (void)k_work_cancel_delayable_sync(&sample_work, &sync);
     indicators_off();

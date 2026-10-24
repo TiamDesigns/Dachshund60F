@@ -19,6 +19,7 @@ static bool action_keycode(kb_keycode_t kc)
     case OUT_USB:
     case OUT_2G4:
     case OUT_BLE:
+    case RF_PAIR:
     case BT_CLR:
     case MS_UP:
     case MS_DOWN:

@@ -36,6 +36,10 @@ import {
   type BluetoothState,
   type ConnectionKind,
   type ConnectionStatus,
+  type DongleStatus,
+  type DonglePairing,
+  OUTPUTS,
+  type Output,
   type InputTiming,
   type EncoderAction,
   type IndicatorColours,
@@ -79,6 +83,9 @@ export interface MockBoardOptions {
   onReboot?: (board: MockBoard, bootloader: boolean) => void;
 }
 
+/** How long the mock takes to find a dongle in pairing mode. */
+const MOCK_PAIRING_MS = 2000;
+
 export class MockBoard implements Board {
   readonly info: BoardInfo;
   readonly definition: KeyboardDefinition;
@@ -88,7 +95,10 @@ export class MockBoard implements Board {
   private battery: BatteryStatus;
   private connected = true;
   /** Bluetooth as the firmware keeps it: profiles and preference survive reboots. */
-  private link: { preferred: "usb" | "ble"; bluetooth: BluetoothState; profile: number; paired: boolean[] };
+  private link: { preferred: Output; bluetooth: BluetoothState; profile: number; paired: boolean[] };
+  /** The 2.4 GHz dongle, as the firmware keeps it. */
+  private dongle: DongleStatus;
+  private pairingTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly latencyMs: number;
   private readonly onReboot: ((board: MockBoard, bootloader: boolean) => void) | undefined;
   private readonly listeners = new Set<(event: BoardEvent) => void>();
@@ -126,6 +136,11 @@ export class MockBoard implements Board {
       bluetooth: options.connection === "ble" || options.connection === "usb" ? "connected" : "advertising",
       profile: 0,
       paired,
+    };
+    this.dongle = {
+      paired: true,
+      link: options.connection === "dongle" ? "connected" : "searching",
+      pairing: false,
     };
   }
 
@@ -232,18 +247,49 @@ export class MockBoard implements Board {
     return this.call(() => {
       const { preferred, bluetooth, profile, paired } = this.link;
       const usb = this.info.connection === "usb";
-      const ready = (o: "usb" | "ble") => (o === "usb" ? usb : bluetooth === "connected");
-      const other = preferred === "usb" ? "ble" : "usb";
-      const active =
-        this.info.connection === "dongle" ? "dongle" : ready(preferred) ? preferred : ready(other) ? other : null;
+      const ready = (o: Output) =>
+        o === "usb" ? usb : o === "dongle" ? this.dongle.link === "connected" : bluetooth === "connected";
+      // As the firmware does: the preferred output, else the first ready of USB, dongle, Bluetooth.
+      const order: Output[] = [preferred, "usb", "dongle", "ble"];
+      const active = order.find(ready) ?? null;
       return { active, preferred, usb, bluetooth, profile, paired: [...paired] };
     });
   }
 
-  setOutput(output: "usb" | "ble"): Promise<void> {
+  setOutput(output: Output): Promise<void> {
     return this.call(() => {
-      if (output !== "usb" && output !== "ble") throw new BoardError("invalid-value", `can't prefer output ${String(output)}`);
+      if (!OUTPUTS.includes(output) || output === null) {
+        throw new BoardError("invalid-value", `can't prefer output ${String(output)}`);
+      }
       this.link.preferred = output;
+    });
+  }
+
+  getDongle(): Promise<DongleStatus> {
+    return this.call(() => ({ ...this.dongle }));
+  }
+
+  /** Pairing finds a dongle after a couple of seconds, as if its button had been pressed. */
+  pairDongle(action: DonglePairing): Promise<void> {
+    return this.call(() => {
+      clearTimeout(this.pairingTimer);
+      switch (action) {
+        case "start":
+          this.dongle.pairing = true;
+          this.pairingTimer = setTimeout(() => {
+            this.dongle = { paired: true, pairing: false, link: "in-range" };
+          }, MOCK_PAIRING_MS);
+          (this.pairingTimer as { unref?: () => void }).unref?.();
+          break;
+        case "stop":
+          this.dongle.pairing = false;
+          break;
+        case "forget":
+          this.dongle = { paired: false, pairing: false, link: "off" };
+          break;
+        default:
+          throw new BoardError("invalid-value", `no such pairing action ${String(action)}`);
+      }
     });
   }
 

@@ -499,14 +499,36 @@ static void test_connection(void)
     kb_proto_get_connection_resp_decode(payload(), payload_len(), &c);
     KB_CHECK_EQ(c.active_output, KB_OUTPUT_BLE);
     KB_CHECK_EQ(c.preferred_output, KB_OUTPUT_BLE);
-    /* No such output, or the dongle (not built yet): nothing changes. */
+    /* No such output: nothing changes. */
     const uint8_t bad[] = {KB_OUTPUT_NONE, 4, 0xFF};
     for (size_t i = 0; i < sizeof(bad); i++) {
         KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &bad[i], 1), KB_PROTO_BAD_VALUE);
     }
+    KB_CHECK_EQ(fx.preferred, KB_OUTPUT_BLE);
+    /* The dongle, before it is in range: preferred, but keys stay on Bluetooth. */
+    out = KB_OUTPUT_DONGLE;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &out, 1), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_CONNECTION, NULL, 0), KB_PROTO_OK);
+    kb_proto_get_connection_resp_decode(payload(), payload_len(), &c);
+    KB_CHECK_EQ(c.preferred_output, KB_OUTPUT_DONGLE);
+    KB_CHECK_EQ(c.active_output, KB_OUTPUT_USB);
+    fx.dongle_ready = true;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_CONNECTION, NULL, 0), KB_PROTO_OK);
+    kb_proto_get_connection_resp_decode(payload(), payload_len(), &c);
+    KB_CHECK_EQ(c.active_output, KB_OUTPUT_DONGLE);
+    out = KB_OUTPUT_BLE;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &out, 1), KB_PROTO_OK);
+    /* A build without the dongle refuses it. */
+    struct kb_protocol_ops no_dongle = *fx_proto.ops;
+    no_dongle.get_dongle = NULL;
+    no_dongle.pair_dongle = NULL;
+    fx_proto.ops = &no_dongle;
     out = KB_OUTPUT_DONGLE;
     KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &out, 1), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_DONGLE, NULL, 0), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_PAIR_DONGLE, &out, 1), KB_PROTO_NOT_SUPPORTED);
     KB_CHECK_EQ(fx.preferred, KB_OUTPUT_BLE);
+    fx_proto.ops = &fx_ops;
     KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, NULL, 0), KB_PROTO_BAD_LENGTH);
 
     /* Profiles: only 0-2 exist. */
@@ -542,6 +564,37 @@ static void test_connection(void)
     KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &out, 1), KB_PROTO_NOT_SUPPORTED);
     KB_CHECK_EQ(call(KB_PROTO_CMD_SELECT_PROFILE, &profile, 1), KB_PROTO_NOT_SUPPORTED);
     KB_CHECK_EQ(call(KB_PROTO_CMD_CLEAR_PROFILE, &profile, 1), KB_PROTO_NOT_SUPPORTED);
+}
+
+static void test_dongle(void)
+{
+    fx_init();
+    fx.dongle = (struct kb_proto_get_dongle_resp){.paired = 1, .link = 3, .pairing = 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_DONGLE, NULL, 0), KB_PROTO_OK);
+    struct kb_proto_get_dongle_resp d;
+    KB_CHECK_EQ(kb_proto_get_dongle_resp_decode(payload(), payload_len(), &d), 0);
+    KB_CHECK_EQ(d.paired, 1);
+    KB_CHECK_EQ(d.link, 3);
+    KB_CHECK_EQ(d.pairing, 0);
+    uint8_t one = 1;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_DONGLE, &one, 1), KB_PROTO_BAD_LENGTH);
+
+    uint8_t mode = KB_PROTO_PAIR_START;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_PAIR_DONGLE, &mode, 1), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.pair_mode, KB_PROTO_PAIR_START);
+    KB_CHECK_EQ(fx.dongle.pairing, 1);
+    mode = KB_PROTO_PAIR_FORGET;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_PAIR_DONGLE, &mode, 1), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.dongle.paired, 0);
+    /* Unknown modes and lengths never reach the firmware. */
+    const uint8_t bad[] = {3, 0x80, 0xFF};
+    for (size_t i = 0; i < sizeof(bad); i++) {
+        KB_CHECK_EQ(call(KB_PROTO_CMD_PAIR_DONGLE, &bad[i], 1), KB_PROTO_BAD_VALUE);
+    }
+    KB_CHECK_EQ(call(KB_PROTO_CMD_PAIR_DONGLE, NULL, 0), KB_PROTO_BAD_LENGTH);
+    const uint8_t two[2] = {1, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_PAIR_DONGLE, two, 2), KB_PROTO_BAD_LENGTH);
+    KB_CHECK_EQ(fx.pair_calls, 2);
 }
 
 static void test_power_and_timing(void)
@@ -657,6 +710,7 @@ int main(void)
     KB_RUN(test_indicators);
     KB_RUN(test_features_not_supported);
     KB_RUN(test_connection);
+    KB_RUN(test_dongle);
     KB_RUN(test_power_and_timing);
     KB_RUN(test_device_control);
     KB_RUN(test_codec_round_trip);

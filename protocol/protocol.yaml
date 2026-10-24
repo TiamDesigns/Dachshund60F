@@ -49,6 +49,7 @@ errors:
   - {name: storage_error, code: 7, doc: Settings storage failed}
   - {name: version_mismatch, code: 8, doc: The request's protocol version isn't the device's}
   - {name: not_supported, code: 9, doc: This build doesn't support the command}
+  - {name: unreachable, code: 10, doc: "The dongle can't reach its keyboard (asleep, off or out of range); only a dongle answers this"}
 
 # Capability bits in the handshake: which features this firmware has.
 capabilities:
@@ -64,6 +65,7 @@ capabilities:
   - {name: identify, bit: 9, doc: identify command}
   - {name: bluetooth, bit: 10, doc: "Bluetooth host profiles and output selection (get_connection and friends)"}
   - {name: timing, bit: 11, doc: "input timing counters (get_timing)"}
+  - {name: dongle, bit: 12, doc: "the 2.4 GHz dongle output (get_dongle, pair_dongle, set_output 3)"}
 
 # Advanced-key tables (kb/features.h), read and written one entry at a time
 # with get_feature and set_feature. Each entry is `size` bytes in the layout
@@ -312,7 +314,7 @@ commands:
     request: []
     response:
       - {name: active_output, type: u8, doc: "where keys go now (0 when no host is ready)"}
-      - {name: preferred_output, type: u8, doc: "1-3: the output OUT_USB, OUT_BLE or set_output picked; the other one is used while it isn't ready"}
+      - {name: preferred_output, type: u8, doc: "1-3: the output OUT_USB, OUT_BLE, OUT_2G4 or set_output picked; while it isn't ready, the first ready of USB, dongle and Bluetooth is used"}
       - {name: usb, type: u8, doc: "0 no host, 1 a host has configured the board"}
       - {name: ble, type: u8, doc: "0 off, 1 advertising, 2 connected, 3 connected and encrypted (keys flow)"}
       - {name: profile, type: u8, doc: the selected Bluetooth host profile}
@@ -321,7 +323,7 @@ commands:
 
   - name: set_output
     id: 0x51
-    doc: "Prefer this output (1 USB, 2 Bluetooth), as OUT_USB and OUT_BLE do; kept across power cycles. bad_value for anything else, not_supported for an output this build lacks."
+    doc: "Prefer this output (1 USB, 2 Bluetooth, 3 the 2.4 GHz dongle), as OUT_USB, OUT_BLE and OUT_2G4 do; kept across power cycles. bad_value for anything else, not_supported for an output this build lacks."
     request:
       - {name: output, type: u8}
     response: []
@@ -338,6 +340,22 @@ commands:
     doc: "Forget the host paired on this profile, as BT_CLR does for the selected one. If that host is the one asking over Bluetooth, the response is the last thing it gets."
     request:
       - {name: profile, type: u8}
+    response: []
+
+  - name: get_dongle
+    id: 0x54
+    doc: "The 2.4 GHz dongle link. Only the keyboard answers this; a dongle passes it on like any other command."
+    request: []
+    response:
+      - {name: paired, type: u8, doc: "1: the keyboard knows a dongle"}
+      - {name: link, type: u8, doc: "0 off (not paired, or the radio is asleep), 1 looking for the dongle, 2 in range, 3 in range and the dongle's host is ready (keys can flow)"}
+      - {name: pairing, type: u8, doc: "1: looking for a dongle in pairing mode"}
+
+  - name: pair_dongle
+    id: 0x55
+    doc: "Pair with a dongle, as RF_PAIR does: the keyboard looks for a dongle in pairing mode (press its button) for 30 s and keeps the first one it finds. Mode 0 stops looking, 1 starts, 2 forgets the paired dongle."
+    request:
+      - {name: mode, type: u8}
     response: []
 
   - name: get_power

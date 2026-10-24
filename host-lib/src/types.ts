@@ -71,7 +71,10 @@ export type BluetoothState = (typeof BLUETOOTH_STATES)[number];
 export interface ConnectionStatus {
   /** Where keys go now; null while no host is ready. */
   active: Output | null;
-  /** The output the board prefers (OUT_USB, OUT_BLE or setOutput); the other is used while it isn't ready. */
+  /**
+   * The output the board prefers (OUT_USB, OUT_BLE, OUT_2G4 or setOutput).
+   * While it isn't ready, the first ready of USB, the dongle and Bluetooth is used.
+   */
   preferred: Output;
   /** A computer has set the board up over USB. */
   usb: boolean;
@@ -81,6 +84,26 @@ export interface ConnectionStatus {
   /** One entry per host profile: true when a computer is paired on it. */
   paired: boolean[];
 }
+
+/** The 2.4 GHz dongle link, by the protocol's state numbers (get_dongle). */
+export const DONGLE_LINKS = ["off", "searching", "in-range", "connected"] as const;
+/**
+ * off: no dongle paired, or the radio is asleep. searching: paired, but
+ * the dongle isn't answering. in-range: the dongle answers but no computer
+ * has set it up. connected: keys can go to it.
+ */
+export type DongleLink = (typeof DONGLE_LINKS)[number];
+
+export interface DongleStatus {
+  /** The board knows a dongle. */
+  paired: boolean;
+  link: DongleLink;
+  /** Looking for a dongle in pairing mode (RF_PAIR, pairDongle("start")). */
+  pairing: boolean;
+}
+
+/** pairDongle: look for a dongle in pairing mode for 30 s, stop looking, or forget the paired one. */
+export type DonglePairing = "start" | "stop" | "forget";
 
 /** Debounce algorithms, in the firmware's order (kb/debounce.h). */
 export const DEBOUNCE_ALGORITHMS = [
@@ -268,7 +291,9 @@ export type BoardErrorCode =
   | "not-supported"
   | "timeout"
   | "protocol-error"
-  | "disconnected";
+  | "disconnected"
+  /** Through a dongle: its keyboard is asleep, off or out of range. The board then closes. */
+  | "unreachable";
 
 export class BoardError extends Error {
   readonly code: BoardErrorCode;
@@ -304,8 +329,8 @@ export interface Board {
    * Bluetooth.
    */
   getConnection?(): Promise<ConnectionStatus>;
-  /** Prefer USB or Bluetooth, like OUT_USB and OUT_BLE. */
-  setOutput?(output: "usb" | "ble"): Promise<void>;
+  /** Prefer USB, Bluetooth or the dongle, like OUT_USB, OUT_BLE and OUT_2G4. */
+  setOutput?(output: Output): Promise<void>;
   /** Switch Bluetooth to a host profile, like BT_SEL. */
   selectProfile?(profile: number): Promise<void>;
   /**
@@ -313,6 +338,13 @@ export interface Board {
    * forgetting the computer that's asking drops this connection.
    */
   clearProfile?(profile: number): Promise<void>;
+
+  /**
+   * The 2.4 GHz dongle link, and pairing (like RF_PAIR; press the dongle's
+   * button too). Absent on boards built without the dongle.
+   */
+  getDongle?(): Promise<DongleStatus>;
+  pairDongle?(action: DonglePairing): Promise<void>;
 
   /**
    * Input timing since power-up or the last reset; with reset, the counters

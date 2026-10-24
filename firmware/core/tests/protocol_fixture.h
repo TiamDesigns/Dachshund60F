@@ -45,6 +45,11 @@ struct fx_state {
     struct kb_proto_get_power_resp power;
     uint32_t scans;
     int timing_resets;
+    /* The dongle: get_dongle's answer, and the last pair_dongle mode. */
+    bool dongle_ready;
+    struct kb_proto_get_dongle_resp dongle;
+    int pair_calls;
+    uint8_t pair_mode;
 };
 
 static struct fx_state fx;
@@ -143,7 +148,10 @@ static void fx_settings_changed(void *ctx)
 static void fx_get_connection(struct kb_proto_get_connection_resp *out, void *ctx)
 {
     (void)ctx;
-    struct kb_output_status st = {.preferred = fx.preferred, .usb_ready = fx.usb_ready, .ble = fx.ble};
+    struct kb_output_status st = {.preferred = fx.preferred,
+                                  .usb_ready = fx.usb_ready,
+                                  .ble = fx.ble,
+                                  .dongle_ready = fx.dongle_ready};
     out->active_output = (uint8_t)kb_output_select(&st);
     out->preferred_output = fx.preferred;
     out->usb = fx.usb_ready ? 1u : 0u;
@@ -197,7 +205,28 @@ static void fx_get_timing(struct kb_proto_get_timing_resp *out, bool reset, void
     }
 }
 
+static void fx_get_dongle(struct kb_proto_get_dongle_resp *out, void *ctx)
+{
+    (void)ctx;
+    *out = fx.dongle;
+}
+
+static uint8_t fx_pair_dongle(uint8_t mode, void *ctx)
+{
+    (void)ctx;
+    fx.pair_calls++;
+    fx.pair_mode = mode;
+    fx.dongle.pairing = mode == KB_PROTO_PAIR_START ? 1u : 0u;
+    if (mode == KB_PROTO_PAIR_FORGET) {
+        fx.dongle.paired = 0;
+        fx.dongle.link = 0;
+    }
+    return KB_PROTO_OK;
+}
+
 static const struct kb_protocol_ops fx_ops = {
+    .get_dongle = fx_get_dongle,
+    .pair_dongle = fx_pair_dongle,
     .get_power = fx_get_power,
     .get_timing = fx_get_timing,
     .get_connection = fx_get_connection,
