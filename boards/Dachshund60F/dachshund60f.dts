@@ -20,6 +20,8 @@
 		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
 		zephyr,code-partition = &code_partition;
+		/* Bluetooth bonds, identities and the selected host profile. */
+		zephyr,settings-partition = &bt_settings_partition;
 	};
 
 	aliases {
@@ -149,7 +151,8 @@ zephyr_udc0: &usbd {
  * S140 v6.1.1 area kept free at the bottom, bootloader at the top). The
  * bootloader reserves the 40 KB below itself (0xea000-0xf3fff) for app data:
  * DFU never erases it and UF2 writes there are ignored, so the code partition
- * stops at 0xea000 and storage sits inside the reserved area.
+ * stops at 0xea000 and both data partitions sit inside the reserved area:
+ * Zephyr settings (Bluetooth bonds, NVS) first, then the keymap storage.
  */
 &flash0 {
 	partitions {
@@ -166,6 +169,11 @@ zephyr_udc0: &usbd {
 		code_partition: partition@26000 {
 			label = "code_partition";
 			reg = <0x00026000 0x000c4000>;
+		};
+
+		bt_settings_partition: partition@ea000 {
+			label = "bt_settings";
+			reg = <0x000ea000 0x00002000>;
 		};
 
 		storage_partition: partition@ec000 {

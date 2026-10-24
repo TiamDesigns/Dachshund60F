@@ -74,6 +74,10 @@ static bool fuzz_protocol_one(const uint8_t *data, size_t size)
             fprintf(stderr, "the settings are invalid\n");
             return false;
         }
+        if (!kb_output_preferable(fx.preferred) || fx.profile >= fx_proto.ble_profiles) {
+            fprintf(stderr, "the output or profile is out of range\n");
+            return false;
+        }
         if (fx.locks != fx.unlocks) {
             fprintf(stderr, "lock and unlock calls don't pair\n");
             return false;

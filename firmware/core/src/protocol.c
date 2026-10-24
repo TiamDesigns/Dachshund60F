@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "kb/keycodes.h"
+#include "kb/output.h"
 
 /* Response payload goes here; returns its length and sets *status. */
 typedef size_t (*handler_fn)(const struct kb_protocol *p, const uint8_t *in, size_t len,
@@ -605,6 +606,92 @@ static size_t h_set_layer_colour(const struct kb_protocol *p, const uint8_t *in,
     return 0;
 }
 
+static bool has_bluetooth(const struct kb_protocol *p)
+{
+    return p->ops && p->ops->get_connection && p->ops->set_output && p->ops->select_profile &&
+           p->ops->clear_profile;
+}
+
+static size_t h_get_connection(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                               uint8_t *out, uint8_t *status)
+{
+    (void)in;
+    if (!has_bluetooth(p)) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (len != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+
+    struct kb_proto_get_connection_resp r;
+    memset(&r, 0, sizeof(r));
+    p->ops->get_connection(&r, p->ctx);
+    r.profile_count = p->ble_profiles;
+    return kb_proto_get_connection_resp_encode(&r, out);
+}
+
+static size_t h_set_output(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                           uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    struct kb_proto_set_output_req r;
+    if (!has_bluetooth(p)) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_set_output_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.output == KB_OUTPUT_DONGLE) {
+        *status = KB_PROTO_NOT_SUPPORTED; /* not in this build (yet) */
+        return 0;
+    }
+    if (!kb_output_preferable(r.output)) {
+        *status = KB_PROTO_BAD_VALUE;
+        return 0;
+    }
+    *status = p->ops->set_output(r.output, p->ctx);
+    return 0;
+}
+
+/* select_profile and clear_profile share a request layout. */
+static size_t profile_command(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                              uint8_t *status, uint8_t (*op)(uint8_t, void *))
+{
+    struct kb_proto_select_profile_req r;
+    if (!has_bluetooth(p)) {
+        *status = KB_PROTO_NOT_SUPPORTED;
+        return 0;
+    }
+    if (kb_proto_select_profile_req_decode(in, len, &r) != 0) {
+        *status = KB_PROTO_BAD_LENGTH;
+        return 0;
+    }
+    if (r.profile >= p->ble_profiles) {
+        *status = KB_PROTO_OUT_OF_RANGE;
+        return 0;
+    }
+    *status = op(r.profile, p->ctx);
+    return 0;
+}
+
+static size_t h_select_profile(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                               uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    return profile_command(p, in, len, status, has_bluetooth(p) ? p->ops->select_profile : NULL);
+}
+
+static size_t h_clear_profile(const struct kb_protocol *p, const uint8_t *in, size_t len,
+                              uint8_t *out, uint8_t *status)
+{
+    (void)out;
+    return profile_command(p, in, len, status, has_bluetooth(p) ? p->ops->clear_profile : NULL);
+}
+
 static handler_fn handler_for(uint8_t command)
 {
     switch (command) {
@@ -630,6 +717,10 @@ static handler_fn handler_for(uint8_t command)
     case KB_PROTO_CMD_SET_INDICATORS: return h_set_indicators;
     case KB_PROTO_CMD_GET_LAYER_COLOUR: return h_get_layer_colour;
     case KB_PROTO_CMD_SET_LAYER_COLOUR: return h_set_layer_colour;
+    case KB_PROTO_CMD_GET_CONNECTION: return h_get_connection;
+    case KB_PROTO_CMD_SET_OUTPUT: return h_set_output;
+    case KB_PROTO_CMD_SELECT_PROFILE: return h_select_profile;
+    case KB_PROTO_CMD_CLEAR_PROFILE: return h_clear_profile;
     default: return NULL;
     }
 }

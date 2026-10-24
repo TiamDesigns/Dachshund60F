@@ -47,6 +47,9 @@ export const BREEDS: Record<string, string> = {
   Dachshund60F: "Dachshund",
 };
 
+/** How each link is named in messages. */
+export const CONNECTION_NAMES = { usb: "USB", dongle: "the 2.4 GHz dongle", ble: "Bluetooth" } as const;
+
 export type Toast = { id: number; text: string; kind: "info" | "success" | "error" };
 
 function errorText(err: unknown): string {
@@ -65,7 +68,8 @@ export type Feature =
   | "battery"
   | "advancedKeys"
   | "macros"
-  | "indicators";
+  | "indicators"
+  | "bluetooth";
 
 export class BoardSession {
   readonly board: Board;
@@ -421,16 +425,22 @@ export class AppState {
       return false;
     });
     const ids = new Set(boards.map((b) => b.info.id));
+    const present = new Set(boards);
     for (const s of this.sessions) {
-      if (!ids.has(s.id)) {
-        s.dispose();
+      if (present.has(s.board)) continue;
+      s.dispose();
+      if (ids.has(s.id)) {
+        // The same board over another link (the cable came out, or went in).
+        const now = boards.find((b) => b.info.id === s.id)!;
+        this.notify(`${s.displayName} is here over ${CONNECTION_NAMES[now.info.connection]} now.`, "info");
+      } else if (this.update?.boardId !== s.id) {
         // Leaving for its bootloader is part of an update, which says so itself.
-        if (this.update?.boardId !== s.id) this.notify(`${s.displayName} left the kennel.`, "info");
+        this.notify(`${s.displayName} left the kennel.`, "info");
       }
     }
-    const kept = this.sessions.filter((s) => ids.has(s.id));
-    const known = new Set(kept.map((s) => s.id));
-    const added = boards.filter((b) => !known.has(b.info.id)).map((b) => new BoardSession(b, this));
+    const kept = this.sessions.filter((s) => present.has(s.board));
+    const known = new Set(kept.map((s) => s.board));
+    const added = boards.filter((b) => !known.has(b)).map((b) => new BoardSession(b, this));
     this.sessions = [...kept, ...added];
 
     for (const session of added) {

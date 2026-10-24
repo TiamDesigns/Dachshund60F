@@ -140,6 +140,44 @@ const uint8_t kb_hid_config_desc[] = {
 };
 const size_t kb_hid_config_desc_len = sizeof(kb_hid_config_desc);
 
+/* Bluetooth report map */
+
+/* Copy a descriptor, putting a Report ID item right after its first Collection (Application). */
+static size_t copy_with_id(uint8_t *out, const uint8_t *desc, size_t len, uint8_t id)
+{
+    size_t n = 0;
+    bool done = false;
+    for (size_t i = 0; i < len;) {
+        size_t item = 1u + ((desc[i] & 3u) == 3u ? 4u : (desc[i] & 3u));
+        memcpy(&out[n], &desc[i], item);
+        n += item;
+        if (!done && desc[i] == 0xA1u && desc[i + 1] == 0x01u) {
+            out[n++] = 0x85u; /* Report ID */
+            out[n++] = id;
+            done = true;
+        }
+        i += item;
+    }
+    return n;
+}
+
+_Static_assert(sizeof(kb_hid_keyboard_desc) + sizeof(kb_hid_extra_desc) +
+                       sizeof(kb_hid_config_desc) + 4u <=
+                   KB_HID_BLE_DESC_MAX,
+               "KB_HID_BLE_DESC_MAX is too small for the Bluetooth report map");
+_Static_assert(KB_HID_ID_CONFIG != KB_HID_ID_KEYBOARD && KB_HID_ID_CONFIG > KB_HID_ID_MOUSE,
+               "Bluetooth report IDs must be distinct");
+
+size_t kb_hid_ble_desc(uint8_t out[KB_HID_BLE_DESC_MAX])
+{
+    size_t n = copy_with_id(out, kb_hid_keyboard_desc, sizeof(kb_hid_keyboard_desc),
+                            KB_HID_ID_KEYBOARD);
+    memcpy(&out[n], kb_hid_extra_desc, sizeof(kb_hid_extra_desc));
+    n += sizeof(kb_hid_extra_desc);
+    n += copy_with_id(&out[n], kb_hid_config_desc, sizeof(kb_hid_config_desc), KB_HID_ID_CONFIG);
+    return n;
+}
+
 /* Packers */
 
 void kb_hid_pack_mouse(const struct kb_mouse_report *m, uint8_t out[KB_HID_MOUSE_REPORT_SIZE])
@@ -180,6 +218,26 @@ void kb_hid_pack_system(const struct kb_hid_state *hid, uint8_t out[KB_HID_SYSTE
 /* Reporter */
 
 static const struct kb_hid_state empty_state;
+
+void kb_hid_send_released(kb_hid_send_fn send, void *ctx)
+{
+    uint8_t boot[KB_HID_BOOT_REPORT_SIZE];
+    uint8_t nkro[KB_HID_NKRO_REPORT_SIZE];
+    uint8_t consumer[KB_HID_CONSUMER_REPORT_SIZE];
+    uint8_t system[KB_HID_SYSTEM_REPORT_SIZE];
+    uint8_t mouse[KB_HID_MOUSE_REPORT_SIZE];
+
+    kb_hid_boot_report(&empty_state, boot);
+    kb_hid_pack_nkro(&empty_state, nkro);
+    kb_hid_pack_consumer(&empty_state, consumer);
+    kb_hid_pack_system(&empty_state, system);
+    kb_hid_pack_mouse(&(struct kb_mouse_report){0}, mouse);
+    send(KB_HID_REPORT_BOOT, boot, sizeof(boot), ctx);
+    send(KB_HID_REPORT_NKRO, nkro, sizeof(nkro), ctx);
+    send(KB_HID_REPORT_CONSUMER, consumer, sizeof(consumer), ctx);
+    send(KB_HID_REPORT_SYSTEM, system, sizeof(system), ctx);
+    send(KB_HID_REPORT_MOUSE, mouse, sizeof(mouse), ctx);
+}
 
 /* Sends the report if it differs from last (or always, when forced), and remembers it. */
 static void emit(struct kb_hid_reporter *r, enum kb_hid_report which, const uint8_t *report,

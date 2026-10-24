@@ -17,9 +17,11 @@ target_sources(app PRIVATE
   src/encoder_input.c
   src/fw_info.c
   src/indicators.c
+  src/kb_ble.c
   src/kb_usb.c
   src/keyboard.c
   src/matrix.c
+  src/output.c
   src/storage.c
   ${KB_CORE_SOURCES}
 )

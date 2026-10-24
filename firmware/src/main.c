@@ -4,8 +4,9 @@
  * Matrix scanning and the keymap (phase 3) typing over USB with NKRO,
  * media and system keys (phase 4), the config protocol on a vendor HID
  * interface (phase 5), indicator LEDs for layer and Caps Lock
- * after a power-on walk along the chain, and the status screen when a
- * panel overlay is built in.
+ * after a power-on walk along the chain, the status screen when a
+ * panel overlay is built in, and Bluetooth LE with host profiles
+ * (phase 12), with keys going to USB or Bluetooth (output.c).
  */
 
 #include <zephyr/kernel.h>
@@ -16,6 +17,7 @@
 #include "kb/core.h"
 #include "config.h"
 #include "indicators.h"
+#include "kb_ble.h"
 #include "kb_usb.h"
 #include "keyboard.h"
 #include "status_screen.h"
@@ -44,6 +46,11 @@ int main(void)
 
     if (kb_usb_init() != 0) {
         LOG_ERR("USB init failed");
+    }
+
+    /* Also loads the preferred output; until then keys prefer USB. */
+    if (kb_ble_init() != 0) {
+        LOG_ERR("Bluetooth unavailable");
     }
 
     if (indicators_start() != 0) {

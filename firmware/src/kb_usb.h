@@ -23,6 +23,15 @@ int kb_usb_init(void);
  */
 int kb_usb_send(enum kb_hid_report report, const uint8_t *data, size_t len);
 
+/*
+ * A host has configured the board (it still counts while the host is
+ * suspended, so a key press can wake it).
+ */
+bool kb_usb_ready(void);
+
+/* The host's lock LEDs (KB_HID_LED_* bits). */
+uint8_t kb_usb_locks(void);
+
 /* The host asked for boot protocol on the keyboard interface. */
 bool kb_usb_boot_protocol(void);
 

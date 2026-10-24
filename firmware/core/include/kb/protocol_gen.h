@@ -9,6 +9,7 @@
 #define KB_PROTO_HID_USAGE_PAGE 0xFF00u
 #define KB_PROTO_HID_USAGE 0x44u
 #define KB_PROTO_REPORT_SIZE 64u
+#define KB_PROTO_HID_BLE_REPORT_ID 6u
 #define KB_PROTO_HEADER_SIZE 4u
 #define KB_PROTO_MAX_PAYLOAD 60u
 
@@ -55,6 +56,10 @@ enum kb_proto_command {
     KB_PROTO_CMD_SET_INDICATORS = 0x43,
     KB_PROTO_CMD_GET_LAYER_COLOUR = 0x44,
     KB_PROTO_CMD_SET_LAYER_COLOUR = 0x45,
+    KB_PROTO_CMD_GET_CONNECTION = 0x50,
+    KB_PROTO_CMD_SET_OUTPUT = 0x51,
+    KB_PROTO_CMD_SELECT_PROFILE = 0x52,
+    KB_PROTO_CMD_CLEAR_PROFILE = 0x53,
 };
 
 /* Handshake capability bits */
@@ -68,6 +73,7 @@ enum kb_proto_command {
 #define KB_PROTO_CAP_MATRIX_STREAM (1u << 7) /* live matrix state for the key tester */
 #define KB_PROTO_CAP_BATTERY (1u << 8) /* battery level */
 #define KB_PROTO_CAP_IDENTIFY (1u << 9) /* identify command */
+#define KB_PROTO_CAP_BLUETOOTH (1u << 10) /* Bluetooth host profiles and output selection (get_connection and friends) */
 
 /* Advanced-key tables: id, entry size in bytes and entry count */
 #define KB_PROTO_TABLE_OPTIONS 0u
@@ -385,5 +391,51 @@ struct kb_proto_set_layer_colour_req {
 int kb_proto_set_layer_colour_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_layer_colour_req *out);
 /* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
 size_t kb_proto_set_layer_colour_req_encode(const struct kb_proto_set_layer_colour_req *in, uint8_t *p);
+
+/* get_connection response */
+#define KB_PROTO_GET_CONNECTION_RESP_SIZE 7u
+struct kb_proto_get_connection_resp {
+    uint8_t active_output;
+    uint8_t preferred_output;
+    uint8_t usb;
+    uint8_t ble;
+    uint8_t profile;
+    uint8_t profile_count;
+    uint8_t bonded;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_get_connection_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_connection_resp *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_get_connection_resp_encode(const struct kb_proto_get_connection_resp *in, uint8_t *p);
+
+/* set_output request */
+#define KB_PROTO_SET_OUTPUT_REQ_SIZE 1u
+struct kb_proto_set_output_req {
+    uint8_t output;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_set_output_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_output_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_set_output_req_encode(const struct kb_proto_set_output_req *in, uint8_t *p);
+
+/* select_profile request */
+#define KB_PROTO_SELECT_PROFILE_REQ_SIZE 1u
+struct kb_proto_select_profile_req {
+    uint8_t profile;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_select_profile_req_decode(const uint8_t *p, size_t len, struct kb_proto_select_profile_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_select_profile_req_encode(const struct kb_proto_select_profile_req *in, uint8_t *p);
+
+/* clear_profile request */
+#define KB_PROTO_CLEAR_PROFILE_REQ_SIZE 1u
+struct kb_proto_clear_profile_req {
+    uint8_t profile;
+};
+/* Returns 0, or -1 if len is wrong for this message. */
+int kb_proto_clear_profile_req_decode(const uint8_t *p, size_t len, struct kb_proto_clear_profile_req *out);
+/* Writes the payload into p (KB_PROTO_MAX_PAYLOAD bytes) and returns its length. */
+size_t kb_proto_clear_profile_req_encode(const struct kb_proto_clear_profile_req *in, uint8_t *p);
 
 #endif /* KB_PROTOCOL_GEN_H */

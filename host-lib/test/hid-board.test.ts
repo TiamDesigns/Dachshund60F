@@ -77,6 +77,33 @@ for (const [name, open, options] of subjects) {
     assert.deepEqual(events.slice(0, 6), ["changed", "reverted", "changed", "saved", "changed", "reverted"]);
   });
 
+  test(`${name}: outputs and Bluetooth host profiles`, options, async (t) => {
+    const board = await open(t);
+    const c = await board.getConnection!();
+    assert.equal(c.active, "usb");
+    assert.equal(c.preferred, "usb");
+    assert.equal(c.usb, true);
+    assert.equal(c.profile, 0);
+    assert.equal(c.paired.length, 3);
+    assert.equal(c.paired[1], true);
+
+    // Preferring Bluetooth moves the keys there only once a host is on it.
+    await board.setOutput!("ble");
+    const after = await board.getConnection!();
+    assert.equal(after.preferred, "ble");
+    assert.equal(after.active, after.bluetooth === "connected" ? "ble" : "usb");
+
+    await board.selectProfile!(2);
+    assert.equal((await board.getConnection!()).profile, 2);
+    await board.clearProfile!(1);
+    assert.equal((await board.getConnection!()).paired[1], false);
+    await rejectsWith(board.selectProfile!(3), "out-of-range");
+    await rejectsWith(board.clearProfile!(-1), "out-of-range");
+    await rejectsWith(board.setOutput!("dongle" as "usb"), "invalid-value");
+    // None of it is an unsaved edit: the board keeps it by itself.
+    assert.equal(await board.hasUnsavedChanges(), false);
+  });
+
   test(`${name}: rejects bad positions and keycodes`, options, async (t) => {
     const board = await open(t);
     await rejectsWith(board.setKey({ layer: 4, row: 0, col: 0 }, "KC_A"), "out-of-range");
@@ -112,6 +139,7 @@ test("host-built firmware: info from the handshake", host.skip ? { skip: host.sk
     "indicators",
     "settings",
     "identify",
+    "bluetooth",
   ]);
   assert.deepEqual((await board.getKeymap()).encoders, defaultKeymap("Dachshund60F")!.encoders);
   await board.identify();

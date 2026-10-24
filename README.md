@@ -85,8 +85,8 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | 9 | Advanced keys, macros and the encoder | Done |
 | 10 | Indicator colours and global settings | Done |
 | 11 | In-app firmware updates | Done |
-| 12 | Bluetooth LE | Next |
-| 13 | Power management and battery | Planned |
+| 12 | Bluetooth LE | Done |
+| 13 | Power management and battery | Next |
 | 14 | 2.4 GHz dongle firmware | Planned |
 | 15 | Desktop app packaging and auto-update | Planned |
 

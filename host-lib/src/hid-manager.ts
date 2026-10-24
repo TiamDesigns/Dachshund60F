@@ -34,8 +34,18 @@ export abstract class HidManagerBase implements BoardManager {
 
   constructor(protected readonly options: HidManagerOptions = {}) {}
 
+  /**
+   * The open boards, one per board: a board reachable over both USB and
+   * Bluetooth (charging from the computer it's paired with) is listed once,
+   * over USB, and its Bluetooth link takes over when the cable comes out.
+   */
   list(): Board[] {
-    return [...this.boards.values()];
+    const byId = new Map<string, HidBoard>();
+    for (const board of this.boards.values()) {
+      const seen = byId.get(board.info.id);
+      if (!seen || (seen.info.connection === "ble" && board.info.connection !== "ble")) byId.set(board.info.id, board);
+    }
+    return [...byId.values()];
   }
 
   subscribe(listener: (boards: Board[]) => void): () => void {

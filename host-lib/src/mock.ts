@@ -20,7 +20,7 @@ import { decodeMacros, encodeMacros } from "./advanced-codec.js";
 import { defaultKeymap } from "./default-keymaps.js";
 import { isMatrixPositionUsed, type KeyboardDefinition } from "./keyboard-definition.js";
 import { checkIndicatorColours, defaultIndicatorColours } from "./indicators.js";
-import { isValidKeycode } from "./keycodes.js";
+import { BLE_PROFILE_COUNT, isValidKeycode } from "./keycodes.js";
 import { checkSettings } from "./settings.js";
 import {
   BoardError,
@@ -33,7 +33,9 @@ import {
   type BoardInfo,
   type BoardManager,
   type BoardSettings,
+  type BluetoothState,
   type ConnectionKind,
+  type ConnectionStatus,
   type EncoderAction,
   type IndicatorColours,
   type KeyPosition,
@@ -84,6 +86,8 @@ export class MockBoard implements Board {
   private live: StoredState;
   private battery: BatteryStatus;
   private connected = true;
+  /** Bluetooth as the firmware keeps it: profiles and preference survive reboots. */
+  private link: { preferred: "usb" | "ble"; bluetooth: BluetoothState; profile: number; paired: boolean[] };
   private readonly latencyMs: number;
   private readonly onReboot: ((board: MockBoard, bootloader: boolean) => void) | undefined;
   private readonly listeners = new Set<(event: BoardEvent) => void>();
@@ -114,6 +118,14 @@ export class MockBoard implements Board {
     this.battery = options.battery ?? { percent: 100, charging: false };
     this.latencyMs = options.latencyMs ?? 0;
     this.onReboot = options.onReboot;
+    // Paired with this computer on host 1, and with another on host 2.
+    const paired = Array.from({ length: BLE_PROFILE_COUNT }, (_, i) => i < 2);
+    this.link = {
+      preferred: "usb",
+      bluetooth: options.connection === "ble" || options.connection === "usb" ? "connected" : "advertising",
+      profile: 0,
+      paired,
+    };
   }
 
   private async call<T>(fn: () => T): Promise<T> {
@@ -190,6 +202,48 @@ export class MockBoard implements Board {
       this.live.settings = next;
       this.emit({ type: "changed" });
       return { ...next };
+    });
+  }
+
+  getConnection(): Promise<ConnectionStatus> {
+    return this.call(() => {
+      const { preferred, bluetooth, profile, paired } = this.link;
+      const usb = this.info.connection === "usb";
+      const ready = (o: "usb" | "ble") => (o === "usb" ? usb : bluetooth === "connected");
+      const other = preferred === "usb" ? "ble" : "usb";
+      const active =
+        this.info.connection === "dongle" ? "dongle" : ready(preferred) ? preferred : ready(other) ? other : null;
+      return { active, preferred, usb, bluetooth, profile, paired: [...paired] };
+    });
+  }
+
+  setOutput(output: "usb" | "ble"): Promise<void> {
+    return this.call(() => {
+      if (output !== "usb" && output !== "ble") throw new BoardError("invalid-value", `can't prefer output ${String(output)}`);
+      this.link.preferred = output;
+    });
+  }
+
+  private checkProfile(profile: number): void {
+    if (!Number.isInteger(profile) || profile < 0 || profile >= BLE_PROFILE_COUNT) {
+      throw new BoardError("out-of-range", `there's no Bluetooth host ${profile + 1}`);
+    }
+  }
+
+  selectProfile(profile: number): Promise<void> {
+    return this.call(() => {
+      this.checkProfile(profile);
+      this.link.profile = profile;
+      // A paired host reconnects by itself; otherwise the board waits for one.
+      this.link.bluetooth = this.link.paired[profile] ? "connected" : "advertising";
+    });
+  }
+
+  clearProfile(profile: number): Promise<void> {
+    return this.call(() => {
+      this.checkProfile(profile);
+      this.link.paired[profile] = false;
+      if (profile === this.link.profile) this.link.bluetooth = "advertising";
     });
   }
 

@@ -1,7 +1,8 @@
 /*
- * Config protocol service. Requests arrive on the USB thread, wait in a
- * small queue and are handled one at a time on their own thread, so a slow
- * command (a flash save) never holds up USB.
+ * Config protocol service. Requests arrive on the USB or Bluetooth thread,
+ * wait in a small queue and are handled one at a time on their own thread,
+ * so a slow command (a flash save) never holds up either. Each response
+ * goes back the way its request came.
  */
 
 #include "config.h"
@@ -22,8 +23,10 @@
 #include "fw_info.h"
 #include "indicators.h"
 #include "kb/protocol.h"
+#include "kb_ble.h"
 #include "kb_usb.h"
 #include "keyboard.h"
+#include "output.h"
 
 LOG_MODULE_REGISTER(config, LOG_LEVEL_INF);
 
@@ -33,6 +36,7 @@ LOG_MODULE_REGISTER(config, LOG_LEVEL_INF);
 #define REBOOT_DELAY_MS 100
 
 struct request {
+    uint8_t source; /* KB_OUTPUT_USB or KB_OUTPUT_BLE */
     uint8_t len;
     uint8_t data[KB_PROTO_REPORT_SIZE];
 };
@@ -117,6 +121,47 @@ static void op_settings_changed(void *ctx)
     keyboard_settings_changed();
 }
 
+static void op_get_connection(struct kb_proto_get_connection_resp *out, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    out->active_output = (uint8_t)output_active();
+    out->preferred_output = output_preferred();
+    out->usb = kb_usb_ready() ? 1u : 0u;
+    out->ble = kb_ble_state();
+    out->profile = kb_ble_profile();
+    out->bonded = kb_ble_bonded();
+}
+
+static uint8_t op_set_output(uint8_t output, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    return output_set_preferred(output) == 0 ? KB_PROTO_OK : KB_PROTO_BAD_VALUE;
+}
+
+static uint8_t ble_status(int err)
+{
+    switch (err) {
+    case 0:
+        return KB_PROTO_OK;
+    case -EINVAL:
+        return KB_PROTO_OUT_OF_RANGE;
+    default:
+        return KB_PROTO_BUSY; /* Bluetooth isn't up */
+    }
+}
+
+static uint8_t op_select_profile(uint8_t profile, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    return ble_status(kb_ble_select_profile(profile));
+}
+
+static uint8_t op_clear_profile(uint8_t profile, void *ctx)
+{
+    ARG_UNUSED(ctx);
+    return ble_status(kb_ble_clear_profile(profile));
+}
+
 static void op_lock(void *ctx)
 {
     ARG_UNUSED(ctx);
@@ -137,6 +182,10 @@ static const struct kb_protocol_ops ops = {
     .identify = op_identify,
     .features_changed = op_features_changed,
     .settings_changed = op_settings_changed,
+    .get_connection = op_get_connection,
+    .set_output = op_set_output,
+    .select_profile = op_select_profile,
+    .clear_profile = op_clear_profile,
     .lock = op_lock,
     .unlock = op_unlock,
 };
@@ -147,18 +196,28 @@ static struct kb_protocol protocol = {
     /* Matrix streaming and battery join in later phases. */
     .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                     KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_SETTINGS |
-                    KB_PROTO_CAP_INDICATORS,
+                    KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH,
     .macro_buffer_size = KB_MACRO_BUFFER,
 };
 
-/* USB thread: copy and queue. A host that floods requests loses the extras. */
-static void on_request(const uint8_t *data, size_t len)
+/* USB or Bluetooth thread: copy and queue. A host that floods requests loses the extras. */
+static void queue_request(uint8_t source, const uint8_t *data, size_t len)
 {
-    struct request req = {.len = (uint8_t)MIN(len, sizeof(req.data))};
+    struct request req = {.source = source, .len = (uint8_t)MIN(len, sizeof(req.data))};
     memcpy(req.data, data, req.len);
     if (k_msgq_put(&request_queue, &req, K_NO_WAIT) != 0) {
         LOG_WRN("config request dropped: queue full");
     }
+}
+
+static void on_usb_request(const uint8_t *data, size_t len)
+{
+    queue_request(KB_OUTPUT_USB, data, len);
+}
+
+static void on_ble_request(const uint8_t *data, size_t len)
+{
+    queue_request(KB_OUTPUT_BLE, data, len);
 }
 
 static void config_thread(void *p1, void *p2, void *p3)
@@ -175,7 +234,7 @@ static void config_thread(void *p1, void *p2, void *p3)
         if (!kb_protocol_handle(&protocol, req.data, req.len, resp)) {
             continue; /* no header to answer */
         }
-        int err = kb_usb_send_config(resp);
+        int err = req.source == KB_OUTPUT_BLE ? kb_ble_send_config(resp) : kb_usb_send_config(resp);
         if (err) {
             LOG_WRN("config response dropped (%d)", err);
         }
@@ -214,8 +273,10 @@ int config_start(void)
     if (protocol.encoders > 0) {
         protocol.capabilities |= KB_PROTO_CAP_ENCODERS;
     }
+    protocol.ble_profiles = kb_ble_profile_count();
     load_serial();
-    kb_usb_set_config_rx(on_request);
+    kb_usb_set_config_rx(on_usb_request);
+    kb_ble_set_config_rx(on_ble_request);
 
     k_thread_create(&config_thread_data, config_stack, K_THREAD_STACK_SIZEOF(config_stack),
                     config_thread, NULL, NULL, NULL, CONFIG_PRIORITY, 0, K_NO_WAIT);

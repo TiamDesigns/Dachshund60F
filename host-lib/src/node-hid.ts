@@ -7,7 +7,7 @@
  * hidapi has no hotplug events, so the manager polls the device list.
  */
 import { CONFIG_INTERFACE_NUMBER, HidManagerBase, isConfigUsage, isKeyboardUsbId, type HidManagerOptions } from "./hid-manager.js";
-import { REPORT_SIZE } from "./protocol.gen.js";
+import { HID_BLE_REPORT_ID, REPORT_SIZE } from "./protocol.gen.js";
 import { TransportEvents, type Transport } from "./transport.js";
 
 /** The parts of node-hid's device list entries this uses. */
@@ -19,7 +19,12 @@ export interface NodeHidDeviceInfo {
   usagePage?: number;
   usage?: number;
   interface?: number;
+  /** hidapi's bus type (0.13 and later): 2 is Bluetooth. */
+  busType?: number;
 }
+
+/** hidapi's HID_API_BUS_BLUETOOTH. */
+const BUS_BLUETOOTH = 2;
 
 /** The parts of node-hid's HIDAsync this uses. */
 export interface NodeHidDevice {
@@ -52,18 +57,30 @@ export function isNodeHidBoard(info: NodeHidDeviceInfo): boolean {
 }
 
 class NodeHidTransport implements Transport {
-  readonly connection = "usb" as const;
+  readonly connection: "usb" | "ble";
+  /** 0 over USB; over Bluetooth the config reports carry HID_BLE_REPORT_ID. */
+  private readonly reportId: number;
   private readonly events = new TransportEvents();
 
-  constructor(private readonly device: NodeHidDevice) {
-    device.on("data", (data) => this.events.report(Uint8Array.from(data)));
+  constructor(
+    private readonly device: NodeHidDevice,
+    bluetooth: boolean,
+  ) {
+    this.connection = bluetooth ? "ble" : "usb";
+    this.reportId = bluetooth ? HID_BLE_REPORT_ID : 0;
+    device.on("data", (data) => {
+      // hidapi puts the report ID first when the device uses them.
+      if (this.reportId === 0) this.events.report(Uint8Array.from(data));
+      else if (data[0] === this.reportId) this.events.report(Uint8Array.from(data.subarray(1)));
+    });
     device.on("error", () => void this.close());
   }
 
   async write(report: Uint8Array): Promise<void> {
     if (this.events.isClosed) throw new Error("transport closed");
-    // hidapi wants the report ID first: 0, since the interface has none.
+    // hidapi wants the report ID first: 0 over USB, where the interface has none.
     const data = new Array<number>(REPORT_SIZE + 1).fill(0);
+    data[0] = this.reportId;
     report.subarray(0, REPORT_SIZE).forEach((b, i) => (data[i + 1] = b));
     try {
       await this.device.write(data);
@@ -145,7 +162,11 @@ export class NodeHidBoardManager extends HidManagerBase {
     await Promise.all(this.keys().filter((key) => !present.has(key)).map((key) => this.remove(key)));
     await Promise.all(
       devices.map((info) =>
-        this.add(info.path!, async () => new NodeHidTransport(await hid.HIDAsync.open(info.path!)), info.serialNumber),
+        this.add(
+          info.path!,
+          async () => new NodeHidTransport(await hid.HIDAsync.open(info.path!), info.busType === BUS_BLUETOOTH),
+          info.serialNumber,
+        ),
       ),
     );
   }

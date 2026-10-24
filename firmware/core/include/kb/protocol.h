@@ -43,6 +43,17 @@ struct kb_protocol_ops {
      * held), so the firmware can put them into effect. Optional.
      */
     void (*settings_changed)(void *ctx);
+    /*
+     * Bluetooth host profiles and output selection (kb/output.h). All four
+     * or none: without them get_connection and friends answer
+     * not_supported. The protocol checks the output and profile numbers
+     * first; the others return a KB_PROTO_* status (busy while Bluetooth
+     * can't do it yet).
+     */
+    void (*get_connection)(struct kb_proto_get_connection_resp *out, void *ctx);
+    uint8_t (*set_output)(uint8_t output, void *ctx);
+    uint8_t (*select_profile)(uint8_t profile, void *ctx);
+    uint8_t (*clear_profile)(uint8_t profile, void *ctx);
     /* Guard keymap changes against the scan thread. Optional. */
     void (*lock)(void *ctx);
     void (*unlock)(void *ctx);
@@ -61,6 +72,7 @@ struct kb_protocol {
     const char *serial; /* the USB serial number string */
     uint32_t capabilities;
     uint8_t encoders;
+    uint8_t ble_profiles; /* select_profile and clear_profile take 0 to this - 1 */
     uint16_t macro_buffer_size;
     /*
      * The live advanced-key tables, and a KB_MACRO_BUFFER-byte buffer where
