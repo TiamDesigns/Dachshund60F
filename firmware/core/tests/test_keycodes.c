@@ -46,7 +46,8 @@ static void test_invalid_keycodes(void)
     /* Unassigned actions and reserved space */
     KB_CHECK(kb_keycode_is_valid(NK_TOGG, 4));
     KB_CHECK(kb_keycode_is_valid(AS_TOGG, 4));
-    KB_CHECK(!kb_keycode_is_valid(0x7007, 4));
+    KB_CHECK(kb_keycode_is_valid(QK_SLEEP, 4));
+    KB_CHECK(!kb_keycode_is_valid(0x7008, 4));
     KB_CHECK(!kb_keycode_is_valid(BT_SEL(0) + KB_BT_PROFILE_MAX, 4));
     KB_CHECK(kb_keycode_is_valid(M(0), 4));
     KB_CHECK(kb_keycode_is_valid(TD(15), 4));
