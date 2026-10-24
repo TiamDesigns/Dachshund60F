@@ -33,7 +33,7 @@ flash layout matches `../dachshund60f.dts`.
 | 0x00000–0x00FFF | MBR |
 | 0x01000–0x25FFF | S140 SoftDevice 6.1.1 (ends at 0x25DE8) |
 | 0x26000–0xE9FFF | App: `zephyr.uf2`. The bootloader accepts UF2 blocks only below 0xEA000 |
-| 0xEA000–0xF3FFF | Reserved for app data (40 KB); DFU never erases it. Zephyr `storage` is 0xEC000–0xF3FFF |
+| 0xEA000–0xF3FFF | Reserved for app data (40 KB); DFU never erases it. Zephyr `bt_settings` (Bluetooth bonds, NVS) is 0xEA000–0xEBFFF and `storage` (keymap and settings) is 0xEC000–0xF3FFF |
 | 0xF4000–0xFD7FF | Bootloader |
 | 0xFE000–0xFFFFF | MBR params, bootloader settings |
 

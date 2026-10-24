@@ -2,6 +2,7 @@
   import { app } from "./lib/app-state.svelte.ts";
   import AboutPanel from "./lib/components/AboutPanel.svelte";
   import AdvancedPanel from "./lib/components/AdvancedPanel.svelte";
+  import ConnectionPanel from "./lib/components/ConnectionPanel.svelte";
   import BoardCard from "./lib/components/BoardCard.svelte";
   import BoardHeader from "./lib/components/BoardHeader.svelte";
   import Dachshund from "./lib/components/Dachshund.svelte";
@@ -14,7 +15,7 @@
   import Toasts from "./lib/components/Toasts.svelte";
   import UpdateDialog from "./lib/components/UpdateDialog.svelte";
 
-  type Tab = "keys" | "advanced" | "macros" | "settings" | "about";
+  type Tab = "keys" | "advanced" | "macros" | "settings" | "connection" | "about";
 
   let tab = $state<Tab>("keys");
   const session = $derived(app.selected);
@@ -26,6 +27,11 @@
         { id: "advanced", label: "Advanced", show: !!session?.advanced },
         { id: "macros", label: "Macros", show: !!session?.macros },
         { id: "settings", label: "Settings", show: true },
+        {
+          id: "connection",
+          label: "Connection",
+          show: !!session?.board.getConnection && !session.problem && session.supports("bluetooth"),
+        },
         { id: "about", label: "About", show: true },
       ] satisfies { id: Tab; label: string; show: boolean }[]
     ).filter((t) => t.show),
@@ -105,6 +111,8 @@
             <MacrosPanel {session} />
           {:else if tab === "settings"}
             <SettingsPanel {session} />
+          {:else if tab === "connection"}
+            <ConnectionPanel {session} />
           {:else}
             <AboutPanel {session} />
           {/if}

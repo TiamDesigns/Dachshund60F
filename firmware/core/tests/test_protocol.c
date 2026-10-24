@@ -477,6 +477,73 @@ static void test_features_not_supported(void)
     KB_CHECK_EQ(call(KB_PROTO_CMD_GET_LAYER_COLOUR, get, 1), KB_PROTO_NOT_SUPPORTED);
 }
 
+static void test_connection(void)
+{
+    fx_init();
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_CONNECTION, NULL, 0), KB_PROTO_OK);
+    struct kb_proto_get_connection_resp c;
+    KB_CHECK_EQ(kb_proto_get_connection_resp_decode(payload(), payload_len(), &c), 0);
+    KB_CHECK_EQ(c.active_output, KB_OUTPUT_USB);
+    KB_CHECK_EQ(c.preferred_output, KB_OUTPUT_USB);
+    KB_CHECK_EQ(c.usb, 1);
+    KB_CHECK_EQ(c.ble, KB_BLE_SECURE);
+    KB_CHECK_EQ(c.profile, 0);
+    KB_CHECK_EQ(c.profile_count, 3);
+    KB_CHECK_EQ(c.bonded, 0x1);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_CONNECTION, &c.profile, 1), KB_PROTO_BAD_LENGTH);
+
+    /* Prefer Bluetooth: keys move there. */
+    uint8_t out = KB_OUTPUT_BLE;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &out, 1), KB_PROTO_OK);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_CONNECTION, NULL, 0), KB_PROTO_OK);
+    kb_proto_get_connection_resp_decode(payload(), payload_len(), &c);
+    KB_CHECK_EQ(c.active_output, KB_OUTPUT_BLE);
+    KB_CHECK_EQ(c.preferred_output, KB_OUTPUT_BLE);
+    /* No such output, or the dongle (not built yet): nothing changes. */
+    const uint8_t bad[] = {KB_OUTPUT_NONE, 4, 0xFF};
+    for (size_t i = 0; i < sizeof(bad); i++) {
+        KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &bad[i], 1), KB_PROTO_BAD_VALUE);
+    }
+    out = KB_OUTPUT_DONGLE;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &out, 1), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(fx.preferred, KB_OUTPUT_BLE);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, NULL, 0), KB_PROTO_BAD_LENGTH);
+
+    /* Profiles: only 0-2 exist. */
+    uint8_t profile = 2;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SELECT_PROFILE, &profile, 1), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.profile, 2);
+    profile = 3;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SELECT_PROFILE, &profile, 1), KB_PROTO_OUT_OF_RANGE);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_CLEAR_PROFILE, &profile, 1), KB_PROTO_OUT_OF_RANGE);
+    profile = 0xFF;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_CLEAR_PROFILE, &profile, 1), KB_PROTO_OUT_OF_RANGE);
+    KB_CHECK_EQ(fx.profile_selects, 1);
+    KB_CHECK_EQ(fx.profile_clears, 0);
+    profile = 0;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_CLEAR_PROFILE, &profile, 1), KB_PROTO_OK);
+    KB_CHECK_EQ(fx.bonded, 0);
+    const uint8_t two[2] = {0, 0};
+    KB_CHECK_EQ(call(KB_PROTO_CMD_CLEAR_PROFILE, two, 2), KB_PROTO_BAD_LENGTH);
+
+    /* The firmware's own refusal comes through. */
+    fx.ble_status = KB_PROTO_BUSY;
+    profile = 1;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SELECT_PROFILE, &profile, 1), KB_PROTO_BUSY);
+    KB_CHECK_EQ(fx.profile, 2);
+
+    /* A build without Bluetooth. */
+    fx_proto.ble_profiles = 0;
+    profile = 0;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SELECT_PROFILE, &profile, 1), KB_PROTO_OUT_OF_RANGE);
+    static const struct kb_protocol_ops none = {0};
+    fx_proto.ops = &none;
+    KB_CHECK_EQ(call(KB_PROTO_CMD_GET_CONNECTION, NULL, 0), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SET_OUTPUT, &out, 1), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_SELECT_PROFILE, &profile, 1), KB_PROTO_NOT_SUPPORTED);
+    KB_CHECK_EQ(call(KB_PROTO_CMD_CLEAR_PROFILE, &profile, 1), KB_PROTO_NOT_SUPPORTED);
+}
+
 static void test_device_control(void)
 {
     fx_init();
@@ -552,6 +619,7 @@ int main(void)
     KB_RUN(test_settings);
     KB_RUN(test_indicators);
     KB_RUN(test_features_not_supported);
+    KB_RUN(test_connection);
     KB_RUN(test_device_control);
     KB_RUN(test_codec_round_trip);
     return KB_TEST_RESULT();

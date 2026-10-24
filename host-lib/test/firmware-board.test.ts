@@ -6,6 +6,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+import { BLE_PROFILE_COUNT } from "../src/index.js";
+
 const repoDir = fileURLToPath(new URL("../../../", import.meta.url));
 const boardsDir = path.join(repoDir, "boards");
 
@@ -127,6 +129,24 @@ for (const name of zephyrBoards) {
     assert.equal(Number(kconfigDefault(kconfig, "KB_USB_PID")), Number(usb.pid));
     assert.equal(kconfigDefault(kconfig, "KB_USB_MANUFACTURER"), usb.manufacturer);
     assert.equal(kconfigDefault(kconfig, "KB_USB_PRODUCT"), usb.product);
+  });
+
+  test(`${name}: Bluetooth PnP IDs match board.json, and the profiles match host-lib`, () => {
+    const conf = readFileSync(path.join(repoDir, "firmware", "prj.conf"), "utf8");
+    const value = (symbol: string) => {
+      const m = new RegExp(`^CONFIG_${symbol}=(.+)$`, "m").exec(conf);
+      assert.ok(m, `prj.conf has no CONFIG_${symbol}`);
+      return m[1]!.trim().replace(/^"(.*)"$/, "$1");
+    };
+    // The configurator finds the board over Bluetooth by the same IDs as over USB.
+    const usb = board.usb.keyboard;
+    assert.equal(Number(value("BT_DIS_PNP_VID_SRC")), 2, "vendor ID source: USB-IF");
+    assert.equal(Number(value("BT_DIS_PNP_VID")), Number(usb.vid));
+    assert.equal(Number(value("BT_DIS_PNP_PID")), Number(usb.pid));
+    assert.equal(value("BT_DEVICE_NAME"), usb.product);
+    // One identity per host profile, as many as BT_SEL offers in the app.
+    assert.equal(Number(value("BT_ID_MAX")), BLE_PROFILE_COUNT);
+    assert.equal(Number(value("BT_MAX_PAIRED")), BLE_PROFILE_COUNT);
   });
 
   test(`${name}: firmware indicator chain matches keyboard.json`, () => {

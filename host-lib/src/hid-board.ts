@@ -22,6 +22,7 @@ import {
   encodeSetMacroChunkRequest,
   FeatureTable,
   type FeatureTableName,
+  decodeGetConnectionResponse,
   decodeGetIndicatorsResponse,
   decodeGetKeymapChunkResponse,
   decodeGetLayerColourResponse,
@@ -36,12 +37,18 @@ import {
   encodeIdentifyRequest,
   encodeRebootRequest,
   encodeSetKeyRequest,
+  encodeSelectProfileRequest,
+  encodeClearProfileRequest,
+  encodeSetOutputRequest,
   PROTOCOL_VERSION,
   type HandshakeResponse,
 } from "./protocol.gen.js";
 import type { Transport } from "./transport.js";
 import {
+  BLUETOOTH_STATES,
   BoardError,
+  OUTPUTS,
+  type ConnectionStatus,
   type AdvancedKeys,
   type AdvancedOptions,
   type AdvancedTable,
@@ -58,6 +65,13 @@ import {
   type KeyPosition,
   type Keymap,
 } from "./types.js";
+
+function profileByte(profile: number): number {
+  if (!Number.isInteger(profile) || profile < 0 || profile > 0xff) {
+    throw new BoardError("out-of-range", `there's no Bluetooth host ${profile + 1}`);
+  }
+  return profile;
+}
 
 /** Keycodes per get_keymap_chunk request (the most a response holds). */
 const CHUNK = 28;
@@ -473,6 +487,49 @@ export class HidBoard implements Board {
    * or reverted. The protocol has no way to ask the board, so changes made
    * by another app (or before this connection) don't count.
    */
+  async getConnection(): Promise<ConnectionStatus> {
+    const r = decodeGetConnectionResponse(
+      await this.call(Command.getConnection, undefined, Capability.bluetooth, "Bluetooth"),
+    );
+    const preferred = OUTPUTS[r.preferredOutput];
+    const bluetooth = BLUETOOTH_STATES[r.ble];
+    if (!preferred || bluetooth === undefined || r.activeOutput >= OUTPUTS.length || r.profile >= r.profileCount) {
+      throw new BoardError("protocol-error", "the board reported a connection state this app doesn't know");
+    }
+    return {
+      active: OUTPUTS[r.activeOutput] ?? null,
+      preferred,
+      usb: r.usb !== 0,
+      bluetooth,
+      profile: r.profile,
+      paired: Array.from({ length: r.profileCount }, (_, i) => ((r.bonded >> i) & 1) === 1),
+    };
+  }
+
+  async setOutput(output: "usb" | "ble"): Promise<void> {
+    const n = OUTPUTS.indexOf(output);
+    if (output !== "usb" && output !== "ble") throw new BoardError("invalid-value", `can't prefer output ${String(output)}`);
+    await this.call(Command.setOutput, encodeSetOutputRequest({ output: n }), Capability.bluetooth, "Bluetooth");
+  }
+
+  async selectProfile(profile: number): Promise<void> {
+    await this.call(
+      Command.selectProfile,
+      encodeSelectProfileRequest({ profile: profileByte(profile) }),
+      Capability.bluetooth,
+      "Bluetooth",
+    );
+  }
+
+  async clearProfile(profile: number): Promise<void> {
+    await this.call(
+      Command.clearProfile,
+      encodeClearProfileRequest({ profile: profileByte(profile) }),
+      Capability.bluetooth,
+      "Bluetooth",
+    );
+  }
+
   async hasUnsavedChanges(): Promise<boolean> {
     this.check();
     return this.unsaved;

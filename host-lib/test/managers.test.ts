@@ -13,6 +13,7 @@ import {
   type NodeHidDeviceInfo,
   type NodeHidModule,
   type WebHid,
+  type WebHidCollection,
   type WebHidConnectionEvent,
   type WebHidDevice,
   type WebHidInputReportEvent,
@@ -20,6 +21,16 @@ import {
 import { boardHandler, FakeTransport, type Handler } from "./fake-device.js";
 
 const CONFIG = [{ usagePage: protocol.HID_USAGE_PAGE, usage: protocol.HID_USAGE }];
+/** The same board over Bluetooth: one HID service, so the config reports carry an ID. */
+const BLE_COLLECTIONS: WebHidCollection[] = [
+  { usagePage: 1, usage: 6, inputReports: [{ reportId: 5 }], outputReports: [{ reportId: 5 }] },
+  {
+    usagePage: protocol.HID_USAGE_PAGE,
+    usage: protocol.HID_USAGE,
+    inputReports: [{ reportId: protocol.HID_BLE_REPORT_ID }],
+    outputReports: [{ reportId: protocol.HID_BLE_REPORT_ID }],
+  },
+];
 
 class FakeWebHidDevice implements WebHidDevice {
   opened = false;
@@ -31,12 +42,17 @@ class FakeWebHidDevice implements WebHidDevice {
   constructor(
     readonly vendorId: number,
     readonly productId: number,
-    readonly collections: { usagePage?: number; usage?: number }[],
+    readonly collections: WebHidCollection[],
     handler: Handler,
   ) {
     this.fake = new FakeTransport(handler);
+    const reportId = collections.find((c) => c.usagePage === protocol.HID_USAGE_PAGE)?.inputReports?.[0]?.reportId ?? 0;
     this.fake.onReport((r) => {
-      const event = { device: this, reportId: 0, data: new DataView(r.buffer) };
+      // A keyboard report on the same device first, which the board must ignore.
+      if (reportId !== 0) {
+        for (const l of this.listeners) l({ device: this, reportId: 5, data: new DataView(new ArrayBuffer(8)) });
+      }
+      const event = { device: this, reportId, data: new DataView(r.buffer) };
       for (const l of this.listeners) l(event);
     });
   }
@@ -139,6 +155,29 @@ test("WebHID: a device that doesn't answer is reported and left out", async () =
   assert.equal(errors.length, 1);
 });
 
+test("WebHID: a board over Bluetooth uses its config report ID, and USB wins while both are there", async () => {
+  const hid = new FakeWebHid();
+  const ble = new FakeWebHidDevice(0x1209, 0x0001, BLE_COLLECTIONS, boardHandler("DDDD"));
+  hid.granted = [ble];
+  const manager = new WebHidBoardManager(hid);
+  await manager.start();
+  const [board] = manager.list();
+  assert.equal(board?.info.connection, "ble");
+  assert.equal(board?.info.id, "DDDD");
+  assert.ok(ble.sent.length > 0 && ble.sent.every((s) => s.reportId === protocol.HID_BLE_REPORT_ID));
+
+  // Plugged in too: listed once, over USB.
+  const usb = new FakeWebHidDevice(0x1209, 0x0001, CONFIG, boardHandler("DDDD"));
+  hid.fire("connect", usb);
+  await settle();
+  assert.deepEqual(manager.list().map((b) => [b.info.id, b.info.connection]), [["DDDD", "usb"]]);
+
+  // Unplugged: Bluetooth carries on.
+  hid.fire("disconnect", usb);
+  assert.deepEqual(manager.list().map((b) => [b.info.id, b.info.connection]), [["DDDD", "ble"]]);
+  await manager.close();
+});
+
 class FakeNodeHid implements NodeHidModule {
   devices: NodeHidDeviceInfo[] = [];
   readonly open = new Map<string, { closed: boolean; writes: number[][] }>();
@@ -148,7 +187,13 @@ class FakeNodeHid implements NodeHidModule {
       const state = { closed: false, writes: [] as number[][] };
       this.open.set(path, state);
       let onData: (d: Uint8Array) => void = () => {};
-      fake.onReport((r) => onData(r));
+      // hidapi hands over Bluetooth reports with their ID first.
+      const bluetooth = this.devices.find((d) => d.path === path)?.busType === 2;
+      fake.onReport((r) => {
+        if (!bluetooth) return onData(r);
+        onData(Uint8Array.of(5, 0, 0, 0, 0, 0, 0, 0, 0)); // a keyboard report, ignored
+        onData(Uint8Array.of(protocol.HID_BLE_REPORT_ID, ...r));
+      });
       return {
         write: async (data: number[]) => {
           state.writes.push(data);
@@ -198,4 +243,17 @@ test("node-hid: scans open new boards and close unplugged ones", async () => {
   assert.equal(hid.open.get("a")!.closed, true);
   await manager.close();
   assert.equal(hid.open.get("b")!.closed, true);
+});
+
+test("node-hid: a board over Bluetooth gets its report ID on every write", async () => {
+  const hid = new FakeNodeHid();
+  hid.devices = [{ vendorId: 0x1209, productId: 0x0001, usagePage: 0xff00, usage: 0x44, path: "bt", busType: 2 }];
+  const manager = new NodeHidBoardManager({ hid, pollMs: 60_000 });
+  await manager.start();
+  const [board] = manager.list();
+  assert.equal(board?.info.connection, "ble");
+  assert.equal(board?.info.id, "SN-bt");
+  const writes = hid.open.get("bt")!.writes;
+  assert.ok(writes.length > 0 && writes.every((w) => w[0] === protocol.HID_BLE_REPORT_ID));
+  await manager.close();
 });

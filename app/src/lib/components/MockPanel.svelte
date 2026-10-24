@@ -11,7 +11,7 @@
 
   const selected = $derived(mock.list().find((b) => b.info.id === selectedId) as MockBoard | undefined);
 
-  function plug(connection: "usb" | "dongle") {
+  function plug(connection: "usb" | "dongle" | "ble") {
     const name = NAMES[Math.floor(Math.random() * NAMES.length)]!;
     mock.plug("Dachshund60F", connection, {
       name,
@@ -40,6 +40,7 @@
       <div class="row">
         <button class="btn small" onclick={() => plug("usb")}>Plug in via USB</button>
         <button class="btn small" onclick={() => plug("dongle")}>Plug in via dongle</button>
+        <button class="btn small" onclick={() => plug("ble")}>Pair over Bluetooth</button>
       </div>
       {#if selected}
         <div class="row">

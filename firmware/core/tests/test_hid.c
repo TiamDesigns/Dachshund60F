@@ -121,6 +121,32 @@ static void test_config_descriptor(void)
     KB_CHECK(KB_PROTO_HID_USAGE_PAGE >= 0xFF00u);
 }
 
+static void test_ble_descriptor(void)
+{
+    uint8_t map[KB_HID_BLE_DESC_MAX];
+    size_t len = kb_hid_ble_desc(map);
+    struct desc_info info;
+    parse(map, len, &info);
+
+    KB_CHECK(info.ok);
+    KB_CHECK_EQ(info.depth, 0);
+    KB_CHECK_EQ(info.max_depth_errors, 0);
+    /* Every report has an ID; the payloads are the USB reports without theirs. */
+    KB_CHECK_EQ(info.input_bits[0], 0);
+    KB_CHECK_EQ(info.output_bits[0], 0);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_KEYBOARD], KB_HID_BOOT_REPORT_SIZE * 8u);
+    KB_CHECK_EQ(info.output_bits[KB_HID_ID_KEYBOARD], 8);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_NKRO] / 8u + 1u, KB_HID_NKRO_REPORT_SIZE);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_CONSUMER] / 8u + 1u, KB_HID_CONSUMER_REPORT_SIZE);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_SYSTEM] / 8u + 1u, KB_HID_SYSTEM_REPORT_SIZE);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_MOUSE] / 8u + 1u, KB_HID_MOUSE_REPORT_SIZE);
+    KB_CHECK_EQ(info.input_bits[KB_HID_ID_CONFIG], KB_PROTO_REPORT_SIZE * 8u);
+    KB_CHECK_EQ(info.output_bits[KB_HID_ID_CONFIG], KB_PROTO_REPORT_SIZE * 8u);
+    KB_CHECK_EQ(len, kb_hid_keyboard_desc_len + kb_hid_extra_desc_len + kb_hid_config_desc_len + 4u);
+    /* The extra collections go in unchanged. */
+    KB_CHECK(memcmp(&map[kb_hid_keyboard_desc_len + 2u], kb_hid_extra_desc, kb_hid_extra_desc_len) == 0);
+}
+
 static void test_pack(void)
 {
     struct kb_hid_state hid;
@@ -360,6 +386,30 @@ static void test_reporter_resync(void)
     KB_CHECK_EQ(n_sent, 0);
 }
 
+static void test_send_released(void)
+{
+    reset_sent();
+    kb_hid_send_released(on_send, NULL);
+    KB_CHECK_EQ(n_sent, 5);
+    const enum kb_hid_report order[] = {KB_HID_REPORT_BOOT, KB_HID_REPORT_NKRO,
+                                        KB_HID_REPORT_CONSUMER, KB_HID_REPORT_SYSTEM,
+                                        KB_HID_REPORT_MOUSE};
+    const uint8_t ids[] = {0, KB_HID_ID_NKRO, KB_HID_ID_CONSUMER, KB_HID_ID_SYSTEM, KB_HID_ID_MOUSE};
+    for (int i = 0; i < 5; i++) {
+        KB_CHECK_EQ(sent[i].which, order[i]);
+        /* The report ID (none for the boot report), then nothing held. */
+        size_t from = i == 0 ? 0u : 1u;
+        if (i > 0) {
+            KB_CHECK_EQ(sent[i].data[0], ids[i]);
+        }
+        for (size_t b = from; b < sent[i].len; b++) {
+            KB_CHECK_EQ(sent[i].data[b], 0);
+        }
+    }
+    KB_CHECK_EQ(sent[0].len, KB_HID_BOOT_REPORT_SIZE);
+    KB_CHECK_EQ(sent[4].len, KB_HID_MOUSE_REPORT_SIZE);
+}
+
 static void test_reporter_with_engine(void)
 {
     /* The engine's own state through the reporter: a seventh key reaches NKRO. */
@@ -401,6 +451,7 @@ int main(void)
     KB_RUN(test_keyboard_descriptor);
     KB_RUN(test_extra_descriptor);
     KB_RUN(test_config_descriptor);
+    KB_RUN(test_ble_descriptor);
     KB_RUN(test_mouse_report);
     KB_RUN(test_pack);
     KB_RUN(test_reporter_nkro_path);
@@ -408,6 +459,7 @@ int main(void)
     KB_RUN(test_reporter_boot_protocol_fallback);
     KB_RUN(test_reporter_toggle_nkro);
     KB_RUN(test_reporter_resync);
+    KB_RUN(test_send_released);
     KB_RUN(test_reporter_with_engine);
     return KB_TEST_RESULT();
 }

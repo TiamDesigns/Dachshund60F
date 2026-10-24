@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "kb/keycodes.h"
+#include "kb/output.h"
 #include "kb/protocol.h"
 
 #define FX_LAYERS 4
@@ -36,6 +37,10 @@ struct fx_state {
     bool reboot_bootloader;
     uint8_t identify_seconds;
     uint8_t save_status;
+    /* Bluetooth: what get_connection reports, and what the ops return. */
+    bool usb_ready;
+    uint8_t ble, preferred, profile, bonded, ble_status;
+    int profile_selects, profile_clears;
 };
 
 static struct fx_state fx;
@@ -131,7 +136,51 @@ static void fx_settings_changed(void *ctx)
     fx.settings_changes += fx.locked ? 1 : 1000;
 }
 
+static void fx_get_connection(struct kb_proto_get_connection_resp *out, void *ctx)
+{
+    (void)ctx;
+    struct kb_output_status st = {.preferred = fx.preferred, .usb_ready = fx.usb_ready, .ble = fx.ble};
+    out->active_output = (uint8_t)kb_output_select(&st);
+    out->preferred_output = fx.preferred;
+    out->usb = fx.usb_ready ? 1u : 0u;
+    out->ble = fx.ble;
+    out->profile = fx.profile;
+    out->bonded = fx.bonded;
+}
+
+static uint8_t fx_set_output(uint8_t output, void *ctx)
+{
+    (void)ctx;
+    fx.preferred = output;
+    return KB_PROTO_OK;
+}
+
+static uint8_t fx_select_profile(uint8_t profile, void *ctx)
+{
+    (void)ctx;
+    fx.profile_selects++;
+    if (fx.ble_status == KB_PROTO_OK) {
+        fx.profile = profile;
+        fx.ble = KB_BLE_ADVERTISING;
+    }
+    return fx.ble_status;
+}
+
+static uint8_t fx_clear_profile(uint8_t profile, void *ctx)
+{
+    (void)ctx;
+    fx.profile_clears++;
+    if (fx.ble_status == KB_PROTO_OK) {
+        fx.bonded &= (uint8_t)~(1u << profile);
+    }
+    return fx.ble_status;
+}
+
 static const struct kb_protocol_ops fx_ops = {
+    .get_connection = fx_get_connection,
+    .set_output = fx_set_output,
+    .select_profile = fx_select_profile,
+    .clear_profile = fx_clear_profile,
     .save = fx_save,
     .revert = fx_revert,
     .factory_reset = fx_factory_reset,
@@ -154,6 +203,10 @@ static void fx_init(void)
     fx.saved_features = fx.features;
     memcpy(fx.macro_edit, fx.features.macros, KB_MACRO_BUFFER);
     fx_default_settings();
+    fx.usb_ready = true;
+    fx.ble = KB_BLE_SECURE;
+    fx.preferred = KB_OUTPUT_USB;
+    fx.bonded = 0x1;
     fx_proto = (struct kb_protocol){
         .keymap = &fx.keymap,
         .ops = &fx_ops,
@@ -165,6 +218,7 @@ static void fx_init(void)
         .serial = "0123456789ABCDEF",
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_IDENTIFY,
         .encoders = 1,
+        .ble_profiles = 3,
         .macro_buffer_size = KB_MACRO_BUFFER,
         .features = &fx.features,
         .macro_edit = fx.macro_edit,

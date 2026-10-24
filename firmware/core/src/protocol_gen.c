@@ -521,3 +521,79 @@ size_t kb_proto_set_layer_colour_req_encode(const struct kb_proto_set_layer_colo
     put32(p + 1, in->colour);
     return 5u;
 }
+
+int kb_proto_get_connection_resp_decode(const uint8_t *p, size_t len, struct kb_proto_get_connection_resp *out)
+{
+    if (len != 7u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->active_output = p[0];
+    out->preferred_output = p[1];
+    out->usb = p[2];
+    out->ble = p[3];
+    out->profile = p[4];
+    out->profile_count = p[5];
+    out->bonded = p[6];
+    return 0;
+}
+
+size_t kb_proto_get_connection_resp_encode(const struct kb_proto_get_connection_resp *in, uint8_t *p)
+{
+    p[0] = in->active_output;
+    p[1] = in->preferred_output;
+    p[2] = in->usb;
+    p[3] = in->ble;
+    p[4] = in->profile;
+    p[5] = in->profile_count;
+    p[6] = in->bonded;
+    return 7u;
+}
+
+int kb_proto_set_output_req_decode(const uint8_t *p, size_t len, struct kb_proto_set_output_req *out)
+{
+    if (len != 1u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->output = p[0];
+    return 0;
+}
+
+size_t kb_proto_set_output_req_encode(const struct kb_proto_set_output_req *in, uint8_t *p)
+{
+    p[0] = in->output;
+    return 1u;
+}
+
+int kb_proto_select_profile_req_decode(const uint8_t *p, size_t len, struct kb_proto_select_profile_req *out)
+{
+    if (len != 1u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->profile = p[0];
+    return 0;
+}
+
+size_t kb_proto_select_profile_req_encode(const struct kb_proto_select_profile_req *in, uint8_t *p)
+{
+    p[0] = in->profile;
+    return 1u;
+}
+
+int kb_proto_clear_profile_req_decode(const uint8_t *p, size_t len, struct kb_proto_clear_profile_req *out)
+{
+    if (len != 1u) {
+        return -1;
+    }
+    memset(out, 0, sizeof(*out));
+    out->profile = p[0];
+    return 0;
+}
+
+size_t kb_proto_clear_profile_req_encode(const struct kb_proto_clear_profile_req *in, uint8_t *p)
+{
+    p[0] = in->profile;
+    return 1u;
+}

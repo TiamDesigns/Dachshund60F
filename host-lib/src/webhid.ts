@@ -10,9 +10,15 @@ import { HidManagerBase, isConfigUsage, KEYBOARD_USB_IDS, type HidManagerOptions
 import { HID_USAGE, HID_USAGE_PAGE, REPORT_SIZE } from "./protocol.gen.js";
 import { TransportEvents, type Transport } from "./transport.js";
 
+export interface WebHidReportInfo {
+  reportId?: number;
+}
+
 export interface WebHidCollection {
   usagePage?: number;
   usage?: number;
+  inputReports?: readonly WebHidReportInfo[];
+  outputReports?: readonly WebHidReportInfo[];
 }
 
 export interface WebHidInputReportEvent {
@@ -61,15 +67,28 @@ export function isWebHidBoard(device: WebHidDevice): boolean {
   );
 }
 
+/**
+ * The config collection's report ID: 0 over USB, where it has an interface
+ * of its own, and HID_BLE_REPORT_ID over Bluetooth, where it shares the HID
+ * service with the keyboard's reports.
+ */
+export function configReportId(device: WebHidDevice): number {
+  const config = device.collections.find((c) => isConfigUsage(c.usagePage, c.usage));
+  return config?.outputReports?.[0]?.reportId ?? config?.inputReports?.[0]?.reportId ?? 0;
+}
+
 class WebHidTransport implements Transport {
-  readonly connection = "usb" as const;
+  readonly connection: "usb" | "ble";
+  private readonly reportId: number;
   private readonly events = new TransportEvents();
   private readonly onInput = (event: WebHidInputReportEvent): void => {
-    if (event.reportId !== 0) return;
+    if (event.reportId !== this.reportId) return;
     this.events.report(new Uint8Array(event.data.buffer, event.data.byteOffset, event.data.byteLength).slice());
   };
 
   constructor(readonly device: WebHidDevice) {
+    this.reportId = configReportId(device);
+    this.connection = this.reportId === 0 ? "usb" : "ble";
     device.addEventListener("inputreport", this.onInput);
   }
 
@@ -77,7 +96,7 @@ class WebHidTransport implements Transport {
     if (this.events.isClosed) throw new Error("transport closed");
     const data = new Uint8Array(REPORT_SIZE);
     data.set(report.subarray(0, REPORT_SIZE));
-    await this.device.sendReport(0, data);
+    await this.device.sendReport(this.reportId, data);
   }
 
   onReport(listener: (report: Uint8Array) => void): () => void {

@@ -25,6 +25,7 @@
 #include <stdint.h>
 
 #include "kb/engine.h"
+#include "kb/protocol_gen.h"
 
 /* Report IDs on the extra interface */
 #define KB_HID_ID_NKRO 1u
@@ -43,6 +44,15 @@
 #define KB_HID_SYSTEM_REPORT_SIZE 3u
 #define KB_HID_MOUSE_REPORT_SIZE 6u /* ID, buttons, x, y, wheel, pan */
 #define KB_HID_EXTRA_REPORT_MAX KB_HID_NKRO_REPORT_SIZE
+
+/*
+ * Bluetooth (HID over GATT) has one report map for everything, so the boot
+ * keyboard report (with its lock LEDs) and the config reports take report
+ * IDs there too. The frames and report contents are the same as on USB.
+ */
+#define KB_HID_ID_KEYBOARD 5u
+#define KB_HID_ID_CONFIG KB_PROTO_HID_BLE_REPORT_ID
+#define KB_HID_BLE_DESC_MAX 320u
 
 /* Lock-LED output report bits (keyboard interface) */
 #define KB_HID_LED_NUM 0x01u
@@ -63,6 +73,13 @@ extern const size_t kb_hid_extra_desc_len;
 extern const uint8_t kb_hid_config_desc[];
 extern const size_t kb_hid_config_desc_len;
 
+/*
+ * The Bluetooth report map: the keyboard, extra and config descriptors
+ * above, with report IDs added to the keyboard and config collections.
+ * Writes it into out (KB_HID_BLE_DESC_MAX bytes) and returns its length.
+ */
+size_t kb_hid_ble_desc(uint8_t out[KB_HID_BLE_DESC_MAX]);
+
 /* Report packers. Each writes exactly its report size. */
 void kb_hid_pack_nkro(const struct kb_hid_state *hid, uint8_t out[KB_HID_NKRO_REPORT_SIZE]);
 void kb_hid_pack_consumer(const struct kb_hid_state *hid,
@@ -82,6 +99,13 @@ enum kb_hid_report {
 /* Hands one report to the transport. */
 typedef void (*kb_hid_send_fn)(enum kb_hid_report report, const uint8_t *data, size_t len,
                                void *ctx);
+
+/*
+ * Send every report (keyboard, NKRO, consumer, system and mouse) with
+ * nothing held, for the transport the keys are leaving, so nothing sticks
+ * down on that host.
+ */
+void kb_hid_send_released(kb_hid_send_fn send, void *ctx);
 
 /*
  * Turns HID state into the reports to send: only those that changed, on

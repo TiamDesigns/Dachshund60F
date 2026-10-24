@@ -15,6 +15,9 @@
  *
  * Suspend: reports stop, the indicators go dark, and the next key change
  * asks the host to wake up. On resume every report is sent again.
+ *
+ * With VBUS detection the device runs only while a cable is in, so
+ * unplugging deconfigures it at once and keys move to Bluetooth (output.c).
  */
 
 #include "kb_usb.h"
@@ -34,7 +37,6 @@
 #include "indicators.h"
 #include "kb/protocol_gen.h"
 #include "kb/version.h"
-#include "status_screen.h"
 
 LOG_MODULE_REGISTER(kb_usb, LOG_LEVEL_INF);
 
@@ -98,6 +100,7 @@ static struct hid_pipe config_pipe = {
 static kb_usb_config_rx_fn config_rx;
 
 static atomic_t suspended;
+static atomic_t locks;
 static atomic_t wake_requested;
 static atomic_t boot_protocol;
 static atomic_t resync;
@@ -174,7 +177,9 @@ static void iface_ready(const struct device *dev, const bool ready)
     if (p == &kbd_pipe) {
         /* A new configuration starts in report protocol. */
         atomic_set(&boot_protocol, 0);
-        status_screen_set_transport(ready ? KB_TRANSPORT_USB : KB_TRANSPORT_NONE, 0);
+        if (!ready) {
+            atomic_set(&locks, 0);
+        }
         LOG_INF("keyboard interface %s", ready ? "ready" : "not ready");
     } else {
         LOG_INF("%s interface %s", p == &extra_pipe ? "extra" : "config",
@@ -220,10 +225,10 @@ static int get_report(const struct device *dev, const uint8_t type, const uint8_
 
 /* Keyboard interface only */
 
-static void set_locks(uint8_t locks)
+/* The indicators and screen follow these while USB is the active output (output.c). */
+static void set_locks(uint8_t value)
 {
-    status_screen_set_locks(locks);
-    indicators_set_locks(locks);
+    atomic_set(&locks, value);
 }
 
 static int kbd_set_report(const struct device *dev, const uint8_t type, const uint8_t id,
@@ -343,8 +348,6 @@ static const struct hid_device_ops config_ops = {
 
 static void on_usbd_msg(struct usbd_context *const ctx, const struct usbd_msg *const msg)
 {
-    ARG_UNUSED(ctx);
-
     switch (msg->type) {
     case USBD_MSG_SUSPEND:
         atomic_set(&suspended, 1);
@@ -361,8 +364,22 @@ static void on_usbd_msg(struct usbd_context *const ctx, const struct usbd_msg *c
         indicators_set_asleep(false);
         LOG_INF("resumed");
         break;
-    case USBD_MSG_RESET:
+    case USBD_MSG_VBUS_READY:
+        /* Cable in: start the device (unless it never stopped). */
+        if (usbd_can_detect_vbus(ctx)) {
+            int err = usbd_enable(ctx);
+            if (err && err != -EALREADY) {
+                LOG_ERR("USB device enable failed (%d)", err);
+            }
+        }
+        break;
     case USBD_MSG_VBUS_REMOVED:
+        /* Cable out: deconfigure, so keys move to Bluetooth at once. */
+        if (usbd_can_detect_vbus(ctx)) {
+            (void)usbd_disable(ctx);
+        }
+        __fallthrough;
+    case USBD_MSG_RESET:
         atomic_set(&wake_requested, 0);
         if (atomic_set(&suspended, 0)) {
             indicators_set_asleep(false);
@@ -477,6 +494,16 @@ int kb_usb_send_config(const uint8_t frame[KB_PROTO_REPORT_SIZE])
     return 0;
 }
 
+bool kb_usb_ready(void)
+{
+    return atomic_get(&kbd_pipe.ready) != 0;
+}
+
+uint8_t kb_usb_locks(void)
+{
+    return (uint8_t)atomic_get(&locks);
+}
+
 bool kb_usb_boot_protocol(void)
 {
     return atomic_get(&boot_protocol) != 0;
@@ -562,10 +589,13 @@ int kb_usb_init(void)
         return err;
     }
 
-    err = usbd_enable(&kb_usbd);
-    if (err) {
-        LOG_ERR("USB device enable failed (%d)", err);
-        return err;
+    /* With VBUS detection the device starts when a cable goes in (on_usbd_msg). */
+    if (!usbd_can_detect_vbus(&kb_usbd)) {
+        err = usbd_enable(&kb_usbd);
+        if (err) {
+            LOG_ERR("USB device enable failed (%d)", err);
+            return err;
+        }
     }
 
     return 0;

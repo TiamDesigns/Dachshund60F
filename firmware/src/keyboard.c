@@ -20,8 +20,9 @@
 #include "kb/keymap.h"
 #include "kb/settings.h"
 #include "indicators.h"
-#include "kb_usb.h"
+#include "kb_ble.h"
 #include "matrix.h"
+#include "output.h"
 #include "status_screen.h"
 #include "storage.h"
 
@@ -95,10 +96,11 @@ K_TIMER_DEFINE(scan_timer, NULL, NULL);
 static void send_report(enum kb_hid_report report, const uint8_t *data, size_t len, void *ctx)
 {
     ARG_UNUSED(ctx);
-    /* Dropped while USB isn't configured or is suspended; kb_usb then asks
-     * for a resync, and every report carries the full state.
+    /* Dropped while no host is ready, or while USB is suspended; the
+     * transport then asks for a resync, and every report carries the full
+     * state.
      */
-    (void)kb_usb_send(report, data, len);
+    (void)output_send(report, data, len);
 }
 
 static void on_report(const struct kb_hid_state *hid, void *ctx)
@@ -130,8 +132,21 @@ static void on_action(kb_keycode_t kc, bool pressed, void *ctx)
         kb_hid_reporter_set_nkro(&reporter, settings.nkro, kb_engine_hid(&engine));
         LOG_INF("NKRO %s", settings.nkro ? "on" : "off");
         break;
+    case OUT_USB:
+        (void)output_set_preferred(KB_OUTPUT_USB);
+        break;
+    case OUT_BLE:
+        (void)output_set_preferred(KB_OUTPUT_BLE);
+        break;
+    case BT_CLR:
+        (void)kb_ble_clear_profile(kb_ble_profile());
+        break;
     default:
-        /* Connection, mouse and the other actions arrive in later phases. */
+        if ((kc & ~(kb_keycode_t)0x7u) == BT_SEL(0)) {
+            /* -EINVAL for a profile this build doesn't have: nothing happens. */
+            (void)kb_ble_select_profile((uint8_t)(kc & 0x7u));
+        }
+        /* OUT_2G4 waits for the dongle (phase 14). */
         break;
     }
 }
@@ -144,7 +159,7 @@ static void on_mouse(const struct kb_mouse_report *m, void *ctx)
     uint8_t report[KB_HID_MOUSE_REPORT_SIZE];
     kb_hid_pack_mouse(m, report);
     mouse_buttons = m->buttons;
-    (void)kb_usb_send(KB_HID_REPORT_MOUSE, report, sizeof(report));
+    (void)output_send(KB_HID_REPORT_MOUSE, report, sizeof(report));
 }
 
 static void on_layers(uint32_t layer_mask, uint8_t highest, void *ctx)
@@ -190,14 +205,15 @@ static void scan_thread(void *p1, void *p2, void *p3)
         }
         kb_engine_tick(&engine, now);
 
-        /* Follow the host: boot protocol forces 6KRO; after a resume or a
-         * new configuration, send everything again.
+        /* Follow the output and its host: boot protocol forces 6KRO; on a
+         * new output, a resume or a new connection, send everything again.
          */
-        bool boot = kb_usb_boot_protocol();
+        bool resync = output_poll();
+        bool boot = output_boot_protocol();
         if (boot != reporter.boot_protocol) {
             kb_hid_reporter_set_boot_protocol(&reporter, boot, kb_engine_hid(&engine));
         }
-        if (kb_usb_take_resync()) {
+        if (resync) {
             kb_hid_reporter_resync(&reporter, kb_engine_hid(&engine));
             /* Movement is never replayed, only the buttons held. */
             on_mouse(&(struct kb_mouse_report){.buttons = mouse_buttons}, NULL);

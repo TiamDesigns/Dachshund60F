@@ -32,6 +32,33 @@ export interface BoardInfo {
   capabilities?: readonly string[];
 }
 
+/** Where a board can send keys, by the protocol's output numbers (kb/output.h). */
+export const OUTPUTS = [null, "usb", "ble", "dongle"] as const;
+export type Output = "usb" | "ble" | "dongle";
+
+/** The board's Bluetooth link, by the protocol's state numbers. */
+export const BLUETOOTH_STATES = ["off", "advertising", "pairing", "connected"] as const;
+/**
+ * off: not running. advertising: waiting for the selected host. pairing:
+ * a host has connected but the link isn't encrypted yet (no keys go over
+ * it). connected: keys can go over it.
+ */
+export type BluetoothState = (typeof BLUETOOTH_STATES)[number];
+
+export interface ConnectionStatus {
+  /** Where keys go now; null while no host is ready. */
+  active: Output | null;
+  /** The output the board prefers (OUT_USB, OUT_BLE or setOutput); the other is used while it isn't ready. */
+  preferred: Output;
+  /** A computer has set the board up over USB. */
+  usb: boolean;
+  bluetooth: BluetoothState;
+  /** The selected Bluetooth host profile, 0-based (BT_SEL). */
+  profile: number;
+  /** One entry per host profile: true when a computer is paired on it. */
+  paired: boolean[];
+}
+
 /** Debounce algorithms, in the firmware's order (kb/debounce.h). */
 export const DEBOUNCE_ALGORITHMS = [
   "defer-global",
@@ -247,6 +274,22 @@ export interface Board {
   getIndicators?(): Promise<IndicatorColours>;
   /** Change some of them; layers, if given, has one colour per layer. */
   setIndicators?(patch: Partial<IndicatorColours>): Promise<IndicatorColours>;
+
+  /**
+   * Outputs and Bluetooth host profiles. These take effect at once and the
+   * board keeps them by itself (no save needed). Absent on boards without
+   * Bluetooth.
+   */
+  getConnection?(): Promise<ConnectionStatus>;
+  /** Prefer USB or Bluetooth, like OUT_USB and OUT_BLE. */
+  setOutput?(output: "usb" | "ble"): Promise<void>;
+  /** Switch Bluetooth to a host profile, like BT_SEL. */
+  selectProfile?(profile: number): Promise<void>;
+  /**
+   * Forget the computer paired on a profile, like BT_CLR. Over Bluetooth,
+   * forgetting the computer that's asking drops this connection.
+   */
+  clearProfile?(profile: number): Promise<void>;
 
   /** True when live keymap or settings differ from what is saved in flash. */
   hasUnsavedChanges(): Promise<boolean>;

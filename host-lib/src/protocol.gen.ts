@@ -4,6 +4,7 @@ export const PROTOCOL_VERSION = 1;
 export const HID_USAGE_PAGE = 0xff00;
 export const HID_USAGE = 0x44;
 export const REPORT_SIZE = 64;
+export const HID_BLE_REPORT_ID = 6;
 export const HEADER_SIZE = 4;
 export const MAX_PAYLOAD = 60;
 
@@ -58,6 +59,10 @@ export const Command = {
   setIndicators: 0x43,
   getLayerColour: 0x44,
   setLayerColour: 0x45,
+  getConnection: 0x50,
+  setOutput: 0x51,
+  selectProfile: 0x52,
+  clearProfile: 0x53,
 } as const;
 export type CommandName = keyof typeof Command;
 
@@ -72,6 +77,7 @@ export const Capability = {
   matrixStream: 1 << 7,
   battery: 1 << 8,
   identify: 1 << 9,
+  bluetooth: 1 << 10,
 } as const;
 
 /** Advanced-key tables: id, entry size in bytes and most entries (see protocol.yaml). */
@@ -1075,6 +1081,168 @@ export function encodeSetLayerColourResponse(_m: SetLayerColourResponse): Uint8A
 export function decodeSetLayerColourResponse(p: Uint8Array): SetLayerColourResponse {
   if (p.length !== 0) {
     throw new PayloadError(`set_layer_colour response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Where keys go now, and the Bluetooth host profiles. Outputs: 0 none, 1 USB, 2 Bluetooth, 3 the 2.4 GHz dongle. */
+export type GetConnectionRequest = Record<string, never>;
+
+export function encodeGetConnectionRequest(_m: GetConnectionRequest): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeGetConnectionRequest(p: Uint8Array): GetConnectionRequest {
+  if (p.length !== 0) {
+    throw new PayloadError(`get_connection request: bad length ${p.length}`);
+  }
+  return {};
+}
+
+export interface GetConnectionResponse {
+  activeOutput: number; /** where keys go now (0 when no host is ready) */
+  preferredOutput: number; /** 1-3: the output OUT_USB, OUT_BLE or set_output picked; the other one is used while it isn't ready */
+  usb: number; /** 0 no host, 1 a host has configured the board */
+  ble: number; /** 0 off, 1 advertising, 2 connected, 3 connected and encrypted (keys flow) */
+  profile: number; /** the selected Bluetooth host profile */
+  profileCount: number;
+  bonded: number; /** bit n set: profile n is paired with a host */
+}
+
+export function encodeGetConnectionResponse(m: GetConnectionResponse): Uint8Array {
+  const p = new Uint8Array(7);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.activeOutput, "active_output"));
+  v.setUint8(1, u8(m.preferredOutput, "preferred_output"));
+  v.setUint8(2, u8(m.usb, "usb"));
+  v.setUint8(3, u8(m.ble, "ble"));
+  v.setUint8(4, u8(m.profile, "profile"));
+  v.setUint8(5, u8(m.profileCount, "profile_count"));
+  v.setUint8(6, u8(m.bonded, "bonded"));
+  return p;
+}
+
+export function decodeGetConnectionResponse(p: Uint8Array): GetConnectionResponse {
+  if (p.length !== 7) {
+    throw new PayloadError(`get_connection response: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    activeOutput: v.getUint8(0),
+    preferredOutput: v.getUint8(1),
+    usb: v.getUint8(2),
+    ble: v.getUint8(3),
+    profile: v.getUint8(4),
+    profileCount: v.getUint8(5),
+    bonded: v.getUint8(6),
+  };
+}
+
+/** Prefer this output (1 USB, 2 Bluetooth), as OUT_USB and OUT_BLE do; kept across power cycles. bad_value for anything else, not_supported for an output this build lacks. */
+export interface SetOutputRequest {
+  output: number;
+}
+
+export function encodeSetOutputRequest(m: SetOutputRequest): Uint8Array {
+  const p = new Uint8Array(1);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.output, "output"));
+  return p;
+}
+
+export function decodeSetOutputRequest(p: Uint8Array): SetOutputRequest {
+  if (p.length !== 1) {
+    throw new PayloadError(`set_output request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    output: v.getUint8(0),
+  };
+}
+
+export type SetOutputResponse = Record<string, never>;
+
+export function encodeSetOutputResponse(_m: SetOutputResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeSetOutputResponse(p: Uint8Array): SetOutputResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`set_output response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Switch Bluetooth to this host profile, as BT_SEL does: the current host is disconnected and the board advertises for that one. */
+export interface SelectProfileRequest {
+  profile: number;
+}
+
+export function encodeSelectProfileRequest(m: SelectProfileRequest): Uint8Array {
+  const p = new Uint8Array(1);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.profile, "profile"));
+  return p;
+}
+
+export function decodeSelectProfileRequest(p: Uint8Array): SelectProfileRequest {
+  if (p.length !== 1) {
+    throw new PayloadError(`select_profile request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    profile: v.getUint8(0),
+  };
+}
+
+export type SelectProfileResponse = Record<string, never>;
+
+export function encodeSelectProfileResponse(_m: SelectProfileResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeSelectProfileResponse(p: Uint8Array): SelectProfileResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`select_profile response: bad length ${p.length}`);
+  }
+  return {};
+}
+
+/** Forget the host paired on this profile, as BT_CLR does for the selected one. If that host is the one asking over Bluetooth, the response is the last thing it gets. */
+export interface ClearProfileRequest {
+  profile: number;
+}
+
+export function encodeClearProfileRequest(m: ClearProfileRequest): Uint8Array {
+  const p = new Uint8Array(1);
+  const v = new DataView(p.buffer);
+  v.setUint8(0, u8(m.profile, "profile"));
+  return p;
+}
+
+export function decodeClearProfileRequest(p: Uint8Array): ClearProfileRequest {
+  if (p.length !== 1) {
+    throw new PayloadError(`clear_profile request: bad length ${p.length}`);
+  }
+  const v = new DataView(p.buffer, p.byteOffset, p.byteLength);
+  return {
+    profile: v.getUint8(0),
+  };
+}
+
+export type ClearProfileResponse = Record<string, never>;
+
+export function encodeClearProfileResponse(_m: ClearProfileResponse): Uint8Array {
+  const p = new Uint8Array(0);
+  return p;
+}
+
+export function decodeClearProfileResponse(p: Uint8Array): ClearProfileResponse {
+  if (p.length !== 0) {
+    throw new PayloadError(`clear_profile response: bad length ${p.length}`);
   }
   return {};
 }

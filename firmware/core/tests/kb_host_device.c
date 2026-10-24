@@ -9,11 +9,15 @@
  * report. A request too short to answer gets an empty line. A reboot
  * reloads the keymap and settings from the simulated flash, as a power
  * cycle would.
+ *
+ * Its connection is simulated: plugged into USB, Bluetooth advertising on
+ * host 1 of 3, with host 2 paired.
  */
 #include <stdio.h>
 #include <string.h>
 
 #include "default_keymap.h"
+#include "kb/output.h"
 #include "kb/protocol.h"
 #include "kb/settings.h"
 #include "kb/store.h"
@@ -119,7 +123,49 @@ static void op_identify(uint8_t seconds, void *ctx)
     (void)ctx;
 }
 
+#define BLE_PROFILES 3u
+static uint8_t preferred = KB_OUTPUT_USB;
+static uint8_t ble_profile;
+static uint8_t ble_bonded = 0x2;
+
+static void op_get_connection(struct kb_proto_get_connection_resp *out, void *ctx)
+{
+    (void)ctx;
+    struct kb_output_status st = {.preferred = preferred, .usb_ready = true, .ble = KB_BLE_ADVERTISING};
+    out->active_output = (uint8_t)kb_output_select(&st);
+    out->preferred_output = preferred;
+    out->usb = 1;
+    out->ble = st.ble;
+    out->profile = ble_profile;
+    out->bonded = ble_bonded;
+}
+
+static uint8_t op_set_output(uint8_t output, void *ctx)
+{
+    (void)ctx;
+    preferred = output;
+    return KB_PROTO_OK;
+}
+
+static uint8_t op_select_profile(uint8_t profile, void *ctx)
+{
+    (void)ctx;
+    ble_profile = profile;
+    return KB_PROTO_OK;
+}
+
+static uint8_t op_clear_profile(uint8_t profile, void *ctx)
+{
+    (void)ctx;
+    ble_bonded &= (uint8_t)~(1u << profile);
+    return KB_PROTO_OK;
+}
+
 static const struct kb_protocol_ops ops = {
+    .get_connection = op_get_connection,
+    .set_output = op_set_output,
+    .select_profile = op_select_profile,
+    .clear_profile = op_clear_profile,
     .save = op_save,
     .revert = op_revert,
     .factory_reset = op_factory_reset,
@@ -154,8 +200,9 @@ int main(void)
         .serial = "HOST0001",
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                         KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS |
-                        KB_PROTO_CAP_SETTINGS | KB_PROTO_CAP_INDICATORS,
+                        KB_PROTO_CAP_SETTINGS | KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH,
         .encoders = 1,
+        .ble_profiles = BLE_PROFILES,
         .macro_buffer_size = KB_MACRO_BUFFER,
         .features = &features,
         .macro_edit = macro_edit,
