@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "name": "Pup",
+  "status": "Nordic nRF52840 Dongle (PCA10059), pins from Nordic's documentation for it; a test board for the wireless outputs until the Dachshund60F PCB exists",
+  "mcu": "nRF52840 (Nordic nRF52840 Dongle, PCA10059)",
+  "zephyrBoard": "nrf52840dongle/nrf52840",
+  "usb": {
+    "warning": "pid.codes TEST PID, the same as the Dachshund60F's: in-house testing only.",
+    "keyboard": { "vid": "0x1209", "pid": "0x0001", "manufacturer": "Dachshund", "product": "Dachshund Pup" }
+  },
+  "matrix": {
+    "rows": 1,
+    "cols": 1,
+    "diodeDirection": "direct",
+    "note": "SW1 to ground, read straight from its pin: no columns (firmware/src/matrix.h)",
+    "rowPins": ["P1.06"],
+    "colPins": []
+  },
+  "encoders": [],
+  "indicators": {
+    "type": "LD2, RGB LED, common anode on VDD; each colour on or off",
+    "count": 1,
+    "active": "low",
+    "pins": { "red": "P0.08", "green": "P1.09", "blue": "P0.12" }
+  },
+  "power": {
+    "supply": "USB only: the dongle plugs straight into a port and has no battery"
+  },
+  "reserved": {
+    "P0.06": "LD1, green LED (left unused)",
+    "P0.18": "nRESET (SW2, the sideways reset button, which also enters Nordic's bootloader)"
+  }
+}

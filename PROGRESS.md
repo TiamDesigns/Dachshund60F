@@ -2,9 +2,20 @@
 
 ## Current phase
 
-Phase 14 (the 2.4 GHz dongle) is done. Phases 1 to 13 are merged to main. Core, host-lib and Doghouse tests pass locally, and the keyboard and dongle firmware build locally with no new warnings. Hardware testing for phases 2 to 14 waits for fabricated boards (or the Nordic nRF52840 dongles Tiam is ordering, which run the dongle firmware as is). Next is phase 15, desktop packaging.
+Phase 14 (the 2.4 GHz dongle) is done. Phases 1 to 13 are merged to main. Core, host-lib and Doghouse tests pass locally, and the keyboard and dongle firmware build locally with no new warnings. Hardware testing for phases 2 to 14 waits for fabricated boards (or the Nordic nRF52840 dongles Tiam is ordering, which run the dongle firmware as is). The Pup, a one-key test board that runs the keyboard firmware on an nRF52840 Dongle, is added so the wireless outputs can be tried before the boards arrive. Next is phase 15, desktop packaging.
 
 ## Done
+
+### The Pup: keyboard firmware on an nRF52840 Dongle (2026-10-24)
+
+- Tiam asked for it so Bluetooth and the 2.4 GHz dongle can be tried on the nRF52840 Dongles being ordered, before the PCBs exist. `boards/Pup/` holds its `board.json`, `keyboard.json` (one key, one indicator) and `firmware/`: the devicetree overlay (SW1 on P1.06, LD2's red, green and blue on P0.08, P1.09 and P0.12, all from Nordic's PCA10059 documentation; flash layout with the code at 0x1000 after Nordic's MBR, `bt_settings` at 0xd6000 and `storage` at 0xd8000, below Nordic's bootloader at 0xe0000) and its default keymap (`a`).
+- It builds on Zephyr's own `nrf52840dongle/nrf52840` board, so it needs no Zephyr board files: `firmware/boards/nrf52840dongle_nrf52840.overlay` (which Zephyr picks by board name) includes `app.overlay` and the Pup's overlay, and `firmware/boards/nrf52840dongle_nrf52840.conf` sets the names (USB product and Bluetooth name "Dachshund Pup", `KB_MODEL` "Pup"), Nordic's bootloader and a 10 s recovery hold. Build: `west build -p -b nrf52840dongle/nrf52840 -d build/pup firmware`.
+- Firmware changes, none for the Dachshund60F: a board without `matrix-col-gpios` is wired directly (each row pin one key, read as column 0, with its devicetree flags for the pressed level), the indicators can drive one RGB LED on GPIOs (`indicator-rgb-gpios`, Caps Lock) instead of an SK6812 chain, the GPREGRET value for the bootloader is a Kconfig option (`KB_BOOTLOADER_GPREGRET`: 0x57 for the Adafruit UF2 bootloader, 0xB1 for Nordic's), and a board folder named by `KB_MODEL` with `firmware/default_keymap.c` brings its own default keymap.
+- host-lib and Doghouse: the Pup's default keymap is in `default-keymaps.ts` (so the mock can simulate one), and Doghouse knows its definition ("Pup · Puppy · 1 switch"). The board tests accept direct wiring and LEDs on their own pins, and new tests check the Pup's overlay pins, names and USB IDs, LED table and default keymap against `board.json`, `keyboard.json` and host-lib.
+- CI builds the Pup (debug and release) as `Firmware (pup)`.
+- Size, debug: 267.8 KB flash, 77.1 KB RAM; release 229.3 KB. The Dachshund60F's build is unchanged.
+- Not tested on hardware yet: everything (`SCHEDULED_TASKS.md`, "Pup on real hardware"), including whether Nordic's bootloader takes GPREGRET 0xB1.
+- How to test: host-lib and Doghouse tests as in CLAUDE.md. With a PCA10059: build, flash and try it as in `boards/Pup/README.md`.
 
 ### Phase 14: 2.4 GHz dongle (2026-10-24)
 

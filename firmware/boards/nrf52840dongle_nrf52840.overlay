@@ -1,0 +1,7 @@
+/*
+ * The Pup: the keyboard firmware on Nordic's nRF52840 Dongle. A board
+ * overlay here replaces app.overlay, so it brings that too; the pins are in
+ * boards/Pup/.
+ */
+#include "../app.overlay"
+#include "../../boards/Pup/firmware/board.overlay"

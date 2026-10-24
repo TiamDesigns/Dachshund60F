@@ -118,6 +118,20 @@ test("firmware default keymap matches host-lib's Dachshund60F default", () => {
   assert.deepEqual(firmware, host.keys);
 });
 
+// Boards on Nordic's own boards bring their own default keymap.
+test("the Pup's firmware default keymap matches host-lib's", () => {
+  const c = readFileSync(path.join(repoDir, "boards/Pup/firmware/default_keymap.c"), "utf8");
+  const h = readFileSync(path.join(repoDir, "boards/Pup/firmware/board_keymap.h"), "utf8");
+  const board = JSON.parse(readFileSync(path.join(repoDir, "boards/Pup/board.json"), "utf8")) as {
+    matrix: { rows: number; cols: number };
+  };
+  const pup = firmwareKeymap(c);
+  assert.equal(pup.length, defineNumber(h, "DEFAULT_KEYMAP_LAYERS"));
+  assert.equal(defineNumber(h, "DEFAULT_KEYMAP_ROWS"), board.matrix.rows);
+  assert.equal(defineNumber(h, "DEFAULT_KEYMAP_COLS"), board.matrix.cols);
+  assert.deepEqual(pup, defaultKeymap("Pup")?.keys);
+});
+
 test("firmware default keymap uses only defined keycodes", () => {
   for (const layer of firmware) {
     for (const id of layer.flat()) {

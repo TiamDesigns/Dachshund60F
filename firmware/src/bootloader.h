@@ -1,5 +1,6 @@
 /*
- * Reboot into the Adafruit nRF52 UF2 bootloader.
+ * Reboot into the Adafruit nRF52 UF2 bootloader (on the Pup, Nordic's nRF5
+ * bootloader: Kconfig KB_BOOTLOADER_GPREGRET).
  */
 #ifndef BOOTLOADER_H
 #define BOOTLOADER_H

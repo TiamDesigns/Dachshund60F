@@ -98,6 +98,7 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | --- | --- |
 | `hardware/` | KiCad 10 projects: mainboard, USB-C daughterboard, dongle and plate, plus STEP exports for case design |
 | `boards/Dachshund60F/` | Pin map, keyboard definition, Zephyr board files and the UF2 bootloader board |
+| `boards/Pup/` | A one-key test board: the keyboard firmware on Nordic's nRF52840 Dongle, for trying the wireless outputs before the PCB exists |
 | `firmware/` | The keyboard firmware. `firmware/core/` is the hardware-free keymap engine and its tests |
 | `dongle/` | 2.4 GHz receiver firmware (see `dongle/README.md` to flash and pair it) |
 | `protocol/` | `protocol.yaml` and the code generator |

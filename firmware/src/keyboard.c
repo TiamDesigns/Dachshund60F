@@ -39,7 +39,8 @@ LOG_MODULE_REGISTER(keyboard, LOG_LEVEL_INF);
 
 BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_row_gpios) == ROWS,
              "default keymap rows must match the devicetree matrix");
-BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_col_gpios) == COLS,
+/* No columns: direct wiring, one key per row pin (src/matrix.h). */
+BUILD_ASSERT(DT_PROP_LEN_OR(DT_PATH(zephyr_user), matrix_col_gpios, 1) == COLS,
              "default keymap columns must match the devicetree matrix");
 
 #if defined(CONFIG_KB_DEBOUNCE_DEFER_GLOBAL)
@@ -54,7 +55,7 @@ BUILD_ASSERT(DT_PROP_LEN(DT_PATH(zephyr_user), matrix_col_gpios) == COLS,
 #define DEBOUNCE_ALGO KB_DEBOUNCE_EAGER_PRESS
 #endif
 
-/* The recovery key: (0, 0), Esc on the Dachshund60F. */
+/* The recovery key: (0, 0), Esc on the Dachshund60F and the button on the Pup. */
 #define RECOVERY_ROW 0
 #define RECOVERY_COL 0
 

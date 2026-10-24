@@ -13,7 +13,6 @@ target_sources(app PRIVATE
   src/main.c
   src/bootloader.c
   src/config.c
-  src/default_keymap.c
   src/encoder_input.c
   src/fw_info.c
   src/indicators.c
@@ -26,6 +25,17 @@ target_sources(app PRIVATE
   src/storage.c
   ${KB_CORE_SOURCES}
 )
+# A board on one of Nordic's own boards (the Pup on the nRF52840 Dongle:
+# boards/nrf52840dongle_nrf52840.*) brings its default keymap from
+# boards/<KB_MODEL>/firmware/.
+set(KB_BOARD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../boards/${CONFIG_KB_MODEL}/firmware)
+if(EXISTS ${KB_BOARD_DIR}/default_keymap.c)
+  target_sources(app PRIVATE ${KB_BOARD_DIR}/default_keymap.c)
+  target_include_directories(app PRIVATE ${KB_BOARD_DIR} src)
+  target_compile_definitions(app PRIVATE KB_BOARD_KEYMAP)
+else()
+  target_sources(app PRIVATE src/default_keymap.c)
+endif()
 target_sources_ifdef(CONFIG_KB_SCREEN app PRIVATE src/status_screen.c)
 target_sources_ifdef(CONFIG_KB_DONGLE app PRIVATE src/kb_esb.c)
 target_include_directories(app PRIVATE ${KB_CORE_INCLUDE_DIRS})

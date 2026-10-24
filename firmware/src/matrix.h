@@ -3,6 +3,9 @@
  * read the rows, which have pull-downs. Pins come from the board
  * devicetree (zephyr,user matrix-row-gpios / matrix-col-gpios), which is
  * written from boards/<name>/board.json.
+ *
+ * A board without matrix-col-gpios is wired directly: each row pin is one
+ * key (its devicetree flags say which level is pressed), all in column 0.
  */
 #ifndef MATRIX_H
 #define MATRIX_H

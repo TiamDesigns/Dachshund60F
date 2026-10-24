@@ -23,6 +23,12 @@ Boards:
   pins of its 2.4 GHz receiver (`hardware/Dachshund60F-Dongle/`), a second
   nRF52840; the host-lib tests check those pins too.
 
+- `Pup/`: a one-key test board, the keyboard firmware on Nordic's nRF52840
+  Dongle (PCA10059), for trying Bluetooth and the 2.4 GHz dongle before the
+  PCB exists. It builds on Zephyr's own `nrf52840dongle/nrf52840` board, so it
+  has no Zephyr board files: its pins and flash layout are in
+  `Pup/firmware/board.overlay`, its default keymap next to it.
+
 Required files per board: `keyboard.json` (layout) and `board.json` (pins,
 USB IDs, power). The host-lib tests validate both for every board folder.
 

@@ -27,27 +27,41 @@ async function rejectsWith(promise: Promise<unknown>, code: string): Promise<voi
   await assert.rejects(promise, (err: unknown) => err instanceof BoardError && err.code === code);
 }
 
-test("default Dachshund60F keymap covers the matrix with valid keycodes", () => {
-  const keymap = defaultKeymap("Dachshund60F")!;
-  assert.equal(keymap.keys.length, 4);
-  for (const layer of keymap.keys) {
-    assert.equal(layer.length, definition.matrix.rows);
-    layer.forEach((row, r) => {
-      assert.equal(row.length, definition.matrix.cols);
-      row.forEach((kc, c) => {
-        assert.ok(isValidKeycode(kc, 4), `${kc} at (${r},${c})`);
-        if (!isMatrixPositionUsed(definition, r, c)) {
-          assert.equal(kc, "KC_NO", `unused position (${r},${c}) should be KC_NO`);
-        }
+const pup = JSON.parse(
+  readFileSync(new URL("../../../boards/Pup/keyboard.json", import.meta.url), "utf8"),
+) as KeyboardDefinition;
+
+for (const def of [definition, pup]) {
+  test(`default ${def.name} keymap covers the matrix with valid keycodes`, () => {
+    const keymap = defaultKeymap(def.name)!;
+    assert.equal(keymap.keys.length, 4);
+    for (const layer of keymap.keys) {
+      assert.equal(layer.length, def.matrix.rows);
+      layer.forEach((row, r) => {
+        assert.equal(row.length, def.matrix.cols);
+        row.forEach((kc, c) => {
+          assert.ok(isValidKeycode(kc, 4), `${kc} at (${r},${c})`);
+          if (!isMatrixPositionUsed(def, r, c)) {
+            assert.equal(kc, "KC_NO", `unused position (${r},${c}) should be KC_NO`);
+          }
+        });
       });
-    });
-  }
-  // Every real switch has a non-empty action on the base layer.
-  for (const k of definition.keys) {
-    assert.notEqual(keymap.keys[0]![k.row]![k.col], "KC_NO", `base layer (${k.row},${k.col})`);
-  }
-  assert.equal(keymap.encoders.length, 4);
-  for (const layer of keymap.encoders) assert.equal(layer.length, definition.encoders.length);
+    }
+    // Every real switch has a non-empty action on the base layer.
+    for (const k of def.keys) {
+      assert.notEqual(keymap.keys[0]![k.row]![k.col], "KC_NO", `base layer (${k.row},${k.col})`);
+    }
+    assert.equal(keymap.encoders.length, 4);
+    for (const layer of keymap.encoders) assert.equal(layer.length, def.encoders.length);
+  });
+}
+
+test("a mock Pup plugs in and reads its one-key keymap", async () => {
+  const m = new MockBoardManager({ definitions: { Pup: pup } });
+  const board = m.plug("Pup", "usb");
+  assert.equal(board.info.model, "Pup");
+  assert.deepEqual((await board.getKeymap()).keys[0], [["KC_A"]]);
+  m.dispose();
 });
 
 test("default keymaps are fresh copies", () => {

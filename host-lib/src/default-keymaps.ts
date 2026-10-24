@@ -42,6 +42,9 @@ const DACHSHUND60F_ENCODERS: EncoderAction[][] = [
   [{ cw: ___, ccw: ___ }],
 ];
 
+/* Pup: the one button on an nRF52840 Dongle (boards/Pup/). */
+const PUP_BASE: KeycodeId[][] = [["KC_A"]];
+
 const DEFAULTS: Record<string, () => Keymap> = {
   Dachshund60F: () => ({
     keys: [
@@ -51,6 +54,12 @@ const DEFAULTS: Record<string, () => Keymap> = {
       transparentLayer(DACHSHUND60F_BASE),
     ].map((layer) => layer.map((row) => [...row])),
     encoders: DACHSHUND60F_ENCODERS.map((layer) => layer.map((e) => ({ ...e }))),
+  }),
+  Pup: () => ({
+    keys: [PUP_BASE, transparentLayer(PUP_BASE), transparentLayer(PUP_BASE), transparentLayer(PUP_BASE)].map(
+      (layer) => layer.map((row) => [...row]),
+    ),
+    encoders: [[], [], [], []],
   }),
 };
 
