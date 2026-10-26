@@ -69,7 +69,7 @@ typedef uint16_t kb_keycode_t;
 /* Layer action ops, in bits 8-11 of a layer keycode */
 #define KB_LAYER_OP_MO 0u  /* momentary: on while held */
 #define KB_LAYER_OP_TG 1u  /* toggle */
-#define KB_LAYER_OP_TO 2u  /* turn this layer on and every other layer off */
+#define KB_LAYER_OP_TO 2u  /* turn this layer on and every other layer off, held ones too */
 #define KB_LAYER_OP_DF 3u  /* set the default (base) layer */
 #define KB_LAYER_OP_OSL 4u /* one-shot: on for the next key press */
 #define KB_LAYER_OP_COUNT 5u

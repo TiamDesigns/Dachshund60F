@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Project review fixes: firmware (2026-10-26)
+
+From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it reviewed a phase-3 checkout, so each finding was re-checked against main first).
+
+- USB (H2): a report that fails to submit was only logged, so a lost final release could leave a key held on the host. Now a failed keyboard or extra-interface submit schedules a resync 8 ms later (a delayed work item, so a failing endpoint isn't retried in a tight loop), and the full current state goes out again, as Bluetooth already did. Queue overflow and interface resets already resynced (finding M3 was fixed in phase 4).
+- `TO(n)` (M4) now also turns off held layers (MO, LT, OSL while held) and a pending one-shot layer. The keys holding them are forgotten, so their releases don't end a later hold of the same layer.
+- One-shot modifiers (M5) survive a bare modifier: tap OSM(Shift), tap or hold Ctrl, press A, and A gets Shift (QMK's behaviour). Before, the bare Ctrl used up the one-shot Shift.
+- Tests: `test_engine` covers TO with a held MO and a second MO key, TO over a one-shot layer, and OSM across a tapped and a held Ctrl. The firmware change needs a board, or a fault-injected endpoint, to exercise.
+
 ### Doghouse 0.1.3: update checks, app settings and a UI pass (2026-10-26)
 
 - Why 0.1.1 never offered 0.1.2: every Doghouse release so far (0.1.0 to 0.1.2) was built without the updater's public key, because the repo has no `TAURI_UPDATER_PUBKEY` variable yet. Those builds have no updater in them and no release has a `latest.json`, so they can't find or install updates. Installing 0.1.3 by hand is the way off them.
