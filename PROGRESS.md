@@ -508,6 +508,13 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - R1 (MCP73831 PROG) is now 3.3 kΩ (was 2 kΩ), so the charge current is 1000 V / 3.3 kΩ, about 300 mA, and the total stays under 500 mA. Value change only (same 0603 footprint), in the schematic and the PCB. A 1000–2000 mAh cell now takes about 4–7.5 h to charge, and the charger runs cooler (about 0.4 W at the start instead of 0.6 W).
 - `docs/bringup-test-plan.md`'s charger numbers are updated to match.
 
+### PCB: antenna keep-out under U1 (2026-10-26)
+
+- Review finding M6: the mainboard's copy of `RF_Module:Raytac_MDBT50Q` had lost the library footprint's keep-out zones, so nothing stopped copper under the antenna (the dongle has its own rule area). Raytac's MDBT50Q spec (Ver.K, p.9–13) asks for a 12.4 × 3.8 mm "no ground pad" band on every layer at the antenna end, plus a 1.6 × 1.2 mm area on the module's own layer, with the module at the board edge.
+- Two board-level rule areas, mapped from the library footprint through U1's placement (back side, 90°, at (329, 73)) and checked against pads 1 and 55. "U1 antenna keep-out" covers F.Cu and B.Cu from (333.0, 66.8) to (337.5, 79.2): the library band, carried 0.75 mm further to the right board edge. "U1 antenna keep-out (B.Cu)" covers (331.75, 73.7) to (332.95, 75.3). Both block tracks, vias, pads and copper pour. The footprints rule is off, because U1's own courtyard overlaps them; pads stay blocked, so another part there still fails DRC.
+- Nothing had been routed there, but the GND pours covered about 50 mm² of the band on each layer. After the refill, no pour is left inside either area.
+- Checks on Tiam's PC (KiCad 10, `kicad-cli pcb drc --schematic-parity --severity-all --refill-zones`): 0 errors, 0 unconnected items, 215 warnings, 7 excluded, the same as before.
+
 ### Licence (2026-10-23)
 
 - Code (firmware, host-lib, Doghouse, protocol, scripts): MIT, in `LICENSE`. host-lib and Doghouse carry `"license": "MIT"`.
