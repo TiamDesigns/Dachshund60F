@@ -222,7 +222,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ### PCB: Dachshund60F schematic and placement (2026-10-21)
 
-Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 kΩ PROG) for a 1000–2000 mAh cell, and USB-C on a separate daughterboard.
+Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 kΩ PROG; lowered to 300 mA on 2026-10-26, see below) for a 1000–2000 mAh cell, and USB-C on a separate daughterboard.
 
 - Schematic: one A2 sheet with 195 parts. ERC is clean (0 errors, 0 warnings). A script checked all 29 module pin nets against `board.json` (0 mismatches).
 - The board has no USB-C connector. J1 is a JST-SH 4-pin for the daughterboard, carrying VBUS, D−, D+ and GND in the Unified Daughterboard order (checked on 2026-10-22; see the daughterboard section).
@@ -501,6 +501,12 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Each pad sits on its net's existing track, so no new routing was needed. The net name is on the back silkscreen, and the reference is on the fab layer. Positions are in `docs/bringup-test-plan.md`.
 - To make room, 7 GND stitching vias were removed, SW1's reference moved below the switch, and the pours were refilled.
 - Checks: ERC unchanged. DRC with schematic parity: 0 errors, 0 unconnected items, and the same warning counts as before the pads.
+
+### PCB: charge current lowered to 300 mA (2026-10-26)
+
+- The project review (2026-10-26) found the 500 mA charge current plus the keyboard's own load (about 100–130 mA worst case through D8: module and radio, LEDs at full white, a display) adds up to about 630 mA, more than a 500 mA USB port allows. Tiam chose to lower it.
+- R1 (MCP73831 PROG) is now 3.3 kΩ (was 2 kΩ), so the charge current is 1000 V / 3.3 kΩ, about 300 mA, and the total stays under 500 mA. Value change only (same 0603 footprint), in the schematic and the PCB. A 1000–2000 mAh cell now takes about 4–7.5 h to charge, and the charger runs cooler (about 0.4 W at the start instead of 0.6 W).
+- `docs/bringup-test-plan.md`'s charger numbers are updated to match.
 
 ### Licence (2026-10-23)
 

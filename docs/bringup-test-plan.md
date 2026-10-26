@@ -10,7 +10,7 @@ The boards, as designed on main (2026-10-23):
 
 | Board | KiCad project | What it carries | Test access |
 | --- | --- | --- | --- |
-| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-1MV2, MCP73831 charger (500 mA), JST-PH battery J2, slide switch, TPS22917 LED switch, 6× SK6812MINI-E, PEC12R encoder, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
+| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-1MV2, MCP73831 charger (300 mA), JST-PH battery J2, slide switch, TPS22917 LED switch, 6× SK6812MINI-E, PEC12R encoder, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
 | USB-C daughterboard | `hardware/Dachshund60F-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, JST-SH J2 | Connector pins and part pads |
 | Dongle | `hardware/Dachshund60F-Dongle/` | MDBT50Q-1MV2, HRO USB-C, USBLC6-2SC6, PTC, PAIR and RESET buttons, RGB LED, SWD J2 | No test points. Probe C1–C4 and J2 |
 
@@ -43,7 +43,7 @@ The first six rows are enough to bring every board up. The rest unlock the measu
 | Phone with nRF Connect for Mobile | BLE advertising, RSSI, connection parameters, range walks | Free |
 | 1S LiPo with a protection circuit, JST-PH 2-pin, 1000–2000 mAh | Charging and battery-life tests | JST-PH battery polarity is not standard between vendors. Check it before plugging in |
 | Inline USB-C power meter | VBUS voltage and current, charging draw | For example a ChargerLAB POWER-Z or similar |
-| Thermocouple or IR thermometer (a thermal camera is better) | Charger IC temperature at 500 mA | The MCP73831 dissipates about 0.6 W early in a charge |
+| Thermocouple or IR thermometer (a thermal camera is better) | Charger IC temperature at 300 mA | The MCP73831 dissipates about 0.4 W early in a charge |
 | Optional: tinySA Ultra or HackRF | 2.4 GHz spectrum, carrier frequency, relative TX power | Only for the radio section |
 | Optional: Cynthion USB analyser | USB packet timing on the wire, poll interval, report-to-host latency | Only if the host-side methods in Stage 4 aren't precise enough |
 | Microscope or 10× loupe, hot-air station, flux | Inspection and rework | |
@@ -100,7 +100,7 @@ Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other,
 | LED data buffer U4 | U1 P0.06 to U4 pin 2; U4 pin 4 to D3 DIN (pin 2) | Under 1 Ω each, and P0.06 not connected straight to D3 |
 | +3V3 to GND | C6/C7 pads, J3-1 to J3-5, J4-1 to J4-2 | High |
 | LED_VDD to GND | C12 or any of C13–C18 | High |
-| PROG resistor R1 | Across R1 | 2.0 kΩ (sets 500 mA charge current) |
+| PROG resistor R1 | Across R1 | 3.3 kΩ (sets about 300 mA charge current) |
 | LED_EN pull-down R2 | Across R2 | 100 kΩ |
 | USB data | J1-2 and J1-3 to the module's D− and D+ pads | Under 1 Ω, and not to each other |
 | SWD | J3-2, J3-3, J3-4 to the module's SWDIO, SWDCLK and nRESET pads | Under 1 Ω |
@@ -184,13 +184,13 @@ Then add USB through the daughterboard and the checked cable, with the bench sup
 
 Use a partly discharged 1S LiPo (3.6–3.8 V), checked for polarity, with the DMM in series on its 10 A range, or the PPK2 in ammeter mode (limit 1 A).
 
-| Measure | Method | Pass (MCP73831-2, PROG = 2 kΩ) |
+| Measure | Method | Pass (MCP73831-2, PROG = 3.3 kΩ) |
 | --- | --- | --- |
-| Fast-charge current | Ammeter in the battery lead, USB in | 500 mA ±10% (I = 1000 V / R_PROG) |
+| Fast-charge current | Ammeter in the battery lead, USB in | 303 mA ±10% (I = 1000 V / R_PROG) |
 | Charge voltage | DMM across J2 at the end of the CV phase | 4.20 V ±0.75% (4.168–4.232 V) |
-| Termination current | Ammeter, at the moment STAT goes high | About 7.5% of 500 mA (around 38 mA); check against the datasheet's table for the -2 variant |
+| Termination current | Ammeter, at the moment STAT goes high | About 7.5% of 303 mA (around 23 mA); check against the datasheet's table for the -2 variant |
 | Charger temperature | Thermocouple or thermal camera on U2 in the first 10 minutes | Under 85 °C on the case; note if thermal regulation cuts the current |
-| Charge time | Log current every minute, 3.0 V to full | Record it; about 2.5–4.5 h for 1000–2000 mAh at 500 mA |
+| Charge time | Log current every minute, 3.0 V to full | Record it; about 4–7.5 h for 1000–2000 mAh at 300 mA |
 | STAT on P0.15 | Logic analyser or DMM | Low while charging, released when done. The BAT54WS should block the 5 V high from reaching the GPIO: check P0.15 never exceeds 3.6 V |
 
 ### Dongle
@@ -405,7 +405,7 @@ The latency rig:
 
 ### Thermal
 
-Thermal camera or thermocouple on U2 (charger), the module and U3 while charging at 500 mA with LEDs on and the radio busy. Record the hottest part and whether the charger enters thermal regulation inside a closed case.
+Thermal camera or thermocouple on U2 (charger), the module and U3 while charging at 300 mA with LEDs on and the radio busy. Record the hottest part and whether the charger enters thermal regulation inside a closed case.
 
 ## Missing firmware and tools
 

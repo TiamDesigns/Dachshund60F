@@ -70411,7 +70411,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "2k"
+		(property "Value" "3.3k"
 			(at 0 -1.43 90)
 			(unlocked yes)
 			(layer "B.SilkS")
