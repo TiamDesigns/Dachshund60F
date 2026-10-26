@@ -83,7 +83,11 @@
         </div>
       {/if}
       {#if app.mock}
-        <MockPanel mock={app.mock} selectedId={app.selectedId} />
+        <MockPanel
+          mock={app.mock}
+          selectedId={app.selectedId}
+          onleave={app.demoChosen ? () => app.leaveDemo() : undefined}
+        />
       {/if}
       <ThemeToggle />
     </div>

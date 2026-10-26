@@ -6,6 +6,13 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Doghouse polish after the first Windows build (2026-10-26)
+
+- Demo mode can be left: when it was opened with `?demo` (rather than forced by a browser without WebHID), the demo panel in the sidebar has **Leave demo mode**, which reloads without `?demo`.
+- Key legends are one size. Long legends were shrunk by length alone (so Space, Shift and Enter were smaller than Bksp); now a legend only shrinks when it wouldn't fit its key (`legendSize` in `geometry.ts`). Shifted symbols are the same size as the base legend, with a gap between the two.
+- Battery colour (`battery.ts`): white when full, shading to yellow as it drains, and red below 15%. The battery LEDs on the board picture (the four dots right of the layer LED, above the arrows) and the bone gauges in the sidebar and header use it; charging still shows the bolt.
+- Tests: `battery.test.ts` and a `legendSize` test; check, test and build pass, and the changes were looked at in Chromium in demo mode (light and dark).
+
 ### Phase 15: Doghouse desktop app, packaging and auto-update (2026-10-24)
 
 - Decided with Tiam: Tauri 2 with auto-update. The app is `app/src-tauri/` (Rust): the same web UI in a native window for Windows, macOS and Linux, version taken from `app/package.json`, bundle identifier `com.tiamdesigns.doghouse`, icons made from the doghouse logo.

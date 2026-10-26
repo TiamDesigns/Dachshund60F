@@ -2,7 +2,11 @@
   import type { MockBoard, MockBoardManager } from "@dachshund60f/host-lib";
 
   /** Controls for the simulated boards, shown in demo mode. */
-  let { mock, selectedId }: { mock: MockBoardManager; selectedId: string | null } = $props();
+  let {
+    mock,
+    selectedId,
+    onleave,
+  }: { mock: MockBoardManager; selectedId: string | null; onleave?: () => void } = $props();
 
   const NAMES = ["Pretzel", "Frank", "Waffles", "Maple", "Schnitzel", "Hazel", "Mochi", "Peanut"];
   let open = $state(false);
@@ -34,6 +38,9 @@
     Demo mode: these boards are pretend
     <span class="chev" class:open>▸</span>
   </button>
+  {#if onleave}
+    <button class="btn small leave" onclick={onleave}>Leave demo mode</button>
+  {/if}
 
   {#if open}
     <div class="controls">
@@ -94,6 +101,10 @@
 
   .chev.open {
     transform: rotate(90deg);
+  }
+
+  .leave {
+    margin: 0 10px 10px;
   }
 
   .controls {
