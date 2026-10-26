@@ -153,7 +153,7 @@
   }
 
   h3 {
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--text-faint);
@@ -201,7 +201,7 @@
   }
 
   .shifted {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--key-sub);
   }
 

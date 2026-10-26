@@ -174,7 +174,7 @@
     border-radius: 999px;
     background: var(--accent);
     color: var(--accent-text);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
   }
 

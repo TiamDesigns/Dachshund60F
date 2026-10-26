@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Doghouse 0.1.3: update checks, app settings and a UI pass (2026-10-26)
+
+- Why 0.1.1 never offered 0.1.2: every Doghouse release so far (0.1.0 to 0.1.2) was built without the updater's public key, because the repo has no `TAURI_UPDATER_PUBKEY` variable yet. Those builds have no updater in them and no release has a `latest.json`, so they can't find or install updates. Installing 0.1.3 by hand is the way off them.
+- Update checks (`app-version.ts`, `desktop.ts`): when the updater can't help (no key in the build, or its check fails), Doghouse asks GitHub's releases API for the newest `doghouse-v*` release and offers "Download from GitHub", which opens the release page (Rust command `open_releases_page`, fixed URL). The CSP allows `https://api.github.com`. The app checks at start-up and every six hours; errors are worded for people (offline, rate-limited, GitHub's status).
+- App settings (sidebar → App settings, `AppSettings.svelte`): theme, the Doghouse, host-lib and protocol versions, and **Check for updates** with what it found or why it couldn't check, and when. The sidebar shows the version under the buttons; the About tab's footer had 0.1.0 hard-coded and now shows the real one (from `package.json` via Vite's `define`).
+- The battery bone is a proper bone: two round knobs at each end and a thick shaft, with a clear outline in both themes.
+- Accessibility and layout: light-theme text colours darkened to reach WCAG AA (muted, faint, accent, sage, key sub-legends) and the dark theme's faint text lightened; no text under 11 px; ghost buttons (Identify, Reset, Forget, Undo…) get an outline so they read as buttons; tabs move with the arrow keys, Home and End; the board list marks the selected board with `aria-current`; the header no longer breaks the serial number across lines; on the Advanced tab the ⓘ buttons sit beside their labels and the number boxes line up.
+- Tests: `app-version.test.ts` (version order, picking the newest release, error wording). Check, test and build pass; looked at in Chromium in demo mode, light and dark. The desktop update paths weren't run (no Tauri build here); clippy runs in CI.
+
 ### Doghouse presets, feature info and a new dog (2026-10-26)
 
 - Presets (Settings tab, `presets.ts`, `PresetPicker.svelte`): Everyday (the factory settings), Gaming (eager debounce, NKRO, a 30-minute nap, and tap-hold, tap dance, combos and Auto Shift off), Careful typing (wait-to-settle debounce, 230 ms tapping term) and Battery saver (10% lights, 5-minute nap). Save current settings as a preset adds your own; Doghouse keeps them in `localStorage`, so they work for every board. A preset sets every setting that changes how the board feels (not the name or colours), so switching always lands in the same place. The Presets section says which preset the board is on, or that it has its own mix. Switching is live like any other change; Save to board keeps it.

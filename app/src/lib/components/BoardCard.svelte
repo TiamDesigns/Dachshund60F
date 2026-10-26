@@ -7,7 +7,7 @@
   let { session, selected, onselect }: { session: BoardSession; selected: boolean; onselect: () => void } = $props();
 </script>
 
-<button class="card" class:selected aria-pressed={selected} onclick={onselect}>
+<button class="card" class:selected aria-current={selected ? "true" : undefined} onclick={onselect}>
   <span class="avatar"><Dachshund width={58} /></span>
   <span class="body">
     <span class="name">

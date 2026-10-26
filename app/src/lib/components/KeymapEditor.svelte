@@ -238,7 +238,7 @@
   }
 
   .n {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-faint);
     font-variant-numeric: tabular-nums;
   }
@@ -284,7 +284,7 @@
   }
 
   .where {
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--text-faint);

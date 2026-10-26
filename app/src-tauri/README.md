@@ -12,10 +12,18 @@ UI in `app/` is the same; this adds what a browser can't do everywhere:
   bootloader, the app finds its UF2 drive (a mounted drive with an
   `INFO_UF2.TXT` whose Board-ID matches) and writes the file onto it. No
   drive picker.
-- **Auto-update** (Tauri's updater plugin): at start-up the app checks the
-  latest GitHub release for a newer Doghouse; the sidebar then offers
-  "Install and restart". Update files are signed, and the app checks the
-  signature against a public key built into it.
+- **Auto-update** (Tauri's updater plugin): at start-up, and every six
+  hours while it's open, the app checks the latest GitHub release for a
+  newer Doghouse; the sidebar then offers "Install and restart". Update
+  files are signed, and the app checks the signature against a public key
+  built into it. App settings (bottom of the sidebar) shows the version and
+  has a **Check for updates** button that says what it found or why it
+  couldn't check.
+- **Updates by hand:** a build without the updater key (a local build, or a
+  release made before the key was set up), or one whose updater fails, asks
+  GitHub's releases API instead. When there's a newer Doghouse it offers
+  "Download from GitHub", which opens the release page in the browser. The
+  installed copy can't replace itself in that case; the new installer does.
 
 ## Run and build
 
@@ -34,7 +42,8 @@ npm run tauri dev      # the app on the Vite dev server, reloading as you edit
 npm run tauri build    # installers in src-tauri/target/release/bundle/
 ```
 
-A local build has no updater key, so it never looks for updates. The Rust
+A local build has no updater key, so it can't install updates itself; it
+still says when a newer release is out. The Rust
 side has its own checks: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`
 and `cargo test` in `app/src-tauri` (after `npm run build`, since the app
 embeds `app/dist`). CI runs them.

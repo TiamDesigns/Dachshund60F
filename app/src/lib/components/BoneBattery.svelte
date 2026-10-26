@@ -3,35 +3,42 @@
 
   import { batteryColor } from "../battery.ts";
 
-  /** Battery level drawn as a bone that fills up. */
+  /** Battery level drawn as a dog bone that fills up from the left. */
   let { battery, width = 52, showText = true }: { battery: BatteryStatus | null; width?: number; showText?: boolean } =
     $props();
 
   const clipId = $props.id();
   const percent = $derived(battery ? Math.max(0, Math.min(100, battery.percent)) : 0);
-  const fillWidth = $derived(4 + (percent / 100) * 52);
+  // The fill runs from the left knobs' outer edge to the right ones'.
+  const fillWidth = $derived(1 + (percent / 100) * 46);
   const tone = $derived(battery ? batteryColor(percent) : "var(--text-faint)");
   const label = $derived(
     !battery ? "Battery level unknown" : `Battery ${percent}%${battery.charging ? ", charging" : ""}`,
   );
-
-  // Outline of a bone: shaft with two rounded knobs at each end.
-  const BONE =
-    "M10 4.5a4.5 4.5 0 0 0-4.4 5.5A4.5 4.5 0 0 0 10 15.5c1.6 0 3-.8 3.8-2h32.4c.8 1.2 2.2 2 3.8 2a4.5 4.5 0 0 0 4.4-5.5A4.5 4.5 0 0 0 50 4.5c-1.6 0-3 .8-3.8 2H13.8c-.8-1.2-2.2-2-3.8-2z";
 </script>
 
+<!-- A bone: two round knobs at each end and a thick shaft between them. -->
+{#snippet bone()}
+  <circle cx="6" cy="6" r="5" />
+  <circle cx="6" cy="16" r="5" />
+  <circle cx="42" cy="6" r="5" />
+  <circle cx="42" cy="16" r="5" />
+  <rect x="6" y="5" width="36" height="12" />
+{/snippet}
+
 <span class="battery" role="img" aria-label={label} title={label}>
-  <svg width={width} height={width / 3} viewBox="0 0 60 20">
+  <svg width={width} height={(width * 22) / 48} viewBox="0 0 48 22" aria-hidden="true">
     <defs>
       <clipPath id={clipId}>
-        <rect x="0" y="0" width={fillWidth} height="20" />
+        <rect x="0" y="0" width={fillWidth} height="22" />
       </clipPath>
     </defs>
-    <path d={BONE} fill="var(--surface-3)" />
-    <path d={BONE} fill={tone} clip-path="url(#{clipId})" />
-    <path d={BONE} fill="none" stroke="var(--border-strong)" stroke-width="1" />
+    <!-- The outline: the shapes stroked, then filled over, leaves only the bone's outer edge. -->
+    <g fill="none" stroke="var(--bone-edge)" stroke-width="2">{@render bone()}</g>
+    <g fill="var(--surface-3)">{@render bone()}</g>
+    <g class="fill" fill={tone} clip-path="url(#{clipId})">{@render bone()}</g>
     {#if battery?.charging}
-      <path d="M31 5.5l-4 5h3l-1 4 4-5h-3z" fill="var(--surface)" stroke="var(--text)" stroke-width=".6" />
+      <path d="M25.5 4.5l-5 7h3.5l-1.5 6 5-7.5h-3.5z" fill="var(--text)" stroke="var(--surface)" stroke-width=".8" stroke-linejoin="round" />
     {/if}
   </svg>
   {#if showText}
@@ -49,9 +56,10 @@
 
   svg {
     display: block;
+    overflow: visible;
   }
 
-  path {
+  .fill {
     transition: fill 300ms;
   }
 

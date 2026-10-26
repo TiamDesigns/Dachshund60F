@@ -2,6 +2,7 @@
   import { app } from "./lib/app-state.svelte.ts";
   import AboutPanel from "./lib/components/AboutPanel.svelte";
   import AdvancedPanel from "./lib/components/AdvancedPanel.svelte";
+  import AppSettings from "./lib/components/AppSettings.svelte";
   import ConnectionPanel from "./lib/components/ConnectionPanel.svelte";
   import BoardCard from "./lib/components/BoardCard.svelte";
   import BoardHeader from "./lib/components/BoardHeader.svelte";
@@ -18,6 +19,7 @@
   type Tab = "keys" | "advanced" | "macros" | "settings" | "connection" | "about";
 
   let tab = $state<Tab>("keys");
+  let appSettingsOpen = $state(false);
   const session = $derived(app.selected);
   // Advanced and Macros only for boards whose firmware has them.
   const TABS = $derived(
@@ -39,6 +41,21 @@
   $effect(() => {
     if (!TABS.some((t) => t.id === tab)) tab = "keys";
   });
+
+  // Arrow keys, Home and End move between tabs (the ARIA tabs pattern).
+  function tabKey(e: KeyboardEvent) {
+    const at = TABS.findIndex((t) => t.id === tab);
+    const to =
+      e.key === "ArrowRight" ? (at + 1) % TABS.length
+      : e.key === "ArrowLeft" ? (at - 1 + TABS.length) % TABS.length
+      : e.key === "Home" ? 0
+      : e.key === "End" ? TABS.length - 1
+      : -1;
+    if (to < 0) return;
+    e.preventDefault();
+    tab = TABS[to]!.id;
+    document.getElementById(`tab-${tab}`)?.focus();
+  }
 </script>
 
 <div class="shell">
@@ -68,11 +85,14 @@
     {/if}
 
     <div class="sidebar-foot">
-      {#if app.appUpdate}
+      {#if app.newerApp}
+        {@const newer = app.newerApp}
         <div class="app-update" role="status">
-          <p>Doghouse {app.appUpdate.version} is out.</p>
+          <p><strong>Doghouse {newer.kind === "install" ? newer.update.version : newer.version} is out.</strong></p>
           <button class="btn primary" disabled={app.appUpdating !== false} onclick={() => app.installAppUpdate()}>
-            {#if app.appUpdating === false}
+            {#if newer.kind === "download"}
+              Download from GitHub
+            {:else if app.appUpdating === false}
               Install and restart
             {:else if app.appUpdating === null}
               Installing…
@@ -89,7 +109,19 @@
           onleave={app.demoChosen ? () => app.leaveDemo() : undefined}
         />
       {/if}
-      <ThemeToggle />
+      <div class="foot-row">
+        <ThemeToggle />
+        <button class="btn ghost small" onclick={() => (appSettingsOpen = true)} aria-haspopup="dialog">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.4 7.4 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7.4 7.4 0 0 0 1.7-1l2.4 1 2-3.4z"
+              fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.8" />
+          </svg>
+          App settings
+        </button>
+      </div>
+      <p class="app-version">Doghouse {__DOGHOUSE_VERSION__}</p>
     </div>
   </aside>
 
@@ -98,11 +130,12 @@
       {#key session.id}
         <BoardHeader {session} />
 
-        <div class="tabs" role="tablist" aria-label="Board sections">
+        <div class="tabs" role="tablist" aria-label="Board sections" tabindex="-1" onkeydown={tabKey}>
           {#each TABS as t (t.id)}
             <button
               role="tab"
               id="tab-{t.id}"
+              tabindex={tab === t.id ? 0 : -1}
               aria-selected={tab === t.id}
               aria-controls="panel-{t.id}"
               class:active={tab === t.id}
@@ -153,6 +186,9 @@
 
   {#if app.update}
     <UpdateDialog update={app.update} onclose={() => app.closeUpdate()} />
+  {/if}
+  {#if appSettingsOpen}
+    <AppSettings onclose={() => (appSettingsOpen = false)} />
   {/if}
   <Toasts toasts={app.toasts} />
 </div>
@@ -268,6 +304,19 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+
+  .foot-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .app-version {
+    margin: -4px 10px 0;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .main {
