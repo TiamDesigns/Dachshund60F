@@ -172,12 +172,14 @@ Then USB alone, through the daughterboard and the checked cable, with nothing on
 | | Q1 gate (R3) | Equal to VBUS |
 | Same, switch on | VSYS | Unchanged. VBAT_SW follows VBAT (the charger output, cycling with no cell; that's harmless now that VSYS doesn't depend on it) |
 
-Then add USB through the daughterboard and the checked cable, with the bench supply still on J2:
+**Never plug in USB with an ordinary bench supply on J2.** With USB in, the charger pushes up to 300 mA into J2. A supply that can't sink current (most bench supplies, and the PPK2) gets driven up towards 4.2 V. Its current limit doesn't protect against that, and some supplies are damaged by it. Take the supply off J2 before USB goes in. USB and battery together are tested with a protected real cell (next section). If you have a supply rated to sink current (a two-quadrant supply or a battery simulator), you can use that instead, set to sink at least 400 mA.
+
+With the cell (or the sinking supply) on J2, plug in USB through the daughterboard and the checked cable:
 
 | Step | Measure | Pass |
 | --- | --- | --- |
 | USB plugged in | VBUS at C2 or J1-1 | 4.75–5.25 V |
-| | Supply current into J2 | Goes negative or to zero: the charger now pushes current into the supply. Most bench supplies can't sink, so the voltage rises to 4.2 V. That is expected; unplug USB to continue |
+| | Current into J2 | Flows into the cell (charging), up to the charge current below |
 | | CHG_STAT at P0.15 (the module side of D1) | Low while charging |
 
 ### Charger, with a real cell
@@ -215,7 +217,7 @@ Each board gets its bootloader once over SWD; after that, firmware goes on by co
 ### Connecting the probe
 
 1. Wire the probe to J3 (mainboard) or J2 (dongle): 1 VDD (the probe's voltage reference, not a supply), 2 SWDIO, 3 SWDCLK, 4 nRESET, 5 GND. Keep the wires under 15 cm.
-2. Power the board itself: the bench supply on J2 for the mainboard, USB for the dongle. The probe must not power it.
+2. Power the board itself: the bench supply on J2 for the mainboard (with USB unplugged), USB for the dongle. The probe must not power it.
 3. Check the probe sees the chip: `nrfutil device list`, or `pyocd list` then `pyocd commander -t nrf52840`.
 4. If the probe connects but can't read memory, the chip has access port protection on. Newer nRF52840 silicon (build code F and later) enables it at every reset unless UICR says otherwise. Run `nrfutil device recover` (or `pyocd erase -t nrf52840 --chip`); it erases everything and opens the port. Note which silicon revision the modules carry; the marking is on the chip under the shield, so read it from `nrfutil device device-info` instead.
 
@@ -227,7 +229,7 @@ The bootloader board files are in `boards/Dachshund60F/bootloader/` (merged in P
 2. Flash `dachshund60f_bootloader_s140_6.1.1.hex` with a full erase:
     - `nrfutil device program --firmware dachshund60f_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ`
     - or `pyocd flash -t nrf52840 --erase chip dachshund60f_bootloader_s140_6.1.1.hex`
-3. Reset. With no app, the DACHSHUND drive mounts (1209:0003) and the six LEDs show the bootloader colours.
+3. Take the bench supply off J2, then power the board from USB alone (no battery). Reset. With no app, the DACHSHUND drive mounts (1209:0003) and the six LEDs show the bootloader colours.
 4. Check `INFO_UF2.TXT` reads `Board-ID: nRF52840-Dachshund60F-v1`.
 5. Check +3V3 now reads 3.3 V (the bootloader set REGOUT0).
 6. Build the firmware (`west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"`, or take `zephyr.uf2` from CI) and copy `build/firmware/firmware/zephyr/zephyr.uf2` to the drive. The board resets into the firmware and enumerates as 1209:0001.

@@ -2,10 +2,12 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-24 (phase 15).
+Last updated: 2026-10-26 (project review follow-ups).
 
 ## Before ordering boards
 
+- **Antenna keep-out on the mainboard (review M6).** The mainboard has no rule area under the MDBT50Q's antenna; the dongle has one. Add a keep-out rule area (no tracks, vias, pads or copper pour, both layers) sized to Raytac's placement guidance for the MDBT50Q-1MV2, refill the zones and run DRC with schematic parity on Tiam's PC (KiCad running). Only reroute if copper turns out to be inside it. Also check the case, display, roller and battery against the same clearance.
+- **Fab check of the overlapping stabiliser holes (review).** ST4 and ST6 NPTH centres are 0.038 mm apart (x 200.969/201.007 mm, y 142.553 and 157.763 mm), from the two spacebar layouts. Ask the fab how it drills them, or look at its CAM preview, before ordering. Also check the USB connector silkscreen/edge warnings on the daughterboard and dongle in the fab preview.
 - **Order the boards (Tiam, planned for the week of 2026-10-23).** Mainboard, USB-C daughterboard and dongle. Ordering also locks the proposed pin map in `boards/Dachshund60F/board.json`.
 
 ## Firmware and app, testable before boards arrive (in phase order)
@@ -25,8 +27,12 @@ Last updated: 2026-10-24 (phase 15).
 - **Code signing for the desktop app.** The installers are unsigned, so Windows SmartScreen and macOS Gatekeeper warn. Windows: an Authenticode certificate (or Azure Trusted Signing) and `bundle.windows.signCommand` or the certificate settings in `app/src-tauri/tauri.conf.json`. macOS: an Apple Developer ID, then the `APPLE_CERTIFICATE`, `APPLE_CERTIFICATE_PASSWORD`, `APPLE_SIGNING_IDENTITY`, `APPLE_ID`, `APPLE_PASSWORD` and `APPLE_TEAM_ID` secrets passed to tauri-action in `doghouse-release.yml` for signing and notarisation. Both cost money each year, so it's Tiam's call.
 - **Input delay on real hardware.** Read Doghouse's About → Input timing after a minute of typing (matrix read time, key-to-report time, how many scans started on a key press), and compare with the end-to-end method in Stage 4 of the bring-up plan. If the matrix read takes long, try a lower `CONFIG_KB_MATRIX_SETTLE_US`.
 
+- **USB edge cases on real hardware (review).** Pull the cable and stall the host mid-typing (a busy VM, a KVM switch) and check no key stays held and taps in a burst aren't lost. Check what Zephyr's HID class does with SET_IDLE (a non-zero idle rate needs a periodic resend, which the firmware doesn't do), unplug and replug during heavy typing (interface teardown against a report in flight), and typing in a BIOS/UEFI setup screen (boot protocol).
+- **Doghouse session tests against the real session module (review).** `serial.test.ts` covers the queue, but `BoardSession` itself (`app-state.svelte.ts`, Svelte runes) has no tests. Compile it with Svelte's `compileModule` in a test, run it against a mock board with delays and injected failures, and cover: two overlapping edits then undo, a failed undo or redo, an edit straight after revert or reset, and unplugging during a reload.
+- **KiCad checks in CI (review).** Run ERC, and DRC with schematic parity, on all four boards with a pinned KiCad (the `kicad/kicad:10.0` image). Fail on new active errors and unconnected items only; keep the seven spacebar exclusions and report active and excluded entries separately. Then the STEP export and the plate could be checked against the PCB in the same job.
+
 ## Tiam's own items
 
 - **Case and mounting.** The mainboard needs no mounting holes (the switches hold it and the plate is gasket-sandwiched). Still open: the daughterboard screws (M2 or M3) and the dongle enclosure.
-- **Display panel.** Pick OLED or e-paper (`firmware/displays/README.md`) and buy one so it arrives with the boards.
+- **Display panel.** Pick OLED or e-paper (`firmware/displays/README.md`) and buy one so it arrives with the boards. Check its worst-case current against what the module's REGOUT0 (+3V3 on J4) can supply alongside the other 3.3 V loads.
 - **nRF52840 Dongles (PCA10059), being ordered.** Two cover the wireless tests before the boards arrive: one runs the Pup (the keyboard firmware, `boards/Pup/README.md`), the other the receiver (`dongle/README.md`).
