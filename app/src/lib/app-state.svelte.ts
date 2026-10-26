@@ -399,18 +399,21 @@ export class AppState {
   appUpdating = $state<number | null | false>(false);
   /** Simulated boards; present only in demo mode. */
   readonly mock: MockBoardManager | undefined;
+  /** Demo mode was asked for (?demo), rather than forced by a browser without WebHID, so it can be left. */
+  readonly demoChosen: boolean;
   private nextToast = 1;
   /** Boards with no keyboard definition here, already reported. */
   private readonly unknown = new Set<Board>();
 
   constructor(
     manager: BoardManager,
-    sources: { hid?: WebHidBoardManager; mock?: MockBoardManager; desktop?: Desktop } = {},
+    sources: { hid?: WebHidBoardManager; mock?: MockBoardManager; desktop?: Desktop; demoChosen?: boolean } = {},
   ) {
     this.manager = manager;
     this.hid = sources.hid;
     this.desktop = sources.desktop;
     this.mock = sources.mock;
+    this.demoChosen = !!sources.mock && !!sources.demoChosen;
     manager.subscribe((boards) => this.sync(boards));
     this.sync(manager.list());
   }
@@ -520,6 +523,13 @@ export class AppState {
     this.selectedId = id;
   }
 
+  /** Leave demo mode: reload without ?demo, so only real boards show. */
+  leaveDemo(): void {
+    const url = new URL(globalThis.location.href);
+    url.searchParams.delete("demo");
+    globalThis.location.replace(url.href);
+  }
+
   notify(text: string, kind: Toast["kind"] = "info"): void {
     const toast = { id: this.nextToast++, text, kind };
     this.toasts = [...this.toasts, toast];
@@ -533,7 +543,8 @@ function createApp(): AppState {
   // The desktop app reaches boards through its own bridge, even where its WebView has WebHID.
   const desktop = inDesktopApp() ? desktopApp() : undefined;
   const browserHid = desktop ? undefined : webHid();
-  const demo = (!browserHid && !desktop) || new URLSearchParams(globalThis.location?.search ?? "").has("demo");
+  const demoChosen = new URLSearchParams(globalThis.location?.search ?? "").has("demo");
+  const demo = (!browserHid && !desktop) || demoChosen;
 
   let notify: (text: string) => void = () => {};
   const hid = browserHid
@@ -555,6 +566,7 @@ function createApp(): AppState {
     ...(hid && { hid }),
     ...(mock && { mock }),
     ...(desktop && { desktop }),
+    demoChosen: demoChosen && (!!browserHid || !!desktop),
   });
   notify = (text) => app.notify(text, "error");
   hid?.start().catch((err) => app.notify(errorText(err), "error"));

@@ -94,3 +94,15 @@ export function fitUnit(def: KeyboardDefinition, width: number, min = 30, max = 
   if (atOne.width <= 0) return max;
   return Math.max(min, Math.min(max, Math.floor(width / atOne.width)));
 }
+
+/**
+ * Font size (px) for a key legend: `base` for every legend that fits the
+ * key, smaller only when a long one (e.g. "2.4G Pair" on a 1u key) wouldn't.
+ */
+export function legendSize(text: string, keyWidth: number, base: number): number {
+  // Bold legends average about 0.62em a character; leave a little padding.
+  const room = keyWidth - Math.max(6, keyWidth * 0.12);
+  const needed = [...text].length * 0.62 * base;
+  if (needed <= room) return base;
+  return Math.max(base * 0.55, (base * room) / needed);
+}

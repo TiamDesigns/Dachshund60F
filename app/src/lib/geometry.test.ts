@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { boardGeometry, fitUnit } from "./geometry.ts";
+import { boardGeometry, fitUnit, legendSize } from "./geometry.ts";
 
 const def = JSON.parse(
   readFileSync(new URL("../../../boards/Dachshund60F/keyboard.json", import.meta.url), "utf8"),
@@ -37,4 +37,15 @@ test("fitUnit fits the board into the available width", () => {
   assert.ok(g.width <= 900);
   assert.equal(fitUnit(def, 100), 30); // clamped to the minimum
   assert.equal(fitUnit(def, 100000), 60); // and the maximum
+});
+
+test("legends share one size unless they don't fit their key", () => {
+  // Short and long legends on 1u and wide keys all get the base size.
+  for (const [text, width] of [["Q", 57], ["Bksp", 57], ["Shift", 135], ["Space", 400], ["Enter", 140]] as const) {
+    assert.equal(legendSize(text, width, 15), 15, text);
+  }
+  // A long legend on a 1u key shrinks just enough to fit.
+  const small = legendSize("2.4G Pair", 57, 15);
+  assert.ok(small < 15 && small >= 15 * 0.55);
+  assert.ok(9 * 0.62 * small <= 57);
 });

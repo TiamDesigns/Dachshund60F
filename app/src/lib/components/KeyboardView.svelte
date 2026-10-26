@@ -12,7 +12,8 @@
     type KeycodeId,
   } from "@dachshund60f/host-lib";
 
-  import { boardGeometry, fitUnit } from "../geometry.ts";
+  import { batteryColor } from "../battery.ts";
+  import { boardGeometry, fitUnit, legendSize } from "../geometry.ts";
   import { resolveKey, TRANSPARENT } from "../keymap.ts";
 
   let {
@@ -51,7 +52,7 @@
     return target?.kind === "key" && target.row === row && target.col === col;
   }
 
-  function face(row: number, col: number) {
+  function face(row: number, col: number, keyWidth: number) {
     const r = resolveKey(keys, layer, row, col);
     const info = keycodeInfo(r.effective, layerCount);
     const transparent = r.own === TRANSPARENT;
@@ -64,7 +65,7 @@
       fromLayer: r.fromLayer,
       empty: r.effective === "KC_NO",
       own: r.own,
-      small: label.length > 4,
+      size: legendSize(label, keyWidth, unit * 0.25),
     };
   }
 
@@ -104,7 +105,7 @@
   >
     <div class="plate" style="width: {geo.width}px; height: {geo.height}px">
       {#each geo.keys as k (`${k.key.row},${k.key.col},${k.key.x}`)}
-        {@const f = face(k.key.row, k.key.col)}
+        {@const f = face(k.key.row, k.key.col, k.w)}
         {@const id = `${k.key.row},${k.key.col}`}
         <button
           class="key"
@@ -113,7 +114,8 @@
           class:empty={f.empty}
           class:assigned={layer > 0 && !f.transparent}
           class:drop={dropTarget === id}
-          style="left: {k.x}px; top: {k.y}px; width: {k.w}px; height: {k.h}px; font-size: {unit * 0.25}px"
+          style="left: {k.x}px; top: {k.y}px; width: {k.w}px; height: {k.h}px; font-size: {unit * 0.25}px; --gap: {unit *
+            0.08}px"
           aria-label="{k.key.legend.join(' ')} key: {f.empty ? 'does nothing' : f.name}{f.transparent
             ? `, from ${layerNames[f.fromLayer]}`
             : ''}"
@@ -127,7 +129,7 @@
         >
           <span class="cap">
             {#if f.shifted}<span class="shifted">{f.shifted}</span>{/if}
-            <span class="label" class:small={f.small}>{f.label}</span>
+            <span class="label" style="font-size: {f.size}px">{f.label}</span>
             {#if f.transparent}<span class="trns" aria-hidden="true">▽</span>{/if}
           </span>
         </button>
@@ -154,7 +156,9 @@
         <span
           class="led {d.indicator.role}"
           class:lit={d.indicator.role === "layer" || ledLit(d.indicator.level)}
-          style="left: {d.cx}px; top: {d.cy}px; --size: {unit * 0.16}px"
+          style="left: {d.cx}px; top: {d.cy}px; --size: {unit * 0.16}px; --charge: {battery
+            ? batteryColor(battery.percent)
+            : 'transparent'}"
           title={d.indicator.label}
         ></span>
       {/each}
@@ -207,7 +211,9 @@
     background: linear-gradient(180deg, var(--key-face), var(--key-edge));
     color: var(--key-legend);
     box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.04);
+    gap: var(--gap);
     line-height: 1.1;
+    white-space: nowrap;
     overflow: hidden;
   }
 
@@ -234,16 +240,12 @@
   }
 
   .shifted {
-    font-size: 0.75em;
+    font-weight: 650;
     color: var(--key-sub);
   }
 
   .label {
     font-weight: 650;
-  }
-
-  .label.small {
-    font-size: 0.8em;
   }
 
   .key.transparent .label,
@@ -318,7 +320,7 @@
   }
 
   .led.lit.battery {
-    background: var(--ochre);
-    box-shadow: 0 0 6px var(--ochre);
+    background: var(--charge);
+    box-shadow: 0 0 6px var(--charge);
   }
 </style>

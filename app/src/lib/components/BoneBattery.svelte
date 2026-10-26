@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { BatteryStatus } from "@dachshund60f/host-lib";
 
+  import { batteryColor } from "../battery.ts";
+
   /** Battery level drawn as a bone that fills up. */
   let { battery, width = 52, showText = true }: { battery: BatteryStatus | null; width?: number; showText?: boolean } =
     $props();
@@ -8,9 +10,7 @@
   const clipId = $props.id();
   const percent = $derived(battery ? Math.max(0, Math.min(100, battery.percent)) : 0);
   const fillWidth = $derived(4 + (percent / 100) * 52);
-  const tone = $derived(
-    !battery ? "var(--text-faint)" : battery.charging ? "var(--sage)" : percent <= 15 ? "var(--danger)" : "var(--ochre)",
-  );
+  const tone = $derived(battery ? batteryColor(percent) : "var(--text-faint)");
   const label = $derived(
     !battery ? "Battery level unknown" : `Battery ${percent}%${battery.charging ? ", charging" : ""}`,
   );
