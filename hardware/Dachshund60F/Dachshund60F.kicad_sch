@@ -12566,6 +12566,24 @@
 				)
 			)
 		)
+		(property "MPN" "Raytac MDBT50Q-1MV2"
+			(at 80.01 123.19 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5118826"
+			(at 80.01 123.19 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "RF_Module:Raytac_MDBT50Q"
 			(at 80.01 120.65 0)
 			(hide yes)
@@ -12626,6 +12644,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "JST SM04B-SRSS-TB(LF)(SN)"
+			(at 24.13 223.52 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C160404"
+			(at 24.13 223.52 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
@@ -12690,6 +12726,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL10A475KO8NNNC"
+			(at 43.815 218.44 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C19666"
+			(at 43.815 218.44 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 43.18 215.9 0)
 			(hide yes)
@@ -12752,6 +12806,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Microchip MCP73831T-2ACI/OT"
+			(at 73.66 209.55 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C424093"
+			(at 73.66 209.55 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-5"
 			(at 72.39 215.9 0)
 			(hide yes)
@@ -12812,6 +12884,24 @@
 				)
 			)
 		)
+		(property "MPN" "UNI-ROYAL 0603WAF3301T5E"
+			(at 55.88 228.6 90)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C22978"
+			(at 55.88 228.6 90)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 55.88 228.6 0)
 			(hide yes)
@@ -12866,6 +12956,24 @@
 		)
 		(property "Value" "BAT54WS"
 			(at 100.33 205.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "CJ BAT54WS"
+			(at 100.33 205.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2991936"
+			(at 100.33 205.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -12934,6 +13042,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL10A475KO8NNNC"
+			(at 100.965 231.14 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C19666"
+			(at 100.965 231.14 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 100.33 228.6 0)
 			(hide yes)
@@ -12995,6 +13121,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "JST S2B-PH-SM4-TB(LF)(SN)"
+			(at 130.81 220.98 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C295747"
+			(at 130.81 220.98 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal"
 			(at 129.54 215.9 0)
 			(hide yes)
@@ -13049,6 +13193,24 @@
 		)
 		(property "Value" "Power"
 			(at 127 248.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "C&K PCM12SMTR"
+			(at 127 248.92 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C221841"
+			(at 127 248.92 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13117,6 +13279,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL10A475KO8NNNC"
+			(at 150.495 246.38 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C19666"
+			(at 150.495 246.38 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 149.86 243.84 0)
 			(hide yes)
@@ -13177,6 +13357,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 160.655 246.38 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 160.655 246.38 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
@@ -13241,6 +13439,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL10A475KO8NNNC"
+			(at 26.035 281.94 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C19666"
+			(at 26.035 281.94 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 25.4 279.4 0)
 			(hide yes)
@@ -13303,6 +13519,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 36.195 281.94 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 36.195 281.94 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 35.56 279.4 0)
 			(hide yes)
@@ -13357,6 +13591,24 @@
 		)
 		(property "Value" "32.768kHz 9pF"
 			(at 60.96 283.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Epson X1A0000910005 (32.768 kHz, 9 pF)"
+			(at 60.96 283.21 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C255869"
+			(at 60.96 283.21 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13425,6 +13677,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "FH 0402CG120J500NT"
+			(at 53.975 294.64 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1547"
+			(at 53.975 294.64 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 53.34 292.1 0)
 			(hide yes)
@@ -13485,6 +13755,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "FH 0402CG120J500NT"
+			(at 69.215 294.64 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1547"
+			(at 69.215 294.64 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
@@ -13548,6 +13836,24 @@
 				)
 			)
 		)
+		(property "MPN" "E-Switch TL3342F160QG"
+			(at 91.44 280.924 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2886898"
+			(at 91.44 280.924 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Button_Switch_SMD:SW_SPST_TL3342"
 			(at 91.44 279.4 0)
 			(hide yes)
@@ -13602,6 +13908,24 @@
 		)
 		(property "Value" "SWD"
 			(at 119.38 287.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "XFCN PZ127V-11-05-H25"
+			(at 119.38 287.02 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C962329"
+			(at 119.38 287.02 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13670,6 +13994,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL10A475KO8NNNC"
+			(at 147.955 281.94 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C19666"
+			(at 147.955 281.94 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 147.32 279.4 0)
 			(hide yes)
@@ -13724,6 +14066,24 @@
 		)
 		(property "Value" "PEC12R-4220F-S0024 (horizontal, 20 mm shaft)"
 			(at 30.48 323.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Bourns PEC12R-4220F-S0024"
+			(at 30.48 323.85 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C18164805"
+			(at 30.48 323.85 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13792,6 +14152,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL05B103KB5NNNC"
+			(at 53.975 347.98 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C15195"
+			(at 53.975 347.98 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 53.34 345.44 0)
 			(hide yes)
@@ -13854,6 +14232,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL05B103KB5NNNC"
+			(at 64.135 347.98 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C15195"
+			(at 64.135 347.98 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 63.5 345.44 0)
 			(hide yes)
@@ -13914,6 +14310,24 @@
 				)
 			)
 		)
+		(property "MPN" "TI TPS22917DBVR"
+			(at 96.52 323.85 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2681320"
+			(at 96.52 323.85 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-6"
 			(at 93.98 330.2 0)
 			(hide yes)
@@ -13968,6 +14382,24 @@
 		)
 		(property "Value" "100k"
 			(at 78.74 345.44 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "UNI-ROYAL 0402WGF1003TCE"
+			(at 78.74 345.44 90)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C25741"
+			(at 78.74 345.44 90)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14036,6 +14468,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL05A105KA5NQNC"
+			(at 79.375 322.58 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C52923"
+			(at 79.375 322.58 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 78.74 320.04 0)
 			(hide yes)
@@ -14096,6 +14546,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left top)
+			)
+		)
+		(property "MPN" "OPSCO SK6812MINI-E"
+			(at 128.27 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5149201"
+			(at 128.27 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
@@ -14160,6 +14628,24 @@
 				(justify left top)
 			)
 		)
+		(property "MPN" "OPSCO SK6812MINI-E"
+			(at 153.67 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5149201"
+			(at 153.67 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 			(at 152.4 330.2 0)
 			(hide yes)
@@ -14220,6 +14706,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 127.635 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 127.635 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
@@ -14284,6 +14788,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 153.035 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 153.035 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 152.4 353.06 0)
 			(hide yes)
@@ -14339,6 +14861,24 @@
 		)
 		(property "Value" "MX Esc (1.00u)"
 			(at 190.5 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 190.5 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 190.5 52.324 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14406,6 +14946,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 215.9 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 215.9 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 215.9 50.8 0)
 			(hide yes)
@@ -14461,6 +15019,24 @@
 		)
 		(property "Value" "MX F2 (1.00u)"
 			(at 241.3 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 241.3 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 241.3 52.324 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14528,6 +15104,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 266.7 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 266.7 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 266.7 50.8 0)
 			(hide yes)
@@ -14583,6 +15177,24 @@
 		)
 		(property "Value" "MX F4 (1.00u)"
 			(at 292.1 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 292.1 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 292.1 52.324 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14650,6 +15262,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 317.5 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 317.5 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 317.5 50.8 0)
 			(hide yes)
@@ -14705,6 +15335,24 @@
 		)
 		(property "Value" "MX F6 (1.00u)"
 			(at 342.9 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 342.9 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 342.9 52.324 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14772,6 +15420,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 368.3 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 368.3 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 368.3 50.8 0)
 			(hide yes)
@@ -14827,6 +15493,24 @@
 		)
 		(property "Value" "MX F8 (1.00u)"
 			(at 393.7 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 393.7 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 393.7 52.324 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14894,6 +15578,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 419.1 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 419.1 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 419.1 50.8 0)
 			(hide yes)
@@ -14949,6 +15651,24 @@
 		)
 		(property "Value" "MX F10 (1.00u)"
 			(at 444.5 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 444.5 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 444.5 52.324 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15016,6 +15736,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 469.9 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 469.9 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 469.9 50.8 0)
 			(hide yes)
@@ -15071,6 +15809,24 @@
 		)
 		(property "Value" "MX F12 (1.00u)"
 			(at 495.3 52.324 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 495.3 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 495.3 52.324 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15138,6 +15894,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 520.7 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 520.7 52.324 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 520.7 50.8 0)
 			(hide yes)
@@ -15193,6 +15967,24 @@
 		)
 		(property "Value" "MX ` (1.00u)"
 			(at 190.5 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 190.5 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 190.5 82.804 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15260,6 +16052,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 215.9 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 215.9 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 215.9 81.28 0)
 			(hide yes)
@@ -15315,6 +16125,24 @@
 		)
 		(property "Value" "MX 2 (1.00u)"
 			(at 241.3 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 241.3 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 241.3 82.804 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15382,6 +16210,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 266.7 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 266.7 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 266.7 81.28 0)
 			(hide yes)
@@ -15437,6 +16283,24 @@
 		)
 		(property "Value" "MX 4 (1.00u)"
 			(at 292.1 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 292.1 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 292.1 82.804 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15504,6 +16368,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 317.5 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 317.5 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 317.5 81.28 0)
 			(hide yes)
@@ -15559,6 +16441,24 @@
 		)
 		(property "Value" "MX 6 (1.00u)"
 			(at 342.9 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 342.9 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 342.9 82.804 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15626,6 +16526,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 368.3 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 368.3 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 368.3 81.28 0)
 			(hide yes)
@@ -15681,6 +16599,24 @@
 		)
 		(property "Value" "MX 8 (1.00u)"
 			(at 393.7 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 393.7 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 393.7 82.804 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15748,6 +16684,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 419.1 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 419.1 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 419.1 81.28 0)
 			(hide yes)
@@ -15803,6 +16757,24 @@
 		)
 		(property "Value" "MX 0 (1.00u)"
 			(at 444.5 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 444.5 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 444.5 82.804 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15870,6 +16842,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 469.9 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 469.9 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 469.9 81.28 0)
 			(hide yes)
@@ -15925,6 +16915,24 @@
 		)
 		(property "Value" "MX = (1.00u)"
 			(at 495.3 82.804 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 495.3 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 495.3 82.804 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -15992,6 +17000,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 520.7 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 520.7 82.804 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_2.00u"
 			(at 520.7 81.28 0)
 			(hide yes)
@@ -16047,6 +17073,24 @@
 		)
 		(property "Value" "MX Tab (1.50u)"
 			(at 190.5 113.284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 190.5 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 190.5 113.284 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16114,6 +17158,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 215.9 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 215.9 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 215.9 111.76 0)
 			(hide yes)
@@ -16169,6 +17231,24 @@
 		)
 		(property "Value" "MX W (1.00u)"
 			(at 241.3 113.284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 241.3 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 241.3 113.284 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16236,6 +17316,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 266.7 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 266.7 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 266.7 111.76 0)
 			(hide yes)
@@ -16291,6 +17389,24 @@
 		)
 		(property "Value" "MX R (1.00u)"
 			(at 292.1 113.284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 292.1 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 292.1 113.284 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16358,6 +17474,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 317.5 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 317.5 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 317.5 111.76 0)
 			(hide yes)
@@ -16413,6 +17547,24 @@
 		)
 		(property "Value" "MX Y (1.00u)"
 			(at 342.9 113.284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 342.9 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 342.9 113.284 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16480,6 +17632,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 368.3 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 368.3 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 368.3 111.76 0)
 			(hide yes)
@@ -16535,6 +17705,24 @@
 		)
 		(property "Value" "MX I (1.00u)"
 			(at 393.7 113.284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 393.7 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 393.7 113.284 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16602,6 +17790,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 419.1 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 419.1 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 419.1 111.76 0)
 			(hide yes)
@@ -16657,6 +17863,24 @@
 		)
 		(property "Value" "MX P (1.00u)"
 			(at 444.5 113.284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 444.5 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 444.5 113.284 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16724,6 +17948,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 469.9 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 469.9 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 469.9 111.76 0)
 			(hide yes)
@@ -16779,6 +18021,24 @@
 		)
 		(property "Value" "MX ] (1.00u)"
 			(at 495.3 113.284 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 495.3 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 495.3 113.284 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16846,6 +18106,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 520.7 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 520.7 113.284 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.50u"
 			(at 520.7 111.76 0)
 			(hide yes)
@@ -16901,6 +18179,24 @@
 		)
 		(property "Value" "MX Caps Lock (1.75u)"
 			(at 190.5 143.764 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 190.5 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 190.5 143.764 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16968,6 +18264,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 215.9 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 215.9 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 215.9 142.24 0)
 			(hide yes)
@@ -17023,6 +18337,24 @@
 		)
 		(property "Value" "MX S (1.00u)"
 			(at 241.3 143.764 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 241.3 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 241.3 143.764 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17090,6 +18422,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 266.7 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 266.7 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 266.7 142.24 0)
 			(hide yes)
@@ -17145,6 +18495,24 @@
 		)
 		(property "Value" "MX F (1.00u)"
 			(at 292.1 143.764 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 292.1 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 292.1 143.764 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17212,6 +18580,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 317.5 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 317.5 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 317.5 142.24 0)
 			(hide yes)
@@ -17267,6 +18653,24 @@
 		)
 		(property "Value" "MX H (1.00u)"
 			(at 342.9 143.764 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 342.9 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 342.9 143.764 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17334,6 +18738,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 368.3 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 368.3 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 368.3 142.24 0)
 			(hide yes)
@@ -17389,6 +18811,24 @@
 		)
 		(property "Value" "MX K (1.00u)"
 			(at 393.7 143.764 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 393.7 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 393.7 143.764 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17456,6 +18896,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 419.1 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 419.1 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 419.1 142.24 0)
 			(hide yes)
@@ -17511,6 +18969,24 @@
 		)
 		(property "Value" "MX ; (1.00u)"
 			(at 444.5 143.764 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 444.5 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 444.5 143.764 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17578,6 +19054,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 469.9 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 469.9 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 469.9 142.24 0)
 			(hide yes)
@@ -17633,6 +19127,24 @@
 		)
 		(property "Value" "MX Enter (2.25u)"
 			(at 520.7 143.764 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 520.7 143.764 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 520.7 143.764 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17700,6 +19212,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 190.5 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 190.5 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_2.25u"
 			(at 190.5 172.72 0)
 			(hide yes)
@@ -17755,6 +19285,24 @@
 		)
 		(property "Value" "MX Z (1.00u)"
 			(at 215.9 174.244 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 215.9 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 215.9 174.244 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17822,6 +19370,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 241.3 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 241.3 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 241.3 172.72 0)
 			(hide yes)
@@ -17877,6 +19443,24 @@
 		)
 		(property "Value" "MX C (1.00u)"
 			(at 266.7 174.244 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 266.7 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 266.7 174.244 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -17944,6 +19528,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 292.1 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 292.1 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 292.1 172.72 0)
 			(hide yes)
@@ -17999,6 +19601,24 @@
 		)
 		(property "Value" "MX B (1.00u)"
 			(at 317.5 174.244 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 317.5 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 317.5 174.244 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18066,6 +19686,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 342.9 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 342.9 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 342.9 172.72 0)
 			(hide yes)
@@ -18121,6 +19759,24 @@
 		)
 		(property "Value" "MX M (1.00u)"
 			(at 368.3 174.244 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 368.3 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 368.3 174.244 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18188,6 +19844,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 393.7 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 393.7 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 393.7 172.72 0)
 			(hide yes)
@@ -18243,6 +19917,24 @@
 		)
 		(property "Value" "MX . (1.00u)"
 			(at 419.1 174.244 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 419.1 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 419.1 174.244 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18310,6 +20002,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 444.5 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 444.5 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 444.5 172.72 0)
 			(hide yes)
@@ -18365,6 +20075,24 @@
 		)
 		(property "Value" "MX Shift (1.75u)"
 			(at 495.3 174.244 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 495.3 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 495.3 174.244 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18432,6 +20160,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 520.7 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 520.7 174.244 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 520.7 172.72 0)
 			(hide yes)
@@ -18487,6 +20233,24 @@
 		)
 		(property "Value" "MX Ctrl (1.25u)"
 			(at 190.5 204.724 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 190.5 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 190.5 204.724 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18554,6 +20318,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 215.9 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 215.9 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.25u"
 			(at 215.9 203.2 0)
 			(hide yes)
@@ -18609,6 +20391,24 @@
 		)
 		(property "Value" "MX Alt (1.25u)"
 			(at 266.7 204.724 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 266.7 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 266.7 204.724 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18859,6 +20659,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 393.7 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 393.7 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_2.25u"
 			(at 393.7 203.2 0)
 			(hide yes)
@@ -18914,6 +20732,24 @@
 		)
 		(property "Value" "MX Fn (1.25u)"
 			(at 444.5 204.724 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 444.5 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 444.5 204.724 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -18981,6 +20817,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 469.9 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 469.9 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.25u"
 			(at 469.9 203.2 0)
 			(hide yes)
@@ -19036,6 +20890,24 @@
 		)
 		(property "Value" "MX Left (1.00u)"
 			(at 495.3 204.724 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 495.3 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 495.3 204.724 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19103,6 +20975,24 @@
 				)
 			)
 		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 520.7 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 520.7 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Keyswitch:SW_Hotswap_Kailh_MX_1.00u"
 			(at 520.7 203.2 0)
 			(hide yes)
@@ -19158,6 +21048,24 @@
 		)
 		(property "Value" "MX Right (1.00u)"
 			(at 546.1 204.724 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "Kailh CPG151101S11 (hot-swap socket; switch not included)"
+			(at 546.1 204.724 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C2803348"
+			(at 546.1 204.724 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19224,6 +21132,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 203.2 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 203.2 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 203.2 50.8 0)
 			(hide yes)
@@ -19278,6 +21204,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 228.6 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 228.6 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 228.6 48.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19344,6 +21288,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 254 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 254 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 254 50.8 0)
 			(hide yes)
@@ -19398,6 +21360,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 279.4 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 279.4 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 279.4 48.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19464,6 +21444,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 304.8 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 304.8 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 304.8 50.8 0)
 			(hide yes)
@@ -19518,6 +21516,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 330.2 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 330.2 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 330.2 48.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19584,6 +21600,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 355.6 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 355.6 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 355.6 50.8 0)
 			(hide yes)
@@ -19638,6 +21672,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 381 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 381 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 381 48.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19704,6 +21756,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 406.4 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 406.4 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 406.4 50.8 0)
 			(hide yes)
@@ -19758,6 +21828,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 431.8 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 431.8 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 431.8 48.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19824,6 +21912,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 457.2 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 457.2 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 457.2 50.8 0)
 			(hide yes)
@@ -19878,6 +21984,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 482.6 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 482.6 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 482.6 48.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -19944,6 +22068,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 508 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 508 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 508 50.8 0)
 			(hide yes)
@@ -19998,6 +22140,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 533.4 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 533.4 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 533.4 48.26 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20064,6 +22224,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 558.8 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 558.8 48.26 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 558.8 50.8 0)
 			(hide yes)
@@ -20118,6 +22296,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 203.2 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 203.2 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 203.2 78.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20184,6 +22380,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 228.6 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 228.6 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 228.6 81.28 0)
 			(hide yes)
@@ -20238,6 +22452,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 254 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 254 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 254 78.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20304,6 +22536,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 279.4 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 279.4 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 279.4 81.28 0)
 			(hide yes)
@@ -20358,6 +22608,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 304.8 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 304.8 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 304.8 78.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20424,6 +22692,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 330.2 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 330.2 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 330.2 81.28 0)
 			(hide yes)
@@ -20478,6 +22764,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 355.6 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 355.6 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 355.6 78.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20544,6 +22848,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 381 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 381 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 381 81.28 0)
 			(hide yes)
@@ -20598,6 +22920,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 406.4 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 406.4 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 406.4 78.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20664,6 +23004,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 431.8 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 431.8 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 431.8 81.28 0)
 			(hide yes)
@@ -20718,6 +23076,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 457.2 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 457.2 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 457.2 78.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20784,6 +23160,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 482.6 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 482.6 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 482.6 81.28 0)
 			(hide yes)
@@ -20838,6 +23232,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 508 78.74 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 508 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 508 78.74 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -20904,6 +23316,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 533.4 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 533.4 78.74 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 533.4 81.28 0)
 			(hide yes)
@@ -20958,6 +23388,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 203.2 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 203.2 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 203.2 109.22 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21024,6 +23472,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 228.6 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 228.6 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 228.6 111.76 0)
 			(hide yes)
@@ -21078,6 +23544,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 254 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 254 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 254 109.22 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21144,6 +23628,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 279.4 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 279.4 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 279.4 111.76 0)
 			(hide yes)
@@ -21198,6 +23700,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 304.8 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 304.8 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 304.8 109.22 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21264,6 +23784,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 330.2 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 330.2 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 330.2 111.76 0)
 			(hide yes)
@@ -21318,6 +23856,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 355.6 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 355.6 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 355.6 109.22 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21384,6 +23940,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 381 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 381 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 381 111.76 0)
 			(hide yes)
@@ -21438,6 +24012,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 406.4 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 406.4 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 406.4 109.22 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21504,6 +24096,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 431.8 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 431.8 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 431.8 111.76 0)
 			(hide yes)
@@ -21558,6 +24168,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 457.2 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 457.2 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 457.2 109.22 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21624,6 +24252,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 482.6 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 482.6 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 482.6 111.76 0)
 			(hide yes)
@@ -21678,6 +24324,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 508 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 508 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 508 109.22 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21744,6 +24408,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 533.4 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 533.4 109.22 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 533.4 111.76 0)
 			(hide yes)
@@ -21798,6 +24480,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 203.2 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 203.2 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 203.2 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21864,6 +24564,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 228.6 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 228.6 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 228.6 142.24 0)
 			(hide yes)
@@ -21918,6 +24636,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 254 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 254 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 254 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21984,6 +24720,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 279.4 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 279.4 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 279.4 142.24 0)
 			(hide yes)
@@ -22038,6 +24792,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 304.8 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 304.8 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 304.8 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22104,6 +24876,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 330.2 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 330.2 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 330.2 142.24 0)
 			(hide yes)
@@ -22158,6 +24948,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 355.6 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 355.6 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 355.6 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22224,6 +25032,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 381 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 381 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 381 142.24 0)
 			(hide yes)
@@ -22278,6 +25104,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 406.4 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 406.4 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 406.4 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22344,6 +25188,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 431.8 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 431.8 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 431.8 142.24 0)
 			(hide yes)
@@ -22398,6 +25260,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 457.2 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 457.2 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 457.2 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22464,6 +25344,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 482.6 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 482.6 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 482.6 142.24 0)
 			(hide yes)
@@ -22518,6 +25416,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 533.4 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 533.4 139.7 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 533.4 139.7 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22584,6 +25500,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 203.2 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 203.2 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 203.2 172.72 0)
 			(hide yes)
@@ -22638,6 +25572,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 228.6 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 228.6 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 228.6 170.18 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22704,6 +25656,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 254 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 254 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 254 172.72 0)
 			(hide yes)
@@ -22758,6 +25728,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 279.4 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 279.4 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 279.4 170.18 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22824,6 +25812,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 304.8 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 304.8 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 304.8 172.72 0)
 			(hide yes)
@@ -22878,6 +25884,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 330.2 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 330.2 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 330.2 170.18 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -22944,6 +25968,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 355.6 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 355.6 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 355.6 172.72 0)
 			(hide yes)
@@ -22998,6 +26040,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 381 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 381 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 381 170.18 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23064,6 +26124,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 406.4 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 406.4 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 406.4 172.72 0)
 			(hide yes)
@@ -23118,6 +26196,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 431.8 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 431.8 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 431.8 170.18 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23184,6 +26280,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 457.2 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 457.2 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 457.2 172.72 0)
 			(hide yes)
@@ -23238,6 +26352,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 508 170.18 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 508 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 508 170.18 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23304,6 +26436,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 533.4 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 533.4 170.18 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 533.4 172.72 0)
 			(hide yes)
@@ -23358,6 +26508,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 203.2 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 203.2 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 203.2 200.66 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23424,6 +26592,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 228.6 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 228.6 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 228.6 203.2 0)
 			(hide yes)
@@ -23478,6 +26664,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 279.4 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 279.4 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 279.4 200.66 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23544,6 +26748,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 304.8 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 304.8 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 304.8 203.2 0)
 			(hide yes)
@@ -23598,6 +26820,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 355.6 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 355.6 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 355.6 200.66 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23664,6 +26904,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 406.4 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 406.4 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 406.4 203.2 0)
 			(hide yes)
@@ -23718,6 +26976,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 457.2 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 457.2 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 457.2 200.66 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23784,6 +27060,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 482.6 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 482.6 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 482.6 203.2 0)
 			(hide yes)
@@ -23838,6 +27132,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 508 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 508 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 508 200.66 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -23904,6 +27216,24 @@
 				)
 			)
 		)
+		(property "MPN" "1N4148W"
+			(at 533.4 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 533.4 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Diode_SMD:D_SOD-123"
 			(at 533.4 203.2 0)
 			(hide yes)
@@ -23958,6 +27288,24 @@
 		)
 		(property "Value" "1N4148W"
 			(at 558.8 200.66 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "1N4148W"
+			(at 558.8 200.66 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C81598"
+			(at 558.8 200.66 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24813,6 +28161,24 @@
 				(justify left top)
 			)
 		)
+		(property "MPN" "OPSCO SK6812MINI-E"
+			(at 179.07 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5149201"
+			(at 179.07 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 			(at 177.8 330.2 0)
 			(hide yes)
@@ -24873,6 +28239,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left top)
+			)
+		)
+		(property "MPN" "OPSCO SK6812MINI-E"
+			(at 204.47 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5149201"
+			(at 204.47 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
@@ -24937,6 +28321,24 @@
 				(justify left top)
 			)
 		)
+		(property "MPN" "OPSCO SK6812MINI-E"
+			(at 229.87 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5149201"
+			(at 229.87 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
 			(at 228.6 330.2 0)
 			(hide yes)
@@ -24997,6 +28399,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left top)
+			)
+		)
+		(property "MPN" "OPSCO SK6812MINI-E"
+			(at 255.27 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C5149201"
+			(at 255.27 335.915 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4"
@@ -25061,6 +28481,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 178.435 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 178.435 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 177.8 353.06 0)
 			(hide yes)
@@ -25121,6 +28559,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 203.835 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 203.835 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
@@ -25185,6 +28641,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 229.235 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 229.235 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
 			(at 228.6 353.06 0)
 			(hide yes)
@@ -25245,6 +28719,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 254.635 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 254.635 355.6 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
@@ -25370,6 +28862,24 @@
 				(justify left)
 			)
 		)
+		(property "MPN" "AO3401A"
+			(at 100.33 259.08 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C15127"
+			(at 100.33 259.08 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23"
 			(at 95.25 257.81 0)
 			(hide yes)
@@ -25490,6 +29000,24 @@
 				)
 			)
 		)
+		(property "MPN" "UNI-ROYAL 0603WAF1003T5E"
+			(at 85.09 261.62 90)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C25803"
+			(at 85.09 261.62 90)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 85.09 261.62 0)
 			(hide yes)
@@ -25564,6 +29092,24 @@
 		)
 		(property "Value" "B5819W"
 			(at 115.57 260.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "B5819W SL"
+			(at 115.57 260.35 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C8598"
+			(at 115.57 260.35 0)
+			(hide yes)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -25670,6 +29216,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "TI SN74LV1T34DBVR"
+			(at 135.89000000000001 303.53 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C100024"
+			(at 135.89000000000001 303.53 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-5"
@@ -25812,6 +29376,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "Samsung CL05B104KO5NNNC"
+			(at 158.11499999999998 309.88 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 158.11499999999998 309.88 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"

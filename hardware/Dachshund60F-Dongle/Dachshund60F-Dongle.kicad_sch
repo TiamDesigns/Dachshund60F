@@ -4809,6 +4809,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C883127"
+			(at 86.36 69.85 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Fuse:Fuse_1206_3216Metric"
 			(at 83.82 66.04 0)
 			(hide yes)
@@ -4836,7 +4845,7 @@
 				)
 			)
 		)
-		(property "MPN" "Bourns MF-NSMF075-2"
+		(property "MPN" "BHFUSE BSMD1206-075-6V"
 			(at 83.82 66.04 0)
 			(hide yes)
 			(effects
@@ -5169,6 +5178,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C1017"
+			(at 104.14 140.97 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Inductor_SMD:L_0805_2012Metric"
 			(at 101.6 137.16 0)
 			(hide yes)
@@ -5281,6 +5299,15 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "LCSC" "C5118826"
+			(at 154.94 55.88 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "RF_Module:Raytac_MDBT50Q"
@@ -5804,6 +5831,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C19666"
+			(at 213.36 64.77 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 210.82 60.96 0)
 			(hide yes)
@@ -5916,6 +5952,15 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 223.52 64.77 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
@@ -6032,6 +6077,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C19666"
+			(at 238.76 64.77 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 236.22 60.96 0)
 			(hide yes)
@@ -6144,6 +6198,15 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "LCSC" "C1525"
+			(at 248.92 64.77 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
@@ -6416,6 +6479,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C11702"
+			(at 236.22 105.41 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 233.68 101.6 0)
 			(hide yes)
@@ -6528,6 +6600,15 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "LCSC" "C25104"
+			(at 246.38 105.41 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
@@ -6644,6 +6725,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C25104"
+			(at 256.54 105.41 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
 			(at 254 101.6 0)
 			(hide yes)
@@ -6756,6 +6846,15 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "LCSC" "C2886898"
+			(at 215.9 156.21 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Button_Switch_SMD:SW_SPST_TL3342"
@@ -6872,6 +6971,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C2886898"
+			(at 246.38 156.21 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Button_Switch_SMD:SW_SPST_TL3342"
 			(at 243.84 152.4 0)
 			(hide yes)
@@ -6984,6 +7092,24 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "MPN" "XFCN PZ127V-11-05-H25"
+			(at 261.62 116.84 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC" "C962329"
+			(at 261.62 116.84 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_1.27mm:PinHeader_1x05_P1.27mm_Vertical"

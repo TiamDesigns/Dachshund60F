@@ -541,6 +541,15 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - `hardware/export_fab.py` writes Gerbers and Excellon drill files (plated and non-plated separate, with drill maps) for all four boards as one zip each.
 - Assembly isn't settled yet: the mainboard's BOM has no MPN or LCSC numbers, and the daughterboard (9 mm wide) is under JLCPCB's 10 mm minimum for assembly, so it needs edge rails or a panel if JLC assembles it.
 
+### PCB: JLCPCB assembly BOM and CPL (2026-10-26)
+
+- Tiam's choice: JLCPCB assembles everything except the key switches, hot-swap sockets included.
+- Every assembled part on the three boards now has `MPN` and `LCSC` fields. Each LCSC number was checked on its jlcpcb.com part page; stock wasn't visible from here, so JLC's BOM upload is where shortages show. Not assembled: the key switches (including the soldered SW604, SW606 and SW615), stabilizers, test pads, and the display header J4 (panel not chosen yet; male pins or a socket depends on it).
+- Substitutions: F1 on the daughterboard and dongle is BHFUSE BSMD1206-075-6V (C883127; 1206, 750 mA hold, 6 V), the same rating as Bourns MF-NSMF075-2, which LCSC doesn't carry. The dongle's ASMB-MTB0-0A3A2 LED has no LCSC number; its BOM row carries the MPN for JLC's global sourcing.
+- PCBA type: the MDBT50Q (X-ray required), the SK6812MINI-E and the Kailh sockets are "Standard only" at JLC, so the mainboard and dongle need Standard PCBA. The encoder, J3 and the dongle's J2 are through-hole.
+- `hardware/export_fab.py` now also writes `<board>-bom.csv` and `<board>-cpl.csv` for the three PCBs. The sockets' footprints are on the front with their pads on B.Cu, so the CPL puts them on the bottom at the socket centre (midpoint of the two pads, 0.62 mm left of and 3.81 mm above the switch centre).
+- Rotations are KiCad's own. Check them in JLC's placement preview before paying, especially the SOT-23 parts, diodes, LEDs and the module.
+
 ### Licence (2026-10-23)
 
 - Code (firmware, host-lib, Doghouse, protocol, scripts): MIT, in `LICENSE`. host-lib and Doghouse carry `"license": "MIT"`.

@@ -3032,6 +3032,15 @@
 				(justify left)
 			)
 		)
+		(property "LCSC" "C883127"
+			(at 142.24 67.31 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
 		(property "Footprint" "Fuse:Fuse_1206_3216Metric"
 			(at 139.7 63.5 0)
 			(hide yes)
@@ -3059,7 +3068,7 @@
 				)
 			)
 		)
-		(property "MPN" "Bourns MF-NSMF075-2"
+		(property "MPN" "BHFUSE BSMD1206-075-6V"
 			(at 139.7 63.5 0)
 			(hide yes)
 			(effects
@@ -3390,6 +3399,15 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+			)
+		)
+		(property "LCSC" "C1017"
+			(at 78.74 146.05 0)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 			)
 		)
 		(property "Footprint" "Inductor_SMD:L_0805_2012Metric"
