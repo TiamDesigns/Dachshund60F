@@ -8,6 +8,11 @@ on:
   push:
     tags: ["doghouse-v*"]
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish the release once every installer is on it (otherwise it stays a draft)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -87,3 +92,17 @@ jobs:
           releaseBody: Installers for Doghouse __VERSION__. See the assets below.
           releaseDraft: true
           args: ${{ matrix.args }} ${{ steps.updater.outputs.args }}
+
+  publish:
+    name: Publish the release
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish doghouse-v<version>
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(node -p 'require("./app/package.json").version')
+          gh release edit "doghouse-v$version" --draft=false --latest

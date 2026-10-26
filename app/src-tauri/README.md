@@ -70,7 +70,9 @@ Each release:
    there) and merge.
 2. Run the workflow from the Actions tab ("Doghouse release" → Run
    workflow), or push a tag `doghouse-v<version>`.
-3. Check the draft release, then publish it. Installed copies look at
+3. Check the draft release, then publish it. Or tick **Publish** when you
+   run the workflow, and it publishes the release (as the latest) once every
+   installer is on it. Installed copies look at
    `releases/latest/download/latest.json`, so the newest published release
    of the repo must be a Doghouse one.
 
