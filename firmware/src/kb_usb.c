@@ -116,6 +116,20 @@ static uint8_t last_consumer[KB_HID_CONSUMER_REPORT_SIZE] = {KB_HID_ID_CONSUMER}
 static uint8_t last_system[KB_HID_SYSTEM_REPORT_SIZE] = {KB_HID_ID_SYSTEM};
 static uint8_t last_mouse[KB_HID_MOUSE_REPORT_SIZE] = {KB_HID_ID_MOUSE};
 
+/* A failed submit loses that report, maybe a key's release: send the whole
+ * state again a little later. Later, so an endpoint that keeps failing isn't
+ * retried in a tight loop; a pending retry isn't pushed back.
+ */
+#define REPORT_RETRY_MS 8
+
+static void retry_handler(struct k_work *work)
+{
+    ARG_UNUSED(work);
+    atomic_set(&resync, 1);
+    keyboard_poke();
+}
+static K_WORK_DELAYABLE_DEFINE(retry_work, retry_handler);
+
 static void pipe_submit_next(struct hid_pipe *p)
 {
     struct report_msg msg;
@@ -139,6 +153,9 @@ static void pipe_submit_next(struct hid_pipe *p)
         }
         LOG_WRN("report dropped (%d)", err);
         atomic_set(&p->busy, 0);
+        if (p != &config_pipe) {
+            k_work_schedule(&retry_work, K_MSEC(REPORT_RETRY_MS));
+        }
     }
 }
 

@@ -212,6 +212,48 @@ static void test_to_layer(void)
     KB_CHECK_EQ(last_layers, 0x1);
 }
 
+static void test_to_turns_off_held_layers(void)
+{
+    /* MO(2) held, TO(1) through it, then a key that is B on 1 and C on 2. */
+    kb_keycode_t def[3][1][4] = {
+        {{MO(2), TO(1), KC_A, MO(2)}},
+        {{_______, _______, KC_B, _______}},
+        {{_______, _______, KC_C, _______}},
+    };
+    kb_keycode_t store[12];
+    struct kb_keymap km;
+    kb_keymap_init(&km, store, 3, 1, 4, &def[0][0][0]);
+    setup();
+    kb_engine_init(&eng, &km, &ops, NULL);
+
+    kb_engine_key(&eng, 0, 0, true, 0);
+    kb_engine_key(&eng, 0, 1, true, 1);
+    kb_engine_key(&eng, 0, 1, false, 2);
+    KB_CHECK_EQ(kb_engine_layer_mask(&eng), 0x3);
+    kb_engine_key(&eng, 0, 2, true, 3);
+    KB_CHECK_EQ(boot[2], KC_B);
+    kb_engine_key(&eng, 0, 2, false, 4);
+
+    /* A new hold of layer 2 isn't ended by the old key's release. */
+    kb_engine_key(&eng, 0, 3, true, 5);
+    KB_CHECK_EQ(kb_engine_layer_mask(&eng), 0x7);
+    kb_engine_key(&eng, 0, 0, false, 6);
+    KB_CHECK_EQ(kb_engine_layer_mask(&eng), 0x7);
+    kb_engine_key(&eng, 0, 3, false, 7);
+    KB_CHECK_EQ(kb_engine_layer_mask(&eng), 0x3);
+}
+
+static void test_to_turns_off_one_shot_layer(void)
+{
+    setup();
+    tap(K_OSL3, 0);
+    KB_CHECK_EQ(last_layers, 0x9);
+    tap(K_TO3, 10); /* TO(0) on layer 3 */
+    KB_CHECK_EQ(last_layers, 0x1);
+    key(K_A, true, 20);
+    KB_CHECK_EQ(boot[2], KC_A);
+}
+
 static void test_default_layer(void)
 {
     kb_keycode_t def[2][1][2] = {{{DF(1), KC_A}}, {{DF(0), KC_B}}};
@@ -317,6 +359,39 @@ static void test_one_shot_mod_held_acts_as_mod(void)
     key(K_OSM, false, 30);
     KB_CHECK_EQ(boot[0], 0);
     key(K_A, true, 40); /* not one-shot, since it was used while held */
+    KB_CHECK_EQ(boot[0], 0);
+}
+
+static void test_one_shot_mod_survives_a_bare_modifier(void)
+{
+    kb_keycode_t def[3] = {OSM(MOD_LSFT), KC_LCTL, KC_A};
+    kb_keycode_t store[3];
+    struct kb_keymap km;
+    kb_keymap_init(&km, store, 1, 1, 3, def);
+    setup();
+    kb_engine_init(&eng, &km, &ops, NULL);
+
+    /* Tapped Ctrl in between: Shift still goes to A. */
+    kb_engine_key(&eng, 0, 0, true, 0);
+    kb_engine_key(&eng, 0, 0, false, 1);
+    kb_engine_key(&eng, 0, 1, true, 2);
+    kb_engine_key(&eng, 0, 1, false, 3);
+    KB_CHECK_EQ(boot[0], 0);
+    kb_engine_key(&eng, 0, 2, true, 4);
+    KB_CHECK_EQ(boot[0], 0x02);
+    KB_CHECK_EQ(boot[2], KC_A);
+    kb_engine_key(&eng, 0, 2, false, 5);
+    KB_CHECK_EQ(boot[0], 0);
+
+    /* Ctrl held: Ctrl+Shift+A, and Ctrl stays down after A. */
+    kb_engine_key(&eng, 0, 0, true, 10);
+    kb_engine_key(&eng, 0, 0, false, 11);
+    kb_engine_key(&eng, 0, 1, true, 12);
+    kb_engine_key(&eng, 0, 2, true, 13);
+    KB_CHECK_EQ(boot[0], 0x03);
+    kb_engine_key(&eng, 0, 2, false, 14);
+    KB_CHECK_EQ(boot[0], 0x01);
+    kb_engine_key(&eng, 0, 1, false, 15);
     KB_CHECK_EQ(boot[0], 0);
 }
 
@@ -649,6 +724,8 @@ int main(void)
     KB_RUN(test_transparent_falls_through);
     KB_RUN(test_toggle_layer);
     KB_RUN(test_to_layer);
+    KB_RUN(test_to_turns_off_held_layers);
+    KB_RUN(test_to_turns_off_one_shot_layer);
     KB_RUN(test_default_layer);
     KB_RUN(test_two_momentary_keys_share_a_layer);
     KB_RUN(test_modded_key);
@@ -656,6 +733,7 @@ int main(void)
     KB_RUN(test_consumer_and_system);
     KB_RUN(test_one_shot_mod);
     KB_RUN(test_one_shot_mod_held_acts_as_mod);
+    KB_RUN(test_one_shot_mod_survives_a_bare_modifier);
     KB_RUN(test_one_shot_layer);
     KB_RUN(test_one_shot_layer_and_mod_stack);
     KB_RUN(test_layer_tap_tap);

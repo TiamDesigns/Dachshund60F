@@ -160,6 +160,26 @@ static void layer_unhold(struct kb_engine *e, uint8_t layer)
     }
 }
 
+/* TO: held and one-shot layers go off too. Keys still holding a layer are
+ * forgotten, so their releases don't take a later hold of the same layer.
+ */
+static void layers_drop_holds(struct kb_engine *e)
+{
+    for (uint8_t r = 0; r < KB_ENGINE_ROWS; r++) {
+        for (uint8_t c = 0; c < KB_MATRIX_MAX_COLS; c++) {
+            kb_keycode_t kc = e->active[r][c];
+            enum kb_keycode_kind kind = kb_keycode_kind(kc, e->keymap->layers);
+            uint8_t op = (kc >> 8) & 0xFu;
+            if (kind == KB_KIND_LT ||
+                (kind == KB_KIND_LAYER && (op == KB_LAYER_OP_MO || op == KB_LAYER_OP_OSL))) {
+                e->active[r][c] = KC_NO;
+            }
+        }
+    }
+    memset(e->layer_holds, 0, sizeof(e->layer_holds));
+    e->oneshot_layer = -1;
+}
+
 static bool on_layers(const struct kb_engine *e, uint16_t layers)
 {
     return layers == 0 || (kb_engine_layer_mask(e) & layers) != 0;
@@ -581,7 +601,10 @@ static void press_keycode(struct kb_engine *e, uint8_t row, uint8_t col, kb_keyc
 
     switch (kind) {
     case KB_KIND_BASIC:
-        take_oneshot_mods(e, row, col);
+        /* A bare modifier leaves pending one-shot modifiers for the next key. */
+        if (kb_keycode_key(kc) < MOD_USAGE_FIRST) {
+            take_oneshot_mods(e, row, col);
+        }
         caps_word_key(e, row, col, kb_keycode_key(kc));
         usage_press(e, kb_keycode_key(kc));
         break;
@@ -609,6 +632,7 @@ static void press_keycode(struct kb_engine *e, uint8_t row, uint8_t col, kb_keyc
             break;
         case KB_LAYER_OP_TO:
             e->layers_on = (uint16_t)(1u << layer);
+            layers_drop_holds(e);
             break;
         case KB_LAYER_OP_DF:
             e->default_layer = layer;
