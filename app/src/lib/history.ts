@@ -31,6 +31,16 @@ export class EditHistory {
     this.redoStack = [];
   }
 
+  /** The edit undo() would reverse, without moving it. */
+  peekUndo(): Edit | undefined {
+    return this.undoStack.at(-1);
+  }
+
+  /** The edit redo() would reapply, without moving it. */
+  peekRedo(): Edit | undefined {
+    return this.redoStack.at(-1);
+  }
+
   /** The edit to reverse, or undefined if there is nothing to undo. */
   undo(): Edit | undefined {
     const edit = this.undoStack.pop();

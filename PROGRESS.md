@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Project review fixes: Doghouse (2026-10-26)
+
+From the project review of 2026-10-26 (H3, M1, M2), all still true on main:
+
+- Every read and change of a board now goes through one queue per session (`SerialQueue` in `serial.ts`): key and encoder edits, undo and redo, save, revert, factory reset, settings, advanced keys, macros, restores and loads. Before, two quick edits to the same key both recorded the original key as "before", so one undo went back too far. Now each edit reads its old value inside the queue. `busy` stays on until every queued change is done.
+- Revert and factory reset read the board back before they say they're done, so an edit made straight after one isn't skipped as "already set". The board's `reverted` event still reloads (for a revert from elsewhere) unless a read has happened since. Reads never throw; a failure shows as the session's problem.
+- Undo and redo move the history only once the board has taken the change, so a failed write leaves Undo where it was.
+- Tests: `serial.test.ts` (order, a failure not blocking the next job, each job seeing the last one's write) and a history peek test. Not tried against a real board.
+
 ### Project review fixes: firmware (2026-10-26)
 
 From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it reviewed a phase-3 checkout, so each finding was re-checked against main first).

@@ -38,6 +38,7 @@ import pup from "@boards/Pup/keyboard.json";
 import { desktopApp, inDesktopApp, type Desktop, type UpdateCheck } from "./desktop.ts";
 import { FirmwareUpdate } from "./firmware-update.svelte.ts";
 import { EditHistory, type Edit } from "./history.ts";
+import { SerialQueue } from "./serial.ts";
 import type { PresetValues } from "./presets.ts";
 
 const { PROTOCOL_VERSION } = protocol;
@@ -103,6 +104,14 @@ export class BoardSession {
   problem = $state<string | null>(null);
 
   private readonly history = new EditHistory();
+  /**
+   * Every read and change of the board, one at a time: each sees what the one
+   * before it did (an edit's old value, a revert's fresh keymap).
+   */
+  private readonly queue = new SerialQueue();
+  private pending = 0;
+  /** Reads of the board started, so a queued reload can tell it has been done since. */
+  private reads = 0;
   private readonly unsubscribe: () => void;
   private batteryTimer: ReturnType<typeof setInterval> | null = null;
   private readonly app: AppState;
@@ -121,9 +130,15 @@ export class BoardSession {
         case "saved":
           void this.refreshUnsaved();
           break;
-        case "reverted":
-          void this.load();
+        case "reverted": {
+          // Revert and reset read the board back themselves; a revert from
+          // elsewhere gets its own read.
+          const seen = this.reads;
+          void this.queue.run(async () => {
+            if (this.reads === seen) await this.read();
+          });
           break;
+        }
       }
     });
   }
@@ -147,7 +162,14 @@ export class BoardSession {
     return this.settings?.name.trim() || this.board.info.model || "Unknown board";
   }
 
-  async load(): Promise<void> {
+  /** Read everything from the board, after whatever is already queued. */
+  load(): Promise<void> {
+    return this.queue.run(() => this.read());
+  }
+
+  /** Never throws: a failure is shown as the session's problem. */
+  private async read(): Promise<void> {
+    this.reads++;
     try {
       // One after another: a real board answers one request at a time anyway.
       this.keymap = await this.board.getKeymap();
@@ -185,15 +207,18 @@ export class BoardSession {
     this.canRedo = this.history.canRedo;
   }
 
+  /** Queue a change to the board; busy until every queued change is done. */
   private async run<T>(fn: () => Promise<T>): Promise<T | undefined> {
+    this.pending++;
     this.busy = true;
     try {
-      return await fn();
+      return await this.queue.run(fn);
     } catch (err) {
       this.app.notify(errorText(err), "error");
       return undefined;
     } finally {
-      this.busy = false;
+      this.pending--;
+      this.busy = this.pending > 0;
     }
   }
 
@@ -209,10 +234,10 @@ export class BoardSession {
   }
 
   async setKey(layer: number, row: number, col: number, keycode: KeycodeId): Promise<void> {
-    if (!this.keymap) return;
-    const before = this.keymap.keys[layer]?.[row]?.[col];
-    if (before === undefined || before === keycode) return;
     await this.run(async () => {
+      // Read inside the queue, after any edit still on its way to the board.
+      const before = this.keymap?.keys[layer]?.[row]?.[col];
+      if (before === undefined || before === keycode) return;
       await this.applyKey(layer, row, col, keycode);
       this.history.record({ kind: "key", layer, row, col, before, after: keycode });
       this.syncHistory();
@@ -220,11 +245,10 @@ export class BoardSession {
   }
 
   async setEncoder(layer: number, encoder: number, action: EncoderAction): Promise<void> {
-    if (!this.keymap) return;
-    const current = this.keymap.encoders[layer]?.[encoder];
-    if (!current) return;
-    const before = { ...current };
     await this.run(async () => {
+      const current = this.keymap?.encoders[layer]?.[encoder];
+      if (!current) return;
+      const before = { ...current };
       await this.applyEncoder(layer, encoder, action);
       this.history.record({ kind: "encoder", layer, encoder, before, after: { ...action } });
       this.syncHistory();
@@ -239,16 +263,25 @@ export class BoardSession {
     }
   }
 
+  /** The history moves only once the board has taken the change. */
   async undo(): Promise<void> {
-    const edit = this.history.undo();
-    this.syncHistory();
-    if (edit) await this.run(() => this.apply(edit, "before"));
+    await this.run(async () => {
+      const edit = this.history.peekUndo();
+      if (!edit) return;
+      await this.apply(edit, "before");
+      this.history.undo();
+      this.syncHistory();
+    });
   }
 
   async redo(): Promise<void> {
-    const edit = this.history.redo();
-    this.syncHistory();
-    if (edit) await this.run(() => this.apply(edit, "after"));
+    await this.run(async () => {
+      const edit = this.history.peekRedo();
+      if (!edit) return;
+      await this.apply(edit, "after");
+      this.history.redo();
+      this.syncHistory();
+    });
   }
 
   async updateSettings(patch: Partial<BoardSettings>): Promise<void> {
@@ -324,6 +357,7 @@ export class BoardSession {
   async revert(): Promise<void> {
     await this.run(async () => {
       await this.board.revert();
+      await this.read();
       this.history.clear();
       this.syncHistory();
       this.app.notify("Back to the last saved state.", "info");
@@ -333,6 +367,7 @@ export class BoardSession {
   async factoryReset(): Promise<void> {
     await this.run(async () => {
       await this.board.factoryReset();
+      await this.read();
       this.history.clear();
       this.syncHistory();
       this.app.notify("Factory settings restored.", "info");
@@ -366,7 +401,7 @@ export class BoardSession {
         throw new Error(`${file.name} isn't a Doghouse backup.`);
       }
       const writes = await restoreBoard(this.board, backup);
-      await this.load();
+      await this.read();
       this.history.clear();
       this.syncHistory();
       this.app.notify(

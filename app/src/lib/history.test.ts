@@ -60,3 +60,16 @@ test("clear empties both stacks", () => {
   assert.equal(h.canUndo, false);
   assert.equal(h.canRedo, false);
 });
+
+test("peeking doesn't move the history", () => {
+  const h = new EditHistory();
+  assert.equal(h.peekUndo(), undefined);
+  h.record(key("KC_A", "KC_B"));
+  assert.deepEqual(h.peekUndo(), key("KC_A", "KC_B"));
+  assert.equal(h.canUndo, true);
+  assert.equal(h.canRedo, false);
+  h.undo();
+  assert.equal(h.peekUndo(), undefined);
+  assert.deepEqual(h.peekRedo(), key("KC_A", "KC_B"));
+  assert.equal(h.canRedo, true);
+});
