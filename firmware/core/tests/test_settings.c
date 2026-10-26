@@ -191,6 +191,7 @@ static void test_features_round_trip(void)
     feat.auto_shift = true;
     feat.caps_word_idle_ms = 0;
     feat.mouse.max_speed = 30;
+    feat.off = KB_OFF_TAP_HOLD | KB_OFF_COMBOS;
     const uint8_t m[] = {'h', 'i', KB_MACRO_END, KB_MACRO_TAP, KC_ENT, 0};
     memcpy(feat.macros, m, sizeof(m));
     KB_CHECK(kb_features_valid(&feat, L, R, C));
@@ -209,6 +210,7 @@ static void test_features_round_trip(void)
     KB_CHECK(loaded.auto_shift);
     KB_CHECK_EQ(loaded.caps_word_idle_ms, 0);
     KB_CHECK_EQ(loaded.mouse.max_speed, 30);
+    KB_CHECK_EQ(loaded.off, KB_OFF_TAP_HOLD | KB_OFF_COMBOS);
     KB_CHECK(memcmp(loaded.macros, feat.macros, KB_MACRO_BUFFER) == 0);
 
     /* The settings decoder skips the feature sections, and vice versa. */

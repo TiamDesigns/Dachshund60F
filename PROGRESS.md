@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Doghouse presets, feature info and a new dog (2026-10-26)
+
+- Presets (Settings tab, `presets.ts`, `PresetPicker.svelte`): Everyday (the factory settings), Gaming (eager debounce, NKRO, a 30-minute nap, and tap-hold, tap dance, combos and Auto Shift off), Careful typing (wait-to-settle debounce, 230 ms tapping term) and Battery saver (10% lights, 5-minute nap). Save current settings as a preset adds your own; Doghouse keeps them in `localStorage`, so they work for every board. A preset sets every setting that changes how the board feels (not the name or colours), so switching always lands in the same place. The Presets section says which preset the board is on, or that it has its own mix. Switching is live like any other change; Save to board keeps it.
+- Firmware: the options entry of the advanced-key tables gets an `off` byte (protocol.yaml; capability `feature_switches`, bit 13). With tap-hold off, LT and MT keys type their tap key the moment they go down; with tap dance off, TD keys send their one-tap action at once; with combos off, no key is held back waiting for a combo partner. The tables themselves are kept, and the field is saved with the other options. Not a breaking change: no protocol version bump, older firmware keeps its 14-byte entry, and host-lib reads it and writes only 14 bytes to it (refusing to switch features off there).
+- Settings has a new "Speed or tricks" section with the three switches, and the Advanced tab says when a table is switched off.
+- Info buttons: an ⓘ beside each setting, advanced option and table, the macros and where keys go, with what it does and its pros and cons (`feature-info.ts`, `InfoTip.svelte`).
+- The dachshund has a proper eye (white, pupil and a glint; a closed eye while it naps), its far legs are always a shade darker than its coat, and it keeps the same coat in light and dark mode (the empty kennel shows the same dog, faded).
+- Tests: core tests for each switch, the options entry and saving it; host-lib tests against the host-built firmware and a fake board with the old 14-byte entry; Doghouse tests for presets. Looked at in Chromium in demo mode, light and dark. Not tried on hardware.
+
 ### Doghouse polish after the first Windows build (2026-10-26)
 
 - Demo mode can be left: when it was opened with `?demo` (rather than forced by a browser without WebHID), the demo panel in the sidebar has **Leave demo mode**, which reloads without `?demo`.

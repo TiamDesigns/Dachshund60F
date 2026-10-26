@@ -125,6 +125,17 @@ struct kb_mouse_config {
     uint8_t wheel_interval_ms;
 };
 
+/*
+ * Features that can be switched off as a whole, for the lowest latency
+ * (a gaming preset): tap-hold keys (LT, MT) act as their tap key at once,
+ * tap dances as their one-tap action at once, and combos stop holding
+ * back the keys they use. The tables are kept.
+ */
+#define KB_OFF_TAP_HOLD 0x01u
+#define KB_OFF_TAP_DANCE 0x02u
+#define KB_OFF_COMBOS 0x04u
+#define KB_OFF_ALL 0x07u
+
 struct kb_features {
     struct kb_combo combos[KB_COMBO_MAX];
     struct kb_tap_dance tap_dances[KB_TAP_DANCE_MAX];
@@ -140,6 +151,8 @@ struct kb_features {
     uint16_t auto_shift_ms;
 
     struct kb_mouse_config mouse;
+
+    uint8_t off;                   /* KB_OFF_*: features switched off */
 
     /* encoders[layer][encoder]; KC_TRNS falls through to lower layers. */
     struct kb_encoder_action encoders[16][KB_ENCODER_MAX];

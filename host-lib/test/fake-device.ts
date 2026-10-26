@@ -21,7 +21,11 @@ export function response(command: number, sequence: number, status: number, payl
 }
 
 /** Answers handshake and get_serial like a board with the given protocol version. */
-export function boardHandler(serial: string, version: number = protocol.PROTOCOL_VERSION): Handler {
+export function boardHandler(
+  serial: string,
+  version: number = protocol.PROTOCOL_VERSION,
+  capabilities: number = protocol.Capability.keymap | protocol.Capability.identify,
+): Handler {
   return (req) => {
     if (req.command === protocol.Command.handshake) {
       const payload = protocol.encodeHandshakeResponse({
@@ -30,7 +34,7 @@ export function boardHandler(serial: string, version: number = protocol.PROTOCOL
         firmwareMinor: 2,
         firmwarePatch: 3,
         build: "fake",
-        capabilities: protocol.Capability.keymap | protocol.Capability.identify,
+        capabilities,
         rows: 6,
         cols: 15,
         layers: 4,

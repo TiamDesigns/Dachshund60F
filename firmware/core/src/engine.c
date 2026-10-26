@@ -789,6 +789,15 @@ static void process(struct kb_engine *e, const struct kb_key_event *ev)
     kb_keycode_t kc = resolve(e, row, col);
     enum kb_keycode_kind kind = kb_keycode_kind(kc, e->keymap->layers);
 
+    /* Switched off: tap-hold keys are their tap key, tap dances their one-tap action. */
+    if ((kind == KB_KIND_LT || kind == KB_KIND_MT) && (e->features->off & KB_OFF_TAP_HOLD)) {
+        kc = kb_keycode_key(kc);
+        kind = kb_keycode_kind(kc, e->keymap->layers);
+    } else if (kind == KB_KIND_TAP_DANCE && (e->features->off & KB_OFF_TAP_DANCE)) {
+        kc = e->features->tap_dances[kc - KB_KC_TAP_DANCE].tap1;
+        kind = kb_keycode_kind(kc, e->keymap->layers);
+    }
+
     /* A one-shot layer lasts for one key, unless that key is another one-shot. */
     bool oneshot = kind == KB_KIND_OSM ||
                    (kind == KB_KIND_LAYER && ((kc >> 8) & 0xFu) == KB_LAYER_OP_OSL);
@@ -1064,7 +1073,8 @@ static unsigned combo_size(const struct kb_combo *c)
 static bool combo_usable(const struct kb_engine *e, unsigned i)
 {
     const struct kb_combo *c = &e->features->combos[i];
-    return c->result != KC_NO && e->combo_down[i] == 0 && on_layers(e, c->layers);
+    return !(e->features->off & KB_OFF_COMBOS) && c->result != KC_NO && e->combo_down[i] == 0 &&
+           on_layers(e, c->layers);
 }
 
 /* Does combo i contain every buffered key (plus optionally ev)? */

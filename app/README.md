@@ -26,8 +26,13 @@ Node's built-in test runner), `npm run build` (static files in `dist/`) and
   battery gauge follows the battery). Click a key and pick from the palette,
   or drag keys from the palette or between keys. Undo/redo (Ctrl+Z, Ctrl+Y),
   Delete clears a key, Ctrl+S saves.
-- **Settings:** board name, debounce, tapping term, NKRO, sleep timeout,
-  indicator brightness, factory reset.
+- **Settings:** presets (Everyday, Gaming, Careful typing, Battery saver and
+  your own, kept by Doghouse in `localStorage` and applied to any board),
+  board name, debounce, tapping term, NKRO, switches that turn tap-hold, tap
+  dance and combos off for the lowest latency, sleep timeout, indicator
+  brightness and colours, factory reset.
+- **Info buttons:** an ⓘ beside each feature says what it does, what it's
+  good for and what to watch out for (`src/lib/feature-info.ts`).
 - **About:** serial, connection, firmware and protocol versions, the
   firmware's features, and a button that restarts the board into its UF2
   bootloader for a firmware update.
@@ -60,5 +65,6 @@ board** stores them in flash; **Revert** goes back to the last save.
 
 Warm earth tones (`src/app.css`): oat and cream surfaces, espresso text, a
 walnut case, terracotta for actions, ochre for energy, sage for "all good".
-Dark mode is a warm den. Boards are dogs: a dachshund avatar, battery as a
+Dark mode is a warm den. Boards are dogs: a dachshund avatar (its coat stays
+the same in both themes), battery as a
 bone, paw-print toasts, "Your pack" for the board list.

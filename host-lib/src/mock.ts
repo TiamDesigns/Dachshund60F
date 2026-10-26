@@ -410,7 +410,12 @@ export class MockBoard implements Board {
   setAdvancedOptions(patch: Partial<AdvancedOptions>): Promise<AdvancedOptions> {
     return this.call(() => {
       const current = this.live.advanced.options;
-      const next: AdvancedOptions = { ...current, ...patch, mouse: { ...current.mouse, ...patch.mouse } };
+      const next: AdvancedOptions = {
+        ...current,
+        ...patch,
+        mouse: { ...current.mouse, ...patch.mouse },
+        off: { ...current.off, ...patch.off },
+      };
       checkAdvancedOptions(next);
       this.live.advanced.options = next;
       this.emit({ type: "changed" });

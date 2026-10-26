@@ -192,6 +192,28 @@ static void test_combo_fires(void)
     KB_CHECK_EQ(last.boot_keys[0], 0);
 }
 
+static void test_combo_switched_off(void)
+{
+    setup();
+    combo(0, K_A, K_B, -1, KC_ESC);
+    feat.off = KB_OFF_COMBOS;
+    apply();
+    key(K_A, true, 0);
+    CHECK_TYPED(KC_A); /* at once, not held back */
+    key(K_B, true, 20);
+    CHECK_TYPED(KC_A, KC_B);
+    key(K_A, false, 30);
+    key(K_B, false, 40);
+    KB_CHECK_EQ(last.boot_keys[0], 0);
+
+    feat.off = 0; /* the table was kept */
+    apply();
+    ntyped = 0;
+    key(K_A, true, 100);
+    key(K_B, true, 110);
+    CHECK_TYPED(KC_ESC);
+}
+
 static void test_combo_too_slow_types_the_keys(void)
 {
     setup();
@@ -337,6 +359,21 @@ static void test_tap_dance_hold(void)
     key(K_A, false, 270);
     key(K_TD, false, 300);
     KB_CHECK_EQ(last.mods, 0);
+}
+
+static void test_tap_dance_switched_off(void)
+{
+    dance_setup();
+    feat.off = KB_OFF_TAP_DANCE;
+    apply();
+    key(K_TD, true, 0);
+    CHECK_TYPED(KC_C); /* the one-tap action, at once */
+    kb_engine_tick(&eng, 400);
+    KB_CHECK_EQ(last.mods, 0); /* holding doesn't turn it into Ctrl */
+    key(K_TD, false, 410);
+    tap(K_TD, 420); /* nor does tapping twice make a double tap */
+    CHECK_TYPED(KC_C, KC_C);
+    KB_CHECK(kb_engine_idle(&eng));
 }
 
 static void test_tap_dance_interrupted(void)
@@ -764,6 +801,15 @@ static void test_entry_codec(void)
     KB_CHECK_EQ(buf[6] | (buf[7] << 8), 175);  /* auto shift */
     KB_CHECK_EQ(buf[8], 16);                   /* mouse interval */
     KB_CHECK_EQ(buf[13], 80);                  /* wheel interval */
+    KB_CHECK_EQ(buf[14], 0);                   /* nothing switched off */
+
+    /* An entry from an older app (no off field) keeps the switches as they are. */
+    feat.off = KB_OFF_COMBOS;
+    KB_CHECK(kb_feature_put(&feat, KB_PROTO_TABLE_OPTIONS, 0, buf, 14));
+    KB_CHECK_EQ(feat.off, KB_OFF_COMBOS);
+    buf[14] = KB_OFF_TAP_HOLD | KB_OFF_TAP_DANCE;
+    KB_CHECK(kb_feature_put(&feat, KB_PROTO_TABLE_OPTIONS, 0, buf, 15));
+    KB_CHECK_EQ(feat.off, KB_OFF_TAP_HOLD | KB_OFF_TAP_DANCE);
 }
 
 /* Validation */
@@ -772,6 +818,11 @@ static void test_features_valid(void)
 {
     kb_features_default(&feat);
     KB_CHECK(kb_features_valid(&feat, LAYERS, ROWS, COLS));
+    feat.off = KB_OFF_ALL;
+    KB_CHECK(kb_features_valid(&feat, LAYERS, ROWS, COLS));
+    feat.off = 0x08; /* no such feature */
+    KB_CHECK(!kb_features_valid(&feat, LAYERS, ROWS, COLS));
+    feat.off = 0;
 
     combo(0, K_A, K_B, -1, KC_ESC);
     KB_CHECK(kb_features_valid(&feat, LAYERS, ROWS, COLS));
@@ -860,6 +911,7 @@ int main(void)
 {
     printf("test_features\n");
     KB_RUN(test_combo_fires);
+    KB_RUN(test_combo_switched_off);
     KB_RUN(test_combo_too_slow_types_the_keys);
     KB_RUN(test_combo_key_tapped_alone);
     KB_RUN(test_combo_other_key_breaks_it);
@@ -869,6 +921,7 @@ int main(void)
     KB_RUN(test_tap_dance_single);
     KB_RUN(test_tap_dance_double_and_triple);
     KB_RUN(test_tap_dance_hold);
+    KB_RUN(test_tap_dance_switched_off);
     KB_RUN(test_tap_dance_interrupted);
     KB_RUN(test_key_override);
     KB_RUN(test_caps_word);

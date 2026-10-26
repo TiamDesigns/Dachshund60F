@@ -10,6 +10,7 @@
 
   import { newStep } from "../advanced.ts";
   import type { BoardSession } from "../app-state.svelte.ts";
+  import InfoTip from "./InfoTip.svelte";
   import KeycodeField from "./KeycodeField.svelte";
 
   let { session }: { session: BoardSession } = $props();
@@ -59,7 +60,7 @@
 <div class="macros">
   <section class="group intro">
     <div>
-      <h2>Macros</h2>
+      <h2>Macros<InfoTip id="macros" /></h2>
       <p class="blurb">Put M0, M1 and so on on a key (Keys tab, “Macros &amp; dances”) and it plays its macro: typed text, key taps, held keys and pauses.</p>
     </div>
     <div class="meter" title="Macro storage on the board">

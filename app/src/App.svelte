@@ -55,7 +55,7 @@
         <BoardCard session={s} selected={s.id === app.selectedId} onselect={() => app.select(s.id)} />
       {:else}
         <div class="empty-pack">
-          <Dachshund width={80} sleeping color="var(--border-strong)" ear="var(--text-faint)" />
+          <span class="napping"><Dachshund width={80} sleeping /></span>
           <p>The kennel is empty. Plug in a board or its dongle.</p>
         </div>
       {/each}
@@ -248,6 +248,10 @@
     border-radius: var(--radius-lg);
     background: var(--surface);
     border: 1px solid var(--border-strong);
+  }
+
+  .napping {
+    opacity: 0.6;
   }
 
   .empty-pack {

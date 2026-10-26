@@ -1,4 +1,5 @@
 #include "kb/engine.h"
+#include "kb/features.h"
 #include "kb_test.h"
 
 #include <string.h>
@@ -354,6 +355,33 @@ static void test_layer_tap_tap(void)
     KB_CHECK_EQ(last_layers, 0x1);
 }
 
+static void test_tap_hold_switched_off(void)
+{
+    static struct kb_features f;
+    setup();
+    kb_features_default(&f);
+    f.off = KB_OFF_TAP_HOLD;
+    kb_engine_set_features(&eng, &f);
+
+    /* The tap key goes down at once and stays down while held: no layer, no Ctrl. */
+    key(K_LT1, true, 0);
+    KB_CHECK_EQ(reports, 1);
+    KB_CHECK_EQ(boot[2], KC_SPC);
+    key(K_A, true, 300);
+    KB_CHECK_EQ(boot[3], KC_A);
+    KB_CHECK_EQ(last_layers, 0x1);
+    key(K_A, false, 310);
+    key(K_LT1, false, 320);
+    KB_CHECK_EQ(boot[2], 0);
+
+    key(K_MT, true, 400);
+    KB_CHECK_EQ(boot[0], 0);
+    KB_CHECK_EQ(boot[2], KC_ESC);
+    key(K_MT, false, 700);
+    KB_CHECK_EQ(boot[2], 0);
+    KB_CHECK(kb_engine_idle(&eng));
+}
+
 static void test_layer_tap_hold_by_timeout(void)
 {
     setup();
@@ -632,6 +660,7 @@ int main(void)
     KB_RUN(test_one_shot_layer_and_mod_stack);
     KB_RUN(test_layer_tap_tap);
     KB_RUN(test_layer_tap_hold_by_timeout);
+    KB_RUN(test_tap_hold_switched_off);
     KB_RUN(test_idle_only_without_timers);
     KB_RUN(test_layer_tap_waits_for_decision);
     KB_RUN(test_layer_tap_rolled_over_is_a_tap);

@@ -12,6 +12,8 @@
   const DEFAULT_VIEW: BoardSettings = { ...DEFAULT_SETTINGS };
 
   import type { BoardSession } from "../app-state.svelte.ts";
+  import InfoTip from "./InfoTip.svelte";
+  import PresetPicker from "./PresetPicker.svelte";
 
   let { session }: { session: BoardSession } = $props();
 
@@ -82,6 +84,18 @@
     void session.updateIndicators({ layers });
   }
 
+  type Switch = "tapHold" | "tapDance" | "combos";
+  const SWITCHES: { id: Switch; label: string; info: "tapHoldSwitch" | "tapDanceSwitch" | "combosSwitch"; blurb: string }[] = [
+    { id: "tapHold", label: "Tap-hold keys", info: "tapHoldSwitch", blurb: "Layer-tap and mod-tap keys. Off, they type their tap key the moment they go down." },
+    { id: "tapDance", label: "Tap dance", info: "tapDanceSwitch", blurb: "Off, TD keys send their single tap at once." },
+    { id: "combos", label: "Combos", info: "combosSwitch", blurb: "Off, keys never wait for a combo partner." },
+  ];
+
+  function setSwitch(id: Switch, on: boolean) {
+    const off = session.advanced?.options.off;
+    if (off) void session.updateAdvancedOptions({ off: { ...off, [id]: !on } });
+  }
+
   function commit(patch: Partial<BoardSettings>) {
     void session.updateSettings(patch);
   }
@@ -95,6 +109,8 @@
 
 <div class="settings">
   {#if session.settings}
+  <PresetPicker {session} />
+
   <section class="group">
     <h2>Name tag</h2>
     <label class="row">
@@ -123,7 +139,7 @@
     <h2>Typing feel</h2>
     <label class="row">
       <span class="label">
-        Debounce
+        <span class="name">Debounce<InfoTip id="debounce" /></span>
         <small>How long a switch must settle before a press counts. Raise it if keys double-type.</small>
       </span>
       <span class="control">
@@ -140,7 +156,7 @@
     </label>
     <label class="row">
       <span class="label">
-        Debounce style
+        <span class="name">Debounce style<InfoTip id="debounceStyle" /></span>
         <small>Eager sends a press the moment a switch closes; waiting to settle ignores noise first, but adds the debounce time.</small>
       </span>
       <select value={s.debounceAlgorithm} onchange={(e) => commit({ debounceAlgorithm: e.currentTarget.value as DebounceAlgorithm })}>
@@ -151,7 +167,7 @@
     </label>
     <label class="row">
       <span class="label">
-        Tapping term
+        <span class="name">Tapping term<InfoTip id="tappingTerm" /></span>
         <small>Hold longer than this and a dual-role key acts as its hold action.</small>
       </span>
       <span class="control">
@@ -169,18 +185,35 @@
     </label>
     <label class="row">
       <span class="label">
-        N-key rollover
+        <span class="name">N-key rollover<InfoTip id="nkro" /></span>
         <small>Report every key held at once. Turn off for old BIOSes and KVM switches.</small>
       </span>
       <input class="switch" type="checkbox" checked={s.nkro} onchange={(e) => commit({ nkro: e.currentTarget.checked })} />
     </label>
   </section>
 
+  {#if session.advanced && session.supports("featureSwitches")}
+    {@const off = session.advanced.options.off}
+    <section class="group">
+      <h2>Speed or tricks</h2>
+      <p class="hint">Each of these makes some keys wait a moment to see what you mean. Switch them off for the lowest latency; what you've set up in the Advanced tab is kept.</p>
+      {#each SWITCHES as sw (sw.id)}
+        <label class="row">
+          <span class="label">
+            <span class="name">{sw.label}<InfoTip id={sw.info} /></span>
+            <small>{sw.blurb}</small>
+          </span>
+          <input class="switch" type="checkbox" checked={!off[sw.id]} onchange={(e) => setSwitch(sw.id, e.currentTarget.checked)} />
+        </label>
+      {/each}
+    </section>
+  {/if}
+
   <section class="group">
     <h2>Naps and lights</h2>
     <label class="row">
       <span class="label">
-        Nap after
+        <span class="name">Nap after<InfoTip id="sleep" /></span>
         <small>Idle time before the board sleeps on battery. Any key wakes it.</small>
       </span>
       <select value={s.sleepTimeoutMin} onchange={(e) => commit({ sleepTimeoutMin: Number(e.currentTarget.value) })}>
@@ -191,7 +224,7 @@
     </label>
     <label class="row">
       <span class="label">
-        Indicator brightness
+        <span class="name">Indicator brightness<InfoTip id="brightness" /></span>
         <small>Layer, battery and Caps Lock lights. Lower is kinder to the battery.</small>
       </span>
       <span class="control">
@@ -216,7 +249,7 @@
       {#if lights.layer}
         <div class="row">
           <span class="label">
-            Layer light
+            <span class="name">Layer light<InfoTip id="layerLight" /></span>
             <small>Its colour on each layer. Black keeps it off, as it is on Base by default.</small>
           </span>
           <span class="swatches">
@@ -232,7 +265,7 @@
       {#if lights.caps || lights.num || lights.scroll}
         <div class="row">
           <span class="label">
-            Lock lights
+            <span class="name">Lock lights<InfoTip id="lockLights" /></span>
             <small>Shown while the computer has the lock on.</small>
           </span>
           <span class="swatches">
@@ -251,7 +284,7 @@
       {#if lights.battery}
         <div class="row">
           <span class="label">
-            Battery gauge
+            <span class="name">Battery gauge<InfoTip id="batteryGauge" /></span>
             <small>Its usual colour, and the colour of the whole gauge once the battery runs low.</small>
           </span>
           <span class="swatches">
@@ -261,7 +294,7 @@
         </div>
         <label class="row">
           <span class="label">
-            Low battery at
+            <span class="name">Low battery at<InfoTip id="lowBattery" /></span>
             <small>The gauge turns to its low colour at or below this level.</small>
           </span>
           <span class="control">
@@ -291,7 +324,7 @@
     <h2>Fresh start</h2>
     <div class="row">
       <span class="label">
-        Factory reset
+        <span class="name">Factory reset<InfoTip id="factoryReset" /></span>
         <small>Puts back the default keymap and settings, and saves them.</small>
       </span>
       <button class="btn" onclick={resetToFactory}>Reset…</button>
@@ -331,6 +364,16 @@
 
   .row:first-of-type {
     border-top: 0;
+  }
+
+  .hint {
+    margin: 0 0 4px;
+    color: var(--text-muted);
+  }
+
+  .name {
+    display: inline-flex;
+    align-items: center;
   }
 
   .label {

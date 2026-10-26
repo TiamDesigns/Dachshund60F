@@ -44,6 +44,7 @@ export const DEFAULT_ADVANCED_OPTIONS: Readonly<AdvancedOptions> = {
   autoShift: false,
   autoShiftMs: 175,
   mouse: { intervalMs: 16, moveDelta: 4, maxSpeed: 20, timeToMaxMs: 1000, wheelIntervalMs: 80 },
+  off: { tapHold: false, tapDance: false, combos: false },
 };
 
 /** Empty tables and default options, as after a factory reset. */

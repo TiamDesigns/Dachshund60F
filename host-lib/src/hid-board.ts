@@ -302,7 +302,9 @@ export class HidBoard implements Board {
     const r = decodeGetFeatureResponse(
       await this.client.request(Command.getFeature, encodeGetFeatureRequest({ table: id, index })),
     );
-    if (r.table !== id || r.index !== index || r.data.length < size) {
+    // Older firmware has a shorter options entry (no off field); its decoder fills in the rest.
+    const min = table === "options" ? codec.OPTIONS_SIZE_V1 : size;
+    if (r.table !== id || r.index !== index || r.data.length < min) {
       throw new BoardError("protocol-error", `${table} entry ${index} came back wrong`);
     }
     return r.data.subarray(0, size);
@@ -389,8 +391,15 @@ export class HidBoard implements Board {
   async setAdvancedOptions(patch: Partial<AdvancedOptions>): Promise<AdvancedOptions> {
     this.check(Capability.advancedKeys, "advanced keys");
     const current = codec.decodeOptions(await this.getEntry("options", 0));
-    const next = { ...current, ...patch, mouse: { ...current.mouse, ...patch.mouse } };
-    await this.setEntry("options", 0, encoded(codec.encodeOptions, next));
+    const next = { ...current, ...patch, mouse: { ...current.mouse, ...patch.mouse }, off: { ...current.off, ...patch.off } };
+    let bytes = encoded(codec.encodeOptions, next);
+    if (!(this.capabilities & Capability.featureSwitches)) {
+      if (next.off.tapHold || next.off.tapDance || next.off.combos) {
+        throw new BoardError("not-supported", "this board's firmware can't switch features off; update it first");
+      }
+      bytes = bytes.subarray(0, codec.OPTIONS_SIZE_V1);
+    }
+    await this.setEntry("options", 0, bytes);
     return next;
   }
 
