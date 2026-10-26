@@ -6,7 +6,6 @@ Last updated: 2026-10-26 (project review follow-ups).
 
 ## Before ordering boards
 
-- **Antenna keep-out on the mainboard (review M6).** The mainboard has no rule area under the MDBT50Q's antenna; the dongle has one. Add a keep-out rule area (no tracks, vias, pads or copper pour, both layers) sized to Raytac's placement guidance for the MDBT50Q-1MV2, refill the zones and run DRC with schematic parity on Tiam's PC (KiCad running). Only reroute if copper turns out to be inside it. Also check the case, display, roller and battery against the same clearance.
 - **Fab check of the overlapping stabiliser holes (review).** ST4 and ST6 NPTH centres are 0.038 mm apart (x 200.969/201.007 mm, y 142.553 and 157.763 mm), from the two spacebar layouts. Ask the fab how it drills them, or look at its CAM preview, before ordering. Also check the USB connector silkscreen/edge warnings on the daughterboard and dongle in the fab preview.
 - **Order the boards (Tiam, planned for the week of 2026-10-23).** Mainboard, USB-C daughterboard and dongle. Ordering also locks the proposed pin map in `boards/Dachshund60F/board.json`.
 
