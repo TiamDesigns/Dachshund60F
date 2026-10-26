@@ -12,6 +12,37 @@ fn updates_enabled(app: tauri::AppHandle) -> bool {
     app.config().plugins.0.contains_key("updater")
 }
 
+/// Where people download Doghouse by hand (app/src/lib/app-version.ts).
+const RELEASES_URL: &str = "https://github.com/TiamDesigns/Dachshund60F/releases/latest";
+
+/// Opens the download page in the computer's browser, for copies that can't
+/// install an update themselves. Only this one address, never one from the UI.
+#[tauri::command]
+fn open_releases_page() -> Result<(), String> {
+    #[cfg(target_os = "windows")]
+    let mut command = {
+        let mut c = std::process::Command::new("rundll32");
+        c.args(["url.dll,FileProtocolHandler", RELEASES_URL]);
+        c
+    };
+    #[cfg(target_os = "macos")]
+    let mut command = {
+        let mut c = std::process::Command::new("open");
+        c.arg(RELEASES_URL);
+        c
+    };
+    #[cfg(not(any(target_os = "windows", target_os = "macos")))]
+    let mut command = {
+        let mut c = std::process::Command::new("xdg-open");
+        c.arg(RELEASES_URL);
+        c
+    };
+    command
+        .spawn()
+        .map(|_| ())
+        .map_err(|err| format!("couldn't open the browser: {err}"))
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_process::init())
@@ -31,6 +62,7 @@ pub fn run() {
             uf2::uf2_drives,
             uf2::uf2_write,
             updates_enabled,
+            open_releases_page,
         ])
         .run(tauri::generate_context!())
         .expect("Doghouse couldn't start");

@@ -92,7 +92,7 @@
   }
 
   small {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-faint);
     min-height: 1.3em;
   }

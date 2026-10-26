@@ -148,7 +148,8 @@
         <span>Leader timeout<InfoTip id="leaderTimeout" /> <small>per key of a sequence</small></span>
         <span class="num">
           <input type="number" min={L.leaderTimeoutMs.min} max={L.leaderTimeoutMs.max} step="10"
-            value={adv.options.leaderTimeoutMs} onchange={(e) => setOption({ leaderTimeoutMs: num(e) })} /> ms
+            value={adv.options.leaderTimeoutMs} onchange={(e) => setOption({ leaderTimeoutMs: num(e) })} />
+          <span class="unit">ms</span>
         </span>
       </label>
       <label class="opt">
@@ -160,7 +161,8 @@
         <span>Caps Word idle timeout<InfoTip id="capsWordIdle" /> <small>0 = never</small></span>
         <span class="num">
           <input type="number" min={L.capsWordIdleMs.min} max={L.capsWordIdleMs.max} step="500"
-            value={adv.options.capsWordIdleMs} onchange={(e) => setOption({ capsWordIdleMs: num(e) })} /> ms
+            value={adv.options.capsWordIdleMs} onchange={(e) => setOption({ capsWordIdleMs: num(e) })} />
+          <span class="unit">ms</span>
         </span>
       </label>
       <label class="opt">
@@ -172,7 +174,8 @@
         <span>Auto Shift hold time<InfoTip id="autoShiftMs" /></span>
         <span class="num">
           <input type="number" min={L.autoShiftMs.min} max={L.autoShiftMs.max} step="5"
-            value={adv.options.autoShiftMs} onchange={(e) => setOption({ autoShiftMs: num(e) })} /> ms
+            value={adv.options.autoShiftMs} onchange={(e) => setOption({ autoShiftMs: num(e) })} />
+          <span class="unit">ms</span>
         </span>
       </label>
       <label class="opt">
@@ -180,6 +183,7 @@
         <span class="num">
           <input type="number" min="1" max={adv.options.mouse.maxSpeed}
             value={adv.options.mouse.moveDelta} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, moveDelta: num(e) } })} />
+          <span class="unit"></span>
         </span>
       </label>
       <label class="opt">
@@ -187,27 +191,31 @@
         <span class="num">
           <input type="number" min={L.mouseSpeed.min} max={L.mouseSpeed.max}
             value={adv.options.mouse.maxSpeed} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, maxSpeed: num(e) } })} />
+          <span class="unit"></span>
         </span>
       </label>
       <label class="opt">
         <span>Mouse time to top speed<InfoTip id="mouseAccel" /></span>
         <span class="num">
           <input type="number" min={L.mouseTimeToMaxMs.min} max={L.mouseTimeToMaxMs.max} step="50"
-            value={adv.options.mouse.timeToMaxMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, timeToMaxMs: num(e) } })} /> ms
+            value={adv.options.mouse.timeToMaxMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, timeToMaxMs: num(e) } })} />
+          <span class="unit">ms</span>
         </span>
       </label>
       <label class="opt">
         <span>Mouse step interval<InfoTip id="mouseInterval" /></span>
         <span class="num">
           <input type="number" min={L.mouseIntervalMs.min} max={L.mouseIntervalMs.max}
-            value={adv.options.mouse.intervalMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, intervalMs: num(e) } })} /> ms
+            value={adv.options.mouse.intervalMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, intervalMs: num(e) } })} />
+          <span class="unit">ms</span>
         </span>
       </label>
       <label class="opt">
         <span>Scroll step interval<InfoTip id="wheelInterval" /></span>
         <span class="num">
           <input type="number" min={L.wheelIntervalMs.min} max={L.wheelIntervalMs.max}
-            value={adv.options.mouse.wheelIntervalMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, wheelIntervalMs: num(e) } })} /> ms
+            value={adv.options.mouse.wheelIntervalMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, wheelIntervalMs: num(e) } })} />
+          <span class="unit">ms</span>
         </span>
       </label>
     </div>
@@ -419,14 +427,26 @@
   }
 
   .opt > span:first-child {
-    display: flex;
-    flex-direction: column;
     font-weight: 600;
+  }
+
+  .opt small {
+    display: block;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--text-muted);
   }
 
   .num {
     flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     color: var(--text-muted);
+  }
+
+  .unit {
+    width: 1.6em;
   }
 
   input[type="number"],

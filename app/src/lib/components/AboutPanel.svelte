@@ -163,7 +163,7 @@
     </section>
   {/if}
 
-  <p class="foot">Doghouse 0.1.0 · host-lib {HOST_LIB_VERSION}</p>
+  <p class="foot">Doghouse {__DOGHOUSE_VERSION__} · host-lib {HOST_LIB_VERSION}</p>
 </div>
 
 <style>

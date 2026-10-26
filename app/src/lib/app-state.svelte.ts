@@ -35,7 +35,7 @@ import {
 import dachshund60f from "@boards/Dachshund60F/keyboard.json";
 import pup from "@boards/Pup/keyboard.json";
 
-import { desktopApp, inDesktopApp, type AppUpdate, type Desktop } from "./desktop.ts";
+import { desktopApp, inDesktopApp, type Desktop, type UpdateCheck } from "./desktop.ts";
 import { FirmwareUpdate } from "./firmware-update.svelte.ts";
 import { EditHistory, type Edit } from "./history.ts";
 import type { PresetValues } from "./presets.ts";
@@ -396,6 +396,16 @@ export class BoardSession {
   }
 }
 
+/** How the last look for a newer Doghouse went. */
+export type AppUpdateStatus =
+  | { state: "idle" }
+  | { state: "checking" }
+  | { state: "checked"; found: UpdateCheck; at: Date }
+  | { state: "failed"; error: string; at: Date };
+
+/** How often the desktop app looks for a newer Doghouse while it's open. */
+const APP_UPDATE_EVERY_MS = 6 * 60 * 60 * 1000;
+
 export class AppState {
   sessions = $state<BoardSession[]>([]);
   selectedId = $state<string | null>(null);
@@ -408,8 +418,8 @@ export class AppState {
   readonly hid: WebHidBoardManager | undefined;
   /** The desktop app, when Doghouse runs in it: boards come in by themselves. */
   readonly desktop: Desktop | undefined;
-  /** A newer Doghouse for the desktop app, once found. */
-  appUpdate = $state<AppUpdate | null>(null);
+  /** What the last look for a newer Doghouse found (desktop app only). */
+  appUpdate = $state<AppUpdateStatus>({ state: "idle" });
   /** Installing it: the download's progress (0-1), or null when unknown. */
   appUpdating = $state<number | null | false>(false);
   /** Simulated boards; present only in demo mode. */
@@ -459,24 +469,56 @@ export class AppState {
     }
   }
 
-  /** Look for a newer Doghouse (desktop app only). Quiet unless one is found. */
+  /**
+   * Look for a newer Doghouse (desktop app only). The sidebar offers one
+   * when it's found; how the last look went is shown in Doghouse settings.
+   */
   async checkForAppUpdate(): Promise<void> {
+    if (!this.desktop || this.appUpdate.state === "checking" || this.appUpdating !== false) return;
+    const previous = this.appUpdate;
+    this.appUpdate = { state: "checking" };
     try {
-      this.appUpdate = (await this.desktop?.checkForUpdate()) ?? null;
+      const found = await this.desktop.checkForUpdate();
+      this.appUpdate = { state: "checked", found, at: new Date() };
     } catch (err) {
       console.warn("checking for a Doghouse update:", err);
+      // Keep offering an update found earlier.
+      this.appUpdate =
+        previous.state === "checked" && previous.found.kind !== "current"
+          ? previous
+          : { state: "failed", error: errorText(err), at: new Date() };
     }
+  }
+
+  /** The newer Doghouse found, if any. */
+  get newerApp(): Exclude<UpdateCheck, { kind: "current" }> | null {
+    const u = this.appUpdate;
+    return u.state === "checked" && u.found.kind !== "current" ? u.found : null;
   }
 
   /** Download and install the newer Doghouse, then restart into it. */
   async installAppUpdate(): Promise<void> {
-    if (!this.appUpdate || this.appUpdating !== false) return;
+    const newer = this.newerApp;
+    if (!newer || this.appUpdating !== false) return;
+    if (newer.kind === "download") {
+      await this.openReleasesPage();
+      return;
+    }
     this.appUpdating = null;
     try {
-      await this.appUpdate.install((fraction) => (this.appUpdating = fraction));
+      await newer.update.install((fraction) => (this.appUpdating = fraction));
     } catch (err) {
       this.appUpdating = false;
       this.notify(`Couldn't update Doghouse: ${errorText(err)}`, "error");
+    }
+  }
+
+  /** Open the download page in the browser. */
+  async openReleasesPage(): Promise<void> {
+    try {
+      await this.desktop?.openReleasesPage();
+    } catch (err) {
+      this.notify(`Couldn't open the download page: ${errorText(err)}`, "error");
     }
   }
 
@@ -586,7 +628,10 @@ function createApp(): AppState {
   notify = (text) => app.notify(text, "error");
   hid?.start().catch((err) => app.notify(errorText(err), "error"));
   native?.start().catch((err) => app.notify(`Doghouse can't reach USB devices: ${errorText(err)}`, "error"));
-  void app.checkForAppUpdate();
+  if (desktop) {
+    void app.checkForAppUpdate();
+    setInterval(() => void app.checkForAppUpdate(), APP_UPDATE_EVERY_MS);
+  }
   return app;
 }
 

@@ -30,12 +30,14 @@
   <div class="ident">
     <h1>{session.displayName}</h1>
     <p class="sub">
-      {info.model || "Unknown model"} · {BREEDS[info.model] ?? "Good dog"}{#if keyCount}{" · "}{keyCount} {keyCount === 1 ? "switch" : "switches"}{/if} · serial {info.id}
+      <span>{info.model || "Unknown model"} · {BREEDS[info.model] ?? "Good dog"}</span>
+      {#if keyCount}<span>· {keyCount} {keyCount === 1 ? "switch" : "switches"}</span>{/if}
+      <span class="serial-line">Serial <span class="serial">{info.id}</span></span>
     </p>
     <div class="status">
       <ConnectionChip connection={info.connection} />
       <span class="battery">
-        <BoneBattery battery={session.battery} width={64} showText={false} />
+        <BoneBattery battery={session.battery} width={56} showText={false} />
         {batteryWords()}
       </span>
     </div>
@@ -99,8 +101,26 @@
   }
 
   .sub {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.3em;
     margin: 2px 0 10px;
     color: var(--text-muted);
+  }
+
+  /* Wrap between the parts, never inside one (the serial number especially). */
+  .sub > span {
+    white-space: nowrap;
+  }
+
+  .serial-line {
+    flex-basis: 100%;
+    font-size: 13px;
+  }
+
+  .serial {
+    font-family: var(--font-mono);
+    font-size: 13px;
   }
 
   .status {
