@@ -561,7 +561,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - The gaps Tiam spotted in the B.Cu pour at SW305/D305, SW400 and SW513 (and about 25 smaller ones) were pour pockets fully boxed in by tracks. The zones remove unconnected islands, so those pockets were left bare. Each pocket big enough for a via now has a GND via, so it fills like the others. A few pockets near the MCU are too small for a via and stay bare.
 - The ~600 scattered GND stitching vias were replaced by about 200 on a regular 9.525 mm (half-key) grid, placed only where both pours are clear. There are also a few extra vias in the pockets above and two that tie the pour pieces around the MCU to the main pour. This removed the 35 old copper-to-edge warnings. DRC otherwise matches main: no errors, nothing unconnected.
 - Stabilizer holes were checked for both spacebar layouts. The 6.25u (ST4) is centred on SW606. The split layout is 1.25u SW604 (no stab), 2.75u SW615 on ST5 and 2.25u SW608 on ST6, and ST6 shares its right holes with ST4. The plate's cutouts come from the same footprints.
-- Back silkscreen logo "Doghouse Boards" (URW Z003 script) and "Daschund60F  Rev 1.0" (URW Gothic). It is in the band between the first two rows, as filled polygons in the group "Doghouse Boards logo", so the look doesn't depend on fonts installed on the PC. The spelling is Tiam's; the project name is "Dachshund60F".
+- Back silkscreen logo "Doghouse Boards" (URW Z003 script) and "Dachshund60F  Rev 1.0" (URW Gothic). It is in the band between the first two rows, as filled polygons in the group "Doghouse Boards logo", so the look doesn't depend on fonts installed on the PC.
 
 ### Licence (2026-10-23)
 
