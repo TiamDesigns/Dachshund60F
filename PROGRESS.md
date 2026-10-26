@@ -10,7 +10,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 - Tiam's project review is in `docs/project-review-2026-10-26.md`, with a note at the top on what was done about each finding. It was run on a phase-3 checkout, so its "planned features" section is out of date.
 - Bring-up plan (M7): USB is never plugged in while an ordinary bench supply is on J2, because the charger would push current into a supply that can't sink it. USB and battery together are tested with a protected cell (or a supply rated to sink current). The bootloader step now switches to USB power first.
-- New tasks in `SCHEDULED_TASKS.md`: the mainboard antenna keep-out (M6), a fab check of the overlapping ST4/ST6 holes, USB edge cases on hardware, session tests for Doghouse, KiCad checks in CI, and the display's current against REGOUT0.
+- New tasks in `SCHEDULED_TASKS.md`: a fab check of the overlapping ST4/ST6 holes, USB edge cases on hardware, session tests for Doghouse, KiCad checks in CI, and the display's current against REGOUT0.
 
 ### Project review fixes: Doghouse (2026-10-26)
 
