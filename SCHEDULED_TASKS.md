@@ -6,7 +6,7 @@ Last updated: 2026-10-26 (project review follow-ups).
 
 ## Before ordering boards
 
-- **Fab check of the overlapping stabiliser holes (review).** ST4 and ST6 NPTH centres are 0.038 mm apart (x 200.969/201.007 mm, y 142.553 and 157.763 mm), from the two spacebar layouts. Ask the fab how it drills them, or look at its CAM preview, before ordering. Also check the USB connector silkscreen/edge warnings on the daughterboard and dongle in the fab preview.
+- **Fab preview of the USB connector edges (review).** The daughterboard and dongle each keep two stock USB-C connector silkscreen/edge warnings. Check them in the fab's preview before ordering (the connector overhangs the edge on purpose).
 - **Order the boards (Tiam, planned for the week of 2026-10-23).** Mainboard, USB-C daughterboard and dongle. Ordering also locks the proposed pin map in `boards/Dachshund60F/board.json`.
 
 ## Firmware and app, testable before boards arrive (in phase order)
