@@ -515,6 +515,14 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Nothing had been routed there, but the GND pours covered about 50 mm² of the band on each layer. After the refill, no pour is left inside either area.
 - Checks on Tiam's PC (KiCad 10, `kicad-cli pcb drc --schematic-parity --severity-all --refill-zones`): 0 errors, 0 unconnected items, 215 warnings, 7 excluded, the same as before.
 
+### PCB: pre-order review fixes and fab export (2026-10-26)
+
+- Pre-order review of the mainboard, USB-C daughterboard and dongle (KiCad 10.0.7 in the official Docker image). ERC: 0 errors on all three. DRC with schematic parity: 0 errors and 0 unconnected items on all three, plus the plate. Every footprint's pads match its library copy, once back-side parts are un-mirrored, so the "footprint differs from library" warnings are text and 3D-model fields only.
+- ST6 (the right Mod's stabilizer) moved 0.038 mm left, so its right-hand holes land exactly on the 6.25u stabilizer's (ST4). They were 0.038 mm apart, a near-overlap that drills a sliver and can break a bit; an exact duplicate is merged by the fab's CAM. DRC now reports "holes co-located" there instead of "hole to hole".
+- Mainboard back silkscreen: `+` and `-` beside J2's pins (VBAT on pin 1), and "Dachshund60F / mainboard v1.0 2026-10 / JLCJLCJLCJLC" in a free area under the encoder (the last marks where JLCPCB prints its order number). No new DRC warnings.
+- `hardware/export_fab.py` writes Gerbers and Excellon drill files (plated and non-plated separate, with drill maps) for all four boards as one zip each.
+- Assembly isn't settled yet: the mainboard's BOM has no MPN or LCSC numbers, and the daughterboard (9 mm wide) is under JLCPCB's 10 mm minimum for assembly, so it needs edge rails or a panel if JLC assembles it.
+
 ### Licence (2026-10-23)
 
 - Code (firmware, host-lib, Doghouse, protocol, scripts): MIT, in `LICENSE`. host-lib and Doghouse carry `"license": "MIT"`.
