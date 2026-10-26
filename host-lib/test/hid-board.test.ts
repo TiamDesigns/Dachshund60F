@@ -8,6 +8,7 @@ import {
   backupBoard,
   BoardError,
   defaultKeymap,
+  DEFAULT_ADVANCED_OPTIONS,
   restoreBoard,
   HidBoard,
   MockBoardManager,
@@ -16,7 +17,8 @@ import {
   type BoardEvent,
   type KeyboardDefinition,
 } from "../src/index.js";
-import { boardHandler, FakeTransport } from "./fake-device.js";
+import * as codec from "../src/advanced-codec.js";
+import { boardHandler, FakeTransport, response } from "./fake-device.js";
 import { HostDeviceTransport, hostDevicePath } from "./host-device.js";
 
 const definition = JSON.parse(
@@ -175,6 +177,7 @@ test("host-built firmware: info from the handshake", host.skip ? { skip: host.sk
     "bluetooth",
     "timing",
     "dongle",
+    "featureSwitches",
   ]);
   assert.deepEqual((await board.getKeymap()).encoders, defaultKeymap("Dachshund60F")!.encoders);
   await board.identify();
@@ -244,6 +247,8 @@ for (const [name, open, options] of subjects) {
     await board.setAdvancedEntry("tapHold", 3, rule);
     const opts = await board.setAdvancedOptions({ autoShift: true, mouse: { ...before.options.mouse, maxSpeed: 40 } });
     assert.equal(opts.autoShift, true);
+    assert.deepEqual(before.options.off, { tapHold: false, tapDance: false, combos: false });
+    await board.setAdvancedOptions({ off: { tapHold: true, tapDance: true, combos: false } });
 
     const after = await board.getAdvancedKeys();
     assert.deepEqual(after.combos[5], combo);
@@ -252,6 +257,7 @@ for (const [name, open, options] of subjects) {
     assert.deepEqual(after.leader[2], seq);
     assert.deepEqual(after.tapHold[3], rule);
     assert.equal(after.options.mouse.maxSpeed, 40);
+    assert.deepEqual(after.options.off, { tapHold: true, tapDance: true, combos: false });
     assert.equal(after.options.leaderTimeoutMs, before.options.leaderTimeoutMs);
 
     // The board checks what the codec can't.
@@ -439,6 +445,32 @@ test("a board missing a capability says not-supported without asking it", async 
   await rejectsWith(board.setSettings({ nkro: false }), "not-supported");
   await rejectsWith(board.getIndicators(), "not-supported");
   assert.equal(t.requests.length, before);
+});
+
+test("firmware without feature switches: a short options entry, and nothing switched off", async () => {
+  const { Capability, Command, FeatureTable } = protocol;
+  const fallback = boardHandler("SER1", protocol.PROTOCOL_VERSION, Capability.keymap | Capability.advancedKeys);
+  const options = codec.encodeOptions({ ...DEFAULT_ADVANCED_OPTIONS, autoShiftMs: 200 }).subarray(0, codec.OPTIONS_SIZE_V1);
+  const written: Uint8Array[] = [];
+  const t = new FakeTransport((req) => {
+    if (req.command === Command.getFeature) {
+      const { table, index } = protocol.decodeGetFeatureRequest(req.payload);
+      assert.equal(table, FeatureTable.options.id);
+      return response(req.command, req.sequence, 0, protocol.encodeGetFeatureResponse({ table, index, data: options }));
+    }
+    if (req.command === Command.setFeature) {
+      written.push(protocol.decodeSetFeatureRequest(req.payload).data);
+      return response(req.command, req.sequence, 0);
+    }
+    return fallback(req);
+  });
+  const board = await HidBoard.open(t);
+  const current = await board.setAdvancedOptions({ autoShift: true });
+  assert.equal(current.autoShiftMs, 200);
+  assert.deepEqual(current.off, { tapHold: false, tapDance: false, combos: false });
+  assert.equal(written[0]!.length, codec.OPTIONS_SIZE_V1);
+  await rejectsWith(board.setAdvancedOptions({ off: { tapHold: true, tapDance: false, combos: false } }), "not-supported");
+  assert.equal(written.length, 1);
 });
 
 test("closing the transport reports disconnected", async () => {

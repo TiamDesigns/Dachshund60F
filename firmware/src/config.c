@@ -227,7 +227,8 @@ static struct kb_protocol protocol = {
     /* Matrix streaming joins in a later phase; battery once the gauge is up (config_start). */
     .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                     KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_SETTINGS |
-                    KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH | KB_PROTO_CAP_TIMING,
+                    KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH | KB_PROTO_CAP_TIMING |
+                    KB_PROTO_CAP_FEATURE_SWITCHES,
     .macro_buffer_size = KB_MACRO_BUFFER,
 };
 

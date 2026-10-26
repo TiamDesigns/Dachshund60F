@@ -38,6 +38,7 @@ import pup from "@boards/Pup/keyboard.json";
 import { desktopApp, inDesktopApp, type AppUpdate, type Desktop } from "./desktop.ts";
 import { FirmwareUpdate } from "./firmware-update.svelte.ts";
 import { EditHistory, type Edit } from "./history.ts";
+import type { PresetValues } from "./presets.ts";
 
 const { PROTOCOL_VERSION } = protocol;
 
@@ -78,7 +79,8 @@ export type Feature =
   | "indicators"
   | "bluetooth"
   | "timing"
-  | "dongle";
+  | "dongle"
+  | "featureSwitches";
 
 export class BoardSession {
   readonly board: Board;
@@ -282,6 +284,19 @@ export class BoardSession {
     if (!this.advanced || !set) return;
     const next = await this.run(() => set.call(this.board, patch));
     if (next) this.advanced.options = next;
+  }
+
+  /**
+   * Set the board as a preset says. Firmware that can't switch features off
+   * gets the rest. Applied live, like any other setting: Save keeps it.
+   */
+  async applyPreset(preset: PresetValues): Promise<void> {
+    if (this.settings) await this.updateSettings({ ...preset.settings });
+    if (this.advanced && this.board.setAdvancedOptions) {
+      const patch: Partial<AdvancedOptions> = { autoShift: preset.autoShift };
+      if (this.supports("featureSwitches")) patch.off = { ...preset.off };
+      await this.updateAdvancedOptions(patch);
+    }
   }
 
   /** Replace every macro. Resolves true if the board took them. */

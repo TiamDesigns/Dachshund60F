@@ -251,6 +251,13 @@ export interface AdvancedOptions {
     timeToMaxMs: number;
     wheelIntervalMs: number;
   };
+  /**
+   * Features switched off as a whole, keeping their tables, for the lowest
+   * latency: tap-hold keys act as their tap key at once, tap dances as their
+   * one-tap action, and combos stop holding back their keys. Needs the
+   * featureSwitches capability; older firmware has everything on.
+   */
+  off: { tapHold: boolean; tapDance: boolean; combos: boolean };
 }
 
 /** Everything the advanced-key editors edit, as the board has it live. */

@@ -22,9 +22,16 @@ test("entries have the sizes protocol.yaml gives", () => {
   const options = {
     leaderTimeoutMs: 300, capsWordOnBothShifts: true, capsWordIdleMs: 5000, autoShift: false, autoShiftMs: 175,
     mouse: { intervalMs: 16, moveDelta: 4, maxSpeed: 20, timeToMaxMs: 1000, wheelIntervalMs: 80 },
+    off: { tapHold: true, tapDance: false, combos: true },
   };
   assert.equal(codec.encodeOptions(options).length, T.options.size);
+  assert.equal(codec.encodeOptions(options)[14], 0x05);
   assert.deepEqual(codec.decodeOptions(codec.encodeOptions(options)), options);
+  // Older firmware's entry has no off field: everything is on.
+  assert.deepEqual(codec.decodeOptions(codec.encodeOptions(options).subarray(0, codec.OPTIONS_SIZE_V1)), {
+    ...options,
+    off: { tapHold: false, tapDance: false, combos: false },
+  });
   const combo = { keys: [{ row: 0, col: 1 }, { row: 5, col: 14 }], result: "KC_ESC", timeoutMs: 0, layers: [0, 15] };
   assert.equal(codec.encodeCombo(combo).length, T.combo.size);
   assert.deepEqual(codec.decodeCombo(codec.encodeCombo(combo)), combo);

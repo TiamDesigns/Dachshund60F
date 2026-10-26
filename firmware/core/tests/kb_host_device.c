@@ -252,7 +252,8 @@ int main(void)
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                         KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS |
                         KB_PROTO_CAP_SETTINGS | KB_PROTO_CAP_INDICATORS | KB_PROTO_CAP_BLUETOOTH |
-                        KB_PROTO_CAP_BATTERY | KB_PROTO_CAP_TIMING | KB_PROTO_CAP_DONGLE,
+                        KB_PROTO_CAP_BATTERY | KB_PROTO_CAP_TIMING | KB_PROTO_CAP_DONGLE |
+                        KB_PROTO_CAP_FEATURE_SWITCHES,
         .encoders = 1,
         .ble_profiles = BLE_PROFILES,
         .macro_buffer_size = KB_MACRO_BUFFER,

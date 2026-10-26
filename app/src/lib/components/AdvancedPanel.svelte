@@ -17,6 +17,8 @@
 
   import { keyChoices, MOD_BITS, newEntry, summary, TABLES } from "../advanced.ts";
   import type { BoardSession } from "../app-state.svelte.ts";
+  import type { FeatureInfoId } from "../feature-info.ts";
+  import InfoTip from "./InfoTip.svelte";
   import KeycodeField from "./KeycodeField.svelte";
 
   let { session }: { session: BoardSession } = $props();
@@ -99,6 +101,11 @@
     void session.updateAdvancedOptions(patch);
   }
 
+  function switchedOff(table: AdvancedTable): boolean {
+    const off = adv.options.off;
+    return (table === "combos" && off.combos) || (table === "tapDances" && off.tapDance) || (table === "tapHold" && off.tapHold);
+  }
+
   function num(e: Event): number {
     return Number((e.currentTarget as HTMLInputElement).value);
   }
@@ -138,66 +145,66 @@
     <h2>Tricks and timing</h2>
     <div class="options">
       <label class="opt">
-        <span>Leader timeout <small>per key of a sequence</small></span>
+        <span>Leader timeout<InfoTip id="leaderTimeout" /> <small>per key of a sequence</small></span>
         <span class="num">
           <input type="number" min={L.leaderTimeoutMs.min} max={L.leaderTimeoutMs.max} step="10"
             value={adv.options.leaderTimeoutMs} onchange={(e) => setOption({ leaderTimeoutMs: num(e) })} /> ms
         </span>
       </label>
       <label class="opt">
-        <span>Caps Word on both Shifts <small>tap both Shifts to type one word in capitals</small></span>
+        <span>Caps Word on both Shifts<InfoTip id="capsWord" /> <small>tap both Shifts to type one word in capitals</small></span>
         <input class="switch" type="checkbox" checked={adv.options.capsWordOnBothShifts}
           onchange={(e) => setOption({ capsWordOnBothShifts: e.currentTarget.checked })} />
       </label>
       <label class="opt">
-        <span>Caps Word idle timeout <small>0 = never</small></span>
+        <span>Caps Word idle timeout<InfoTip id="capsWordIdle" /> <small>0 = never</small></span>
         <span class="num">
           <input type="number" min={L.capsWordIdleMs.min} max={L.capsWordIdleMs.max} step="500"
             value={adv.options.capsWordIdleMs} onchange={(e) => setOption({ capsWordIdleMs: num(e) })} /> ms
         </span>
       </label>
       <label class="opt">
-        <span>Auto Shift <small>hold a key a little longer to get it shifted (AS_TOGG flips it)</small></span>
+        <span>Auto Shift<InfoTip id="autoShift" /> <small>hold a key a little longer to get it shifted (AS_TOGG flips it)</small></span>
         <input class="switch" type="checkbox" checked={adv.options.autoShift}
           onchange={(e) => setOption({ autoShift: e.currentTarget.checked })} />
       </label>
       <label class="opt">
-        <span>Auto Shift hold time</span>
+        <span>Auto Shift hold time<InfoTip id="autoShiftMs" /></span>
         <span class="num">
           <input type="number" min={L.autoShiftMs.min} max={L.autoShiftMs.max} step="5"
             value={adv.options.autoShiftMs} onchange={(e) => setOption({ autoShiftMs: num(e) })} /> ms
         </span>
       </label>
       <label class="opt">
-        <span>Mouse start speed <small>pixels per step</small></span>
+        <span>Mouse start speed<InfoTip id="mouseSpeed" /> <small>pixels per step</small></span>
         <span class="num">
           <input type="number" min="1" max={adv.options.mouse.maxSpeed}
             value={adv.options.mouse.moveDelta} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, moveDelta: num(e) } })} />
         </span>
       </label>
       <label class="opt">
-        <span>Mouse top speed</span>
+        <span>Mouse top speed<InfoTip id="mouseSpeed" /></span>
         <span class="num">
           <input type="number" min={L.mouseSpeed.min} max={L.mouseSpeed.max}
             value={adv.options.mouse.maxSpeed} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, maxSpeed: num(e) } })} />
         </span>
       </label>
       <label class="opt">
-        <span>Mouse time to top speed</span>
+        <span>Mouse time to top speed<InfoTip id="mouseAccel" /></span>
         <span class="num">
           <input type="number" min={L.mouseTimeToMaxMs.min} max={L.mouseTimeToMaxMs.max} step="50"
             value={adv.options.mouse.timeToMaxMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, timeToMaxMs: num(e) } })} /> ms
         </span>
       </label>
       <label class="opt">
-        <span>Mouse step interval</span>
+        <span>Mouse step interval<InfoTip id="mouseInterval" /></span>
         <span class="num">
           <input type="number" min={L.mouseIntervalMs.min} max={L.mouseIntervalMs.max}
             value={adv.options.mouse.intervalMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, intervalMs: num(e) } })} /> ms
         </span>
       </label>
       <label class="opt">
-        <span>Scroll step interval</span>
+        <span>Scroll step interval<InfoTip id="wheelInterval" /></span>
         <span class="num">
           <input type="number" min={L.wheelIntervalMs.min} max={L.wheelIntervalMs.max}
             value={adv.options.mouse.wheelIntervalMs} onchange={(e) => setOption({ mouse: { ...adv.options.mouse, wheelIntervalMs: num(e) } })} /> ms
@@ -212,8 +219,11 @@
     <section class="group">
       <header>
         <div>
-          <h2>{t.title} <span class="count">{slots.length}/{ADVANCED_SLOTS[t.id]}</span></h2>
+          <h2>{t.title}<InfoTip id={t.id as FeatureInfoId} /> <span class="count">{slots.length}/{ADVANCED_SLOTS[t.id]}</span></h2>
           <p class="blurb">{t.blurb}</p>
+          {#if switchedOff(t.id)}
+            <p class="off">Switched off in Settings, under Speed or tricks. These stay here for when you switch it back on.</p>
+          {/if}
         </div>
         <button class="btn small" disabled={session.busy || slots.length >= ADVANCED_SLOTS[t.id]} onclick={() => startNew(t.id)}>
           Add {t.noun}
@@ -373,6 +383,12 @@
     border-radius: 999px;
     background: var(--surface-3);
     color: var(--text-muted);
+  }
+
+  .off {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--accent);
   }
 
   .blurb,

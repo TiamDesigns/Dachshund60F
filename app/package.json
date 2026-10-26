@@ -1,6 +1,6 @@
 {
   "name": "@dachshund60f/doghouse",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Doghouse: configurator for Dachshund60F and future dog-named keyboards.",
   "license": "MIT",
   "private": true,

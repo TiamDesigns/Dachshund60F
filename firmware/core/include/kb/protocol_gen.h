@@ -81,10 +81,11 @@ enum kb_proto_command {
 #define KB_PROTO_CAP_BLUETOOTH (1u << 10) /* Bluetooth host profiles and output selection (get_connection and friends) */
 #define KB_PROTO_CAP_TIMING (1u << 11) /* input timing counters (get_timing) */
 #define KB_PROTO_CAP_DONGLE (1u << 12) /* the 2.4 GHz dongle output (get_dongle, pair_dongle, set_output 3) */
+#define KB_PROTO_CAP_FEATURE_SWITCHES (1u << 13) /* the options entry's off field (switch tap-hold, tap dance and combos off) */
 
 /* Advanced-key tables: id, entry size in bytes and entry count */
 #define KB_PROTO_TABLE_OPTIONS 0u
-#define KB_PROTO_TABLE_OPTIONS_SIZE 14u
+#define KB_PROTO_TABLE_OPTIONS_SIZE 15u
 #define KB_PROTO_TABLE_OPTIONS_ENTRIES 1u
 #define KB_PROTO_TABLE_COMBO 1u
 #define KB_PROTO_TABLE_COMBO_SIZE 14u

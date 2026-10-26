@@ -2,6 +2,7 @@
   import { BoardError, type ConnectionStatus, type DonglePairing, type DongleStatus, type Output } from "@dachshund60f/host-lib";
 
   import { app, type BoardSession } from "../app-state.svelte.ts";
+  import InfoTip from "./InfoTip.svelte";
 
   let { session }: { session: BoardSession } = $props();
 
@@ -138,7 +139,7 @@
     <p class="muted">Asking {session.displayName} how it's connected…</p>
   {:else}
     <section class="card">
-      <h2>Where keys go</h2>
+      <h2>Where keys go<InfoTip id="outputs" /></h2>
       <p class="now"><span class="dot" class:on={!!status.active}></span>{where}</p>
       <fieldset class="segmented" disabled={working}>
         <legend>Prefer</legend>

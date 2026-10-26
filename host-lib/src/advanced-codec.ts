@@ -112,8 +112,15 @@ export function encodeOptions(o: AdvancedOptions): Uint8Array {
     .u8(o.mouse.moveDelta, "mouse.moveDelta")
     .u8(o.mouse.maxSpeed, "mouse.maxSpeed")
     .u16(o.mouse.timeToMaxMs, "mouse.timeToMaxMs")
-    .u8(o.mouse.wheelIntervalMs, "mouse.wheelIntervalMs").bytes;
+    .u8(o.mouse.wheelIntervalMs, "mouse.wheelIntervalMs")
+    .u8((o.off.tapHold ? OFF_TAP_HOLD : 0) | (o.off.tapDance ? OFF_TAP_DANCE : 0) | (o.off.combos ? OFF_COMBOS : 0), "off").bytes;
 }
+
+/** The options entry before the off field (firmware without featureSwitches). */
+export const OPTIONS_SIZE_V1 = 14;
+const OFF_TAP_HOLD = 0x01;
+const OFF_TAP_DANCE = 0x02;
+const OFF_COMBOS = 0x04;
 
 export function decodeOptions(b: Uint8Array): AdvancedOptions {
   const r = new Reader(b);
@@ -130,7 +137,12 @@ export function decodeOptions(b: Uint8Array): AdvancedOptions {
       timeToMaxMs: r.u16(),
       wheelIntervalMs: r.u8(),
     },
+    off: offFlags(b.length > OPTIONS_SIZE_V1 ? r.u8() : 0),
   };
+}
+
+function offFlags(bits: number): AdvancedOptions["off"] {
+  return { tapHold: (bits & OFF_TAP_HOLD) !== 0, tapDance: (bits & OFF_TAP_DANCE) !== 0, combos: (bits & OFF_COMBOS) !== 0 };
 }
 
 export function encodeCombo(c: Combo): Uint8Array {

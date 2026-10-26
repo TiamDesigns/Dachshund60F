@@ -141,6 +141,9 @@ bool kb_features_valid(const struct kb_features *f, uint8_t layers, uint8_t rows
         f->mouse.max_speed > 127) {
         return false;
     }
+    if (f->off & ~KB_OFF_ALL) {
+        return false;
+    }
     if (f->auto_shift_ms < 50 || f->auto_shift_ms > 1000 || f->leader_timeout_ms < 100 ||
         f->leader_timeout_ms > 5000) {
         return false;
@@ -364,6 +367,7 @@ static void entry(struct kb_features *f, uint8_t table, uint16_t i, struct curso
         f8(c, &f->mouse.max_speed);
         f16(c, &f->mouse.time_to_max_ms);
         f8(c, &f->mouse.wheel_interval_ms);
+        f8(c, &f->off);
         break;
     case KB_PROTO_TABLE_COMBO:
         for (unsigned k = 0; k < KB_COMBO_KEYS; k++) {

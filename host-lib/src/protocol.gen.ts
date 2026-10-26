@@ -86,11 +86,12 @@ export const Capability = {
   bluetooth: 1 << 10,
   timing: 1 << 11,
   dongle: 1 << 12,
+  featureSwitches: 1 << 13,
 } as const;
 
 /** Advanced-key tables: id, entry size in bytes and most entries (see protocol.yaml). */
 export const FeatureTable = {
-  options: { id: 0, size: 14, entries: 1 },
+  options: { id: 0, size: 15, entries: 1 },
   combo: { id: 1, size: 14, entries: 16 },
   tapDance: { id: 2, size: 10, entries: 16 },
   keyOverride: { id: 3, size: 6, entries: 16 },

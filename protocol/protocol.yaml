@@ -66,6 +66,7 @@ capabilities:
   - {name: bluetooth, bit: 10, doc: "Bluetooth host profiles and output selection (get_connection and friends)"}
   - {name: timing, bit: 11, doc: "input timing counters (get_timing)"}
   - {name: dongle, bit: 12, doc: "the 2.4 GHz dongle output (get_dongle, pair_dongle, set_output 3)"}
+  - {name: feature_switches, bit: 13, doc: "the options entry's off field (switch tap-hold, tap dance and combos off)"}
 
 # Advanced-key tables (kb/features.h), read and written one entry at a time
 # with get_feature and set_feature. Each entry is `size` bytes in the layout
@@ -76,9 +77,9 @@ capabilities:
 feature_tables:
   - name: options
     id: 0
-    size: 14
+    size: 15
     entries: 1
-    doc: "leader_timeout_ms u16, caps_word_on_both_shifts u8, caps_word_idle_ms u16, auto_shift u8, auto_shift_ms u16, mouse_interval_ms u8, mouse_move_delta u8, mouse_max_speed u8, mouse_time_to_max_ms u16, mouse_wheel_interval_ms u8"
+    doc: "leader_timeout_ms u16, caps_word_on_both_shifts u8, caps_word_idle_ms u16, auto_shift u8, auto_shift_ms u16, mouse_interval_ms u8, mouse_move_delta u8, mouse_max_speed u8, mouse_time_to_max_ms u16, mouse_wheel_interval_ms u8, off u8 (features switched off: 1 tap-hold, 2 tap dance, 4 combos; firmware without feature_switches has a 14-byte entry)"
   - name: combo
     id: 1
     size: 14

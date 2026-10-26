@@ -40,6 +40,7 @@
   --case-edge: #6e4529;
   --plate: #4a3426;
 
+  /* The mascot keeps its coat in both themes, so these aren't redefined for dark. */
   --dog: #8a5a3b;
   --dog-ear: #5c3822;
   --avatar-bg: #f3e2bb;
@@ -100,8 +101,6 @@
     --case-edge: #3f2819;
     --plate: #140f0c;
 
-    --dog: #c68b5e;
-    --dog-ear: #8e5b39;
     --avatar-bg: #3b2e24;
     --rug: #4a3a2b;
 
@@ -152,8 +151,6 @@
   --case-edge: #3f2819;
   --plate: #140f0c;
 
-  --dog: #c68b5e;
-  --dog-ear: #8e5b39;
   --avatar-bg: #3b2e24;
   --rug: #4a3a2b;
 
