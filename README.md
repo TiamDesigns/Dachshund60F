@@ -96,7 +96,7 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 
 | Folder | What's in it |
 | --- | --- |
-| `hardware/` | KiCad 10 projects: mainboard, USB-C daughterboard, dongle and plate, plus STEP exports for case design |
+| `hardware/` | KiCad 10 projects: mainboard, USB-C daughterboard, dongle and plate, STEP exports, and the case (`hardware/case/`, CadQuery) |
 | `boards/Dachshund60F/` | Pin map, keyboard definition, Zephyr board files and the UF2 bootloader board |
 | `boards/Pup/` | A one-key test board: the keyboard firmware on Nordic's nRF52840 Dongle, for trying the wireless outputs before the PCB exists |
 | `firmware/` | The keyboard firmware. `firmware/core/` is the hardware-free keymap engine and its tests |

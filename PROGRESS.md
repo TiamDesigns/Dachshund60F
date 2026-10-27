@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: gasket-mount case, weight, gaskets and plate foam (2026-10-27)
+
+- `hardware/case/gen_case.py` (CadQuery) generates the case from parameters and from the plate's own outline, and `hardware/case/README.md` has the numbers. Outputs in `hardware/case/step/`: top and bottom case, the brass dog-bone weight, the eight gasket socks, the plate–PCB foam as a DXF outline (Tiam's call: a sketch to extrude, not a STEP), and an assembly with the mainboard, plate, USB-C daughterboard, a battery and a roller stand-in. Renders are in `hardware/case/renders/`. The PCB and plate files were not touched.
+- Shape: 336.5 × 144 mm, 7° built in, 14.6 mm at the front and 32.3 mm at the back. A walnut-coloured top frame over a sand-coloured tub, with a groove at the seam, rounded top edges and the board name engraved on the back. About 510 g of brass shows through the bottom as a bone.
+- Mount: the seam sits at the socks' lower face, so the bottom case is the seat and the top case presses each sock 0.4 mm into a 4.6 mm pocket. The board touches nothing else. Eight M3 × 10 screws from below go into heat-set inserts in the top case.
+- Openings: USB-C in the back wall (the daughterboard sits on two M3 inserts in a wall pocket, with the receptacle 1 mm in), a slot and finger scoop for the power switch, and a pin hole for reset. There's a battery tray for an 803450 cell, and the top case is open over the sidebar for the roller and a future display.
+- Found while modelling: with the shaft about 6.7 mm above the PCB and no PCB slot under it, the roller can be at most about 12 mm across, not the 20 mm in the PCB notes. The stand-in is 12 mm.
+- Not printed or fitted yet.
+
 ### Project review: docs and follow-ups (2026-10-26)
 
 - Tiam's project review is in `docs/project-review-2026-10-26.md`, with a note at the top on what was done about each finding. It was run on a phase-3 checkout, so its "planned features" section is out of date.
@@ -630,7 +639,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 
 - Registered pid.codes PID before distributing boards; the licence is now set (MIT and CERN-OHL-P), so this needs only a public repo
 - PCB design: the pin map is proposed and must be confirmed (or edited) once the schematic is routed
-- Case (sets the gasket pockets from the plate's sock outlines, the roller support and the daughterboard position). The mainboard and plate have no mounting holes. The daughterboard is designed for M3; if the case uses M2, swap H1/H2 to `MountingHole_2.2mm_M2_Pad_TopBottom` for a snug fit.
+- Roller size: 12 mm across fits over the PCB as it is; a 20 mm roller would need a slot in the mainboard under it (the board is ordered, so that's Rev 2). The case is open over the roller either way.
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
