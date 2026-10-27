@@ -552,9 +552,10 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - Tiam's choice: JLCPCB assembles everything except the key switches, hot-swap sockets included.
 - Every assembled part on the three boards now has `MPN` and `LCSC` fields. Each LCSC number was checked on its jlcpcb.com part page; stock wasn't visible from here, so JLC's BOM upload is where shortages show. Not assembled: the key switches (including the soldered SW604, SW606 and SW615), stabilizers, test pads, and the display header J4 (panel not chosen yet; male pins or a socket depends on it).
 - Substitutions: F1 on the daughterboard and dongle is BHFUSE BSMD1206-075-6V (C883127; 1206, 750 mA hold, 6 V), the same rating as Bourns MF-NSMF075-2, which LCSC doesn't carry. The dongle's ASMB-MTB0-0A3A2 LED has no LCSC number; its BOM row carries the MPN for JLC's global sourcing.
-- PCBA type: the MDBT50Q (X-ray required), the SK6812MINI-E and the Kailh sockets are "Standard only" at JLC, so the mainboard and dongle need Standard PCBA. The encoder, J3 and the dongle's J2 are through-hole.
+- PCBA type: the MDBT50Q (X-ray required) and the SK6812MINI-E are "Standard only" at JLC, so the mainboard and dongle need Standard PCBA. The encoder, J3 and the dongle's J2 are through-hole.
 - `hardware/export_fab.py` now also writes `<board>-bom.csv` and `<board>-cpl.csv` for the three PCBs. The sockets' footprints are on the front with their pads on B.Cu, so the CPL puts them on the bottom at the socket centre (midpoint of the two pads, 0.62 mm left of and 3.81 mm above the switch centre).
 - Rotations are KiCad's own. Check them in JLC's placement preview before paying, especially the SOT-23 parts, diodes, LEDs and the module.
+- 2026-10-27: JLC had no stock of the Kailh CPG151101S11 (C2803348), so the sockets are now HanElectricity CPG151101S11-2 (C49352235, in stock). Its datasheet matches the Kailh socket and our footprint: 6.35 × 2.54 mm hole spacing, Ø3.0 holes, 2.55 × 2.5 mm pads, 14.5 × 5.89 × 1.85 mm body. The MDBT50Q (C5118826) was also out of stock, and Tiam is pre-ordering it through JLC's parts manager.
 
 ### PCB: mainboard pour pockets, stitching vias and logo (2026-10-26)
 
