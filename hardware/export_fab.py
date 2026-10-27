@@ -8,8 +8,10 @@ Writes to out_dir (default hardware/fab/):
 - <board>-bom.csv and <board>-cpl.csv  for JLCPCB assembly of the three PCBs
 
 Each zip holds the copper, mask, paste, silkscreen and outline Gerbers plus
-Excellon drill files (plated and non-plated holes separate, mm, with drill
-maps). Zones are plotted as saved, so refill them in KiCad (B) and save before
+Excellon drill files (plated and non-plated holes separate, mm), set up the
+way JLCPCB's KiCad guide asks: Protel extensions, no X2 or netlist
+attributes, and no drill maps or job file, which can stop JLC's quote page
+from reading the board size and layers. Zones are plotted as saved, so refill them in KiCad (B) and save before
 exporting after any board change.
 
 The BOM takes every part with an LCSC or MPN field (the MPN alone means JLC has
@@ -44,16 +46,26 @@ def run(*args):
         raise SystemExit(f"kicad-cli {' '.join(args)} failed:\n{r.stdout}{r.stderr}")
 
 
+def has_holes(drl):
+    # The plate has no drilled holes; leave out its empty drill files.
+    with open(drl, encoding="utf-8") as f:
+        return any(line[0] == "T" and line[1:2].isdigit() for line in f if line)
+
+
 def export(name, out_dir):
     board = os.path.join(HERE, name, f"{name}.kicad_pcb")
     with tempfile.TemporaryDirectory() as tmp:
         tmp = tmp + os.sep
-        run("pcb", "export", "gerbers", "--layers", LAYERS, "--subtract-soldermask", "-o", tmp, board)
+        run("pcb", "export", "gerbers", "--layers", LAYERS, "--subtract-soldermask", "--no-x2",
+            "--no-netlist", "-o", tmp, board)
         run("pcb", "export", "drill", "--format", "excellon", "--excellon-units", "mm",
-            "--excellon-separate-th", "--generate-map", "--map-format", "gerberx2", "-o", tmp, board)
+            "--excellon-zeros-format", "decimal", "--excellon-oval-format", "alternate",
+            "--excellon-separate-th", "-o", tmp, board)
         out = os.path.join(out_dir, f"{name}-gerbers.zip")
         with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
             for f in sorted(os.listdir(tmp)):
+                if f.endswith(".gbrjob") or (f.endswith(".drl") and not has_holes(os.path.join(tmp, f))):
+                    continue
                 z.write(os.path.join(tmp, f), f)
         print(f"{os.path.relpath(out)}: {len(z.namelist())} files")
 
