@@ -1,7 +1,7 @@
 # Dachshund60F
 
 79-key board with an F-row, arrows and a split or full spacebar. It has one
-rotary encoder right of Delete and runs on a Raytac MDBT50Q-1MV2 (nRF52840).
+rotary encoder right of Delete and runs on a Raytac MDBT50Q-P1MV2 (nRF52840).
 The layout comes from `KLE Info/` at the repo root.
 
 - `keyboard.json`: physical layout, matrix mapping, layout options, encoder

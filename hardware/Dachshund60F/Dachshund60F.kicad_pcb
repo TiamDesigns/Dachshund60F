@@ -82819,7 +82819,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "MDBT50Q-1MV2"
+		(property "Value" "MDBT50Q-P1MV2"
 			(at 0.2 -8.95 90)
 			(unlocked yes)
 			(layer "B.SilkS")

@@ -232,7 +232,7 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 ### Board definition: Dachshund60F (2026-10-21, before phase 2)
 
 - `boards/Dachshund60F/keyboard.json`: generated from `KLE Info/keyboard-layout(2).json`. It has 79 keys plus an alternate 6.25u spacebar (layout option), an encoder at x=15 right of Delete, and 2 indicators (Caps, layer).
-- `boards/Dachshund60F/board.json`: proposed pin map for the MDBT50Q-1MV2, a 6×15 COL2ROW matrix, encoder P0.11/P0.12, SK6812 data on P0.06 with LED power enable on P0.08, charger status on P0.15, and battery measured through VDDH.
+- `boards/Dachshund60F/board.json`: proposed pin map for the MDBT50Q-P1MV2, a 6×15 COL2ROW matrix, encoder P0.11/P0.12, SK6812 data on P0.06 with LED power enable on P0.08, charger status on P0.15, and battery measured through VDDH.
 - USB IDs: pid.codes test PIDs, 1209:0001 for the keyboard and 1209:0002 for the dongle.
 - `host-lib/test/boards.test.ts` validates every board folder: matrix range and uniqueness per layout option, no key overlaps, and pins that are valid, unique and not reserved.
 
@@ -446,7 +446,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 
 - Form factor: a puck with a cable rather than a plug-in stick, chosen so the receiver can sit next to the keyboard, away from USB 3 noise and the PC case.
 - Parts:
-  - Raytac MDBT50Q-1MV2, the same module as the keyboard. Its antenna is flush with the right edge, with a full-width copper keep-out on both layers.
+  - Raytac MDBT50Q-P1MV2, the same module as the keyboard. Its antenna is flush with the right edge, with a full-width copper keep-out on both layers.
   - HRO USB-C, USBLC6-2SC6 and a 750 mA PTC, the same parts as the USB-C daughterboard (see its section above).
   - PAIR and RESET buttons, an RGB status LED, and an SWD header in the keyboard's pin order.
 - Power: VBUS feeds both VBUS and VDDH (high-voltage mode). REGOUT0 must be set to 3.3 V by firmware, and DCCH is unconnected (LDO). There's no 32.768 kHz crystal, so firmware uses LFRC.
@@ -556,6 +556,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - `hardware/export_fab.py` now also writes `<board>-bom.csv` and `<board>-cpl.csv` for the three PCBs. The sockets' footprints are on the front with their pads on B.Cu, so the CPL puts them on the bottom at the socket centre (midpoint of the two pads, 0.62 mm left of and 3.81 mm above the switch centre).
 - Rotations are KiCad's own. Check them in JLC's placement preview before paying, especially the SOT-23 parts, diodes, LEDs and the module.
 - 2026-10-27: JLC had no stock of the Kailh CPG151101S11 (C2803348), so the sockets are now HanElectricity CPG151101S11-2 (C49352235, in stock). Its datasheet matches the Kailh socket and our footprint: 6.35 × 2.54 mm hole spacing, Ø3.0 holes, 2.55 × 2.5 mm pads, 14.5 × 5.89 × 1.85 mm body. The MDBT50Q (C5118826) was also out of stock, and Tiam is pre-ordering it through JLC's parts manager.
+- 2026-10-27: the keyboard and dongle modules are now the MDBT50Q-P1MV2 (C5119772, about C$10.74 against C$25.71 for the -1MV2). It is the same Raytac module with a PCB trace antenna instead of a chip antenna: the same 15.5 × 10.5 mm body, the same 61 pads and the antenna at the same end, so the footprint and keep-outs are unchanged. Raytac rates its range about 20 % shorter (up to 250 m against 300+ m at 1 Mbps in open air), which a keyboard won't notice. It still needs X-ray, and it is a JLC pre-order part.
 
 ### PCB: mainboard pour pockets, stitching vias and logo (2026-10-26)
 
