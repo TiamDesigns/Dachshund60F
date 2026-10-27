@@ -8,7 +8,7 @@ Pins come from the `dongle` section of `boards/Dachshund60F/board.json`, as for 
 ## Board
 
 - 40 × 24 mm, 2 mm corners. Two unplated M2 holes, both at the USB end, so no screws sit near the antenna.
-- **U2, Raytac MDBT50Q-1MV2:** the same nRF52840 module as the keyboard, with a certified chip antenna.
+- **U2, Raytac MDBT50Q-P1MV2:** the same nRF52840 module as the keyboard, with a certified PCB antenna.
   The antenna end sits 0.4 mm inside the right edge. A keep-out covers the whole strip from the antenna
   to the edge, across the full board width, on both layers: no copper, pour or vias there.
 - **J1, USB-C (HRO TYPE-C-31-M-12):** the same part as the keyboard's daughterboard. It is on the left

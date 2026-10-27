@@ -3816,7 +3816,7 @@
 				)
 			)
 		)
-		(property "Value" "MDBT50Q-1MV2"
+		(property "Value" "MDBT50Q-P1MV2"
 			(at 0.2 8.95 270)
 			(layer "F.Fab")
 			(uuid "253bd567-1231-4bdd-9838-15e1775c9664")
@@ -3853,7 +3853,7 @@
 				)
 			)
 		)
-		(property "MPN" "Raytac MDBT50Q-1MV2"
+		(property "MPN" "Raytac MDBT50Q-P1MV2"
 			(at 0 0 270)
 			(layer "F.Fab")
 			(hide yes)

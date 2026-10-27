@@ -1730,7 +1730,7 @@
 					)
 				)
 			)
-			(property "Value" "MDBT50Q-1MV2"
+			(property "Value" "MDBT50Q-P1MV2"
 				(at 0 -2.54 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -5292,7 +5292,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "MDBT50Q-1MV2"
+		(property "Value" "MDBT50Q-P1MV2"
 			(at 154.94 55.88 0)
 			(effects
 				(font
@@ -5301,7 +5301,7 @@
 				(justify left)
 			)
 		)
-		(property "LCSC" "C5118826"
+		(property "LCSC" "C5119772"
 			(at 154.94 55.88 0)
 			(hide yes)
 			(effects
@@ -5337,7 +5337,7 @@
 				)
 			)
 		)
-		(property "MPN" "Raytac MDBT50Q-1MV2"
+		(property "MPN" "Raytac MDBT50Q-P1MV2"
 			(at 162.56 104.14 0)
 			(hide yes)
 			(effects

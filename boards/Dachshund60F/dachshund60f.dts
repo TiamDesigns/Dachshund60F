@@ -1,5 +1,5 @@
 /*
- * Dachshund60F: Raytac MDBT50Q-1MV2 (nRF52840), 6x15 COL2ROW matrix,
+ * Dachshund60F: Raytac MDBT50Q-P1MV2 (nRF52840), 6x15 COL2ROW matrix,
  * one encoder, six SK6812MINI-E indicators.
  *
  * Every pin here comes from board.json; host-lib's board tests check that

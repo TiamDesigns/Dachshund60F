@@ -20,7 +20,7 @@ And at the end of it I want a keyboard I actually enjoy using every day.
 ### Hardware
 
 - Design all the boards myself in KiCad: the mainboard, a USB-C daughterboard and the dongle, plus an FR4 switch plate.
-- Use a pre-certified nRF52840 module (Raytac MDBT50Q-1MV2) and get the antenna keep-out, power and USB right the first time.
+- Use a pre-certified nRF52840 module (Raytac MDBT50Q-P1MV2) and get the antenna keep-out, power and USB right the first time.
 - Make it nice to type on: hot-swap switches, screw-in stabilisers, a gasket-mounted plate, and a horizontal roller encoder that turns like a mouse wheel.
 - Run from USB or a single LiPo cell, with proper charging and a power path so it still works with the battery switched off.
 - Measure everything when the boards arrive: rails, current draw in every state, scan rate, latency and radio range. The plan is in [docs/bringup-test-plan.md](docs/bringup-test-plan.md).
@@ -56,7 +56,7 @@ And at the end of it I want a keyboard I actually enjoy using every day.
 
 | | |
 | --- | --- |
-| MCU | nRF52840 (Raytac MDBT50Q-1MV2 module) |
+| MCU | nRF52840 (Raytac MDBT50Q-P1MV2 module) |
 | Layout | 60% with an F-row, 80 switch positions, split or 6.25u spacebar |
 | Matrix | 6 × 15, COL2ROW, diodes on every switch |
 | Switches | Kailh hot-swap sockets (3 soldered positions on the spacebar row) |

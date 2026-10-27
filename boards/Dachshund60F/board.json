@@ -2,7 +2,7 @@
   "schema": 1,
   "name": "Dachshund60F",
   "status": "proposed: pins chosen for PCB routing; update this file if the schematic changes them",
-  "mcu": "nRF52840 (Raytac MDBT50Q-1MV2)",
+  "mcu": "nRF52840 (Raytac MDBT50Q-P1MV2)",
   "usb": {
     "warning": "pid.codes TEST PIDs: not unique, in-house testing only. Must not ship on boards that are sold or redistributed. Replace with a registered pid.codes PID first.",
     "keyboard": { "vid": "0x1209", "pid": "0x0001", "manufacturer": "Dachshund", "product": "Dachshund60F" },
@@ -50,7 +50,7 @@
   },
   "dongle": {
     "status": "proposed: pins chosen for the hardware/Dachshund60F-Dongle PCB; update this section if the schematic changes them",
-    "mcu": "nRF52840 (Raytac MDBT50Q-1MV2)",
+    "mcu": "nRF52840 (Raytac MDBT50Q-P1MV2)",
     "pcb": "hardware/Dachshund60F-Dongle",
     "compatibility": "Button and LED pins match Nordic's nRF52840 Dongle (PCA10059), so the dongle firmware can be developed on one",
     "pairButton": { "pin": "P1.06", "active": "low", "pull": "internal pull-up" },
