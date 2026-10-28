@@ -28,3 +28,4 @@ Thumbs.db
 firmware/core/fuzz_protocol
 firmware/core/corpus/
 firmware/core/crash-*
+__pycache__/
