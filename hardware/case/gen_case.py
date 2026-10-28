@@ -12,8 +12,9 @@ Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
                                   a round hump over the encoder
 - Dachshund60F-Case-Bottom.step   bottom case (aluminium): tub with a floor stepped by switch row,
                                   lower gasket seats, USB-C, battery tray, channels for rubber strip feet
-- Dachshund60F-Case-End.step      the bottom case's right end (polycarbonate): under the antenna, with
-                                  the power switch's cap and the reset pin hole
+- Dachshund60F-Case-Panel.step    a polycarbonate panel in the middle of the right end (side wall and
+                                  the floor inside it): next to and under the antenna, with the power
+                                  switch's cap
 - Dachshund60F-Switch-Cap.step    the power switch's slider and grip
 - Dachshund60F-Plate-Foam.dxf     plate-PCB midlayer foam outline, to cut from 3.5 mm Poron
                                   (the plate's own holes, grown 0.3 mm; board-centred origin)
@@ -56,7 +57,11 @@ TILT = 7.0             # typing angle, degrees
 GAP = 0.75             # board/plate edge to case wall, all round
 BEZEL_SIDE = 9.0       # wall outside the outline on the ends (no gaskets there)
 BEZEL_FB = 12.0        # wall outside the outline front and back (the socks reach 8 mm out)
-OUTER_R = 9.0          # plan-view corner radius
+# Plan-view corners: continuous curvature (as on Apple's products), not circular arcs. Each corner is a
+# superellipse quadrant that leaves the straight edge with zero curvature and eases in, so there's no
+# visible kink where the arc starts. CORNER_L is how far along each edge the curve runs (about the look
+# of a 7 mm radius); CORNER_N is its exponent (2 would be a circle).
+CORNER_L, CORNER_N = 11.0, 5.0
 TOP_FILLET = 4.0       # rounded top edge
 SEAM_REVEAL = 0.8      # chamfer on both halves at the seam, so it reads as a groove
 INNER_CHAMFER = 0.5    # chamfer on the key opening's top edge
@@ -78,8 +83,8 @@ BEZEL_TOP = PLATE_Z0 + PLATE_T + BEZEL_ABOVE_PLATE
 
 # Top case screws: M3 x 10 socket head from below into M3 x 4 heat-set inserts (OD 4.2).
 SCREWS = ([(x, -66.6) for x in (-79.6, 0.0, 79.6)] + [(x, 66.6) for x in (-79.6, -30.0, 30.0, 79.6)]
-          + [(-163.9, 15.0), (140.0, -66.6), (140.0, 66.6), (163.9, 15.0)])
-# The back row clears the USB-C daughterboard. The last three hold the polycarbonate end (CASE_END_X).
+          + [(-163.9, 15.0), (163.9, -26.0), (163.9, 15.0)])
+# The back row clears the USB-C daughterboard. The last two hold the polycarbonate panel (CASE_PANEL).
 SCREW_HOLE, SCREW_CBORE, SCREW_GRIP = 3.4, 5.8, 6.0
 INSERT_D, INSERT_DEPTH = 4.2, 4.8
 
@@ -117,9 +122,10 @@ SW1_LOCAL = (157.25, -12.45)     # power slide switch, actuator out of the right
 SW2_LOCAL = (136.75, -6.45)      # reset button on the back
 RESET_PIN_D = 2.2
 
-# The bottom case is aluminium except its right end (world x > CASE_END_X), a polycarbonate piece under
-# the radio module's antenna and round the power switch. The top case over it stays aluminium.
-CASE_END_X = 128.0
+# The bottom case is aluminium except a polycarbonate panel in the middle of its right end: the side wall
+# and the floor inside it, from the power switch to past the radio module's antenna (world x0, y0, y1).
+# The top case over it stays aluminium.
+CASE_PANEL = (150.0, -32.0, 36.0)
 
 # Power switch cap (SW1, C&K PCM12, slides along y). A slider in a pocket in the end wall's inside face
 # takes the switch's actuator in a notch open at the top, so the board drops onto it; its stem runs out
@@ -133,9 +139,9 @@ CAP_STEM = (6.0, 2.4)         # y, z
 CAP_GRIP = (2.3, 14.0, 5.5)   # x (its face flush with the end face), y, z
 CAP_CLEAR = 0.25
 
-# Roller on the encoder shaft. SW3 (Bourns PEC12R-2220F-S0024) is turned so its shaft points right, its
-# axis 10.0 mm above the PCB top: the body is at x 132.55-138.55 (13.4 mm tall, to 16.7 mm above the PCB
-# top), its hub (7 mm across) to 143.55 and the shaft's tip at 152.55. The roller's blind bore takes the
+# Roller on the encoder shaft. SW3 (Bourns PEC12R-2230F-S0024, 30 mm shaft) is turned so its shaft points
+# right, its axis 10.0 mm above the PCB top: the body is at x 132.55-138.55 (13.4 mm tall, to 16.7 mm above the PCB
+# top), its hub (7 mm across) to 143.55 and the shaft's tip at 162.55. The roller's blind bore takes the
 # shaft from just past the hub to its tip, and the wheel carries on through a notch in the end wall to
 # just inside the end face, so a finger can push its end in: SW3's switch is pressed along the shaft
 # (0.5 mm of travel). Its bottom clears the PCB top by 0.5 mm.
@@ -223,7 +229,7 @@ STRIP_Y = (-56.0, 56.0)    # world Y of the strip centres (inboard of the screws
 COLORS = {
     "Case top": (0.62, 0.63, 0.65),     # bead-blasted aluminium
     "Case bottom": (0.55, 0.56, 0.58),
-    "Case end": (0.20, 0.22, 0.26),     # smoked polycarbonate
+    "Case panel": (0.20, 0.22, 0.26),   # smoked polycarbonate
     "Switch cap": (0.12, 0.12, 0.12),
     "Plate foam": (0.93, 0.88, 0.80),
     "Gasket": (0.22, 0.22, 0.22),
@@ -267,6 +273,31 @@ def rrect(w, h, r, z0, z1, x=0.0, y=0.0):
             .extrude(z1 - z0).edges("|Z").fillet(r).val())
 
 
+def squircle(w, h, z0, z1, x=0.0, y=0.0, size=CORNER_L, n=CORNER_N, samples=24):
+    """A w x h prism with continuous-curvature corners (superellipse quadrants, each running size along
+    both edges), from z0 to z1."""
+    corners = [(1, 1), (-1, 1), (-1, -1), (1, -1)]  # counter-clockwise, from the top right
+
+    def pt(sx, sy, t):  # t = 0 on the side edge, pi/2 on the front or back edge
+        cx, cy = x + sx * (w / 2 - size), y + sy * (h / 2 - size)
+        return cq.Vector(cx + sx * size * max(math.cos(t), 0.0) ** (2 / n),
+                         cy + sy * size * max(math.sin(t), 0.0) ** (2 / n), z0)
+
+    loop = []
+    for sx, sy in corners:
+        pts = [pt(sx, sy, math.pi / 2 * k / samples) for k in range(samples + 1)]
+        loop.append(pts if sx * sy > 0 else pts[::-1])
+    edges = []
+    for i, pts in enumerate(loop):
+        prev, nxt = loop[i - 1][-1], loop[(i + 1) % 4][0]
+        # Leave and join the straight edges along them (zero curvature there, so the joins are smooth).
+        tangents = [(pts[0] - prev).normalized(), (nxt - pts[-1]).normalized()]
+        edges.append(cq.Edge.makeSpline(pts, tangents=tangents))
+        edges.append(cq.Edge.makeLine(pts[-1], nxt))
+    face = cq.Face.makeFromWires(cq.Wire.assembleEdges(edges))
+    return cq.Solid.extrudeLinear(face, cq.Vector(0, 0, z1 - z0))
+
+
 def box(x0, x1, y0, y1, z0, z1):
     return cq.Solid.makeBox(x1 - x0, y1 - y0, z1 - z0, cq.Vector(x0, y0, z0))
 
@@ -302,7 +333,7 @@ def _seam_reveal(shape, normal):
 def outer_shell():
     """Vertical-walled body, cut by the tilted bezel plane, with the rounded top and chamfered foot."""
     yc, h = (OUT_Y_FRONT + OUT_Y_BACK) / 2, OUT_Y_BACK - OUT_Y_FRONT
-    body = rrect(2 * OUT_X, h, OUTER_R, 0, 60, y=yc).cut(half_space_local(BEZEL_TOP, True))
+    body = squircle(2 * OUT_X, h, 0, 60, y=yc).cut(half_space_local(BEZEL_TOP, True))
     n = cq.Vector(0, -S, C)
     top = max(body.Faces(), key=lambda f: f.Center().dot(n) if f.normalAt().dot(n) > 0.99 else -1e9)
     body = body.fillet(TOP_FILLET, top.outerWire().Edges())
@@ -458,7 +489,7 @@ def bottom_case(shell):
     for c in switch_cap_cuts():
         b = b.cut(c)
     # The roller's notch in the end wall, down to the PCB top.
-    b = b.cut(place(roller_slot(PCB_T)))
+    b = b.cut(place(roller_slot()))
     # Reset: a pin hole straight up to SW2.
     b = b.cut(place(cyl_z(*SW2_LOCAL, RESET_PIN_D, -60, -0.5)))
     # Screws to the top case.
@@ -473,9 +504,10 @@ def bottom_case(shell):
 
 
 def split_end(bottom):
-    """The bottom case's aluminium part and its polycarbonate right end."""
-    right = box(CASE_END_X, 500, -500, 500, -10, 100)
-    return bottom.cut(right).clean(), bottom.intersect(right).clean()
+    """The bottom case's aluminium part and its polycarbonate panel."""
+    x0, y0, y1 = CASE_PANEL
+    panel = box(x0, OUT_X + 1, y0, y1, -10, 100)
+    return bottom.cut(panel).clean(), bottom.intersect(panel).clean()
 
 
 ROOF_Z = BEZEL_TOP - ROOF_T  # roof underside
@@ -483,7 +515,7 @@ ROOF_Z = BEZEL_TOP - ROOF_T  # roof underside
 
 def outer_prism(z0=0.0, z1=80.0):
     yc, h = (OUT_Y_FRONT + OUT_Y_BACK) / 2, OUT_Y_BACK - OUT_Y_FRONT
-    return rrect(2 * OUT_X, h, OUTER_R, z0, z1, y=yc)
+    return squircle(2 * OUT_X, h, z0, z1, y=yc)
 
 
 def key_opening(z0, z1):
@@ -545,10 +577,12 @@ def roof_inserts():
     return place(parts[0].fuse(frame).clean())
 
 
-def roller_slot(z0):
-    """The roller's slot, from local z0 up, out through the end wall (local frame)."""
+def roller_slot():
+    """The roller's slot (local frame): round the wheel's lower half at ROLLER_SLOT_CLEAR, so the case
+    follows its curve, and straight up from its axis, out through the end wall."""
     r = ROLLER_D / 2 + ROLLER_SLOT_CLEAR
-    return box(HUMP_X[1], OUT_X + 1.0, ROLLER_Y - r, ROLLER_Y + r, z0, 40)
+    x0, x1 = HUMP_X[1], OUT_X + 1.0
+    return _wheel_axis(x0, x1 - x0, r).fuse(box(x0, x1, ROLLER_Y - r, ROLLER_Y + r, ROLLER_Z, 40)).clean()
 
 
 def roof_cuts():
@@ -560,7 +594,7 @@ def roof_cuts():
         .rect(y1 - y0 + 2 * c, z1 + c - ROOF_Z + 1).extrude(x1 - x0 + 2 * c).edges("|X").fillet(ENC_POCKET_R).val()
     tunnel = cq.Solid.makeCylinder(ENC_HUB_D / 2 + c, HUMP_X[1] - x1 + 1, cq.Vector(x1, ENC_AXIS_Y, ENC_AXIS_Z),
                                    cq.Vector(1, 0, 0))
-    slot = roller_slot(0.0)
+    slot = roller_slot()
     back = display_z()[4]
     screen = [box(*display_rect(p, DISPLAY_CLEAR), back - 0.3, ROOF_Z) for p in (SCREEN["frame"], "pcb")]
     return [place(c) for c in [pocket, tunnel, slot] + screen]
@@ -794,11 +828,11 @@ def write_step(shape, path, name, color):
 def build_parts():
     shell = outer_shell()
     board, glass, screen = display()
-    bottom, end = split_end(bottom_case(shell))
+    bottom, panel = split_end(bottom_case(shell))
     return {
         "Case top": top_case(shell),
         "Case bottom": bottom,
-        "Case end": end,
+        "Case panel": panel,
         "Switch cap": switch_cap(),
         "Plate foam": plate_foam(),
         "Gasket": gaskets(),
@@ -816,7 +850,7 @@ def build_parts():
 FILES = {
     "Case top": "Dachshund60F-Case-Top.step",
     "Case bottom": "Dachshund60F-Case-Bottom.step",
-    "Case end": "Dachshund60F-Case-End.step",
+    "Case panel": "Dachshund60F-Case-Panel.step",
     "Switch cap": "Dachshund60F-Switch-Cap.step",
     "Gasket": "Dachshund60F-Gaskets.step",
 }
@@ -824,7 +858,7 @@ FILES = {
 
 EXPLODE = {"Case top": 70, "Display board": 70, "Display glass": 70, "Display area": 70, "LED seal": 50,
            "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Wheel cap": 38, "Rubber strips": -40,
-           "Case end": -20, "Switch cap": -20}
+           "Case panel": -20, "Switch cap": -20}
 
 
 def main():
