@@ -6,6 +6,11 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: the wheel's click, through the end wall (2026-10-28)
+
+- SW3's push switch is pressed along the shaft (0.5 mm), not down, and the wheel's end was hidden inside the end wall. Tiam chose to expose it: the roller now runs out through a notch in the right end wall (top case and polycarbonate end) to 0.25 mm inside the end face, 23.5 mm wide, so a finger can push its end in. New render `19-roller-end`. Not made or fitted.
+- Its look follows the Lemokey L1's corner wheel (Tiam's reference): a straight knurl (44 ribs) round the rim, chamfered ends, and an amber, slightly domed push cap set into its right end (new part `Wheel cap`).
+
 ### Case: one bezel height, encoder hump, aluminium with a polycarbonate end (2026-10-28)
 
 - Tiam asked for a less blocky case that suits CNC-machined aluminium. The bezel is now one height all round, level with a keycap's bottom edge (6.6 mm above the plate, up from 3.5), with the key opening 1 mm outside the keycaps. Over the sidebar it's a flat 1.5 mm roof at the same height, so the hood and its steps are gone, and the screen frame sits flush without lowering the screen.

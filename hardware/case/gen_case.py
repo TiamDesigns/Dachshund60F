@@ -136,13 +136,19 @@ CAP_CLEAR = 0.25
 # Roller on the encoder shaft. SW3 (Bourns PEC12R-2220F-S0024) is turned so its shaft points right, its
 # axis 10.0 mm above the PCB top: the body is at x 132.55-138.55 (13.4 mm tall, to 16.7 mm above the PCB
 # top), its hub (7 mm across) to 143.55 and the shaft's tip at 152.55. The roller's blind bore takes the
-# shaft from just past the hub to its tip, and the wheel carries on to just inside the case wall. Its
-# bottom clears the PCB top by 0.5 mm.
+# shaft from just past the hub to its tip, and the wheel carries on through a notch in the end wall to
+# just inside the end face, so a finger can push its end in: SW3's switch is pressed along the shaft
+# (0.5 mm of travel). Its bottom clears the PCB top by 0.5 mm.
 ENC_AXIS_Y, ENC_AXIS_Z = 50.025, PCB_T + 10.0
 ENC_BODY = (132.55, 138.55, 43.775, 56.275, PCB_T + 3.3, PCB_T + 16.7)  # x0, x1, y0, y1, z0, z1
 ENC_HUB_X1, ENC_HUB_D = 143.55, 7.0
-ROLLER_X = (144.5, 159.6)
+ROLLER_X = (144.5, BOARD_W / 2 + BEZEL_SIDE - 0.25)
 ROLLER_Y, ROLLER_Z, ROLLER_D = ENC_AXIS_Y, ENC_AXIS_Z, 19.0
+# Its look follows the Lemokey L1's corner wheel: a straight knurl round the rim says "roll", and a
+# contrasting cap set into its end says "push".
+WHEEL_RIBS, WHEEL_RIB_GAP, WHEEL_RIB_DEPTH = 44, 0.6, 0.5
+WHEEL_CHAMFER = 0.8
+WHEEL_CAP_D, WHEEL_CAP_T, WHEEL_CAP_DOME, WHEEL_CAP_SINK = 11.0, 1.5, 0.5, 0.6
 
 # Top case. One bezel height all round, at a keycap's bottom edge, with the key opening 1 mm outside the
 # keycaps. Over the sidebar the bezel is a flat roof that holds the screen under a window and has a light
@@ -223,6 +229,7 @@ COLORS = {
     "Gasket": (0.22, 0.22, 0.22),
     "Battery": (0.55, 0.62, 0.70),
     "Roller": (0.15, 0.13, 0.12),
+    "Wheel cap": (0.90, 0.55, 0.15),  # amber
     "Rubber strips": (0.10, 0.10, 0.10),
     "LED seal": (0.08, 0.08, 0.08),
     "Display board": (0.10, 0.25, 0.55),
@@ -450,6 +457,8 @@ def bottom_case(shell):
     # Power switch: the cap's pocket, window and recess.
     for c in switch_cap_cuts():
         b = b.cut(c)
+    # The roller's notch in the end wall, down to the PCB top.
+    b = b.cut(place(roller_slot(PCB_T)))
     # Reset: a pin hole straight up to SW2.
     b = b.cut(place(cyl_z(*SW2_LOCAL, RESET_PIN_D, -60, -0.5)))
     # Screws to the top case.
@@ -536,6 +545,12 @@ def roof_inserts():
     return place(parts[0].fuse(frame).clean())
 
 
+def roller_slot(z0):
+    """The roller's slot, from local z0 up, out through the end wall (local frame)."""
+    r = ROLLER_D / 2 + ROLLER_SLOT_CLEAR
+    return box(HUMP_X[1], OUT_X + 1.0, ROLLER_Y - r, ROLLER_Y + r, z0, 40)
+
+
 def roof_cuts():
     """Inside the hump (the encoder body and a tunnel for its hub), the roller's slot, and room for the
     screen where it reaches past the inside wall (world)."""
@@ -545,8 +560,7 @@ def roof_cuts():
         .rect(y1 - y0 + 2 * c, z1 + c - ROOF_Z + 1).extrude(x1 - x0 + 2 * c).edges("|X").fillet(ENC_POCKET_R).val()
     tunnel = cq.Solid.makeCylinder(ENC_HUB_D / 2 + c, HUMP_X[1] - x1 + 1, cq.Vector(x1, ENC_AXIS_Y, ENC_AXIS_Z),
                                    cq.Vector(1, 0, 0))
-    r = ROLLER_D / 2 + ROLLER_SLOT_CLEAR
-    slot = box(HUMP_X[1], INNER_W / 2 + 0.1, ROLLER_Y - r, ROLLER_Y + r, 0, 40)
+    slot = roller_slot(0.0)
     back = display_z()[4]
     screen = [box(*display_rect(p, DISPLAY_CLEAR), back - 0.3, ROOF_Z) for p in (SCREEN["frame"], "pcb")]
     return [place(c) for c in [pocket, tunnel, slot] + screen]
@@ -700,16 +714,39 @@ def battery():
     return b.fillet(1.0, cq.Workplane().add(b).edges("|X").vals())
 
 
+def _wheel_axis(x0, w, r):
+    return cq.Solid.makeCylinder(r, w, cq.Vector(x0, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0))
+
+
 def roller():
-    w = ROLLER_X[1] - ROLLER_X[0]
-    r = cq.Solid.makeCylinder(ROLLER_D / 2, w, cq.Vector(ROLLER_X[0], ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0))
-    for i in range(1, 6):  # grip grooves
-        x = ROLLER_X[0] + i * w / 6
-        groove = cq.Solid.makeCylinder(ROLLER_D, 0.5, cq.Vector(x - 0.25, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0))
-        core = cq.Solid.makeCylinder(ROLLER_D / 2 - 0.4, 0.5, cq.Vector(x - 0.25, ROLLER_Y, ROLLER_Z),
-                                     cq.Vector(1, 0, 0))
-        r = r.cut(groove.cut(core))
-    return place(r)
+    """The wheel: a straight-knurled rim (ribs along the shaft, for rolling), chamfered ends, and a pocket
+    in its right end for the push cap."""
+    x0, x1 = ROLLER_X
+    r = _wheel_axis(x0, x1 - x0, ROLLER_D / 2)
+    r = r.chamfer(WHEEL_CHAMFER, None, [e for e in r.Edges() if e.geomType() == "CIRCLE"])
+    n, d = WHEEL_RIBS, WHEEL_RIB_DEPTH
+    ribs = []
+    for i in range(n):
+        a = 360.0 * (i + 0.5) / n
+        g = box(x0 + WHEEL_CHAMFER + 0.6, x1 - WHEEL_CHAMFER - 0.6, -WHEEL_RIB_GAP / 2, WHEEL_RIB_GAP / 2,
+                ROLLER_D / 2 - d, ROLLER_D / 2 + 1)
+        ribs.append(g.rotate((0, 0, 0), (1, 0, 0), a).translate((0, ROLLER_Y, ROLLER_Z)))
+    r = r.cut(cq.Compound.makeCompound(ribs))
+    cap_r, depth = WHEEL_CAP_D / 2 + 0.1, WHEEL_CAP_T + WHEEL_CAP_SINK
+    r = r.cut(_wheel_axis(x1 - depth, depth + 1, cap_r))
+    return place(r.clean())
+
+
+def wheel_cap():
+    """The push cap in the wheel's end: a contrasting disc, slightly domed, standing WHEEL_CAP_SINK below the
+    rim so it reads as a button."""
+    x1 = ROLLER_X[1] - WHEEL_CAP_SINK
+    disc = _wheel_axis(x1 - WHEEL_CAP_T, WHEEL_CAP_T, WHEEL_CAP_D / 2)
+    rc = (WHEEL_CAP_D ** 2 / 4 + WHEEL_CAP_DOME ** 2) / (2 * WHEEL_CAP_DOME)  # dome's sphere radius
+    dome = cq.Solid.makeSphere(rc, cq.Vector(x1 + WHEEL_CAP_DOME - rc, ROLLER_Y, ROLLER_Z), angleDegrees1=-90,
+                               angleDegrees2=90)
+    dome = dome.intersect(_wheel_axis(x1, WHEEL_CAP_DOME + 0.1, WHEEL_CAP_D / 2))
+    return place(disc.fuse(dome).clean())
 
 
 def strips():
@@ -741,7 +778,7 @@ def report(parts):
     hump_top = ENC_AXIS_Z + HUMP_R
     print(f"bezel: {BEZEL_ABOVE_PLATE:.1f} mm above the plate top; hump top {hump_top - BEZEL_TOP:.1f} mm above "
           f"the bezel ({to_world(ENC_AXIS_Y, hump_top)[1]:.1f} mm off the desk); roller {ROLLER_D:.1f} mm across, "
-          f"{ROLLER_X[1] - ROLLER_X[0]:.2f} mm wide, top {ROLLER_Z + ROLLER_D / 2 - BEZEL_TOP:.1f} mm above the bezel")
+          f"{ROLLER_X[1] - ROLLER_X[0]:.2f} mm wide, its end {OUT_X - ROLLER_X[1]:.2f} mm inside the end face, top {ROLLER_Z + ROLLER_D / 2 - BEZEL_TOP:.1f} mm above the bezel")
     for y in ROW_EDGES:
         yw, zw = to_world(y, -UNDER_PCB_STEP)
         print(f"floor step at world y {yw:6.1f}: {max(zw, FLOOR):.1f} mm")
@@ -767,6 +804,7 @@ def build_parts():
         "Gasket": gaskets(),
         "Battery": battery(),
         "Roller": roller(),
+        "Wheel cap": wheel_cap(),
         "Rubber strips": strips(),
         "LED seal": led_seal(),
         "Display board": board,
@@ -785,7 +823,7 @@ FILES = {
 
 
 EXPLODE = {"Case top": 70, "Display board": 70, "Display glass": 70, "Display area": 70, "LED seal": 50,
-           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Rubber strips": -40,
+           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Wheel cap": 38, "Rubber strips": -40,
            "Case end": -20, "Switch cap": -20}
 
 
@@ -816,7 +854,7 @@ def main():
             meshes = [os.path.join(tmp, n + ".npz") for n in ("assembled", "exploded", "inside")]
             assembly.write_meshes(doc, meshes[0])
             assembly.write_meshes(assembly.build(parts, COLORS, EXPLODE), meshes[1])
-            assembly.write_meshes(assembly.build(parts, COLORS, skip=("Board", "Case top", "Roller",
+            assembly.write_meshes(assembly.build(parts, COLORS, skip=("Board", "Case top", "Roller", "Wheel cap",
                                                                       "Plate foam", "Gasket", "Display board",
                                                                       "Display glass", "Display area",
                                                                       "LED seal")), meshes[2])
