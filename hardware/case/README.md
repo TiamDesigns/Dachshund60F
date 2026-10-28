@@ -86,11 +86,16 @@ The assembly places the boards as components, so their colours and names carry o
   holds the screen under a window and the LED channels. The encoder sits under the hump, in a pocket with
   0.5 mm all round (0.85 mm of wall left at the hump's shoulders) and a tunnel for its hub, and the wheel
   shows through a slot 0.5 mm wider than it.
-- **Roller:** 19 mm across and 15.1 mm wide, from just past the encoder's hub to just inside the right
-  wall. SW3 (Bourns PEC12R-2220F-S0024, 24 detents) is turned so its shaft points right; its axis is
-  10.0 mm above the PCB top, so the wheel clears the PCB by 0.5 mm. Its top is 7.9 mm above the bezel,
-  0.6 mm under the hump and about level with the keycap tops. The wheel needs a blind bore 9 mm deep for
-  the shaft (6 mm D-shaft, which ends 7 mm short of the wheel's right face).
+- **Roller:** 19 mm across and 23.5 mm wide, from just past the encoder's hub out through a notch in the
+  right end wall to 0.25 mm inside the end face. SW3 (Bourns PEC12R-2220F-S0024, 24 detents) is turned so
+  its shaft points right; its axis is 10.0 mm above the PCB top, so the wheel clears the PCB by 0.5 mm. Its
+  top is 7.9 mm above the bezel, 0.6 mm under the hump and about level with the keycap tops. The wheel needs
+  a blind bore 9 mm deep for the shaft (6 mm D-shaft) and can be hollow beyond it.
+- **Wheel look and click,** after the Lemokey L1's corner wheel: a straight knurl round the rim (44 ribs,
+  0.6 mm wide and 0.5 mm deep, along the shaft) and 0.8 mm chamfered ends. SW3's push switch is pressed
+  along the shaft, not down, so the wheel's right end carries an amber push cap: an 11 mm disc, slightly
+  domed, set 0.6 mm into the wheel (`Wheel cap` in the assembly; glue it in, or print the wheel in two
+  colours). Push the cap towards the keys. It travels 0.5 mm and takes a firm push (Bourns: 610 gf).
 - **Indicator LEDs (D3–D7):** each LED has its own channel, a 4 mm bore through a solid block from the
   roof down to 1 mm above the plate, with 1.5 mm walls between neighbours. A strip of 1.5 mm black
   closed-cell foam (EVA or Poron, cut from `Dachshund60F-LED-Seal.dxf`) seals the block to the plate, so
