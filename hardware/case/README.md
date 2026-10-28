@@ -38,8 +38,12 @@ The assembly places the boards as components, so their colours and names carry o
 
 - Outside: 336.5 × 144.0 mm. The plan-view corners have continuous curvature, like Apple's: each is a
   superellipse (exponent 5) running 11 mm along both edges, which leaves the straight edge with no kink, so
-  reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 7 mm radius. The top edge's
-  4 mm roll and the hump's ends are still plain round fillets. Front height 15.2 mm (top of the bezel at the front edge, after the thumb scoop), back height 35.4 mm.
+  reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 7 mm radius. The top edge
+  rolls over the same way: the same superellipse on its side, 2.5 mm down the wall and 2.5 mm across the
+  top (`TOP_ROLL`), so the wall, the roll and the top meet with no change in curvature. It's built as a
+  loft through sections of that curve all round the outline, not as a round fillet. The hump's ends are
+  still plain 2 mm fillets. Front height 14.2 mm (top of the bezel at the front edge, after the thumb
+  scoop), back height 35.4 mm.
   The plate's top is 12.6 mm above the desk at the front row.
 - Typing angle: 7°, built into the case (the bottom is flat).
 - Bezel: 9 mm on the ends, 12 mm front and back (the socks reach 8 mm past the plate edge). One height all
@@ -51,13 +55,14 @@ The assembly places the boards as components, so their colours and names carry o
   right Shift. The bezel comes back into it as an 8.6 mm tongue, 1 mm from the keycaps on all three sides
   (`ARROW_GAP_X`), so no plate shows there.
 - Thumb scoop: across the whole front, corner to corner (the arrows are in the space bar's row, so there's
-  nowhere it has to return to full height), the bezel's top falls away from the key opening to the outer
-  edge, 2.5 mm lower there (`FRONT_SCOOP_DROP`). The opening's front edge stays at keycap-bottom height. The
-  surface leaves the flat bezel tangentially just inside the opening, steepest about 4 mm out (about 19°),
-  and is concave beyond that, flattening out into the 4 mm roll at the front edge, so the thumbs get room
-  under the space bar and there's no crease to feel or catch the light.
+  nowhere it has to return to full height). The bezel stays flat for 2.5 mm in front of the key opening
+  (`FRONT_SCOOP_FLAT`), at keycap-bottom height, then falls away to the outer edge, 3.5 mm lower there
+  (`FRONT_SCOOP_DROP`). The fall is a quintic (10t³ − 15t⁴ + 6t⁵), which leaves the flat and meets the front's
+  roll with no change in slope or curvature, so there's no crease to feel or catch the light. It's steepest
+  halfway, at about 32°.
 - Encoder hump: the encoder's body stands 16.7 mm above the PCB top, 5.1 mm above the bezel, so a hump
-  covers it: a cylinder on the roller's axis, 10.1 mm in radius (the wheel's plus 0.6 mm), with 2 mm rounded
+  covers it: a cylinder on the roller's axis, 10.3 mm in radius (the wheel's plus 0.8 mm, so its wall over
+  the encoder's pocket is 1 mm), with 2 mm rounded
   ends. It stands 8.5 mm above the bezel, level with the keycap tops, and the wheel continues its curve to
   the right.
 - No weight for now. The floor is plain underneath, so a weight can be added later.
@@ -71,7 +76,11 @@ The assembly places the boards as components, so their colours and names carry o
 - Gaskets: silicone socks on the plate's eight tabs: 8 × 5 × 5 mm outside, with the closed end round in
   plan, and a centred 6.5 × 2.8 × 1.2 mm pocket that takes a 1.2–1.6 mm plate. The seam between the two halves is at the
   socks' lower face, so the bottom case is the seat and the top case holds a 4.6 mm pocket over each: 0.4 mm
-  of squeeze. Nothing else touches the plate or the PCB; the board floats on the socks. More or less squeeze
+  of squeeze. At the seam a tongue on the top case (1.2 mm wide, 1.5 mm tall, 1.75 mm in from the outside)
+  sits in a groove in the bottom case (1.5 × 1.7 mm, one 1.5 mm cutter), 0.15 mm clear each side and 0.2 mm
+  under it, so the halves seat on their faces. It locates them, stops them shifting and hides the light gap.
+  It runs all round the outline except the right end's middle (the polycarbonate panel, the power switch and
+  the roller's notch) and round the left end's screw (`TONGUE`, `GROOVE`). Nothing else touches the plate or the PCB; the board floats on the socks. More or less squeeze
   is `SOCK_SQUEEZE`.
 - Under the PCB: 3 mm at the front edge (the hot-swap sockets are 1.85 mm).
 - Stepped floor: under each of the other five switch rows the floor rises in one step, to 3.5 mm below the
@@ -83,8 +92,8 @@ The assembly places the boards as components, so their colours and names carry o
 
 ## Openings and parts inside
 
-- **USB-C:** centred in the back wall. The daughterboard sits flat in a pocket on two M3 × 4 heat-set
-  inserts, with the receptacle 1 mm inside the back face and a shallow lead-in for the plug. A JST-SH 4-pin
+- **USB-C:** centred in the back wall. The daughterboard sits flat in a pocket on two tapped M3 holes
+  (4.8 mm of thread), with the receptacle 1 mm inside the back face and a shallow lead-in for the plug. A JST-SH 4-pin
   cable runs over the steps to J1 under the right end of the mainboard: about 200 mm.
 - **Power switch (SW1):** a cap that slides with the switch. A slider in a pocket in the end wall's inside
   face takes SW1's actuator in a notch open at the top, so the board drops onto it. Its stem runs out
@@ -115,8 +124,9 @@ The assembly places the boards as components, so their colours and names carry o
   light can't leak sideways under it; it is soft, so it doesn't stiffen the gasket mount. In the top of each
   channel, against the roof's 3 mm hole, goes a 4 mm diffuser disc: 1 mm opal (milky) acrylic or a frosted
   polycarbonate film, punched with a 4 mm hole punch and fixed with a drop of UV glue.
-- Screws: ten M3 × 10 socket heads from below into the top case (4.2 mm holes, for M3 × 4 heat-set
-  inserts in a printed case; tap M3 in aluminium instead). The back row skips the middle, where the
+- Screws: ten M3 × 10 socket heads from below into tapped M3 holes in the top case (2.5 mm drill, 5 mm of
+  full thread, 1.7 × the diameter; heat-set inserts are for plastic). For a printed prototype, open the holes
+  to 4.2 mm for M3 × 4 heat-set inserts. The back row skips the middle, where the
   daughterboard is. Two of them, in the right end wall either side of the power switch, hold the
   polycarbonate panel.
 - **Feet:** two strips of self-adhesive solid rubber, 10 mm wide and 3 mm thick, each 290 mm long, in
@@ -168,6 +178,20 @@ pixels, 12 × 15 cells of text with the 10 × 16 font. Build the firmware with
   next to and under the radio module's antenna, which faces down and right (the module is on the back of
   the PCB). It also takes the power switch's cap. Smoked or clear PC both work, and it can be milled or
   printed.
+- CNC rules the two aluminium halves follow (3-axis, 6061):
+  - Inside corners along the cutter's axis are rounded, a third of the pocket's depth and at least 1 mm
+    (`CNC_MIN_R`, `cnc_round`, which finds every sharp one and rounds it). The screen's pockets, which take a
+    square-cornered glass and board, have 2 mm dog-bone reliefs at the corners instead (`DOGBONE_D`). The
+    LED block is as wide as the screen's frame, so there's no corner where they meet.
+  - Walls at least 1 mm: the hump over the encoder, the screen's frame (1.3 mm), the lip outside the seam's
+    groove (1 mm under the seam's 0.6 mm reveal chamfer; the groove can't sit further in, because the
+    corners' tightest radius is 3.4 mm), and the wall between the USB-C board's pocket and its opening (it
+    was a 0.1 mm sliver; the opening now runs into the pocket).
+  - No undercuts: the top case is cut from below (inside) and above (outside, the scoop, roll and hump with a
+    ball-end mill); the bottom from above (inside) and below (feet channels, screw counterbores). The power
+    switch's pockets are cut from the end, in the polycarbonate panel, which is small enough to hold on its
+    side.
+  - Threads tapped, not inserts (see Screws).
 - Antenna: the top case over the antenna stays aluminium, 10 mm above the PCB. The ground plane under the
   keys and the metal over the antenna's top cost some range; a test of range with the real case is still
   needed, and a polycarbonate window in the roof over x > 154.75 mm, y 20.5–32.5 mm is the fallback.

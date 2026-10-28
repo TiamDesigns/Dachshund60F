@@ -35,6 +35,22 @@ import re
 import sys
 
 import cadquery as cq
+from OCP.BRep import BRep_Tool
+from OCP.BRepBuilderAPI import (BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeFace, BRepBuilderAPI_MakeSolid,
+                                BRepBuilderAPI_MakeWire, BRepBuilderAPI_NurbsConvert, BRepBuilderAPI_Sewing)
+from OCP.BRepLib import BRepLib
+from OCP.BRepOffsetAPI import BRepOffsetAPI_ThruSections
+from OCP.BRepPrimAPI import BRepPrimAPI_MakePrism
+from OCP.Geom import Geom_BSplineCurve
+from OCP.Geom2dAPI import Geom2dAPI_Interpolate
+from OCP.ShapeFix import ShapeFix_Face, ShapeFix_Shell
+from OCP.TColgp import TColgp_Array1OfPnt, TColgp_HArray1OfPnt2d
+from OCP.TColStd import TColStd_Array1OfInteger, TColStd_Array1OfReal, TColStd_HArray1OfReal
+from OCP.TopAbs import TopAbs_EDGE, TopAbs_FACE
+from OCP.TopExp import TopExp
+from OCP.TopoDS import TopoDS
+from OCP.TopTools import TopTools_IndexedDataMapOfShapeListOfShape
+from OCP.gp import gp_Pnt, gp_Pnt2d, gp_Vec
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 HW = os.path.dirname(HERE)
@@ -62,8 +78,8 @@ BEZEL_FB = 12.0        # wall outside the outline front and back (the socks reac
 # visible kink where the arc starts. CORNER_L is how far along each edge the curve runs (about the look
 # of a 7 mm radius); CORNER_N is its exponent (2 would be a circle).
 CORNER_L, CORNER_N = 11.0, 5.0
-TOP_FILLET = 4.0       # rounded top edge
-SEAM_REVEAL = 0.8      # chamfer on both halves at the seam, so it reads as a groove
+TOP_ROLL = 2.5         # the top edge's continuous-curvature roll: how far it runs down the wall and across the top
+SEAM_REVEAL = 0.6      # chamfer on both halves at the seam, so it reads as a groove
 INNER_CHAMFER = 0.5    # chamfer on the key opening's top edge
 FOOT_CHAMFER = 1.0     # bottom edge, so the case seems to float
 BEZEL_ABOVE_PLATE = 6.6  # bezel top above the plate top: a keycap's bottom edge, so no switch shows
@@ -81,12 +97,25 @@ SOCK_Z0 = PLATE_MID - (SOCK_H - SOCK_SQUEEZE) / 2  # compressed sock bottom
 SPLIT = SOCK_Z0        # top/bottom case seam (local Z): the bottom case is the socks' floor
 BEZEL_TOP = PLATE_Z0 + PLATE_T + BEZEL_ABOVE_PLATE
 
-# Top case screws: M3 x 10 socket head from below into M3 x 4 heat-set inserts (OD 4.2).
+# Top case screws: M3 x 10 socket head from below into tapped M3 holes (heat-set inserts are for plastic;
+# in aluminium the thread is tapped: a 2.5 mm drill, TAP_DEPTH of full thread (1.7 x d, plenty in 6061), the
+# drill 0.8 mm deeper; under the thumb scoop there's no room for more).
 SCREWS = ([(x, -66.6) for x in (-79.6, 0.0, 79.6)] + [(x, 66.6) for x in (-79.6, -30.0, 30.0, 79.6)]
           + [(-163.9, 15.0), (163.9, -26.0), (163.9, 15.0)])
 # The back row clears the USB-C daughterboard. The last two hold the polycarbonate panel (CASE_PANEL).
 SCREW_HOLE, SCREW_CBORE, SCREW_GRIP = 3.4, 5.8, 6.0
-INSERT_D, INSERT_DEPTH = 4.2, 4.8
+TAP_DRILL, TAP_DEPTH = 2.5, 5.0
+# CNC (3-axis, 6061): inside corners along the cutter's axis get a radius of at least CNC_MIN_R and a third
+# of the pocket's depth; pockets that take square-cornered parts (the screen) get DOGBONE_D reliefs.
+CNC_MIN_R, CNC_MAX_R = 1.0, 3.0
+DOGBONE_D = 2.0
+# Tongue and groove at the seam: a tongue on the top case's lower face in a groove in the bottom case's top
+# face, both following the outline (offsets in from the outside; heights from the seam). 0.15 mm a side
+# and 0.2 mm under the tongue, so the halves seat on their faces. It stops at the right end's middle (the
+# polycarbonate panel, the power switch and the roller's notch) and round the left end's screw.
+TONGUE = (1.75, 2.95, 1.5)
+GROOVE = (1.6, 3.1, 1.7)
+TONGUE_GAP_ZONE = (145.0, -36.0, 64.0)  # world x from, y from, y to
 
 # Plate foam (Poron, 3.5 mm sheet, 3.4 mm installed between PCB top and plate bottom).
 FOAM_HOLE_GROW = 0.3   # each plate hole, grown by this much
@@ -171,13 +200,13 @@ OPENING_R = 1.5            # plan-view corner radius of the opening
 # The bottom row has a 0.5 u gap between the right Ctrl (ends at 12.5 u) and the left arrow (13 u), under
 # the right Shift: the bezel comes back into it as a tongue, KEY_GAP from the keycaps on all three sides.
 ARROW_GAP_X = (KEY_GRID[0] + 12.5 * 19.05, KEY_GRID[0] + 13 * 19.05)
-# Thumb scoop: across the whole front, the bezel's top falls away from the key opening to the outer edge,
-# FRONT_SCOOP_DROP lower there. It leaves the flat bezel tangentially just inside the opening (so the
-# opening's front edge stays at keycap-bottom height) and is concave over its outer two thirds, flattening
-# out at the edge: z = BEZEL_TOP - drop * (1 - (1 - t)^k (1 + k t)), t = 0 at the opening, 1 at the edge.
-FRONT_SCOOP_DROP, FRONT_SCOOP_K = 2.5, 3.0
+# Thumb scoop: across the whole front, the bezel stays flat for FRONT_SCOOP_FLAT in front of the key
+# opening, then its top falls away to the outer edge, FRONT_SCOOP_DROP lower there. The fall is a quintic
+# (z = BEZEL_TOP - drop * (10t^3 - 15t^4 + 6t^5), t = 0 at its start, 1 at the edge), which leaves the flat
+# and meets the front's roll with no change in slope or curvature (curvature-continuous, like the corners).
+FRONT_SCOOP_DROP, FRONT_SCOOP_FLAT = 3.5, 2.5
 ROOF_T = 1.5               # bezel roof over the board edge and the sidebar
-HUMP_R = ROLLER_D / 2 + 0.6  # outside radius of the hump over the encoder body
+HUMP_R = ROLLER_D / 2 + 0.8  # outside radius of the hump over the encoder body (1 mm wall over the pocket)
 HUMP_X = (130.15, 144.0)
 HUMP_FILLET = 2.0
 ENC_CLEAR = 0.5            # body to the hump's pocket, all round
@@ -214,7 +243,7 @@ SCREEN = DISPLAYS[DISPLAY]
 SCREWS[-1] = (SCREWS[-1][0], SCREEN.get("right_screw_y", SCREWS[-1][1]))
 DISPLAY_TAPE = 0.2           # glass to roof underside
 DISPLAY_WINDOW_MARGIN = 0.8  # window edge outside the active area, each side
-DISPLAY_FRAME_T, DISPLAY_CLEAR = 1.0, 0.3
+DISPLAY_FRAME_T, DISPLAY_CLEAR = 1.3, 0.3
 DISPLAY_WIRE_GAP = 16.0      # width of the gap at the back of the frame
 # The driver board stays in front of and left of the radio module's antenna (KiCad x > 333, y 67-79;
 # local x > 154.75, y 20.5-32.5). Only the panel's glass reaches over it.
@@ -310,6 +339,72 @@ def box(x0, x1, y0, y1, z0, z1):
     return cq.Solid.makeBox(x1 - x0, y1 - y0, z1 - z0, cq.Vector(x0, y0, z0))
 
 
+def round_edges_at(solid, x, r, axis=(0, 0, 1)):
+    """Fillet the solid's straight edges along axis that lie at x."""
+    a = cq.Vector(*axis)
+    edges = [e for e in solid.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).dot(a)) > 0.999
+             and abs(e.Center().x - x) < 1e-6]
+    return solid.fillet(r, edges)
+
+
+def cnc_round(shape, axis, skip=lambda e: False):
+    """Round the sharp inside corners whose edges run along the cutter's axis: radius a third of the edge's
+    length (the pocket's depth), CNC_MIN_R to CNC_MAX_R. Returns the shape and any edge it could not round."""
+    a = cq.Vector(*axis)
+    m = TopTools_IndexedDataMapOfShapeListOfShape()
+    TopExp.MapShapesAndAncestors_s(shape.wrapped, TopAbs_EDGE, TopAbs_FACE, m)
+    todo = []
+    for i in range(1, m.Extent() + 1):
+        e = cq.Edge(m.FindKey(i))
+        if e.geomType() != "LINE" or abs(e.tangentAt(0.5).dot(a)) < 0.9995 or skip(e):
+            continue
+        faces = [cq.Face(f) for f in m.FindFromIndex(i)]
+        if len(faces) != 2:
+            continue
+        mid, t = e.positionAt(0.5), e.tangentAt(0.5)
+        ns, ds = [], []
+        for f in faces:
+            n = f.normalAt(mid)
+            d = n.cross(t).normalized()
+            if f.distance(cq.Vertex.makeVertex(*(mid + d * 0.02).toTuple())) > 1e-3:
+                d = d * -1
+            ns.append(n)
+            ds.append(d)
+        if abs(ns[0].dot(ns[1])) > 0.985 or (ds[0] + ds[1]).Length < 1e-6:
+            continue
+        if not shape.isInside(mid + (ds[0] + ds[1]).normalized() * 0.05, 1e-5):
+            todo.append(e)
+    failed = []
+    for e in sorted(todo, key=lambda e: -e.Length()):
+        r = min(max(e.Length() / 3, CNC_MIN_R), CNC_MAX_R)
+        for rr in (r, CNC_MIN_R):
+            try:
+                hits = [x for x in shape.Edges() if x.geomType() == "LINE"
+                        and (x.Center() - e.Center()).Length < 1e-4 and abs(x.Length() - e.Length()) < 1e-4]
+                if not hits:
+                    break  # already rounded with a neighbour
+                new = shape.fillet(rr, hits)
+                if new.isValid():
+                    shape = new
+                    break
+            except Exception:
+                pass
+        else:
+            failed.append(e.Center().toTuple())
+    return shape, failed
+
+
+def dogbone_box(x0, x1, y0, y1, z0, z1, d=DOGBONE_D):
+    """A pocket for a square-cornered part: a box with a round relief through each corner, so a cutter of
+    diameter d can reach the corners."""
+    b = box(x0, x1, y0, y1, z0, z1)
+    o = d / 2 / math.sqrt(2)
+    for x, sx in ((x0, 1), (x1, -1)):
+        for y, sy in ((y0, 1), (y1, -1)):
+            b = b.fuse(cyl_z(x + sx * o, y + sy * o, d, z0, z1))
+    return b.clean()
+
+
 def cyl_z(x, y, d, z0, z1):
     return cq.Solid.makeCylinder(d / 2, z1 - z0, cq.Vector(x, y, z0))
 
@@ -334,52 +429,230 @@ def _plane_face(shape, normal, pick=max):
     return pick(faces, key=lambda f: f.Area())
 
 
-def _seam_reveal(shape, normal):
-    return shape.chamfer(SEAM_REVEAL, None, _plane_face(shape, normal).outerWire().Edges())
+def seam_groove():
+    """The groove cut round the seam before the case is split there: SEAM_REVEAL deep and as far up and
+    down the wall, with a 0.2 mm flat at its root, so each half keeps a chamfered edge."""
+    pts, nrms, arc = outline(OUTLINE_STEP, OUTLINE_SAMPLES)
+    rings = {"low": [], "tip0": [], "tip1": [], "high": []}
+    for (x, y), (nx, ny) in zip(pts, nrms):
+        z = to_world((y + SPLIT * S) / C, SPLIT)[1]  # the seam's height on the wall here
+        out, d = 1.0, SEAM_REVEAL
+        rings["low"].append(cq.Vector(x + nx * out, y + ny * out, z - d - out))
+        rings["tip0"].append(cq.Vector(x - nx * d, y - ny * d, z - 0.1))
+        rings["tip1"].append(cq.Vector(x - nx * d, y - ny * d, z + 0.1))
+        rings["high"].append(cq.Vector(x + nx * out, y + ny * out, z + d + out))
+    params = [a / arc[-1] for a in arc[:-1]] + [1.0]
+    low, tip0, tip1, high = (cq.Wire.assembleEdges([cq.Edge.makeSpline(rings[k], periodic=True, parameters=params)])
+                             for k in ("low", "tip0", "tip1", "high"))
+    return _sew([_loft([low, tip0, tip1, high], True), _loft([high, low], True)])
+
+
+def seam_band(off0, off1, z0, z1):
+    """A band following the outline, off0..off1 in from the outside, from z0 to z1 (local, from the
+    seam), less TONGUE_GAP_ZONE and the left end's screw."""
+    pts, nrms, arc = outline(OUTLINE_STEP, OUTLINE_SAMPLES)
+    params = [a / arc[-1] for a in arc[:-1]] + [1.0]
+    wires = []
+    for off in (off0, off1):
+        vs = []
+        for (x, y), (nx, ny) in zip(pts, nrms):
+            x, y = x - nx * off, y - ny * off
+            vs.append(cq.Vector(x, y, to_world((y + SPLIT * S) / C, SPLIT)[1]))
+        wires.append(cq.Wire.assembleEdges([cq.Edge.makeSpline(vs, periodic=True, parameters=params)]))
+    n = cq.Vector(0, -S, C)
+    face = cq.Face.makeFromWires(wires[0], [wires[1]]).translate(n * z0)
+    band = cq.Solid.extrudeLinear(face, n * (z1 - z0))
+    x0, y0, y1 = TONGUE_GAP_ZONE
+    band = band.cut(box(x0, 300, y0, y1, -50, 100))
+    x, y, _ = screw_points()[-3]
+    return band.cut(cyl_z(x, y, 7.0, -50, 100)).clean()
+
+
+def _sew(shapes, tol=1e-4):
+    """A solid from faces that close a volume."""
+    sew = BRepBuilderAPI_Sewing(tol)
+    for sh in shapes:
+        for f in sh.Faces():
+            sew.Add(f.wrapped)
+    sew.Perform()
+    fix = ShapeFix_Shell(TopoDS.Shell_s(sew.SewedShape()))
+    fix.Perform()
+    solid = BRepBuilderAPI_MakeSolid(fix.Shell()).Solid()
+    BRepLib.OrientClosedSolid_s(solid)
+    return cq.Solid(solid)
+
+
+SCOOP_Y0 = KEY_GRID[2] - (KEY_GAP - KEYCAP_INSET) - FRONT_SCOOP_FLAT  # local y where the scoop starts
+SCOOP_Y1 = -(BOARD_H / 2 + BEZEL_FB) - FRONT_SCOOP_DROP * S / C  # where the world-vertical front meets it
+
+
+def scoop_z(yl):
+    """Local z of the bezel's top at local y (flat, then the thumb scoop, flat again past the front)."""
+    t = min(max((SCOOP_Y0 - yl) / (SCOOP_Y0 - SCOOP_Y1), 0.0), 1.0)
+    return BEZEL_TOP - FRONT_SCOOP_DROP * t ** 3 * (10 - 15 * t + 6 * t * t)
 
 
 def scoop_profile(samples=24):
-    """The thumb scoop's (local y, z) points, from the start (inside the opening) to the outer front edge."""
-    y0 = KEY_GRID[2] - (KEY_GAP - KEYCAP_INSET) + 0.25
-    y1 = -(BOARD_H / 2 + BEZEL_FB) - FRONT_SCOOP_DROP * S / C  # where the world-vertical front meets it
-    k = FRONT_SCOOP_K
-    return [(y0 + (y1 - y0) * t, BEZEL_TOP - FRONT_SCOOP_DROP * (1 - (1 - t) ** k * (1 + k * t)))
-            for t in (i / samples for i in range(samples + 1))]
+    """The thumb scoop's (local y, z) points, from its start to the outer front edge."""
+    return [(y, scoop_z(y)) for y in (SCOOP_Y0 + (SCOOP_Y1 - SCOOP_Y0) * i / samples for i in range(samples + 1))]
 
 
-def above_bezel():
-    """Everything above the bezel's top surface (flat, then the thumb scoop at the front), world frame."""
-    pts = scoop_profile()
-    big = 1000.0
-    v = lambda y, z: cq.Vector(0, y, z)
-    curve = cq.Edge.makeSpline([v(*p) for p in pts], tangents=[v(-1, 0), v(-1, 0)])
-    (ys, zs), (ye, ze) = pts[0], pts[-1]
-    loop = [cq.Edge.makeLine(v(big, BEZEL_TOP), v(ys, zs)), curve,
-            cq.Edge.makeLine(v(ye, ze), v(-big, ze)), cq.Edge.makeLine(v(-big, ze), v(-big, big)),
-            cq.Edge.makeLine(v(-big, big), v(big, big)), cq.Edge.makeLine(v(big, big), v(big, BEZEL_TOP))]
-    face = cq.Face.makeFromWires(cq.Wire.assembleEdges(loop)).translate((-big, 0, 0))
-    return place(cq.Solid.extrudeLinear(face, cq.Vector(2 * big, 0, 0)))
+TOP_SURFACE_HALF = 400.0  # the top surface runs local x and y +-this
+
+
+def top_surface():
+    """The bezel's top surface (world frame) as one face: flat, the thumb scoop, flat again past the front.
+    In the local frame its profile is a degree-5 B-spline: the scoop's quintic is exactly a Bezier with its
+    heights at 0, 0, 0, 1, 1, 1 times the drop, so it meets both flats with matching slope and curvature,
+    and the knots there are reduced to C2, so the surface is one smooth patch."""
+    big = TOP_SURFACE_HALF
+    y0, y1, b, d = SCOOP_Y0, SCOOP_Y1, BEZEL_TOP, FRONT_SCOOP_DROP
+    pieces = [[(big + (y0 - big) * i / 5, b) for i in range(6)],
+              [(y0 + (y1 - y0) * i / 5, z) for i, z in enumerate([b, b, b, b - d, b - d, b - d])],
+              [(y1 + (-big - y1) * i / 5, b - d) for i in range(6)]]
+    poles = pieces[0] + pieces[1][1:] + pieces[2][1:]
+    arr = TColgp_Array1OfPnt(1, len(poles))
+    for i, (y, z) in enumerate(poles):
+        arr.SetValue(i + 1, gp_Pnt(-big, y, z))
+    knots, mults = TColStd_Array1OfReal(1, 4), TColStd_Array1OfInteger(1, 4)
+    for i, (k, m) in enumerate([(-big, 6), (-y0, 5), (-y1, 5), (big, 6)]):  # parameter u = -y
+        knots.SetValue(i + 1, k)
+        mults.SetValue(i + 1, m)
+    curve = Geom_BSplineCurve(arr, knots, mults, 5)
+    for i in (2, 3):
+        if not curve.RemoveKnot(i, 3, 1e-9):
+            raise RuntimeError("scoop profile is not C2")
+    edge = BRepBuilderAPI_MakeEdge(curve).Edge()
+    return place(cq.Shape.cast(BRepPrimAPI_MakePrism(edge, gp_Vec(2 * big, 0, 0)).Shape()))
+
+
+OUTLINE_STEP, OUTLINE_SAMPLES = 8.0, 32  # outline points: spacing on the straight edges, and per corner
+
+
+def outline(step=OUTLINE_STEP, samples=OUTLINE_SAMPLES):
+    """The case's plan outline (world XY), counter-clockwise from the right end's middle: (points,
+    outward normals, arc lengths). The corners are the squircle's (continuous curvature)."""
+    w, h = 2 * OUT_X, OUT_Y_BACK - OUT_Y_FRONT
+    yc = (OUT_Y_FRONT + OUT_Y_BACK) / 2
+    L, n = CORNER_L, CORNER_N
+
+    def corner(sx, sy, t):
+        cx, cy = sx * (w / 2 - L), yc + sy * (h / 2 - L)
+        c, s = max(math.cos(t), 0.0), max(math.sin(t), 0.0)
+        p = (cx + sx * L * c ** (2 / n), cy + sy * L * s ** (2 / n))
+        # Outward normal of |u|^n + |v|^n = 1: (u^(n-1), v^(n-1)), normalised.
+        u, v = c ** (2 / n), s ** (2 / n)
+        nx, ny = sx * u ** (n - 1), sy * v ** (n - 1)
+        k = math.hypot(nx, ny)
+        return p, (nx / k, ny / k)
+
+    def line(a, b, nrm):
+        m = max(1, int(math.dist(a, b) / step))
+        return [((a[0] + (b[0] - a[0]) * i / m, a[1] + (b[1] - a[1]) * i / m), nrm) for i in range(m)]
+
+    pts = []
+    for i, (sx, sy) in enumerate([(1, 1), (-1, 1), (-1, -1), (1, -1)]):
+        ts = [math.pi / 2 * k / samples for k in range(samples + 1)]
+        if sx * sy < 0:
+            ts = ts[::-1]
+        arc = [corner(sx, sy, t) for t in ts]
+        if i == 0:  # the right end, from its middle up to the first corner
+            pts += line((OUT_X, yc), arc[0][0], (1.0, 0.0))
+        pts += arc[:-1]
+        nxt = [(-1, 1), (-1, -1), (1, -1), (1, 1)][i]
+        a = arc[-1][0]
+        nrm = [(0.0, 1.0), (-1.0, 0.0), (0.0, -1.0), (1.0, 0.0)][i]
+        if i < 3:
+            nsx, nsy = nxt
+            b = corner(nsx, nsy, 0.0 if nsx * nsy > 0 else math.pi / 2)[0]
+        else:
+            b = (OUT_X, yc)
+        pts += [arc[-1]] + line(a, b, nrm)[1:]
+    s, d = [0.0], 0.0
+    for (p, _), (q, _) in zip(pts, pts[1:] + pts[:1]):
+        d += math.dist(p, q)
+        s.append(d)
+    return [p for p, _ in pts], [nr for _, nr in pts], s
+
+
+def top_z(yw):
+    """World height of the bezel's top surface (flat, then the thumb scoop) at world y."""
+    zl = scoop_z
+    lo, hi = yw - 50, yw + 50  # local y: world y = yl C - zl S is increasing in yl
+    for _ in range(60):
+        mid = (lo + hi) / 2
+        if mid * C - zl(mid) * S < yw:
+            lo = mid
+        else:
+            hi = mid
+    return to_world(lo, zl(lo))[1]
+
+
+def _loft(wires, ruled):
+    """The lateral faces through closed wires (no end caps)."""
+    t = BRepOffsetAPI_ThruSections(False, ruled, 1e-6)
+    for w in wires:
+        t.AddWire(w.wrapped)
+    t.Build()
+    return cq.Shape.cast(t.Shape())
 
 
 def outer_shell():
-    """Vertical-walled body, cut by the tilted bezel (with the thumb scoop), with the rounded top and
-    chamfered foot."""
-    yc, h = (OUT_Y_FRONT + OUT_Y_BACK) / 2, OUT_Y_BACK - OUT_Y_FRONT
-    body = squircle(2 * OUT_X, h, 0, 60, y=yc).cut(above_bezel()).clean()
-    # Round every edge between the top surfaces (the flat bezel and the scoop) and the walls.
-    walls = [f for f in body.Faces() if abs(f.normalAt().z) < 1e-6]
-    wall_edges = {e.hashCode() for f in walls for e in f.Edges()}
-    bottom = min(body.Faces(), key=lambda f: f.Center().z)
-    floor_edges = {e.hashCode() for e in bottom.Edges()}
-    top = [e for e in body.Edges() if e.hashCode() in wall_edges and e.hashCode() not in floor_edges
-           and not _is_vertical(e)]
-    body = body.fillet(TOP_FILLET, top)
-    bottom = min(body.Faces(), key=lambda f: f.Center().z)
-    return body.chamfer(FOOT_CHAMFER, None, bottom.outerWire().Edges())
+    """The case's outside: vertical walls on the plan outline, the bezel's top (flat, then the thumb
+    scoop) and between them a continuous-curvature roll, the corners' superellipse (CORNER_N) turned
+    on its side, TOP_ROLL along both the wall and the top. Built as a loft through sections of the roll,
+    so the wall, the roll and the top meet with no kink in curvature. The foot is chamfered."""
+    pts, nrms, arc = outline(OUTLINE_STEP, OUTLINE_SAMPLES)
+    n, L = CORNER_N, TOP_ROLL
+    thetas = [math.pi / 2 * k / 10 for k in range(11)]
+    rows = {k: [] for k in ("bottom", "foot", "wall")}
+    sections = [[] for _ in range(len(thetas) + 1)]
+    for (x, y), (nx, ny) in zip(pts, nrms):
+        zc = top_z(y)
+        h = 0.05
+        slope = (top_z(y - ny * h) - zc) / h  # rise of the top going inward
+        dt = cq.Vector(-nx, -ny, slope).normalized()
+        dw = cq.Vector(0, 0, -1)
+        c = cq.Vector(x, y, zc)
+        o = c + dw * L + dt * L
+        rows["bottom"].append(cq.Vector(x - nx * FOOT_CHAMFER, y - ny * FOOT_CHAMFER, 0))  # the foot's chamfer
+        rows["foot"].append(cq.Vector(x, y, FOOT_CHAMFER))
+        rows["wall"].append(c + dw * (L + 2))  # the roll's loft starts 2 mm down the wall, so it leaves it straight
+        sections[0].append(c + dw * (L + 1))
+        for i, t in enumerate(thetas[:-1]):
+            p = o - dt * (L * math.cos(t) ** (2 / n)) - dw * (L * math.sin(t) ** (2 / n))
+            sections[i + 1].append(p)
+        q = c + dt * L
+        sections[-1].append(cq.Vector(q.x, q.y, top_z(q.y)))
+    params = [a / arc[-1] for a in arc[:-1]]
 
+    def ring(vs):
+        return cq.Wire.assembleEdges([cq.Edge.makeSpline(vs, periodic=True, parameters=params + [1.0])])
 
-def _is_vertical(e):
-    return e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999
+    # The top: the bezel surface inside the roll's last ring. That ring is drawn on the surface itself (a
+    # periodic spline in the surface's parameters, u = -local y, v = -400 - x), so the top's edge and
+    # the roll's last section are one curve.
+    surf = BRep_Tool.Surface_s(top_surface().wrapped)
+    uv = TColgp_HArray1OfPnt2d(1, len(sections[-1]))
+    for i, p in enumerate(sections[-1]):
+        yl, _ = to_local(p.y, p.z)
+        uv.SetValue(i + 1, gp_Pnt2d(-yl, -TOP_SURFACE_HALF - p.x))
+    par = TColStd_HArray1OfReal(1, len(params) + 1)
+    for i, a in enumerate(params + [1.0]):
+        par.SetValue(i + 1, a)
+    interp = Geom2dAPI_Interpolate(uv, par, True, 1e-9)
+    interp.Perform()
+    edge = BRepBuilderAPI_MakeEdge(interp.Curve(), surf).Edge()
+    BRepLib.BuildCurves3d_s(edge, 1e-7)
+    edge_wire = cq.Wire(BRepBuilderAPI_MakeWire(edge).Wire())
+    face = BRepBuilderAPI_MakeFace(surf, edge_wire.wrapped, True).Face()
+    fix = ShapeFix_Face(face)
+    fix.Perform()
+    top = [cq.Face(fix.Face())]
+    bottom, foot, wall = (ring(rows[k]) for k in ("bottom", "foot", "wall"))
+    rings = [wall] + [ring(v) for v in sections[:-1]] + [edge_wire]
+    side, roll = _loft([bottom, foot, wall], True), _loft(rings, False)
+    return _sew([side, roll] + top + [cq.Face.makeFromWires(bottom)])
 
 
 def inner_prism(z0, z1, grow=0.0):
@@ -465,14 +738,15 @@ def usb_cuts():
         box(USB_X - 5.5, USB_X + 5.5, y_edge - 6.0, y_edge + 0.2, USB_Z - 1.0, USB_Z),  # leg relief
     ]
     # Receptacle opening and a shallow lead-in for the plug's overmould.
-    for (w, h), y0 in (((USB_SHELL[0] + 0.9, USB_SHELL[1] + 0.8), y_face - 1.0),
+    # (The opening starts inside the board's pocket, so no thin sliver of wall is left between them.)
+    for (w, h), y0 in (((USB_SHELL[0] + 0.9, USB_SHELL[1] + 0.8), min(y_face - 1.0, y_edge)),
                        ((12.4, 6.6), y_face)):
         plane = cq.Plane(origin=(USB_X, y0, zc), xDir=(1, 0, 0), normal=(0, 1, 0))
         slot = cq.Workplane(plane).slot2D(w, h).extrude(OUT_Y_BACK + 5 - y0).val()
         cuts.append(slot)
-    for kx, ky in USB_HOLES_KICAD:  # M3 x 4 heat-set inserts
+    for kx, ky in USB_HOLES_KICAD:  # tapped M3, 4.8 mm of thread (the floor below stays 1.2 mm)
         x, y = usb_world(kx, ky)
-        cuts.append(cyl_z(x, y, INSERT_D, USB_Z - INSERT_DEPTH, USB_Z + 0.1))
+        cuts.append(cyl_z(x, y, TAP_DRILL, USB_Z - 4.8, USB_Z + 0.1))
     return cuts
 
 
@@ -485,8 +759,9 @@ def _cap_x():
 def switch_cap_cuts():
     f0, f1, g0, face = _cap_x()
     y, c, t = CAP_Y, CAP_CLEAR, CAP_TRAVEL  # room to slide a full travel either way
-    def slab(x0, x1, w, h):
-        return box(x0, x1, y - w / 2 - t - c, y + w / 2 + t + c, CAP_Z - h / 2 - c, CAP_Z + h / 2 + c)
+    def slab(x0, x1, w, h):  # cut from the end (along X), so its corners along X are rounded
+        b = box(x0, x1, y - w / 2 - t - c, y + w / 2 + t + c, CAP_Z - h / 2 - c, CAP_Z + h / 2 + c)
+        return b.fillet(CNC_MIN_R, [e for e in b.Edges() if abs(e.tangentAt(0).x) > 0.999])
     return [place(slab(f0 - 1.0, f1 + c, CAP_FLANGE[1], CAP_FLANGE[2])),
             place(slab(f1 - 0.1, g0 + 0.1, CAP_STEM[0], CAP_STEM[1])),
             place(slab(g0 - c, face + 1.0, CAP_GRIP[1], CAP_GRIP[2]))]
@@ -496,13 +771,14 @@ def switch_cap():
     """The power switch's cap, where the board model has the actuator: slider (flange and stem) and grip."""
     f0, f1, g0, face = _cap_x()
     y = CAP_Y
-    def slab(x0, x1, w, h):
-        return box(x0, x1, y - w / 2, y + w / 2, CAP_Z - h / 2, CAP_Z + h / 2)
+    def slab(x0, x1, w, h):  # corners along X rounded to clear the pockets' rounded corners
+        b = box(x0, x1, y - w / 2, y + w / 2, CAP_Z - h / 2, CAP_Z + h / 2)
+        return b.fillet(CNC_MIN_R - CAP_CLEAR, [e for e in b.Edges() if abs(e.tangentAt(0).x) > 0.999])
     slider = slab(f0, f1, CAP_FLANGE[1], CAP_FLANGE[2]).fuse(slab(f1 - 0.1, g0 + 1.0, CAP_STEM[0], CAP_STEM[1]))
     aw, ad = CAP_ACTUATOR
     slider = slider.cut(box(f0 - 1, f0 + ad, y - aw / 2, y + aw / 2, CAP_Z - 1.0, 20))
     grip = slab(g0, face, CAP_GRIP[1], CAP_GRIP[2])
-    grip = grip.fillet(0.8, [e for e in grip.Edges() if e.Center().x > face - 0.01])
+    grip = grip.fillet(0.5, [e for e in grip.Edges() if e.Center().x > face - 0.01])
     for i in range(-3, 4):  # ridges across the slide
         grip = grip.cut(box(face - 0.5, face + 1, y + i * 1.8 - 0.4, y + i * 1.8 + 0.4, -20, 20))
     return place(slider.fuse(grip).clean())
@@ -510,8 +786,8 @@ def switch_cap():
 
 def bottom_case(shell):
     b = shell.cut(half_space_local(SPLIT, True))
-    b = _seam_reveal(b, cq.Vector(0, -S, C))
     b = b.cut(cavity())
+    b = b.cut(seam_band(*GROOVE[:2], -GROOVE[2], 1.0))
     for p in sock_pockets():
         b = b.cut(p)
     # Battery tray ribs.
@@ -541,13 +817,16 @@ def bottom_case(shell):
     for y in STRIP_Y:
         w = STRIP_CHANNEL_W
         b = b.cut(box(-STRIP_L / 2 - 1, STRIP_L / 2 + 1, y - w / 2, y + w / 2, -1, STRIP_CHANNEL_DEPTH))
-    return b.clean()
+    b, failed = cnc_round(b.clean(), (0, 0, 1))
+    if failed:
+        print("bottom case: inside corners left sharp at", failed)
+    return b
 
 
 def split_end(bottom):
     """The bottom case's aluminium part and its polycarbonate panel."""
     x0, y0, y1 = CASE_PANEL
-    panel = box(x0, OUT_X + 1, y0, y1, -10, 100)
+    panel = round_edges_at(box(x0, OUT_X + 1, y0, y1, -10, 100), x0, 1.5)
     return bottom.cut(panel).clean(), bottom.intersect(panel).clean()
 
 
@@ -607,13 +886,15 @@ def display_z():
 
 def roof_inserts():
     """The LED channel block, and the frame that locates the screen, under the roof."""
-    x0, x1, y0, y1 = led_block_xy()
-    parts = [box(x0, x1, y0, y1, LED_BLOCK_BOTTOM, ROOF_Z + 0.1)]
     _, glass_bottom, _, pcb_bottom, _ = display_z()
     part = SCREEN["frame"]
+    # The LED block is as wide as the frame it meets, so there's no inside corner where they join.
+    x0, x1, y0, y1 = led_block_xy()
+    fx0, fx1, _, _ = display_rect(part, DISPLAY_CLEAR + DISPLAY_FRAME_T)
+    parts = [box(min(x0, fx0), max(x1, fx1), y0, y1, LED_BLOCK_BOTTOM, ROOF_Z + 0.1)]
     z0 = glass_bottom - 1.0 if part == "glass" else pcb_bottom + 0.5
     frame = box(*display_rect(part, DISPLAY_CLEAR + DISPLAY_FRAME_T), z0, ROOF_Z + 0.1)
-    frame = frame.cut(box(*display_rect(part, DISPLAY_CLEAR), 0, 40))
+    frame = frame.cut(dogbone_box(*display_rect(part, DISPLAY_CLEAR), 0, 40))
     cx = SCREEN[part + "_c"][0]
     frame = frame.cut(box(cx - DISPLAY_WIRE_GAP / 2, cx + DISPLAY_WIRE_GAP / 2, 0, 300, 0, 40))
     return place(parts[0].fuse(frame).clean())
@@ -624,7 +905,8 @@ def roller_slot():
     follows its curve, and straight up from its axis, out through the end wall."""
     r = ROLLER_D / 2 + ROLLER_SLOT_CLEAR
     x0, x1 = HUMP_X[1], OUT_X + 1.0
-    return _wheel_axis(x0, x1 - x0, r).fuse(box(x0, x1, ROLLER_Y - r, ROLLER_Y + r, ROLLER_Z, 40)).clean()
+    up = round_edges_at(box(x0, x1, ROLLER_Y - r, ROLLER_Y + r, ROLLER_Z, 40), x0, 1.5)
+    return _wheel_axis(x0, x1 - x0, r).fuse(up).clean()
 
 
 def roof_cuts():
@@ -633,12 +915,12 @@ def roof_cuts():
     x0, x1, y0, y1, _, z1 = ENC_BODY
     c = ENC_CLEAR
     pocket = cq.Workplane("YZ").workplane(offset=x0 - c).center((y0 + y1) / 2, (ROOF_Z - 1 + z1 + c) / 2) \
-        .rect(y1 - y0 + 2 * c, z1 + c - ROOF_Z + 1).extrude(x1 - x0 + 2 * c).edges("|X").fillet(ENC_POCKET_R).val()
+        .rect(y1 - y0 + 2 * c, z1 + c - ROOF_Z + 1).extrude(x1 - x0 + 2 * c).edges("|X or |Z").fillet(ENC_POCKET_R).val()
     tunnel = cq.Solid.makeCylinder(ENC_HUB_D / 2 + c, HUMP_X[1] - x1 + 1, cq.Vector(x1, ENC_AXIS_Y, ENC_AXIS_Z),
                                    cq.Vector(1, 0, 0))
     slot = roller_slot()
     back = display_z()[4]
-    screen = [box(*display_rect(p, DISPLAY_CLEAR), back - 0.3, ROOF_Z) for p in (SCREEN["frame"], "pcb")]
+    screen = [dogbone_box(*display_rect(p, DISPLAY_CLEAR), back - 0.3, ROOF_Z) for p in (SCREEN["frame"], "pcb")]
     return [place(c) for c in [pocket, tunnel, slot] + screen]
 
 
@@ -676,17 +958,15 @@ def led_seal():
 
 def top_case(shell):
     t = shell.cut(half_space_local(SPLIT, False))
-    t = _seam_reveal(t, cq.Vector(0, S, -C))
     t = t.cut(inner_prism(-50, ROOF_Z))
-    opening = place(key_opening(ROOF_Z - 1, 50))
-    t = t.cut(opening)
-    # Chamfer the key opening's top edge: the edges on the opening's walls with both ends near the top.
-    def on_top(e):
-        ends = [to_local(p.y, p.z)[1] for p in (e.startPoint(), e.endPoint())]
-        mid = e.positionAt(0.5)
-        return (min(ends) > BEZEL_TOP - 1 and
-                cq.Vertex.makeVertex(mid.x, mid.y, mid.z).distance(opening) < 1e-4)
-    t = t.chamfer(INNER_CHAMFER, None, [e for e in t.Edges() if on_top(e)])
+    # The key opening, with the chamfer on its top edge cut by a 45-degree flare (the top is flat all
+    # round the opening: the thumb scoop starts FRONT_SCOOP_FLAT in front of it).
+    t = t.cut(place(key_opening(ROOF_Z - 1, BEZEL_TOP + 1)))
+    rim = max(key_opening(ROOF_Z - 1, BEZEL_TOP).Faces(), key=lambda f: f.Center().z).outerWire()
+    flare = cq.Solid.makeLoft([rim.translate((0, 0, -INNER_CHAMFER)),
+                               rim.offset2D(INNER_CHAMFER + 0.3, "arc")[0].translate((0, 0, 0.3))], True)
+    # As B-splines: OCCT drops the cut of its cones from the top surface without a word.
+    t = t.cut(place(cq.Solid(BRepBuilderAPI_NurbsConvert(flare.wrapped, True).Shape())))
     t = t.fuse(hump())
     for c in roof_cuts():
         t = t.cut(c)
@@ -696,8 +976,12 @@ def top_case(shell):
     for p in sock_pockets():
         t = t.cut(p)
     for x, y, z in screw_points():
-        t = t.cut(cyl_z(x, y, INSERT_D, z - 1, z + INSERT_DEPTH))
-    return t.clean()
+        t = t.cut(cyl_z(x, y, TAP_DRILL, z - 1, z + TAP_DEPTH + 0.8))
+    t = t.fuse(seam_band(*TONGUE[:2], -TONGUE[2], 0.01))
+    t, failed = cnc_round(t.clean(), (0, -S, C))
+    if failed:
+        print("top case: inside corners left sharp at", failed)
+    return t
 
 
 # --- Gaskets, foam, stand-ins ------------------------------------------------------------------
@@ -848,10 +1132,21 @@ def display():
 
 # --- Output ------------------------------------------------------------------------------------
 
+def mesh_volume(shape):
+    """Volume from a fine mesh (the exact integration is far off on the lofted roll's surface)."""
+    vs, ts = shape.tessellate(0.05, 0.2)
+    p = [v.toTuple() for v in vs]
+    total = 0.0
+    for i, j, k in ts:
+        (ax, ay, az), (bx, by, bz), (cx, cy, cz) = p[i], p[j], p[k]
+        total += ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)
+    return total / 6
+
+
 def report(parts):
     for name, shape in parts.items():
         bb = shape.BoundingBox()
-        print(f"{name:12s} {bb.xlen:6.1f} x {bb.ylen:6.1f} x {bb.zlen:5.1f} mm, {shape.Volume() / 1000:7.1f} cm3")
+        print(f"{name:12s} {bb.xlen:6.1f} x {bb.ylen:6.1f} x {bb.zlen:5.1f} mm, {mesh_volume(shape) / 1000:7.1f} cm3")
     print(f"front height (top of the bezel at the front edge, after the thumb scoop): "
           f"{to_world(*scoop_profile()[-1])[1]:.1f} mm")
     print(f"back height: {to_world(BOARD_H / 2 + BEZEL_FB, BEZEL_TOP)[1]:.1f} mm")
@@ -868,12 +1163,14 @@ def report(parts):
 def write_step(shape, path, name, color):
     a = cq.Assembly(name="Dachshund60F")
     a.add(shape, name=name, color=cq.Color(*color))
-    a.save(path, "STEP")
+    # No curves-on-surfaces (pcurves): on the lofted roll they'd make the file several times bigger, and
+    # CAD programs rebuild them on import.
+    a.save(path, "STEP", write_pcurves=False)
     print(f"{os.path.relpath(path, HW)}: {os.path.getsize(path) / 1e6:.1f} MB")
 
 
 def build_parts():
-    shell = outer_shell()
+    shell = outer_shell().cut(seam_groove())
     board, glass, screen = display()
     bottom, panel = split_end(bottom_case(shell))
     return {
