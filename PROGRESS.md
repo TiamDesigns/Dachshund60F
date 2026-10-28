@@ -6,6 +6,13 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: one bezel height, encoder hump, aluminium with a polycarbonate end (2026-10-28)
+
+- Tiam asked for a less blocky case that suits CNC-machined aluminium. The bezel is now one height all round, level with a keycap's bottom edge (6.6 mm above the plate, up from 3.5), with the key opening 1 mm outside the keycaps. Over the sidebar it's a flat 1.5 mm roof at the same height, so the hood and its steps are gone, and the screen frame sits flush without lowering the screen.
+- Encoder: with the real axis height (10 mm above the PCB top), the roller grows to 19 mm across and 15.1 mm wide. The encoder's body stands 5.1 mm above the bezel, so it sits under a round hump on the roller's axis (radius 10.1 mm, 8.5 mm above the bezel, level with the keycap tops) and the wheel continues its curve.
+- Bottom case: aluminium, with its right end (x > 128 mm) a separate polycarbonate part under the antenna, held by three screws. The power switch gets a cap: a slider in the end wall takes SW1's actuator, and a 14 × 5.5 mm ridged grip sits flush in a recess in the end face. The battery stays where it is, away from the antenna.
+- The front is 17.7 mm high now (14.6 before). New renders `17-power-switch` and `18-section-switch`; the hood renders are renamed `sidebar`. Not made or fitted.
+
 ### SW3 part number: PEC12R-2220F-S0024 (2026-10-28)
 
 - The BOM had PEC12R-4220F-S0024, which is Bourns' "Horizontal Mount – Axial PC Pin" part: its shaft points straight up from the board, like a knob. The roller needs "Vertical Mount – Radial PC Pin" (first digit 2), whose shaft is parallel to the board, and that's what the footprint (KiCad's PEC12R-2x17F-Sxxxx) is drawn for. The 2026-10-23 check below had the two backwards.

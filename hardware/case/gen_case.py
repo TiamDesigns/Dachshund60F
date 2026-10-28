@@ -6,10 +6,15 @@
 
 Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
 
-- Dachshund60F-Case-Top.step      top case: bezel frame, upper half of the gasket pockets, and the
-                                  sidebar hood (screen window and mount, LED holes, roller slot)
-- Dachshund60F-Case-Bottom.step   bottom case: tub with a floor stepped by switch row, lower gasket
-                                  seats, USB-C, battery tray, channels for rubber strip feet
+- Dachshund60F-Case-Top.step      top case (aluminium): bezel at keycap-bottom height with a 1 mm gap
+                                  round the keys, upper half of the gasket pockets, a flat roof over
+                                  the sidebar (screen window and mount, LED holes, roller slot) and
+                                  a round hump over the encoder
+- Dachshund60F-Case-Bottom.step   bottom case (aluminium): tub with a floor stepped by switch row,
+                                  lower gasket seats, USB-C, battery tray, channels for rubber strip feet
+- Dachshund60F-Case-End.step      the bottom case's right end (polycarbonate): under the antenna, with
+                                  the power switch's cap and the reset pin hole
+- Dachshund60F-Switch-Cap.step    the power switch's slider and grip
 - Dachshund60F-Plate-Foam.dxf     plate-PCB midlayer foam outline, to cut from 3.5 mm Poron
                                   (the plate's own holes, grown 0.3 mm; board-centred origin)
 - Dachshund60F-Gaskets.step       the eight silicone socks on the plate tabs
@@ -54,9 +59,9 @@ BEZEL_FB = 12.0        # wall outside the outline front and back (the socks reac
 OUTER_R = 9.0          # plan-view corner radius
 TOP_FILLET = 4.0       # rounded top edge
 SEAM_REVEAL = 0.8      # chamfer on both halves at the seam, so it reads as a groove
-INNER_CHAMFER = 0.8    # chamfer on the bezel's inside edge
+INNER_CHAMFER = 0.5    # chamfer on the key opening's top edge
 FOOT_CHAMFER = 1.0     # bottom edge, so the case seems to float
-BEZEL_ABOVE_PLATE = 3.5  # bezel top above the plate top (keycaps clear it: they sit inside it)
+BEZEL_ABOVE_PLATE = 6.6  # bezel top above the plate top: a keycap's bottom edge, so no switch shows
 FLOOR = 3.0            # bottom thickness
 UNDER_PCB_FRONT = 3.0  # space under the PCB at the front edge (hot-swap sockets are 1.85 mm)
 
@@ -73,7 +78,8 @@ BEZEL_TOP = PLATE_Z0 + PLATE_T + BEZEL_ABOVE_PLATE
 
 # Top case screws: M3 x 10 socket head from below into M3 x 4 heat-set inserts (OD 4.2).
 SCREWS = ([(x, -66.6) for x in (-79.6, 0.0, 79.6)] + [(x, 66.6) for x in (-79.6, -30.0, 30.0, 79.6)]
-          + [(-163.9, 15.0), (163.9, 15.0)])  # the back row clears the USB-C daughterboard
+          + [(-163.9, 15.0), (140.0, -66.6), (140.0, 66.6), (163.9, 15.0)])
+# The back row clears the USB-C daughterboard. The last three hold the polycarbonate end (CASE_END_X).
 SCREW_HOLE, SCREW_CBORE, SCREW_GRIP = 3.4, 5.8, 6.0
 INSERT_D, INSERT_DEPTH = 4.2, 4.8
 
@@ -107,35 +113,57 @@ BATTERY_XY = (70.0, 31.0)        # centre, world
 TRAY_RIB_T, TRAY_RIB_H, TRAY_CLEAR = 1.6, 3.0, 0.75
 
 # Parts reached through the case (local frame, from the mainboard; KiCad refs).
-SW1_LOCAL = (157.25, -12.45)     # power slide switch, actuator out of the right edge
+SW1_LOCAL = (157.25, -12.45)     # power slide switch, actuator out of the right edge (x 159.2-160.4)
 SW2_LOCAL = (136.75, -6.45)      # reset button on the back
 RESET_PIN_D = 2.2
 
-# Roller on the encoder shaft (stand-in). The shaft axis is ~6.7 mm above the PCB top (assumed in
-# hardware/3dmodels), so a roller bigger than ~12 mm across would hit the PCB. SW3 is turned so its
-# shaft points right: the body is at x 130.15-138.55, the bushing to 143.55 and the shaft's tip at 153.05.
-# The roller's blind bore takes the shaft from just past the bushing to its tip, and the wheel carries on
-# past the end to just inside the case wall, under the screen's right edge.
-ROLLER_X = (144.05, 159.6)
-ROLLER_Y, ROLLER_Z, ROLLER_D = 50.025, PCB_T + 6.7, 12.0
+# The bottom case is aluminium except its right end (world x > CASE_END_X), a polycarbonate piece under
+# the radio module's antenna and round the power switch. The top case over it stays aluminium.
+CASE_END_X = 128.0
 
-# Sidebar hood (local frame): a pod over the right end of the board, its top at the height of a
-# keycap's bottom edge. It holds the screen under a window and has a light channel over each of D3-D7.
-# The encoder body is taller, so it gets a cover of its own behind the pod's left end, next to the
-# keys, and right of it the hood steps down to bezel height around the roller, which shows through a slot.
+# Power switch cap (SW1, C&K PCM12, slides along y). A slider in a pocket in the end wall's inside face
+# takes the switch's actuator in a notch open at the top, so the board drops onto it; its stem runs out
+# through a window to a ridged grip in a recess in the end face. The grip is pressed (or glued) onto the
+# stem from outside once the slider is in. CAP_TRAVEL is the switch's (C&K: 1.5 mm, check yours).
+CAP_TRAVEL = 1.5
+CAP_Y, CAP_Z = -11.87, -0.89  # local y, z of the actuator's middle in the board model (it hangs under the PCB)
+CAP_ACTUATOR = (1.5, 1.4)     # notch for the actuator (1.3 x 0.8): across the slide (y), depth (x)
+CAP_FLANGE = (2.1, 11.0, 4.2)  # slider flange in the wall: x, y, z
+CAP_STEM = (6.0, 2.4)         # y, z
+CAP_GRIP = (2.3, 14.0, 5.5)   # x (its face flush with the end face), y, z
+CAP_CLEAR = 0.25
+
+# Roller on the encoder shaft. SW3 (Bourns PEC12R-2220F-S0024) is turned so its shaft points right, its
+# axis 10.0 mm above the PCB top: the body is at x 132.55-138.55 (13.4 mm tall, to 16.7 mm above the PCB
+# top), its hub (7 mm across) to 143.55 and the shaft's tip at 152.55. The roller's blind bore takes the
+# shaft from just past the hub to its tip, and the wheel carries on to just inside the case wall. Its
+# bottom clears the PCB top by 0.5 mm.
+ENC_AXIS_Y, ENC_AXIS_Z = 50.025, PCB_T + 10.0
+ENC_BODY = (132.55, 138.55, 43.775, 56.275, PCB_T + 3.3, PCB_T + 16.7)  # x0, x1, y0, y1, z0, z1
+ENC_HUB_X1, ENC_HUB_D = 143.55, 7.0
+ROLLER_X = (144.5, 159.6)
+ROLLER_Y, ROLLER_Z, ROLLER_D = ENC_AXIS_Y, ENC_AXIS_Z, 19.0
+
+# Top case. One bezel height all round, at a keycap's bottom edge, with the key opening 1 mm outside the
+# keycaps. Over the sidebar the bezel is a flat roof that holds the screen under a window and has a light
+# channel over each of D3-D7. The encoder's body stands above it, under a hump: a cylinder coaxial with
+# the roller, so the hump and the wheel read as one round shape.
 KEYCAP_BOTTOM = PLATE_Z0 + PLATE_T + 6.6  # Cherry-profile skirt at rest (MX top housing: +6.2)
-HOOD_X0 = 128.0            # left wall outside face (keycaps end at 127.0)
-HOOD_Y0 = -39.75           # front wall outside face (SW614's keycap ends at -40.95)
-HOOD_WALL = 1.6            # left wall; the front and step walls are HOOD_WALL_FB
-HOOD_WALL_FB = 2.0
-HOOD_BOTTOM = 7.6          # walls stop 1 mm above the plate
-POD_TOP, POD_ROOF = KEYCAP_BOTTOM, 1.5
-ENC_TOP = 17.0             # encoder cover (the body's top is at 15.0)
-POD_FILLET = 1.5
-STEP_X, STEP_Y = 143.6, 38.55  # the encoder cover: x < STEP_X, y > STEP_Y; the low part right of it
-STEP_ROOF_Z = 8.5          # underside of the low roof; its top is BEZEL_TOP
-ROLLER_SLOT = (143.6, 160.1, 43.5, 56.5)  # x0, x1, y0, y1
-BUSHING_ARCH_R = 4.0       # clearance arch in the cover's right wall over the encoder's bushing (Ø7)
+KEY_GAP = 1.0              # keycap edge to the opening
+KEYCAP_INSET = 0.525       # keycap edge inside its 19.05 mm grid square
+# The key grid (local): rows 0-4 end at KEY_GRID_X1; the bottom row (in front of KEY_GRID_ROW5_Y) runs on
+# to KEY_GRID_ROW5_X1, under the sidebar's front.
+KEY_GRID = (-158.25, 127.5, -59.513, 59.55)
+KEY_GRID_ROW5_Y, KEY_GRID_ROW5_X1 = -40.46, 146.55
+OPENING_R = 1.5            # plan-view corner radius of the opening
+ROOF_T = 1.5               # bezel roof over the board edge and the sidebar
+HUMP_R = ROLLER_D / 2 + 0.6  # outside radius of the hump over the encoder body
+HUMP_X = (130.15, 144.0)
+HUMP_FILLET = 2.0
+ENC_CLEAR = 0.5            # body to the hump's pocket, all round
+ENC_POCKET_R = 1.5         # pocket corners (leaves 0.85 mm of wall at the hump's shoulders)
+ROLLER_SLOT_CLEAR = 0.5    # wheel to the slot's sides
+LED_BLOCK_X0, LED_BLOCK_Y0, LED_BLOCK_BOTTOM = 129.6, -37.75, 7.6  # light channel block (bottom 1 mm above the plate)
 
 # Status screen. The glass is taped to the roof's underside (DISPLAY_TAPE) behind a bevelled window
 # over its active area. A frame under the roof locates either the module's board (OLED modules, whose
@@ -187,8 +215,10 @@ STRIP_CHANNEL_W, STRIP_CHANNEL_DEPTH = 10.4, 1.0
 STRIP_Y = (-56.0, 56.0)    # world Y of the strip centres (inboard of the screws)
 
 COLORS = {
-    "Case top": (0.42, 0.27, 0.17),
-    "Case bottom": (0.85, 0.76, 0.61),
+    "Case top": (0.62, 0.63, 0.65),     # bead-blasted aluminium
+    "Case bottom": (0.55, 0.56, 0.58),
+    "Case end": (0.20, 0.22, 0.26),     # smoked polycarbonate
+    "Switch cap": (0.12, 0.12, 0.12),
     "Plate foam": (0.93, 0.88, 0.80),
     "Gasket": (0.22, 0.22, 0.22),
     "Battery": (0.55, 0.62, 0.70),
@@ -367,6 +397,38 @@ def usb_cuts():
     return cuts
 
 
+def _cap_x():
+    """Local x of the cap's flange (inner, outer), its grip (inner) and the end face."""
+    x0 = INNER_W / 2 - 0.55
+    return x0, x0 + CAP_FLANGE[0], OUT_X - CAP_GRIP[0], OUT_X
+
+
+def switch_cap_cuts():
+    f0, f1, g0, face = _cap_x()
+    y, c, t = CAP_Y, CAP_CLEAR, CAP_TRAVEL  # room to slide a full travel either way
+    def slab(x0, x1, w, h):
+        return box(x0, x1, y - w / 2 - t - c, y + w / 2 + t + c, CAP_Z - h / 2 - c, CAP_Z + h / 2 + c)
+    return [place(slab(f0 - 1.0, f1 + c, CAP_FLANGE[1], CAP_FLANGE[2])),
+            place(slab(f1 - 0.1, g0 + 0.1, CAP_STEM[0], CAP_STEM[1])),
+            place(slab(g0 - c, face + 1.0, CAP_GRIP[1], CAP_GRIP[2]))]
+
+
+def switch_cap():
+    """The power switch's cap, where the board model has the actuator: slider (flange and stem) and grip."""
+    f0, f1, g0, face = _cap_x()
+    y = CAP_Y
+    def slab(x0, x1, w, h):
+        return box(x0, x1, y - w / 2, y + w / 2, CAP_Z - h / 2, CAP_Z + h / 2)
+    slider = slab(f0, f1, CAP_FLANGE[1], CAP_FLANGE[2]).fuse(slab(f1 - 0.1, g0 + 1.0, CAP_STEM[0], CAP_STEM[1]))
+    aw, ad = CAP_ACTUATOR
+    slider = slider.cut(box(f0 - 1, f0 + ad, y - aw / 2, y + aw / 2, CAP_Z - 1.0, 20))
+    grip = slab(g0, face, CAP_GRIP[1], CAP_GRIP[2])
+    grip = grip.fillet(0.8, [e for e in grip.Edges() if e.Center().x > face - 0.01])
+    for i in range(-3, 4):  # ridges across the slide
+        grip = grip.cut(box(face - 0.5, face + 1, y + i * 1.8 - 0.4, y + i * 1.8 + 0.4, -20, 20))
+    return place(slider.fuse(grip).clean())
+
+
 def bottom_case(shell):
     b = shell.cut(half_space_local(SPLIT, True))
     b = _seam_reveal(b, cq.Vector(0, -S, C))
@@ -385,10 +447,9 @@ def bottom_case(shell):
     # USB-C daughterboard pocket, opening and inserts.
     for c in usb_cuts():
         b = b.cut(c)
-    # Power switch: a slot to the actuator and a finger scoop outside it.
-    x, y = SW1_LOCAL
-    b = b.cut(place(box(x + 1.5, x + 12, y - 4.0, y + 4.0, -2.8, 0.3)))
-    b = b.cut(place(cyl_z(OUT_X + 5.5, y, 19.0, -7.0, 0.5)))
+    # Power switch: the cap's pocket, window and recess.
+    for c in switch_cap_cuts():
+        b = b.cut(c)
     # Reset: a pin hole straight up to SW2.
     b = b.cut(place(cyl_z(*SW2_LOCAL, RESET_PIN_D, -60, -0.5)))
     # Screws to the top case.
@@ -402,7 +463,13 @@ def bottom_case(shell):
     return b.clean()
 
 
-ROOF_Z = POD_TOP - POD_ROOF  # roof underside
+def split_end(bottom):
+    """The bottom case's aluminium part and its polycarbonate right end."""
+    right = box(CASE_END_X, 500, -500, 500, -10, 100)
+    return bottom.cut(right).clean(), bottom.intersect(right).clean()
+
+
+ROOF_Z = BEZEL_TOP - ROOF_T  # roof underside
 
 
 def outer_prism(z0=0.0, z1=80.0):
@@ -410,28 +477,30 @@ def outer_prism(z0=0.0, z1=80.0):
     return rrect(2 * OUT_X, h, OUTER_R, z0, z1, y=yc)
 
 
-def _rounded(solid):
-    """Fillet a hood block's corners inside the opening (square to the board), then its top edge."""
-    n = cq.Vector(0, -S, C)
-    vertical = [e for e in solid.Edges() if e.geomType() == "LINE"
-                and abs((e.endPoint() - e.startPoint()).normalized().dot(n)) > 0.999]
-    if vertical:
-        solid = solid.fillet(POD_FILLET, vertical)
-    top = max((f for f in solid.Faces() if f.normalAt().dot(n) > 0.99), key=lambda f: f.Center().dot(n))
-    return solid.fillet(POD_FILLET, top.outerWire().Edges())
+def key_opening(z0, z1):
+    """The opening round the keycaps (local frame): KEY_GAP outside them, with the bottom row's run
+    under the sidebar's front, and rounded corners."""
+    g = KEY_GAP - KEYCAP_INSET  # grid edge to the opening
+    x0, x1, y0, y1 = KEY_GRID
+    main = box(x0 - g, x1 + g, y0 - g, y1 + g, z0, z1)
+    run = box(x1, KEY_GRID_ROW5_X1 + g, y0 - g, KEY_GRID_ROW5_Y + g, z0, z1)
+    o = main.fuse(run).clean()
+    vertical = [e for e in o.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999]
+    return o.fillet(OPENING_R, vertical)
 
 
-def hood_solid():
-    """The pod, the encoder cover and the low roof around the roller, before the cuts (world)."""
-    pod = place(box(HOOD_X0, 300, HOOD_Y0, STEP_Y, HOOD_BOTTOM, POD_TOP)).intersect(outer_prism())
-    cover = place(box(HOOD_X0, STEP_X, STEP_Y - HOOD_WALL_FB, 300, HOOD_BOTTOM, ENC_TOP)).intersect(outer_prism())
-    low = place(box(STEP_X - 0.5, INNER_W / 2 + 1.0, STEP_Y - 0.5, INNER_H / 2 + 1.5, STEP_ROOF_Z, BEZEL_TOP))
-    return _rounded(pod.clean()).fuse(_rounded(cover)).fuse(low)
+def hump():
+    """The hump over the encoder body: a cylinder round the roller's axis, from the bezel's roof up."""
+    x0, x1 = HUMP_X
+    c = cq.Solid.makeCylinder(HUMP_R, x1 - x0, cq.Vector(x0, ENC_AXIS_Y, ENC_AXIS_Z), cq.Vector(1, 0, 0))
+    c = c.cut(box(x0 - 1, x1 + 1, -100, 100, -50, BEZEL_TOP - 0.5))
+    edges = [e for e in c.Edges() if e.geomType() == "CIRCLE"]
+    return place(c.fillet(HUMP_FILLET, edges))
 
 
 def led_block_xy():
     r = LED_BORE_D / 2 + LED_WALL
-    return HOOD_X0 + HOOD_WALL, LED_X[-1] + r, HOOD_Y0 + HOOD_WALL_FB, LED_Y + r
+    return LED_BLOCK_X0, LED_X[-1] + r, LED_BLOCK_Y0, LED_Y + r
 
 
 def _rect(size, centre, grow=0.0):
@@ -453,10 +522,10 @@ def display_z():
     return glass_top, glass_bottom, pcb_top, pcb_bottom, pcb_bottom - SCREEN["back"]
 
 
-def hood_inserts():
-    """The LED channel block, and the frame that locates the screen."""
+def roof_inserts():
+    """The LED channel block, and the frame that locates the screen, under the roof."""
     x0, x1, y0, y1 = led_block_xy()
-    parts = [box(x0, x1, y0, y1, HOOD_BOTTOM, ROOF_Z + 0.1)]
+    parts = [box(x0, x1, y0, y1, LED_BLOCK_BOTTOM, ROOF_Z + 0.1)]
     _, glass_bottom, _, pcb_bottom, _ = display_z()
     part = SCREEN["frame"]
     z0 = glass_bottom - 1.0 if part == "glass" else pcb_bottom + 0.5
@@ -467,43 +536,38 @@ def hood_inserts():
     return place(parts[0].fuse(frame).clean())
 
 
-def hood_cavity():
-    """Inside of the hood and the roller slot (world)."""
-    xi0, xi1 = HOOD_X0 + HOOD_WALL, INNER_W / 2
-    yi0 = HOOD_Y0 + HOOD_WALL_FB
-    ys = STEP_Y - HOOD_WALL_FB           # inside face of the step's front wall
-    xs = STEP_X - HOOD_WALL_FB           # inside face of the cover's right wall
-    inner = rrect(INNER_W, INNER_H, INNER_R, 0, 40)
+def roof_cuts():
+    """Inside the hump (the encoder body and a tunnel for its hub), the roller's slot, and room for the
+    screen where it reaches past the inside wall (world)."""
+    x0, x1, y0, y1, _, z1 = ENC_BODY
+    c = ENC_CLEAR
+    pocket = cq.Workplane("YZ").workplane(offset=x0 - c).center((y0 + y1) / 2, (ROOF_Z - 1 + z1 + c) / 2) \
+        .rect(y1 - y0 + 2 * c, z1 + c - ROOF_Z + 1).extrude(x1 - x0 + 2 * c).edges("|X").fillet(ENC_POCKET_R).val()
+    tunnel = cq.Solid.makeCylinder(ENC_HUB_D / 2 + c, HUMP_X[1] - x1 + 1, cq.Vector(x1, ENC_AXIS_Y, ENC_AXIS_Z),
+                                   cq.Vector(1, 0, 0))
+    r = ROLLER_D / 2 + ROLLER_SLOT_CLEAR
+    slot = box(HUMP_X[1], INNER_W / 2 + 0.1, ROLLER_Y - r, ROLLER_Y + r, 0, 40)
     back = display_z()[4]
-    cuts = [
-        box(xi0, xi1, yi0, ys, 6.0, ROOF_Z),                                   # under the pod
-        box(xi0, xs, STEP_Y, INNER_H / 2, 6.0, ENC_TOP - POD_ROOF).intersect(inner),  # the encoder
-        box(*display_rect(SCREEN["frame"], DISPLAY_CLEAR), back - 0.3, ROOF_Z),  # the screen (bezel too)
-        box(*display_rect("pcb", DISPLAY_CLEAR), back - 0.3, ROOF_Z),
-        box(STEP_X, xi1, STEP_Y, INNER_H / 2, 6.0, STEP_ROOF_Z).intersect(inner),  # under the low roof
-        cq.Solid.makeCylinder(BUSHING_ARCH_R, STEP_X - xs + 1.0,               # over the bushing
-                              cq.Vector(xs - 0.5, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0)),
-        box(*ROLLER_SLOT, 0, 40),
-    ]
-    return [place(c) for c in cuts]
+    screen = [box(*display_rect(p, DISPLAY_CLEAR), back - 0.3, ROOF_Z) for p in (SCREEN["frame"], "pcb")]
+    return [place(c) for c in [pocket, tunnel, slot] + screen]
 
 
-def hood_holes():
+def roof_holes():
     """The screen window and the LED channels (world)."""
     cuts = []
     # Window: the active area plus a margin at the roof underside, opening 45 degrees to the top.
     cx, cy = SCREEN["glass_c"]
     cy -= SCREEN["aa_dy"]
     w, h = (a + 2 * DISPLAY_WINDOW_MARGIN for a in SCREEN["aa"])
-    e = POD_ROOF + 0.2
+    e = ROOF_T + 0.2
     lo = cq.Wire.makePolygon([cq.Vector(cx + dx * w / 2, cy + dy * h / 2, ROOF_Z - 0.1)
                               for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
-    hi = cq.Wire.makePolygon([cq.Vector(cx + dx * (w / 2 + e), cy + dy * (h / 2 + e), POD_TOP + 0.1)
+    hi = cq.Wire.makePolygon([cq.Vector(cx + dx * (w / 2 + e), cy + dy * (h / 2 + e), BEZEL_TOP + 0.1)
                               for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
     cuts.append(cq.Solid.makeLoft([lo, hi], True))
     for x in LED_X:
-        cuts.append(cyl_z(x, LED_Y, LED_BORE_D, HOOD_BOTTOM - 1, ROOF_Z))
-        cuts.append(cyl_z(x, LED_Y, LED_HOLE_D, ROOF_Z - 0.1, POD_TOP + 1))
+        cuts.append(cyl_z(x, LED_Y, LED_BORE_D, LED_BLOCK_BOTTOM - 1, ROOF_Z))
+        cuts.append(cyl_z(x, LED_Y, LED_HOLE_D, ROOF_Z - 0.1, BEZEL_TOP + 1))
     return [place(c) for c in cuts]
 
 
@@ -517,23 +581,23 @@ def led_seal_face():
 
 
 def led_seal():
-    return place(extrude_face(led_seal_face(), PLATE_Z0 + PLATE_T, HOOD_BOTTOM))
+    return place(extrude_face(led_seal_face(), PLATE_Z0 + PLATE_T, LED_BLOCK_BOTTOM))
 
 
 def top_case(shell):
     t = shell.cut(half_space_local(SPLIT, False))
     t = _seam_reveal(t, cq.Vector(0, S, -C))
-    t = t.cut(inner_prism(-50, 50))
-    # Chamfer the inside edge of the bezel.
+    t = t.cut(inner_prism(-50, ROOF_Z))
+    t = t.cut(place(key_opening(ROOF_Z - 1, 50)))
+    # Chamfer the key opening's top edge.
     n = cq.Vector(0, -S, C)
     top = max((f for f in t.Faces() if f.normalAt().dot(n) > 0.99), key=lambda f: f.Center().dot(n))
-    inner = [e for w in top.innerWires() for e in w.Edges()]
-    t = t.chamfer(INNER_CHAMFER, None, inner)
-    t = t.fuse(hood_solid())
-    for c in hood_cavity():
+    t = t.chamfer(INNER_CHAMFER, None, [e for w in top.innerWires() for e in w.Edges()])
+    t = t.fuse(hump())
+    for c in roof_cuts():
         t = t.cut(c)
-    t = t.fuse(hood_inserts())
-    for c in hood_holes():
+    t = t.fuse(roof_inserts())
+    for c in roof_holes():
         t = t.cut(c)
     for p in sock_pockets():
         t = t.cut(p)
@@ -674,8 +738,10 @@ def report(parts):
     print(f"front height (top of the bezel at the front edge): {to_world(-(BOARD_H / 2 + BEZEL_FB), BEZEL_TOP)[1]:.1f} mm")
     print(f"back height: {to_world(BOARD_H / 2 + BEZEL_FB, BEZEL_TOP)[1]:.1f} mm")
     print(f"plate top at the front row edge: {to_world(-BOARD_H / 2, PLATE_Z0 + PLATE_T)[1]:.1f} mm")
-    print(f"hood top: {to_world(HOOD_Y0, POD_TOP)[1]:.1f} mm at its front, {POD_TOP - BEZEL_TOP:.1f} mm "
-          f"above the bezel; encoder cover {ENC_TOP - BEZEL_TOP:.1f} mm above the bezel")
+    hump_top = ENC_AXIS_Z + HUMP_R
+    print(f"bezel: {BEZEL_ABOVE_PLATE:.1f} mm above the plate top; hump top {hump_top - BEZEL_TOP:.1f} mm above "
+          f"the bezel ({to_world(ENC_AXIS_Y, hump_top)[1]:.1f} mm off the desk); roller {ROLLER_D:.1f} mm across, "
+          f"{ROLLER_X[1] - ROLLER_X[0]:.2f} mm wide, top {ROLLER_Z + ROLLER_D / 2 - BEZEL_TOP:.1f} mm above the bezel")
     for y in ROW_EDGES:
         yw, zw = to_world(y, -UNDER_PCB_STEP)
         print(f"floor step at world y {yw:6.1f}: {max(zw, FLOOR):.1f} mm")
@@ -691,9 +757,12 @@ def write_step(shape, path, name, color):
 def build_parts():
     shell = outer_shell()
     board, glass, screen = display()
+    bottom, end = split_end(bottom_case(shell))
     return {
         "Case top": top_case(shell),
-        "Case bottom": bottom_case(shell),
+        "Case bottom": bottom,
+        "Case end": end,
+        "Switch cap": switch_cap(),
         "Plate foam": plate_foam(),
         "Gasket": gaskets(),
         "Battery": battery(),
@@ -709,12 +778,15 @@ def build_parts():
 FILES = {
     "Case top": "Dachshund60F-Case-Top.step",
     "Case bottom": "Dachshund60F-Case-Bottom.step",
+    "Case end": "Dachshund60F-Case-End.step",
+    "Switch cap": "Dachshund60F-Switch-Cap.step",
     "Gasket": "Dachshund60F-Gaskets.step",
 }
 
 
 EXPLODE = {"Case top": 70, "Display board": 70, "Display glass": 70, "Display area": 70, "LED seal": 50,
-           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Rubber strips": -40}
+           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Rubber strips": -40,
+           "Case end": -20, "Switch cap": -20}
 
 
 def main():
