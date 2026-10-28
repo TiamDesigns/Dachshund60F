@@ -7,7 +7,7 @@
 Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
 
 - Dachshund60F-Case-Top.step      top case: bezel frame, upper half of the gasket pockets, and the
-                                  sidebar hood (OLED window and mount, LED holes, roller slot)
+                                  sidebar hood (screen window and mount, LED holes, roller slot)
 - Dachshund60F-Case-Bottom.step   bottom case: tub with a floor stepped by switch row, lower gasket
                                   seats, USB-C, battery tray, channels for rubber strip feet
 - Dachshund60F-Plate-Foam.dxf     plate-PCB midlayer foam outline, to cut from 3.5 mm Poron
@@ -15,7 +15,7 @@ Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
 - Dachshund60F-Gaskets.step       the eight silicone socks on the plate tabs
 - Dachshund60F-Case-Assembly.step everything above plus the mainboard, plate,
                                   USB-C daughterboard, and stand-ins for the battery, the
-                                  roller, the OLED module and the rubber strips
+                                  roller, the screen and the rubber strips
 
 Frames. "Local" is the board frame of hardware/step/: X along the board, Y to the back, origin at
 the centre of the mainboard outline, PCB bottom at Z = 0, plate bottom at Z = 5.0. "World" is the
@@ -118,7 +118,7 @@ ROLLER_X = (131.0, 143.25)
 ROLLER_Y, ROLLER_Z, ROLLER_D = 50.025, PCB_T + 6.7, 12.0
 
 # Sidebar hood (local frame): a pod over the right end of the board, its top at the height of a
-# keycap's bottom edge. It holds the OLED under a window and has a light channel over each of D3-D7.
+# keycap's bottom edge. It holds the screen under a window and has a light channel over each of D3-D7.
 # The encoder body is taller, so it gets a cover of its own behind the pod, and the hood steps down
 # to bezel height around the roller, which shows through a slot.
 KEYCAP_BOTTOM = PLATE_Z0 + PLATE_T + 6.6  # Cherry-profile skirt at rest (MX top housing: +6.2)
@@ -135,27 +135,39 @@ STEP_ROOF_Z = 8.5          # underside of the low roof; its top is BEZEL_TOP
 ROLLER_SLOT = (130.5, 143.6, 43.5, 56.5)  # x0, x1, y0, y1
 BUSHING_ARCH_R = 4.0       # clearance arch in the step wall over the encoder's bushing (Ø7)
 
-# Status screen. Each module sits in a locating frame under the roof, glass up behind a bevelled
-# window, held by thin double-sided tape on the glass border (OLED_TAPE). Sizes are nominal: measure
-# your module and correct them before printing. pcb and glass are x (along the board), y, thickness;
-# aa is the active area, aa_dy its offset from the board's centre (towards the front); back is the
-# height of the parts on the module's back. The header (wire) edge faces the back.
+# Status screen. The glass is taped to the roof's underside (DISPLAY_TAPE) behind a bevelled window
+# over its active area. A frame under the roof locates either the module's board (OLED modules, whose
+# glass sits on the board) or the glass itself (a bare e-paper panel, whose driver board is taped to the
+# panel's back). Sizes are nominal: measure your parts and correct them before printing. Sizes are
+# x (along the board), y, thickness; centres are local x, y. aa is the active area and aa_dy its offset
+# from the glass centre towards the front; back is the height of the parts under the board. The wires
+# (or the panel's flex cable) leave at the back, through a gap in the frame.
 DISPLAYS = {
+    # A bare 2.13" e-paper panel (GoodDisplay GDEY0213B74, SSD1680, 250 x 122) standing on end, 120 x 248
+    # in portrait, flex cable at the back, folded under to an Adafruit eInk Breakout Friend (#4224).
+    "eink-2.13": dict(overlay="eink-2in13-v4-portrait", frame="glass",
+                      glass=(29.2, 59.2, 1.0), glass_c=(144.8, 3.1), aa=(23.71, 48.55), aa_dy=1.8,
+                      pcb=(21.5, 34.7, 1.6), pcb_c=(141.8, 13.35), pcb_gap=0.1, back=1.9),
     # Pimoroni 1.12" Mono OLED (128x128, white/black) Breakout, I2C version: 28 x 42 mm, SH1107.
-    "sh1107-1.12": dict(overlay="oled-sh1107-128x128", pcb=(28.0, 42.0, 1.6), glass=(25.0, 27.0, 1.4),
-                        aa=(20.1, 20.1), aa_dy=4.0, back=1.0, centre=(144.8, -5.5)),
+    "sh1107-1.12": dict(overlay="oled-sh1107-128x128", frame="pcb",
+                        glass=(25.0, 27.0, 1.4), glass_c=(144.8, -9.5), aa=(20.1, 20.1), aa_dy=0.0,
+                        pcb=(28.0, 42.0, 1.6), pcb_c=(144.8, -5.5), pcb_gap=0.0, back=1.0),
     # Generic 1.3" SH1106 128x64 I2C module (Pololu #3761 sizes). It is wider than the sidebar, so it
     # reaches into the right bezel, and the right-hand screw moves forward out of its way.
-    "sh1106-1.3": dict(overlay="oled-sh1106-128x64", pcb=(35.4, 33.5, 1.0), glass=(34.5, 23.0, 1.5),
-                       aa=(29.42, 14.70), aa_dy=0.0, back=1.0, centre=(147.925, 0.25), right_screw_y=-26.0),
+    "sh1106-1.3": dict(overlay="oled-sh1106-128x64", frame="pcb",
+                       glass=(34.5, 23.0, 1.5), glass_c=(147.925, 0.25), aa=(29.42, 14.70), aa_dy=0.0,
+                       pcb=(35.4, 33.5, 1.0), pcb_c=(147.925, 0.25), pcb_gap=0.0, back=1.0,
+                       right_screw_y=-26.0),
 }
-DISPLAY = "sh1107-1.12"
-OLED = DISPLAYS[DISPLAY]
-SCREWS[-1] = (SCREWS[-1][0], OLED.get("right_screw_y", SCREWS[-1][1]))
-OLED_TAPE = 0.2            # glass to roof underside
-OLED_WINDOW_MARGIN = 0.8   # window edge outside the active area, each side
-OLED_FRAME_T, OLED_CLEAR = 1.0, 0.3
-# The module stays in front of the radio module's antenna (KiCad x > 333, y 67-79; local y > 20.5).
+DISPLAY = "eink-2.13"
+SCREEN = DISPLAYS[DISPLAY]
+SCREWS[-1] = (SCREWS[-1][0], SCREEN.get("right_screw_y", SCREWS[-1][1]))
+DISPLAY_TAPE = 0.2           # glass to roof underside
+DISPLAY_WINDOW_MARGIN = 0.8  # window edge outside the active area, each side
+DISPLAY_FRAME_T, DISPLAY_CLEAR = 1.0, 0.3
+DISPLAY_WIRE_GAP = 16.0      # width of the gap at the back of the frame
+# The driver board stays in front of and left of the radio module's antenna (KiCad x > 333, y 67-79;
+# local x > 154.75, y 20.5-32.5). Only the panel's glass reaches over it.
 
 # LEDs D3-D7 (reverse mount on the back, shining up through the plate's 4 mm windows): a block of
 # light channels from the roof down to 1 mm above the plate, sealed to the plate by a strip of black
@@ -181,10 +193,13 @@ COLORS = {
     "Roller": (0.15, 0.13, 0.12),
     "Rubber strips": (0.10, 0.10, 0.10),
     "LED seal": (0.08, 0.08, 0.08),
-    "OLED board": (0.10, 0.25, 0.55),
-    "OLED glass": (0.06, 0.06, 0.08),
-    "OLED screen": (0.35, 0.75, 0.95),
+    "Display board": (0.10, 0.25, 0.55),
+    "Display glass": (0.06, 0.06, 0.08),
+    "Display area": (0.35, 0.75, 0.95),
 }
+if SCREEN["frame"] == "glass":  # e-paper: a pale panel on a black driver board
+    COLORS.update({"Display board": (0.08, 0.08, 0.08), "Display glass": (0.80, 0.80, 0.77),
+                   "Display area": (0.90, 0.90, 0.86)})
 
 S, C = math.sin(math.radians(TILT)), math.cos(math.radians(TILT))
 # Lift so the space under the PCB's front edge is UNDER_PCB_FRONT, above a FLOOR-thick bottom.
@@ -418,28 +433,36 @@ def led_block_xy():
     return HOOD_X0 + HOOD_WALL, LED_X[-1] + r, HOOD_Y0 + HOOD_WALL_FB, LED_Y + r
 
 
-def oled_rect(grow=0.0):
-    """The module board's outline (local x0, x1, y0, y1), grown by grow."""
-    (cx, cy), (w, h, _) = OLED["centre"], OLED["pcb"]
+def _rect(size, centre, grow=0.0):
+    (w, h), (cx, cy) = size[:2], centre
     return cx - w / 2 - grow, cx + w / 2 + grow, cy - h / 2 - grow, cy + h / 2 + grow
 
 
-def oled_z():
-    """Local z of the module board's top and bottom, and of the bottom of the parts on its back."""
-    top = ROOF_Z - OLED_TAPE - OLED["glass"][2]
-    bottom = top - OLED["pcb"][2]
-    return top, bottom, bottom - OLED["back"]
+def display_rect(part, grow=0.0):
+    """Outline (local x0, x1, y0, y1) of the screen's "glass" or "pcb", grown by grow."""
+    return _rect(SCREEN[part], SCREEN[part + "_c"], grow)
+
+
+def display_z():
+    """Local z of the glass top and bottom, the board top and bottom, and the bottom of the parts under it."""
+    glass_top = ROOF_Z - DISPLAY_TAPE
+    glass_bottom = glass_top - SCREEN["glass"][2]
+    pcb_top = glass_bottom - SCREEN["pcb_gap"]
+    pcb_bottom = pcb_top - SCREEN["pcb"][2]
+    return glass_top, glass_bottom, pcb_top, pcb_bottom, pcb_bottom - SCREEN["back"]
 
 
 def hood_inserts():
-    """The LED channel block, and the frame that locates the OLED module."""
+    """The LED channel block, and the frame that locates the screen."""
     x0, x1, y0, y1 = led_block_xy()
     parts = [box(x0, x1, y0, y1, HOOD_BOTTOM, ROOF_Z + 0.1)]
-    top, bottom, _ = oled_z()
-    frame = box(*oled_rect(OLED_CLEAR + OLED_FRAME_T), bottom + 0.5, ROOF_Z + 0.1)
-    frame = frame.cut(box(*oled_rect(OLED_CLEAR), 0, 40))
-    cx = OLED["centre"][0]
-    frame = frame.cut(box(cx - 8, cx + 8, 0, 300, 0, 40))  # gap at the back for the wires
+    _, glass_bottom, _, pcb_bottom, _ = display_z()
+    part = SCREEN["frame"]
+    z0 = glass_bottom - 1.0 if part == "glass" else pcb_bottom + 0.5
+    frame = box(*display_rect(part, DISPLAY_CLEAR + DISPLAY_FRAME_T), z0, ROOF_Z + 0.1)
+    frame = frame.cut(box(*display_rect(part, DISPLAY_CLEAR), 0, 40))
+    cx = SCREEN[part + "_c"][0]
+    frame = frame.cut(box(cx - DISPLAY_WIRE_GAP / 2, cx + DISPLAY_WIRE_GAP / 2, 0, 300, 0, 40))
     return place(parts[0].fuse(frame).clean())
 
 
@@ -450,11 +473,12 @@ def hood_cavity():
     ys = STEP_Y - HOOD_WALL_FB           # inside face of the step's front wall
     xs = STEP_X + HOOD_WALL_FB           # inside face of the step's right wall
     inner = rrect(INNER_W, INNER_H, INNER_R, 0, 40)
-    _, _, back = oled_z()
+    back = display_z()[4]
     cuts = [
         box(xi0, xi1, yi0, ys, 6.0, ROOF_Z),                                   # under the pod
         box(xs, xi1, STEP_Y, INNER_H / 2, 6.0, ENC_TOP - POD_ROOF).intersect(inner),  # the encoder
-        box(*oled_rect(OLED_CLEAR), back - 0.3, ROOF_Z),                       # the module (bezel too)
+        box(*display_rect(SCREEN["frame"], DISPLAY_CLEAR), back - 0.3, ROOF_Z),  # the screen (bezel too)
+        box(*display_rect("pcb", DISPLAY_CLEAR), back - 0.3, ROOF_Z),
         box(xi0, xs, STEP_Y, INNER_H / 2, 6.0, STEP_ROOF_Z),                   # under the low roof
         cq.Solid.makeCylinder(BUSHING_ARCH_R, xs - STEP_X + 1.0,               # over the bushing
                               cq.Vector(STEP_X - 0.5, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0)),
@@ -464,12 +488,12 @@ def hood_cavity():
 
 
 def hood_holes():
-    """The OLED window and the LED channels (world)."""
+    """The screen window and the LED channels (world)."""
     cuts = []
     # Window: the active area plus a margin at the roof underside, opening 45 degrees to the top.
-    cx, cy = OLED["centre"]
-    cy -= OLED["aa_dy"]
-    w, h = (a + 2 * OLED_WINDOW_MARGIN for a in OLED["aa"])
+    cx, cy = SCREEN["glass_c"]
+    cy -= SCREEN["aa_dy"]
+    w, h = (a + 2 * DISPLAY_WINDOW_MARGIN for a in SCREEN["aa"])
     e = POD_ROOF + 0.2
     lo = cq.Wire.makePolygon([cq.Vector(cx + dx * w / 2, cy + dy * h / 2, ROOF_Z - 0.1)
                               for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
@@ -629,15 +653,14 @@ def strips():
                                          z1 - STRIP_T, z1) for y in STRIP_Y])
 
 
-def oled():
-    """Stand-in OLED module: board, glass and active area."""
-    top, bottom, _ = oled_z()
-    pcb = box(*oled_rect(), bottom, top)
-    (cx, cy), (gw, gh, gt) = OLED["centre"], OLED["glass"]
-    cy -= OLED["aa_dy"]
-    glass = box(cx - gw / 2, cx + gw / 2, cy - gh / 2, cy + gh / 2, top, top + gt)
-    aw, ah = OLED["aa"]
-    aa = box(cx - aw / 2, cx + aw / 2, cy - ah / 2, cy + ah / 2, top + gt, top + gt + 0.05)
+def display():
+    """Stand-in screen: driver or module board, glass and active area."""
+    glass_top, glass_bottom, pcb_top, pcb_bottom, _ = display_z()
+    pcb = box(*display_rect("pcb"), pcb_bottom, pcb_top)
+    glass = box(*display_rect("glass"), glass_bottom, glass_top)
+    cx, cy = SCREEN["glass_c"]
+    aw, ah = SCREEN["aa"]
+    aa = box(*_rect((aw, ah), (cx, cy - SCREEN["aa_dy"])), glass_top, glass_top + 0.05)
     return place(pcb), place(glass), place(aa)
 
 
@@ -666,7 +689,7 @@ def write_step(shape, path, name, color):
 
 def build_parts():
     shell = outer_shell()
-    board, glass, screen = oled()
+    board, glass, screen = display()
     return {
         "Case top": top_case(shell),
         "Case bottom": bottom_case(shell),
@@ -676,9 +699,9 @@ def build_parts():
         "Roller": roller(),
         "Rubber strips": strips(),
         "LED seal": led_seal(),
-        "OLED board": board,
-        "OLED glass": glass,
-        "OLED screen": screen,
+        "Display board": board,
+        "Display glass": glass,
+        "Display area": screen,
     }
 
 
@@ -689,7 +712,7 @@ FILES = {
 }
 
 
-EXPLODE = {"Case top": 70, "OLED board": 70, "OLED glass": 70, "OLED screen": 70, "LED seal": 50,
+EXPLODE = {"Case top": 70, "Display board": 70, "Display glass": 70, "Display area": 70, "LED seal": 50,
            "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Rubber strips": -40}
 
 
@@ -721,8 +744,8 @@ def main():
             assembly.write_meshes(doc, meshes[0])
             assembly.write_meshes(assembly.build(parts, COLORS, EXPLODE), meshes[1])
             assembly.write_meshes(assembly.build(parts, COLORS, skip=("Board", "Case top", "Roller",
-                                                                      "Plate foam", "Gasket", "OLED board",
-                                                                      "OLED glass", "OLED screen",
+                                                                      "Plate foam", "Gasket", "Display board",
+                                                                      "Display glass", "Display area",
                                                                       "LED seal")), meshes[2])
             render.render(*meshes, os.path.join(HERE, "renders"))
 

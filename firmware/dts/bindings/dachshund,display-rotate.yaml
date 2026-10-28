@@ -1,0 +1,26 @@
+description: |
+  Turns a 1-bit, vertically tiled display (an SSD16xx e-paper panel) by 90 or
+  270 degrees in software, so the character framebuffer can draw on it in
+  portrait. Choose this node as zephyr,display instead of the panel.
+
+  The SSD16xx driver's own rotation property doesn't help here: it keeps
+  reporting the unrotated size, so the character framebuffer draws outside
+  the panel.
+
+compatible: "dachshund,display-rotate"
+
+include: base.yaml
+
+properties:
+  display:
+    type: phandle
+    required: true
+    description: The panel to draw on.
+
+  rotation:
+    type: int
+    required: true
+    enum: [90, 270]
+    description: |
+      Clockwise turn from the panel's own landscape picture to the portrait
+      one. Try the other value if the text comes out upside down.
