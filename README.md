@@ -60,7 +60,7 @@ And at the end of it I want a keyboard I actually enjoy using every day.
 | Layout | 60% with an F-row, 80 switch positions, split or 6.25u spacebar |
 | Matrix | 6 × 15, COL2ROW, diodes on every switch |
 | Switches | Kailh hot-swap sockets (3 soldered positions on the spacebar row) |
-| Encoder | Bourns PEC12R-4220F-S0024, horizontal shaft, used as a roller |
+| Encoder | Bourns PEC12R-2220F-S0024: shaft parallel to the board, 24 detents, push switch, used as a roller |
 | Lighting | 6 × SK6812MINI-E indicators: layer, a 4-step battery gauge, and Caps Lock. No per-key RGB |
 | Display | Optional OLED or e-paper on header J4 (panel not chosen yet) |
 | Power | USB-C on a daughterboard, 1S LiPo on JST-PH, MCP73831 charger with a load-sharing power path |

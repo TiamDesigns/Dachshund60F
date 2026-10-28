@@ -7932,7 +7932,7 @@
 				)
 			)
 		)
-		(property "Value" "PEC12R-4220F-S0024 (horizontal, 20 mm shaft)"
+		(property "Value" "PEC12R-2220F-S0024 (shaft parallel to the board, 20 mm)"
 			(at 0 12 180)
 			(unlocked yes)
 			(layer "F.SilkS")
