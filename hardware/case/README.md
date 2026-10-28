@@ -39,7 +39,7 @@ The assembly places the boards as components, so their colours and names carry o
 - Outside: 336.5 × 144.0 mm. The plan-view corners have continuous curvature, like Apple's: each is a
   superellipse (exponent 5) running 11 mm along both edges, which leaves the straight edge with no kink, so
   reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 7 mm radius. The top edge's
-  4 mm roll and the hump's ends are still plain round fillets. Front height 17.7 mm (top of the bezel at the front edge), back height 35.4 mm.
+  4 mm roll and the hump's ends are still plain round fillets. Front height 15.2 mm (top of the bezel at the front edge, after the thumb scoop), back height 35.4 mm.
   The plate's top is 12.6 mm above the desk at the front row.
 - Typing angle: 7°, built into the case (the bottom is flat).
 - Bezel: 9 mm on the ends, 12 mm front and back (the socks reach 8 mm past the plate edge). One height all
@@ -47,6 +47,15 @@ The assembly places the boards as components, so their colours and names carry o
   shows from any angle. The key opening is 1 mm outside the keycaps (`KEY_GAP`, with 18 mm caps), with
   1.5 mm corners and a 0.5 mm chamfer, and it runs under the sidebar's front for the bottom row. Over the
   board's edge and the sidebar the bezel is a 1.5 mm roof.
+- Beside the arrows: the bottom row has a 0.5 u gap between the right Ctrl and the left arrow, under the
+  right Shift. The bezel comes back into it as an 8.6 mm tongue, 1 mm from the keycaps on all three sides
+  (`ARROW_GAP_X`), so no plate shows there.
+- Thumb scoop: across the whole front, corner to corner (the arrows are in the space bar's row, so there's
+  nowhere it has to return to full height), the bezel's top falls away from the key opening to the outer
+  edge, 2.5 mm lower there (`FRONT_SCOOP_DROP`). The opening's front edge stays at keycap-bottom height. The
+  surface leaves the flat bezel tangentially just inside the opening, steepest about 4 mm out (about 19°),
+  and is concave beyond that, flattening out into the 4 mm roll at the front edge, so the thumbs get room
+  under the space bar and there's no crease to feel or catch the light.
 - Encoder hump: the encoder's body stands 16.7 mm above the PCB top, 5.1 mm above the bezel, so a hump
   covers it: a cylinder on the roller's axis, 10.1 mm in radius (the wheel's plus 0.6 mm), with 2 mm rounded
   ends. It stands 8.5 mm above the bezel, level with the keycap tops, and the wheel continues its curve to

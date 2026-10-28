@@ -168,6 +168,14 @@ KEYCAP_INSET = 0.525       # keycap edge inside its 19.05 mm grid square
 KEY_GRID = (-158.25, 127.5, -59.513, 59.55)
 KEY_GRID_ROW5_Y, KEY_GRID_ROW5_X1 = -40.46, 146.55
 OPENING_R = 1.5            # plan-view corner radius of the opening
+# The bottom row has a 0.5 u gap between the right Ctrl (ends at 12.5 u) and the left arrow (13 u), under
+# the right Shift: the bezel comes back into it as a tongue, KEY_GAP from the keycaps on all three sides.
+ARROW_GAP_X = (KEY_GRID[0] + 12.5 * 19.05, KEY_GRID[0] + 13 * 19.05)
+# Thumb scoop: across the whole front, the bezel's top falls away from the key opening to the outer edge,
+# FRONT_SCOOP_DROP lower there. It leaves the flat bezel tangentially just inside the opening (so the
+# opening's front edge stays at keycap-bottom height) and is concave over its outer two thirds, flattening
+# out at the edge: z = BEZEL_TOP - drop * (1 - (1 - t)^k (1 + k t)), t = 0 at the opening, 1 at the edge.
+FRONT_SCOOP_DROP, FRONT_SCOOP_K = 2.5, 3.0
 ROOF_T = 1.5               # bezel roof over the board edge and the sidebar
 HUMP_R = ROLLER_D / 2 + 0.6  # outside radius of the hump over the encoder body
 HUMP_X = (130.15, 144.0)
@@ -330,15 +338,48 @@ def _seam_reveal(shape, normal):
     return shape.chamfer(SEAM_REVEAL, None, _plane_face(shape, normal).outerWire().Edges())
 
 
+def scoop_profile(samples=24):
+    """The thumb scoop's (local y, z) points, from the start (inside the opening) to the outer front edge."""
+    y0 = KEY_GRID[2] - (KEY_GAP - KEYCAP_INSET) + 0.25
+    y1 = -(BOARD_H / 2 + BEZEL_FB) - FRONT_SCOOP_DROP * S / C  # where the world-vertical front meets it
+    k = FRONT_SCOOP_K
+    return [(y0 + (y1 - y0) * t, BEZEL_TOP - FRONT_SCOOP_DROP * (1 - (1 - t) ** k * (1 + k * t)))
+            for t in (i / samples for i in range(samples + 1))]
+
+
+def above_bezel():
+    """Everything above the bezel's top surface (flat, then the thumb scoop at the front), world frame."""
+    pts = scoop_profile()
+    big = 1000.0
+    v = lambda y, z: cq.Vector(0, y, z)
+    curve = cq.Edge.makeSpline([v(*p) for p in pts], tangents=[v(-1, 0), v(-1, 0)])
+    (ys, zs), (ye, ze) = pts[0], pts[-1]
+    loop = [cq.Edge.makeLine(v(big, BEZEL_TOP), v(ys, zs)), curve,
+            cq.Edge.makeLine(v(ye, ze), v(-big, ze)), cq.Edge.makeLine(v(-big, ze), v(-big, big)),
+            cq.Edge.makeLine(v(-big, big), v(big, big)), cq.Edge.makeLine(v(big, big), v(big, BEZEL_TOP))]
+    face = cq.Face.makeFromWires(cq.Wire.assembleEdges(loop)).translate((-big, 0, 0))
+    return place(cq.Solid.extrudeLinear(face, cq.Vector(2 * big, 0, 0)))
+
+
 def outer_shell():
-    """Vertical-walled body, cut by the tilted bezel plane, with the rounded top and chamfered foot."""
+    """Vertical-walled body, cut by the tilted bezel (with the thumb scoop), with the rounded top and
+    chamfered foot."""
     yc, h = (OUT_Y_FRONT + OUT_Y_BACK) / 2, OUT_Y_BACK - OUT_Y_FRONT
-    body = squircle(2 * OUT_X, h, 0, 60, y=yc).cut(half_space_local(BEZEL_TOP, True))
-    n = cq.Vector(0, -S, C)
-    top = max(body.Faces(), key=lambda f: f.Center().dot(n) if f.normalAt().dot(n) > 0.99 else -1e9)
-    body = body.fillet(TOP_FILLET, top.outerWire().Edges())
+    body = squircle(2 * OUT_X, h, 0, 60, y=yc).cut(above_bezel()).clean()
+    # Round every edge between the top surfaces (the flat bezel and the scoop) and the walls.
+    walls = [f for f in body.Faces() if abs(f.normalAt().z) < 1e-6]
+    wall_edges = {e.hashCode() for f in walls for e in f.Edges()}
+    bottom = min(body.Faces(), key=lambda f: f.Center().z)
+    floor_edges = {e.hashCode() for e in bottom.Edges()}
+    top = [e for e in body.Edges() if e.hashCode() in wall_edges and e.hashCode() not in floor_edges
+           and not _is_vertical(e)]
+    body = body.fillet(TOP_FILLET, top)
     bottom = min(body.Faces(), key=lambda f: f.Center().z)
     return body.chamfer(FOOT_CHAMFER, None, bottom.outerWire().Edges())
+
+
+def _is_vertical(e):
+    return e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999
 
 
 def inner_prism(z0, z1, grow=0.0):
@@ -525,7 +566,8 @@ def key_opening(z0, z1):
     x0, x1, y0, y1 = KEY_GRID
     main = box(x0 - g, x1 + g, y0 - g, y1 + g, z0, z1)
     run = box(x1, KEY_GRID_ROW5_X1 + g, y0 - g, KEY_GRID_ROW5_Y + g, z0, z1)
-    o = main.fuse(run).clean()
+    o = main.fuse(run).cut(box(ARROW_GAP_X[0] + g, ARROW_GAP_X[1] - g, y0 - 10, KEY_GRID_ROW5_Y - g, z0 - 1, z1 + 1))
+    o = o.clean()
     vertical = [e for e in o.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999]
     return o.fillet(OPENING_R, vertical)
 
@@ -636,11 +678,15 @@ def top_case(shell):
     t = shell.cut(half_space_local(SPLIT, False))
     t = _seam_reveal(t, cq.Vector(0, S, -C))
     t = t.cut(inner_prism(-50, ROOF_Z))
-    t = t.cut(place(key_opening(ROOF_Z - 1, 50)))
-    # Chamfer the key opening's top edge.
-    n = cq.Vector(0, -S, C)
-    top = max((f for f in t.Faces() if f.normalAt().dot(n) > 0.99), key=lambda f: f.Center().dot(n))
-    t = t.chamfer(INNER_CHAMFER, None, [e for w in top.innerWires() for e in w.Edges()])
+    opening = place(key_opening(ROOF_Z - 1, 50))
+    t = t.cut(opening)
+    # Chamfer the key opening's top edge: the edges on the opening's walls with both ends near the top.
+    def on_top(e):
+        ends = [to_local(p.y, p.z)[1] for p in (e.startPoint(), e.endPoint())]
+        mid = e.positionAt(0.5)
+        return (min(ends) > BEZEL_TOP - 1 and
+                cq.Vertex.makeVertex(mid.x, mid.y, mid.z).distance(opening) < 1e-4)
+    t = t.chamfer(INNER_CHAMFER, None, [e for e in t.Edges() if on_top(e)])
     t = t.fuse(hump())
     for c in roof_cuts():
         t = t.cut(c)
@@ -806,7 +852,8 @@ def report(parts):
     for name, shape in parts.items():
         bb = shape.BoundingBox()
         print(f"{name:12s} {bb.xlen:6.1f} x {bb.ylen:6.1f} x {bb.zlen:5.1f} mm, {shape.Volume() / 1000:7.1f} cm3")
-    print(f"front height (top of the bezel at the front edge): {to_world(-(BOARD_H / 2 + BEZEL_FB), BEZEL_TOP)[1]:.1f} mm")
+    print(f"front height (top of the bezel at the front edge, after the thumb scoop): "
+          f"{to_world(*scoop_profile()[-1])[1]:.1f} mm")
     print(f"back height: {to_world(BOARD_H / 2 + BEZEL_FB, BEZEL_TOP)[1]:.1f} mm")
     print(f"plate top at the front row edge: {to_world(-BOARD_H / 2, PLATE_Z0 + PLATE_T)[1]:.1f} mm")
     hump_top = ENC_AXIS_Z + HUMP_R
