@@ -7932,7 +7932,7 @@
 				)
 			)
 		)
-		(property "Value" "PEC12R-2220F-S0024 (shaft parallel to the board, 20 mm)"
+		(property "Value" "PEC12R-2230F-S0024 (shaft parallel to the board, 30 mm)"
 			(at 0 12 180)
 			(unlocked yes)
 			(layer "F.SilkS")
@@ -8636,7 +8636,7 @@
 			(uuid "425a6610-f237-4077-ab7e-06046d5b7e74")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R-2x20F-S_standin.step"
+		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R-2x30F-S_standin.step"
 			(offset
 				(xyz 0 0 0)
 			)

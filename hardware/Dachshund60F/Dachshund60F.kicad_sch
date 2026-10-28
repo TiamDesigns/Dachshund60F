@@ -14064,7 +14064,7 @@
 				)
 			)
 		)
-		(property "Value" "PEC12R-2220F-S0024 (shaft parallel to the board, 20 mm)"
+		(property "Value" "PEC12R-2230F-S0024 (shaft parallel to the board, 30 mm)"
 			(at 30.48 323.85 0)
 			(effects
 				(font
@@ -14072,7 +14072,7 @@
 				)
 			)
 		)
-		(property "MPN" "Bourns PEC12R-2220F-S0024"
+		(property "MPN" "Bourns PEC12R-2230F-S0024"
 			(at 30.48 323.85 0)
 			(hide yes)
 			(effects
@@ -14081,7 +14081,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C49673168"
+		(property "LCSC" ""
 			(at 30.48 323.85 0)
 			(hide yes)
 			(effects
