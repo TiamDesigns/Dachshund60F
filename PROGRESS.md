@@ -6,12 +6,18 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: curved wheel notch, polycarbonate side panel, continuous-curvature corners (2026-10-28)
+
+- The case follows the 30 mm shaft (the wheel's blind bore is now 19 mm deep).
+- The notch round the wheel follows its curve, 0.5 mm away, below its axis.
+- The polycarbonate is now a panel in the middle of the right side only (side wall and the floor inside it, world y −32 to 36 mm, x > 150 mm), next to and under the antenna and round the power switch, held by two screws in the end wall (163.9, −26 and 15). The rest of the bottom is aluminium again.
+- Plan-view corners: continuous curvature like Apple's (Tiam asked for it), a superellipse with exponent 5 running 11 mm along each edge, about the look of a 7 mm radius (was a 9 mm arc). The edge rolls are still circular fillets. Not made or fitted.
+
 ### SW3: the 30 mm shaft, PEC12R-2230F-S0024 (2026-10-28)
 
 - Tiam chose the 30 mm shaft, so the wheel that reaches out through the end wall sits on about 19 mm of shaft instead of 9. SW3 is now PEC12R-2230F-S0024 (shaft parallel to the board, 24 detents, push switch, 24 pulses): schematic value and MPN, the PCB's value field, and the docs. Same footprint and pins.
 - 3D model: `gen_models.py` takes the shaft length as a parameter (the flat length F follows the datasheet's table) and now builds `Bourns_PEC12R-2x30F-S_standin.step`, which SW3 uses; the 20 mm model is gone. The shaft runs from the hub at board x 321.8 to its tip at x 340.8 (case-local x 162.55), 3.3 mm past the board edge, with the 12 mm D-flat from x 328.8. STEP exports refreshed for the mainboard and assembly.
 - Stock (2026-10-28): LCSC has no listing for it, so the LCSC field is empty and JLC would have to source it globally (or leave it off and solder it by hand). Digi-Key lists it (product 4699264) with a 16-week factory lead time and no confirmed stock; I couldn't reach Mouser. Order the encoders early.
-- `hardware/case/` hasn't been updated for the longer shaft yet.
 
 ### Case: the wheel's click, through the end wall (2026-10-28)
 
