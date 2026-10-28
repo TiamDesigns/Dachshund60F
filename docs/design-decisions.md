@@ -25,7 +25,7 @@ Last updated 2026-10-24.
 
 | Decision | What I chose | Why |
 | --- | --- | --- |
-| Encoder | A horizontal-shaft Bourns PEC12R-4220F-S0024 used as a roller, turning front to back like a mouse wheel | I wanted a scroll wheel, not a knob. It replaced the EC11 in the first layout. |
+| Encoder | A Bourns PEC12R-2220F-S0024 (shaft parallel to the board, 24 detents) used as a roller, turning front to back like a mouse wheel | I wanted a scroll wheel, not a knob. It replaced the EC11 in the first layout. |
 | Board shape | 5 mm corner radius (it was 1 mm) | Softer corners for the case. About 6 mm is the most the encoder corner allows. |
 | Indicators | A row of five LEDs above the arrow keys (layer plus a 4-step battery gauge), with Caps Lock under its key | The layer LED moved out from under Esc, and the battery level is visible without opening the app. |
 | Display | A header (J4) for an OLED or e-paper panel, with the panel choice left open | I want to see the board and case before picking. The firmware supports four panels. |

@@ -102,7 +102,8 @@ switch footprints and wire them to the same diode.
   about 4.7 V on USB. Their input-high threshold (0.7 × VDD) is then about
   3.3 V, so the data line goes through an SN74LV1T34 buffer powered from
   LED_VDD. Its TTL-level input reads 3.3 V logic at any LED voltage.
-- **Encoder:** Bourns PEC12R-4220F-S0024, horizontal shaft, with a wide
+- **Encoder:** Bourns PEC12R-2220F-S0024 (shaft parallel to the board, 24
+  detents, push switch, 20 mm shaft), with a wide
   roller so it turns like a mouse wheel. A/B go to GPIO and C to GND, with
   10 nF from each of A and B to GND. Its body sits just right of the last
   key column (SW3 at x 314.3, y 52.025 mm, rotated 180°) with the shaft

@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### SW3 part number: PEC12R-2220F-S0024 (2026-10-28)
+
+- The BOM had PEC12R-4220F-S0024, which is Bourns' "Horizontal Mount – Axial PC Pin" part: its shaft points straight up from the board, like a knob. The roller needs "Vertical Mount – Radial PC Pin" (first digit 2), whose shaft is parallel to the board, and that's what the footprint (KiCad's PEC12R-2x17F-Sxxxx) is drawn for. The 2026-10-23 check below had the two backwards.
+- Tiam chose 24 detents, so SW3 is now PEC12R-2220F-S0024: shaft parallel to the board, 24 detents, 20 mm insulated D-shaft, push switch, 24 pulses per turn (one quadrature cycle per detent, which matches `CONFIG_KB_ENCODER_STEPS_PER_DETENT=4`). Changed in the schematic (Value, MPN, LCSC C49673168), the PCB's value field, `README.md`, `boards/Dachshund60F/README.md` and `docs/design-decisions.md`. The footprint and pins don't change.
+- LCSC lists C49673168 with no stock as of 2026-10-28, so JLC can't fit it from their stock; Digi-Key and Mouser had it. Either buy it and solder it by hand (it's through-hole), or check LCSC again before ordering assembly.
+
 ### SW3 3D model from Bourns' drawing (2026-10-28)
 
 - The roller encoder's stand-in (three hand-placed STEPs: body, bushing, shaft) is replaced by one model generated in `hardware/3dmodels/gen_models.py` from the PEC12R-2xxxF-S drawing in Bourns' datasheet: shaft axis 10.0 mm above the PCB top (the old stand-in assumed 6.7), body 12.5 × 13.4 mm centred on it and 6.0 mm deep, standing 3.3 mm off the board on its frame's feet, hub Ø7 × 5, Ø6 shaft with the D-flat, 20 mm from the rear face to the tip. Details and what's approximate are in `hardware/3dmodels/README.md`.
@@ -696,7 +702,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 ## Known bugs
 
 - The 2.4 GHz link isn't encrypted: keystrokes over the dongle can be read by anyone nearby with an nRF52 and the address. Encryption is a scheduled task.
-- Encoder part number checked against Bourns' PEC12R datasheet (2026-10-23): the BOM's PEC12R-4220F-S0024 is right. The first digit of the ordering code is the mounting: 2 = vertical (radial pins, shaft up from the board), 3 = horizontal with a threaded bushing, 4 = horizontal without a bushing. So -4220F-S0024 is horizontal, no bushing, 24 detents, 20 mm shaft, push switch, 24 pulses, and Mouser lists it as right angle. Don't order PEC12R-2217F-S0024: it is the vertical part. KiCad's footprint name `Horizontal_PEC12R-2x17F` uses the wrong series digit; its geometry is the horizontal part's. Still open: SW3's 3D model is a stand-in (see `hardware/3dmodels/README.md`), and the footprint's hole pattern hasn't been checked dimension by dimension against the 4xxx drawing.
+- (Superseded on 2026-10-28: this got Bourns' naming backwards; the part is PEC12R-2220F-S0024.) Encoder part number checked against Bourns' PEC12R datasheet (2026-10-23): the BOM's PEC12R-4220F-S0024 is right. The first digit of the ordering code is the mounting: 2 = vertical (radial pins, shaft up from the board), 3 = horizontal with a threaded bushing, 4 = horizontal without a bushing. So -4220F-S0024 is horizontal, no bushing, 24 detents, 20 mm shaft, push switch, 24 pulses, and Mouser lists it as right angle. Don't order PEC12R-2217F-S0024: it is the vertical part. KiCad's footprint name `Horizontal_PEC12R-2x17F` uses the wrong series digit; its geometry is the horizontal part's. Still open: SW3's 3D model is a stand-in (see `hardware/3dmodels/README.md`), and the footprint's hole pattern hasn't been checked dimension by dimension against the 4xxx drawing.
 - Release builds print Kconfig warnings, because `prj.conf` sets logging options that `release.conf` turns off. PRINTK also stays on in release, since something selects it; nothing prints, because no console or RTT backend exists. This is harmless, but the warnings are noise.
 - E-paper builds warn that Zephyr's MIPI-DBI driver is "experimental". It is what Zephyr's own e-paper shields use; this is a notice, not a fault.
 - Doghouse's palette has no layer-tap, mod-tap, one-shot mod, default-layer or modded keys yet, though the firmware supports them. Add them with the phase 9 editors.
