@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-28 (case hood and OLED).
+Last updated: 2026-10-28 (encoder flipped).
 
 ## Before ordering boards
 
@@ -29,6 +29,7 @@ Last updated: 2026-10-28 (case hood and OLED).
 - **USB edge cases on real hardware (review).** Pull the cable and stall the host mid-typing (a busy VM, a KVM switch) and check no key stays held and taps in a burst aren't lost. Check what Zephyr's HID class does with SET_IDLE (a non-zero idle rate needs a periodic resend, which the firmware doesn't do), unplug and replug during heavy typing (interface teardown against a report in flight), and typing in a BIOS/UEFI setup screen (boot protocol).
 - **Doghouse session tests against the real session module (review).** `serial.test.ts` covers the queue, but `BoardSession` itself (`app-state.svelte.ts`, Svelte runes) has no tests. Compile it with Svelte's `compileModule` in a test, run it against a mock board with delays and injected failures, and cover: two overlapping edits then undo, a failed undo or redo, an edit straight after revert or reset, and unplugging during a reload.
 - **KiCad checks in CI (review).** Run ERC, and DRC with schematic parity, on all four boards with a pinned KiCad (the `kicad/kicad:10.0` image). Fail on new active errors and unconnected items only; keep the seven spacebar exclusions and report active and excluded entries separately. Then the STEP export and the plate could be checked against the PCB in the same job.
+- **Case for the flipped encoder.** On 2026-10-28 SW3 was flipped on the mainboard: the body is now at the left (left face x ≈ 308.15 mm, board coordinates), and the shaft points right, from x ≈ 317.85 to its tip at x ≈ 331.3 (y 49.525). `hardware/case/gen_case.py` still places the roller, the roller slot, the encoder cover and the hood's step for the old encoder (shaft pointing left, tip at case x = 135.05). Move them, widen the roller to about 17 mm, regenerate the case and its renders, and refresh the case notes in `hardware/case/README.md`.
 
 ## Tiam's own items
 

@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Mainboard: roller encoder flipped (2026-10-28)
+
+- SW3 (PEC12R, horizontal) moved from (330.3, 47.025) at 0° to (314.3, 52.025) at 180°. The body now sits just right of the last key column (left face at x ≈ 308.15 mm; SW113's keycap ends near 305.25) and the shaft points right, toward the board edge: shaft face at x ≈ 317.85, tip at x ≈ 331.3, on the same centre line (y 49.525). The wheel can be about 17 mm wide now.
+- Rerouted: ENC_A goes down to its bus on B.Cu and over to C10's side on F.Cu under the encoder body, with one new via at (331.55, 52.025). ENC_B runs east and down to C11 and its bus. COL14 goes left of the lower mounting tab to its old diagonal. ENC_SW runs along the top edge and down the right side to D114. ROW0 (F.Cu) dips under the new lower mounting tab. Two GND stitching vias that the new pins landed on are gone (314.325, 47.625 and 314.325, 57.15). The back-side board name, version and JLC order-number text moved 9 mm right, off the new pins. All zones refilled. Track widths unchanged (0.25 mm).
+- DRC (kicad-cli, `--schematic-parity --severity-error`): 0 violations, 0 unconnected items, 0 parity issues, the same as before. With every severity, the 222 items are the same as before the change (the known spacebar-stabilizer overlaps, library mismatches and silkscreen warnings).
+- Plate regenerated: the notch is unchanged (x ≥ 306.0, y ≤ 59.0), since the courtyard's y range didn't change. STEP exports refreshed for the mainboard, plate, assembly and dongle (the dongle's was stale after its module change).
+- The case in `hardware/case/` still has the roller for the old direction; that's a new task in `SCHEDULED_TASKS.md`.
+- Not on hardware; no board has been made.
+
 ### Case and firmware: 2.13" e-paper strip in the hood (2026-10-28)
 
 - Screen: a bare 2.13" e-paper panel (GDEY0213B74, 250 × 122) now stands on end along the sidebar, with a 23.7 × 48.6 mm picture where the 1.12" OLED was 20 × 20. Its driver board (Adafruit eInk Breakout Friend) is taped to its back, kept off the antenna, and wired to J4's eight pins. `gen_case.py`'s screen profiles now say whether the frame locates the glass (e-paper) or the module's board (OLEDs); the SH1107 and SH1106 profiles are still there (`DISPLAY`).

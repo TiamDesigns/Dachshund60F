@@ -104,8 +104,10 @@ switch footprints and wire them to the same diode.
   LED_VDD. Its TTL-level input reads 3.3 V logic at any LED voltage.
 - **Encoder:** Bourns PEC12R-4220F-S0024, horizontal shaft, with a wide
   roller so it turns like a mouse wheel. A/B go to GPIO and C to GND, with
-  10 nF from each of A and B to GND. Its body sits just past the 16u key
-  area, so the PCB is about 12.7 mm wider than the layout.
+  10 nF from each of A and B to GND. Its body sits just right of the last
+  key column (SW3 at x 314.3, y 52.025 mm, rotated 180°) with the shaft
+  pointing right, toward the board edge, so the wheel can be about 17 mm
+  wide. The PCB is about 12.7 mm wider than the layout.
 - **USB-C:** 5.1 kΩ pull-downs on CC1 and CC2, and ESD protection on D+/D−
   (e.g. USBLC6-2).
 - **Antenna:** keep the MDBT50Q antenna keep-out free of copper on all layers,
