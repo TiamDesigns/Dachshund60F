@@ -149,6 +149,10 @@ jobs:
             app: firmware
             board: dachshund60f/nrf52840
             display: oled-sh1106-128x64
+          - variant: keyboard + oled-sh1107-128x128
+            app: firmware
+            board: dachshund60f/nrf52840
+            display: oled-sh1107-128x128
           - variant: keyboard + eink-2in13-v4
             app: firmware
             board: dachshund60f/nrf52840

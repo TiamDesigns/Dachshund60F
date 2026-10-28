@@ -6,6 +6,17 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: lower hood, taller screen, sealed LED channels, centred USB-C (2026-10-28)
+
+- Hood: its top is now at the height of a keycap's bottom edge (6.6 mm above the plate, 3.1 mm above the bezel), with a 1.5 mm roof. The encoder body is taller than that, so it has its own cover right of the wheel, 3.8 mm higher. Flipping the encoder wouldn't lower it, and the plate needs no cutout.
+- Screen: Pimoroni's 1.12" 128×128 SH1107 breakout (20 × 20 mm, 8 text rows), which fits inside the sidebar. A new firmware overlay `oled-sh1107-128x128`, with a CI build. The module sits in a locating frame, taped by its glass border. J4 stays without a header (JLC doesn't fit it): the wires are soldered into its holes, so the module can sit over it. The 1.3" SH1106 option is still in `gen_case.py` (`DISPLAY`).
+- LEDs: each has its own 4 mm channel through a solid block, sealed to the plate by a strip of 1.5 mm black foam (`Dachshund60F-LED-Seal.dxf`), with a 4 mm opal acrylic diffuser disc under each 3 mm hole.
+- Roller: 12.25 mm wide (was 8), on the same 20 mm shaft, in a wider slot.
+- USB-C daughterboard: centred in the back wall. The back screws moved to either side of it (nine screws now). The JST-SH cable to J1 is about 200 mm.
+- The engraving on the back (the bone and DACHSHUND60F) is gone.
+- Keycap to bezel, for Tiam: about 2.3 mm on the left, front and back with 18 mm Cherry-spec caps; 1.0 mm to the hood's side.
+- Not printed or fitted. The SH1107 overlay builds in CI but hasn't run on a panel.
+
 ### Case: hood for the OLED, LEDs and roller, stepped floor, strip feet (2026-10-28)
 
 - Display chosen: a generic 1.3" SH1106 128×64 I2C OLED module (firmware overlay `oled-sh1106-128x64`, already there). The top case now rises over the sidebar into a hood with a 2 mm roof, which covers the encoder. The module hangs under the roof on four bosses (M2 × 4 screws) behind a bevelled 31 × 17 mm window, in front of the radio's antenna. It is wired to J4 pins 1–4 with four soldered wires. The hood reaches out over the right bezel, because the 35.4 mm module is wider than the sidebar.
