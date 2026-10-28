@@ -8,6 +8,7 @@ Writes:
 
 - USB_C_Receptacle_HRO_TYPE-C-31-M-12.step
 - JST_PH_S2B-PH-SM4-TB_standin.step
+- Bourns_PEC12R-2x20F-S_standin.step
 
 Each model is built in its KiCad footprint's frame, so the footprints place it
 with zero offset and rotation: X is the footprint's x, Y is the footprint's
@@ -37,6 +38,7 @@ TIN = (0.84, 0.84, 0.86)
 GOLD = (0.86, 0.69, 0.30)
 BLACK = (0.10, 0.10, 0.10)   # LCP insulator
 IVORY = (0.93, 0.90, 0.80)   # natural nylon (JST PH housing)
+DARK = (0.18, 0.18, 0.19)    # insulated shaft and hub
 
 
 # --- primitives, in footprint coordinates (y grows towards the front) -------
@@ -160,6 +162,60 @@ def jst_ph_s2b_ph_sm4_tb():
     return [(housing, IVORY)] + [(c, TIN) for c in contacts + fittings]
 
 
+# --- Bourns PEC12R-2xxxF-S, L = 20 mm ----------------------------------------
+
+def bourns_pec12r_2x20f_s():
+    """Encoder with the shaft parallel to the board, push switch, 20 mm shaft.
+
+    From Bourns' PEC12R datasheet (REV. 07/21), PEC12R-2xxxF-Sxxxx drawing:
+    shaft axis 10.0 above the mounting surface, body 12.5 wide x 13.4 tall
+    centred on it and 6.0 deep (rear face to front face, switch included),
+    hub 7.0 across and 5.0 long, shaft 6.0 across with a 4.5 D-flat F = 7.0
+    long and a 0.5 chamfer, L = 20.0 from the rear face to the tip. Footprint
+    frame (KiCad's PEC12R-2x17F-Sxxxx): pad A at the origin, A/C/B along +y,
+    the axis over pad C (y = 2.5), the shaft pointing to -x; the body's front
+    face is at x = -2.5 (the footprint's fab outline), so the rear face is at
+    +3.5, level with the mounting tabs, and the tip at -16.5.
+    """
+    ay, az = 2.5, 10.0                 # shaft axis (footprint y, height)
+    front, rear = -2.5, 3.5
+    y0, y1 = ay - 6.25, ay + 6.25      # 12.5 wide
+    z0, z1 = az - 6.7, az + 6.7        # 13.4 tall: 3.3 above the board
+    hub_end, tip = front - 5.0, rear - 20.0
+    flat_end = tip + 7.0               # F
+
+    def along_x(r, x0, x1):
+        return Part.makeCylinder(r, x1 - x0, V(x0, -ay, az), V(1, 0, 0))
+
+    # Metal frame: the front plate, wrapped over the top, with the mounting
+    # legs down the sides into the tab holes and curved feet under the rear
+    # corners that stand the body off the board.
+    frame = fuse([
+        box(front, front + 0.5, y0, y1, z0, z1),
+        box(front, rear - 0.6, y0, y1, z1 - 0.5, z1),
+        box(2.7, 4.3, -4.25, y0, -3.0, z0 + 3.0),        # legs, in the 2.5 x 2.1 holes
+        box(2.7, 4.3, y1, 9.25, -3.0, z0 + 3.0),
+        box(2.0, rear, y0, y0 + 1.0, 0.0, z0),           # feet
+        box(2.0, rear, y1 - 1.0, y1, 0.0, z0),
+    ])
+    housing = fuse([
+        box(front + 0.5, rear, y0 + 0.3, y1 - 0.3, z0, z1 - 0.5),
+        box(rear - 0.6, rear, y0, y1, z0, z1 - 0.5),     # switch block at the back
+    ])
+    hub = along_x(3.5, hub_end, front)
+
+    # Shaft, with the D-flat on the underside (as drawn) and the tip chamfer.
+    shaft = along_x(3.0, tip + 0.5, hub_end)
+    shaft = shaft.fuse(Part.makeCone(2.5, 3.0, 0.5, V(tip, -ay, az), V(1, 0, 0)))
+    shaft = shaft.cut(box(tip - 1, flat_end, ay - 4, ay + 4, az - 4, az + 3.0 - 4.5)).removeSplitter()
+
+    pins = []
+    for x, y in ((0.0, 0.0), (0.0, 2.5), (0.0, 5.0), (2.5, 0.0), (2.5, 5.0)):  # A, C, B, S1, S2
+        pins.append(box(x - 0.15, x + 0.15, y - 0.4, y + 0.4, -3.5, z0 + 0.1))
+
+    return [(frame, SHELL), (housing, BLACK), (hub, DARK), (shaft, DARK)] + [(p, TIN) for p in pins]
+
+
 # --- STEP output -------------------------------------------------------------
 
 def write_step(parts, name, path):
@@ -217,6 +273,7 @@ def main():
     for name, parts, filename in (
         ("HRO TYPE-C-31-M-12", hro_type_c_31_m_12(), "USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"),
         ("JST S2B-PH-SM4-TB", jst_ph_s2b_ph_sm4_tb(), "JST_PH_S2B-PH-SM4-TB_standin.step"),
+        ("Bourns PEC12R-2x20F-S", bourns_pec12r_2x20f_s(), "Bourns_PEC12R-2x20F-S_standin.step"),
     ):
         for shape, _ in parts:
             if not shape.isValid():
