@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-28 (curved wheel notch, polycarbonate side panel, continuous-curvature corners).
+Last updated: 2026-10-28 (bezel beside the arrows, thumb scoop along the front).
 
 ## Before ordering boards
 

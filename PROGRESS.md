@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: bezel beside the arrows, thumb scoop along the front (2026-10-28)
+
+- The 0.5 u gap in the bottom row between the right Ctrl and the left arrow (under the right Shift) showed the plate. The bezel now comes back into it as a tongue, 1 mm from the keycaps on all three sides.
+- Thumb scoop: the front bezel's top falls away from the key opening to the outer edge, 2.5 mm lower there, across the whole front (the arrows share the space bar's row). The opening's front edge keeps keycap-bottom height. It's a smooth, mostly concave curve that leaves the flat bezel tangentially and flattens into the front roll, so there's no crease. Front height 15.2 mm, down from 17.7.
+- New render `21-thumb-scoop`; `08-section-front` shows the profile. Not made or fitted.
+
 ### Case: curved wheel notch, polycarbonate side panel, continuous-curvature corners (2026-10-28)
 
 - The case follows the 30 mm shaft (the wheel's blind bore is now 19 mm deep).
