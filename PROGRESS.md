@@ -6,6 +6,16 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: hood for the OLED, LEDs and roller, stepped floor, strip feet (2026-10-28)
+
+- Display chosen: a generic 1.3" SH1106 128×64 I2C OLED module (firmware overlay `oled-sh1106-128x64`, already there). The top case now rises over the sidebar into a hood with a 2 mm roof, which covers the encoder. The module hangs under the roof on four bosses (M2 × 4 screws) behind a bevelled 31 × 17 mm window, in front of the radio's antenna. It is wired to J4 pins 1–4 with four soldered wires. The hood reaches out over the right bezel, because the 35.4 mm module is wider than the sidebar.
+- LEDs D3–D7: a 3 mm hole in the roof over each, with a tube down to the plate so each LED lights only its own hole.
+- Roller: the hood steps down to bezel height around it, and only the wheel shows, through a slot.
+- Bottom case: the weight is gone (Tiam will add one later). The inside floor steps up once per switch row, to 3.5 mm under the PCB at each row's front edge, except under the sidebar, the battery tray and the USB-C corner.
+- Gaskets: the socks now have the round closed end from the sock drawing (8 × 5 × 5 mm, 6.5 × 2.8 × 1.2 mm pocket). Feet: two channels for 10 × 3 mm self-adhesive rubber strip replace the four round bumpons.
+- The assembly has stand-ins for the OLED module and the strips. Renders, including the hood from above and sections through it, are in `hardware/case/renders/`.
+- Not printed or fitted yet, and the OLED sizes are from Pololu's module, not a measured one.
+
 ### Case: gasket-mount case, weight, gaskets and plate foam (2026-10-27)
 
 - `hardware/case/gen_case.py` (CadQuery) generates the case from parameters and from the plate's own outline, and `hardware/case/README.md` has the numbers. Outputs in `hardware/case/step/`: top and bottom case, the brass dog-bone weight, the eight gasket socks, the plate–PCB foam as a DXF outline (Tiam's call: a sketch to extrude, not a STEP), and an assembly with the mainboard, plate, USB-C daughterboard, a battery and a roller stand-in. Renders are in `hardware/case/renders/`. The PCB and plate files were not touched.

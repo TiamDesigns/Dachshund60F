@@ -105,16 +105,19 @@ def shoot(ren, win, out, pos, focal, zoom=1.0, parallel=False, clip=None, up=(0,
 
 
 VIEWS = [
-    # name, camera position, focal point, zoom, parallel, clip plane (origin, normal)
+    # name, camera position, focal point, zoom, parallel, clip plane (origin, normal)[, view up]
     ("01-front-left", (-300, -560, 330), (0, 0, 10), 1.3, False, None),
     ("02-back-right", (330, 560, 260), (20, 0, 14), 1.3, False, None),
     ("03-side-profile", (-1000, 0, 16), (0, 0, 16), 2.6, True, None),
     ("04-bottom", (-150, -330, -520), (0, 0, 0), 1.3, False, None),
-    ("05-roller-and-sidebar", (380, -230, 260), (140, 20, 18), 3.3, False, None),
+    ("05-hood-and-roller", (380, -230, 260), (140, 20, 22), 3.0, False, None),
     ("06-usb-c", (210, 400, 60), (110, 70, 10), 4.5, False, None),
     ("07-section-gasket", (-1000, 0, 16), (39.81, 0, 16), 2.6, True, ((39.81, 0, 0), (1, 0, 0))),
     ("08-section-front", (-1000, 0, 10), (39.81, -64, 8), 9.0, True, ((39.81, 0, 0), (1, 0, 0))),
     ("09-section-back", (-1000, 0, 24), (39.81, 64, 22), 9.0, True, ((39.81, 0, 0), (1, 0, 0))),
+    ("12-hood-top", (140, 0, 1000), (140, 0, 30), 2.9, True, None, (0, 1, 0)),
+    ("13-section-hood", (-1000, 0, 25), (150, 10, 22), 4.5, True, ((150, 0, 0), (1, 0, 0))),
+    ("14-section-roller", (-1000, 0, 25), (139.5, 30, 22), 6.0, True, ((139.5, 0, 0), (1, 0, 0))),
     ("10-inside", (-240, -420, 420), (0, 10, 5), 1.4, False, None),
 ]
 
@@ -122,11 +125,11 @@ VIEWS = [
 def render(assembled, exploded, inside, out):
     os.makedirs(out, exist_ok=True)
     ren, win = scene(assembled)
-    for name, pos, focal, zoom, parallel, clip in VIEWS[:-1]:
-        shoot(ren, win, os.path.join(out, name + ".png"), pos, focal, zoom, parallel, clip)
+    for name, *view in VIEWS[:-1]:
+        shoot(ren, win, os.path.join(out, name + ".png"), *view)
     ren, win = scene(inside)
-    name, pos, focal, zoom, parallel, clip = VIEWS[-1]
-    shoot(ren, win, os.path.join(out, name + ".png"), pos, focal, zoom, parallel, clip)
+    name, *view = VIEWS[-1]
+    shoot(ren, win, os.path.join(out, name + ".png"), *view)
     ren, win = scene(exploded)
     shoot(ren, win, os.path.join(out, "11-exploded.png"), (-330, -620, 420), (0, 0, 35), 1.1)
 
