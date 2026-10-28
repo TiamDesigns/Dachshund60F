@@ -102,13 +102,14 @@ switch footprints and wire them to the same diode.
   about 4.7 V on USB. Their input-high threshold (0.7 × VDD) is then about
   3.3 V, so the data line goes through an SN74LV1T34 buffer powered from
   LED_VDD. Its TTL-level input reads 3.3 V logic at any LED voltage.
-- **Encoder:** Bourns PEC12R-2220F-S0024 (shaft parallel to the board, 24
-  detents, push switch, 20 mm shaft), with a wide
+- **Encoder:** Bourns PEC12R-2230F-S0024 (shaft parallel to the board, 24
+  detents, push switch, 30 mm shaft), with a wide
   roller so it turns like a mouse wheel. A/B go to GPIO and C to GND, with
   10 nF from each of A and B to GND. Its body sits just right of the last
   key column (SW3 at x 314.3, y 52.025 mm, rotated 180°) with the shaft
-  pointing right, toward the board edge, so the wheel can be about 17 mm
-  wide. The PCB is about 12.7 mm wider than the layout.
+  pointing right, toward the board edge. The 30 mm shaft's tip is at
+  x 340.8, 3.3 mm past the board edge, so the wheel can reach out through
+  the case's end wall. The PCB is about 12.7 mm wider than the layout.
 - **USB-C:** 5.1 kΩ pull-downs on CC1 and CC2, and ESD protection on D+/D−
   (e.g. USBLC6-2).
 - **Antenna:** keep the MDBT50Q antenna keep-out free of copper on all layers,

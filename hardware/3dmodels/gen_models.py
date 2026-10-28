@@ -8,7 +8,7 @@ Writes:
 
 - USB_C_Receptacle_HRO_TYPE-C-31-M-12.step
 - JST_PH_S2B-PH-SM4-TB_standin.step
-- Bourns_PEC12R-2x20F-S_standin.step
+- Bourns_PEC12R-2x30F-S_standin.step
 
 Each model is built in its KiCad footprint's frame, so the footprints place it
 with zero offset and rotation: X is the footprint's x, Y is the footprint's
@@ -162,27 +162,31 @@ def jst_ph_s2b_ph_sm4_tb():
     return [(housing, IVORY)] + [(c, TIN) for c in contacts + fittings]
 
 
-# --- Bourns PEC12R-2xxxF-S, L = 20 mm ----------------------------------------
+# --- Bourns PEC12R-2xxxF-S ----------------------------------------------------
 
-def bourns_pec12r_2x20f_s():
-    """Encoder with the shaft parallel to the board, push switch, 20 mm shaft.
+# Shaft lengths L and their flat lengths F (datasheet table, 2-series).
+PEC12R_FLAT = {17.5: 5.0, 20.0: 7.0, 22.5: 7.0, 25.0: 12.0, 30.0: 12.0}
+
+
+def bourns_pec12r_2xf_s(length):
+    """Encoder with the shaft parallel to the board and a push switch.
 
     From Bourns' PEC12R datasheet (REV. 07/21), PEC12R-2xxxF-Sxxxx drawing:
     shaft axis 10.0 above the mounting surface, body 12.5 wide x 13.4 tall
     centred on it and 6.0 deep (rear face to front face, switch included),
-    hub 7.0 across and 5.0 long, shaft 6.0 across with a 4.5 D-flat F = 7.0
-    long and a 0.5 chamfer, L = 20.0 from the rear face to the tip. Footprint
+    hub 7.0 across and 5.0 long, shaft 6.0 across with a 4.5 D-flat F long
+    and a 0.5 chamfer, L (length) from the rear face to the tip. Footprint
     frame (KiCad's PEC12R-2x17F-Sxxxx): pad A at the origin, A/C/B along +y,
     the axis over pad C (y = 2.5), the shaft pointing to -x; the body's front
     face is at x = -2.5 (the footprint's fab outline), so the rear face is at
-    +3.5, level with the mounting tabs, and the tip at -16.5.
+    +3.5, level with the mounting tabs, and the tip at 3.5 - L.
     """
     ay, az = 2.5, 10.0                 # shaft axis (footprint y, height)
     front, rear = -2.5, 3.5
     y0, y1 = ay - 6.25, ay + 6.25      # 12.5 wide
     z0, z1 = az - 6.7, az + 6.7        # 13.4 tall: 3.3 above the board
-    hub_end, tip = front - 5.0, rear - 20.0
-    flat_end = tip + 7.0               # F
+    hub_end, tip = front - 5.0, rear - length
+    flat_end = tip + PEC12R_FLAT[length]
 
     def along_x(r, x0, x1):
         return Part.makeCylinder(r, x1 - x0, V(x0, -ay, az), V(1, 0, 0))
@@ -273,7 +277,7 @@ def main():
     for name, parts, filename in (
         ("HRO TYPE-C-31-M-12", hro_type_c_31_m_12(), "USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"),
         ("JST S2B-PH-SM4-TB", jst_ph_s2b_ph_sm4_tb(), "JST_PH_S2B-PH-SM4-TB_standin.step"),
-        ("Bourns PEC12R-2x20F-S", bourns_pec12r_2x20f_s(), "Bourns_PEC12R-2x20F-S_standin.step"),
+        ("Bourns PEC12R-2x30F-S", bourns_pec12r_2xf_s(30.0), "Bourns_PEC12R-2x30F-S_standin.step"),
     ):
         for shape, _ in parts:
             if not shape.isValid():
