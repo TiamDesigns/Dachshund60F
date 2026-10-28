@@ -1,8 +1,12 @@
 /*
  * 1.12" SH1107 128x128 OLED on the J4 display header, such as Pimoroni's
  * 1.12" Mono OLED Breakout (I2C at 0x3C: SDA on J4-3, SCL on J4-4).
- * Settings follow the SH1107 datasheet's 128x128 defaults. If the picture is
- * mirrored or upside down, toggle segment-remap and com-invdir.
+ * The Zephyr in NCS v3.4.1 has no SH1107 binding, so this runs the panel in
+ * the SSD1306 driver's SH1106 mode: the SH1107 takes the same page, column,
+ * DC-DC and scan commands, with 16 pages instead of 8 (luma.oled drives this
+ * breakout the same way). Settings follow the SH1107's 128x128 defaults. If
+ * the picture is mirrored or upside down, toggle segment-remap and com-invdir;
+ * if it is shifted, adjust display-offset.
  */
 
 / {
@@ -15,7 +19,7 @@
 	status = "okay";
 
 	screen: ssd1306@3c {
-		compatible = "sinowealth,sh1107";
+		compatible = "sinowealth,sh1106";
 		reg = <0x3c>;
 		width = <128>;
 		height = <128>;
