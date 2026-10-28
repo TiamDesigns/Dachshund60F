@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case and firmware: 2.13" e-paper strip in the hood (2026-10-28)
+
+- Screen: a bare 2.13" e-paper panel (GDEY0213B74, 250 × 122) now stands on end along the sidebar, with a 23.7 × 48.6 mm picture where the 1.12" OLED was 20 × 20. Its driver board (Adafruit eInk Breakout Friend) is taped to its back, kept off the antenna, and wired to J4's eight pins. `gen_case.py`'s screen profiles now say whether the frame locates the glass (e-paper) or the module's board (OLEDs); the SH1107 and SH1106 profiles are still there (`DISPLAY`).
+- Firmware: a new overlay `eink-2in13-v4-portrait` (120 × 248, 12 × 15 text cells) with a CI build. It chooses a small display driver, `dachshund,display-rotate` (`firmware/src/display_rotate.c`), that reports the panel turned by 90° and rotates each frame back before writing it, because the SSD16xx driver's own `rotation` property keeps reporting the landscape size and the character framebuffer then draws off the panel. The rotation is `kb_screen_rotate()` in the core, with host tests.
+- Not printed or fitted, and not run on a panel. The Friend's parts clear the plate by about 0.3 mm in the model; check with the real board.
+
 ### Case: lower hood, taller screen, sealed LED channels, centred USB-C (2026-10-28)
 
 - Hood: its top is now at the height of a keycap's bottom edge (6.6 mm above the plate, 3.1 mm above the bezel), with a 1.5 mm roof. The encoder body is taller than that, so it has its own cover right of the wheel, 3.8 mm higher. Flipping the encoder wouldn't lower it, and the plate needs no cutout.

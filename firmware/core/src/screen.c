@@ -211,3 +211,34 @@ size_t kb_screen_render(const struct kb_screen_layout *layout, const struct kb_s
 
     return n;
 }
+
+static uint8_t tile_bit(uint16_t y, bool msb_first)
+{
+    return (uint8_t)(msb_first ? 0x80u >> (y % 8u) : 1u << (y % 8u));
+}
+
+int kb_screen_rotate(const uint8_t *src, uint16_t src_w, uint16_t src_h, uint8_t *dst,
+                     uint16_t dst_w, uint16_t dst_h, uint16_t rotation, bool msb_first)
+{
+    if (!src || !dst || (rotation != 90u && rotation != 270u) || src_h % 8u != 0u ||
+        dst_h % 8u != 0u || dst_w < src_h || dst_h < src_w) {
+        return -EINVAL;
+    }
+
+    memset(dst, 0, (size_t)dst_w * (dst_h / 8u));
+    for (uint16_t y = 0; y < src_h; y++) {
+        const uint8_t bit = tile_bit(y, msb_first);
+        const uint8_t *row = &src[(size_t)(y / 8u) * src_w];
+
+        for (uint16_t x = 0; x < src_w; x++) {
+            if (!(row[x] & bit)) {
+                continue;
+            }
+            /* 90: the top of src becomes the right edge of dst; 270: the left. */
+            uint16_t dx = rotation == 90u ? (uint16_t)(dst_w - 1u - y) : y;
+            uint16_t dy = rotation == 90u ? x : (uint16_t)(dst_h - 1u - x);
+            dst[(size_t)(dy / 8u) * dst_w + dx] |= tile_bit(dy, msb_first);
+        }
+    }
+    return 0;
+}

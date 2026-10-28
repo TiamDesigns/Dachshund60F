@@ -252,6 +252,21 @@ config KB_SCREEN_EPD_MIN_INTERVAL_MS
 	  E-paper refreshes are slow and wear the panel. Changes inside this
 	  window are combined into one refresh. OLEDs ignore this.
 
+config KB_DISPLAY_ROTATE
+	bool
+	default y
+	depends on DT_HAS_DACHSHUND_DISPLAY_ROTATE_ENABLED
+	help
+	  Software rotation for a portrait e-paper panel
+	  (eink-2in13-v4-portrait.overlay).
+
+config KB_DISPLAY_ROTATE_INIT_PRIORITY
+	int "Rotated display init priority"
+	depends on KB_DISPLAY_ROTATE
+	default 86
+	help
+	  After the panel (DISPLAY_INIT_PRIORITY, 85 by default).
+
 config HEAP_MEM_POOL_ADD_SIZE_KB_SCREEN
 	int
 	default 8192

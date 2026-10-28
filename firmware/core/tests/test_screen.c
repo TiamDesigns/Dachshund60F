@@ -233,6 +233,71 @@ static void test_long_text_is_truncated_in_layout(void)
     KB_CHECK_EQ(strlen(layout.widgets[0].text), KB_SCREEN_TEXT_MAX - 1);
 }
 
+static int pixel(const uint8_t *buf, uint16_t w, uint16_t x, uint16_t y, bool msb_first)
+{
+    uint8_t bit = (uint8_t)(msb_first ? 0x80u >> (y % 8u) : 1u << (y % 8u));
+    return (buf[(y / 8u) * w + x] & bit) != 0;
+}
+
+static void set_pixel(uint8_t *buf, uint16_t w, uint16_t x, uint16_t y, bool msb_first)
+{
+    buf[(y / 8u) * w + x] |= (uint8_t)(msb_first ? 0x80u >> (y % 8u) : 1u << (y % 8u));
+}
+
+static void test_rotate_moves_corners(void)
+{
+    /* A 16 x 40 portrait frame onto a 42 x 16 landscape one, as 120 x 248 onto 250 x 120. */
+    enum { SW = 16, SH = 40, DW = 42, DH = 16 };
+    for (int msb = 0; msb <= 1; msb++) {
+        uint8_t src[SW * SH / 8] = {0};
+        uint8_t dst[DW * DH / 8];
+
+        set_pixel(src, SW, 0, 0, msb);   /* top left */
+        set_pixel(src, SW, 3, 9, msb);
+        KB_CHECK_EQ(kb_screen_rotate(src, SW, SH, dst, DW, DH, 90, msb), 0);
+        KB_CHECK(pixel(dst, DW, DW - 1, 0, msb));      /* -> top right */
+        KB_CHECK(pixel(dst, DW, DW - 1 - 9, 3, msb));
+        int lit = 0;
+        for (int i = 0; i < DW * DH / 8; i++) {
+            for (uint8_t b = dst[i]; b; b &= (uint8_t)(b - 1u)) {
+                lit++;
+            }
+        }
+        KB_CHECK_EQ(lit, 2);
+
+        KB_CHECK_EQ(kb_screen_rotate(src, SW, SH, dst, DW, DH, 270, msb), 0);
+        KB_CHECK(pixel(dst, DW, 0, DH - 1, msb));      /* -> bottom left */
+        KB_CHECK(pixel(dst, DW, 9, DH - 1 - 3, msb));
+    }
+}
+
+static void test_rotate_round_trip(void)
+{
+    enum { W = 24, H = 32 };
+    uint8_t src[W * H / 8], mid[H * W / 8], back[W * H / 8];
+
+    for (size_t i = 0; i < sizeof(src); i++) {
+        src[i] = (uint8_t)(i * 37u + 11u);
+    }
+    KB_CHECK_EQ(kb_screen_rotate(src, W, H, mid, H, W, 90, true), 0);
+    KB_CHECK_EQ(kb_screen_rotate(mid, H, W, back, W, H, 270, true), 0);
+    KB_CHECK_EQ(memcmp(src, back, sizeof(src)), 0);
+}
+
+static void test_rotate_rejects_bad_sizes(void)
+{
+    uint8_t src[16 * 16 / 8] = {0};
+    uint8_t dst[16 * 16 / 8];
+
+    memset(dst, 0xAA, sizeof(dst));
+    KB_CHECK_EQ(kb_screen_rotate(src, 16, 16, dst, 16, 16, 180, false), -EINVAL);
+    KB_CHECK_EQ(kb_screen_rotate(src, 16, 12, dst, 16, 16, 90, false), -EINVAL);  /* not 8-tall */
+    KB_CHECK_EQ(kb_screen_rotate(src, 16, 16, dst, 15, 16, 90, false), -EINVAL);  /* too narrow */
+    KB_CHECK_EQ(kb_screen_rotate(src, 16, 16, dst, 16, 8, 90, false), -EINVAL);   /* too short */
+    KB_CHECK_EQ(kb_screen_rotate(NULL, 16, 16, dst, 16, 16, 90, false), -EINVAL);
+    KB_CHECK_EQ(dst[0], 0xAA);
+}
+
 int main(void)
 {
     printf("test_screen\n");
@@ -244,5 +309,8 @@ int main(void)
     KB_RUN(test_clipping_and_bounds);
     KB_RUN(test_validate_rejects_bad_layouts);
     KB_RUN(test_long_text_is_truncated_in_layout);
+    KB_RUN(test_rotate_moves_corners);
+    KB_RUN(test_rotate_round_trip);
+    KB_RUN(test_rotate_rejects_bad_sizes);
     return KB_TEST_RESULT();
 }

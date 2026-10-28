@@ -157,6 +157,10 @@ jobs:
             app: firmware
             board: dachshund60f/nrf52840
             display: eink-2in13-v4
+          - variant: keyboard + eink-2in13-v4-portrait
+            app: firmware
+            board: dachshund60f/nrf52840
+            display: eink-2in13-v4-portrait
           - variant: dongle
             app: dongle
             board: nrf52840dongle/nrf52840

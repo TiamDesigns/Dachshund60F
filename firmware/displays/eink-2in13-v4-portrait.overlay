@@ -1,0 +1,51 @@
+/*
+ * 2.13" e-paper (GoodDisplay GDEY0213B74, SSD1680, 250x122) standing on end,
+ * as in the case's sidebar: 120 x 248 pixels in portrait, turned in software
+ * (dachshund,display-rotate). The bare panel needs a driver board, such as
+ * Adafruit's eInk Breakout Friend; Waveshare's 2.13" V4 module works too.
+ * Same J4 wiring as eink-2in13-v4: DIN J4-3, CLK J4-4, CS J4-5, DC J4-6,
+ * RST J4-7, BUSY J4-8. If the text is upside down, set rotation to 270.
+ */
+
+/ {
+	chosen {
+		zephyr,display = &screen;
+	};
+
+	screen: screen {
+		compatible = "dachshund,display-rotate";
+		display = <&epd>;
+		rotation = <90>;
+	};
+
+	screen_dbi: screen_dbi {
+		compatible = "zephyr,mipi-dbi-spi";
+		spi-dev = <&display_spi>;
+		dc-gpios = <&display_header 6 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&display_header 7 GPIO_ACTIVE_LOW>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		epd: ssd16xxfb@0 {
+			compatible = "gooddisplay,gdey0213b74", "solomon,ssd1680";
+			mipi-max-frequency = <4000000>;
+			reg = <0>;
+			width = <250>;
+			height = <122>;
+			busy-gpios = <&display_header 8 GPIO_ACTIVE_HIGH>;
+			tssv = <0x80>;
+
+			full {
+				border-waveform = <0x05>;
+			};
+
+			partial {
+				border-waveform = <0x3c>;
+			};
+		};
+	};
+};
+
+&display_spi {
+	status = "okay";
+};

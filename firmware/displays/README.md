@@ -15,8 +15,15 @@ every panel below.
 | `oled-ssd1306-128x32` | 0.91" SSD1306, 128×32 | I2C 0x3C | 12 × 2 |
 | `oled-ssd1306-128x64` | 0.96" SSD1306, 128×64 | I2C 0x3C | 12 × 4 |
 | `oled-sh1106-128x64` | 1.3" SH1106, 128×64 | I2C 0x3C | 12 × 4 |
-| `oled-sh1107-128x128` | 1.12" SH1107, 128×128 (the case's screen) | I2C 0x3C | 12 × 8 |
+| `oled-sh1107-128x128` | 1.12" SH1107, 128×128 | I2C 0x3C | 12 × 8 |
 | `eink-2in13-v4` | Waveshare 2.13" e-Paper V4 (GDEY0213B74, SSD1680), 250×122 | SPI | 25 × 7 |
+| `eink-2in13-v4-portrait` | The same panel on end, 120×248 (the case's screen) | SPI | 12 × 15 |
+
+The portrait overlay chooses a `dachshund,display-rotate` node
+(`firmware/src/display_rotate.c`) as the display. It reports the panel's size
+turned by 90°, and turns each frame back before writing it to the panel, so
+the character framebuffer draws in portrait. The SSD16xx driver's own
+`rotation` property doesn't do this: it keeps reporting the landscape size.
 
 ## Wiring
 
