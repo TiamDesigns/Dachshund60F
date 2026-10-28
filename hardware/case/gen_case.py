@@ -1,4 +1,4 @@
-"""Generate the Dachshund60F case, gaskets, weight and plate foam, and the full assembly.
+"""Generate the Dachshund60F case, gaskets and plate foam, and the full assembly.
 
     python hardware/case/gen_case.py            # parts and assembly
     python hardware/case/gen_case.py --parts    # parts only (skips the slow board import)
@@ -6,14 +6,16 @@
 
 Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
 
-- Dachshund60F-Case-Top.step      top case: bezel frame, upper half of the gasket pockets
-- Dachshund60F-Case-Bottom.step   bottom case: tub, lower gasket seats, USB-C, battery tray
-- Dachshund60F-Weight.step        brass dog-bone weight, shows through the bottom
+- Dachshund60F-Case-Top.step      top case: bezel frame, upper half of the gasket pockets, and the
+                                  sidebar hood (OLED window and mount, LED holes, roller slot)
+- Dachshund60F-Case-Bottom.step   bottom case: tub with a floor stepped by switch row, lower gasket
+                                  seats, USB-C, battery tray, channels for rubber strip feet
 - Dachshund60F-Plate-Foam.dxf     plate-PCB midlayer foam outline, to cut from 3.5 mm Poron
                                   (the plate's own holes, grown 0.3 mm; board-centred origin)
 - Dachshund60F-Gaskets.step       the eight silicone socks on the plate tabs
 - Dachshund60F-Case-Assembly.step everything above plus the mainboard, plate,
-                                  USB-C daughterboard, a battery and a roller stand-in
+                                  USB-C daughterboard, and stand-ins for the battery, the
+                                  roller, the OLED module and the rubber strips
 
 Frames. "Local" is the board frame of hardware/step/: X along the board, Y to the back, origin at
 the centre of the mainboard outline, PCB bottom at Z = 0, plate bottom at Z = 5.0. "World" is the
@@ -58,7 +60,8 @@ BEZEL_ABOVE_PLATE = 3.5  # bezel top above the plate top (keycaps clear it: they
 FLOOR = 3.0            # bottom thickness
 UNDER_PCB_FRONT = 3.0  # space under the PCB at the front edge (hot-swap sockets are 1.85 mm)
 
-# Gasket socks (silicone, 8 x 5 x 5 mm outside; pocket 6.5 x 2.8 x 1.2 mm, takes 1.2-1.6 mm plates).
+# Gasket socks (silicone, 8 x 5 x 5 mm outside, the closed end round in plan; pocket 6.5 x 2.8 x
+# 1.2 mm, centred, takes 1.2-1.6 mm plates).
 SOCK_L, SOCK_W, SOCK_H = 8.0, 5.0, 5.0
 SOCK_POCKET_L, SOCK_POCKET_W = 6.5, 2.8
 SOCK_SQUEEZE = 0.4     # the case pocket is this much shorter than a free sock
@@ -77,16 +80,14 @@ INSERT_D, INSERT_DEPTH = 4.2, 4.8
 FOAM_HOLE_GROW = 0.3   # each plate hole, grown by this much
 FOAM_EDGE_INSET = 0.3  # in from the board outline
 
-# Brass weight: a dog bone. The bone shows through a window in the floor; a flange around it
-# (the bone grown by BONE_FLANGE) sits on the floor inside and takes the screws.
-BONE_X0, BONE_Y0 = -60.0, 19.0   # centre (world XY)
-BONE_L = 150.0                   # between lobe centres
-BONE_SHAFT_W = 24.0
-BONE_LOBE_R, BONE_LOBE_DY = 14.0, 11.0
-BONE_FLANGE = 5.0
-BONE_FLANGE_T = 6.0
-BONE_RECESS = 0.4                # bone face this far up from the case bottom
-BRASS_DENSITY = 8.5e-3           # g/mm^3
+# Stepped floor: under each switch row the floor rises to UNDER_PCB_STEP below the PCB at the row's
+# front edge (local y of the boundaries between rows, front to back). The sidebar, the battery tray
+# and the daughterboard corner stay at FLOOR (world XY boxes: x0, x1, y0, y1).
+ROW_EDGES = [-40.45, -21.40, -2.36, 16.69, 38.12]
+UNDER_PCB_STEP = 3.5
+STEP_KEEPOUTS = [(125.0, 200.0, -200.0, 200.0),   # sidebar: SW1, SW2, J1, J2, the module
+                 (41.0, 100.0, 10.0, 52.0),       # battery tray and lead exit
+                 (85.0, 200.0, 40.0, 200.0)]      # USB-C daughterboard and its cable
 
 # USB-C daughterboard (hardware/step/Dachshund60F-USB.step, connector facing +Y): in the back wall,
 # flat on a ledge, receptacle face USB_FACE_INSET inside the back face.
@@ -114,18 +115,57 @@ RESET_PIN_D = 2.2
 ROLLER_X = (135.25, 143.25)
 ROLLER_Y, ROLLER_Z, ROLLER_D = 50.025, PCB_T + 6.7, 12.0
 
-# Rubber feet: 10 mm bumpons in shallow pockets.
-FEET_X, FEET_D, FEET_DEPTH = 150.0, 10.5, 0.6
+# Sidebar hood (local frame): a raised pod over the right end of the board. It covers the encoder,
+# holds the OLED under a window, has a hole over each of D3-D7, and steps down to bezel height
+# around the roller, which shows through a slot.
+HOOD_X0 = 128.0            # left wall outside face (keycaps end at 127.0)
+HOOD_Y0 = -39.75           # front wall outside face (SW614's keycap ends at -40.95)
+HOOD_WALL = 1.6            # left wall; the front and step walls are HOOD_WALL_FB
+HOOD_WALL_FB = 2.0
+HOOD_BOTTOM = 7.6          # walls stop 1 mm above the plate
+POD_TOP, POD_ROOF = 18.0, 2.0  # roof top and thickness (the encoder body's top is at 15.0)
+POD_FILLET = 2.0
+HOOD_OUTER_WALL = 2.0      # over the right bezel the inside widens to within this of the outside
+STEP_X, STEP_Y = 143.6, 38.55  # the low part: x < STEP_X, y > STEP_Y (roller and bushing)
+STEP_ROOF_Z = 8.5          # underside of the low roof; its top is BEZEL_TOP
+ROLLER_SLOT = (134.75, 143.6, 43.5, 56.5)  # x0, x1, y0, y1
+BUSHING_ARCH_R = 4.0       # clearance arch in the step wall over the encoder's bushing (Ø7)
+
+# OLED: generic 1.3" SH1106 128x64 I2C module (4 pins: VCC GND SCL SDA; firmware overlay
+# oled-sh1106-128x64). Sizes from Pololu's #3761; clone modules vary, so measure yours.
+OLED_PCB = (35.4, 33.5, 1.0)          # x (along the board), y, thickness
+OLED_GLASS = (34.5, 23.0, 1.5)
+OLED_AA = (29.42, 14.70)              # active area
+OLED_HOLES = (30.4, 28.5, 3.05)       # hole spacing x, y, and hole diameter
+# Local XY of the module's centre. The header edge faces the back, so text is upright. The module
+# stays in front of the radio module's antenna (KiCad x > 333, y 67-79; local y > 20.5).
+OLED_CENTRE = (147.925, 0.25)
+OLED_STANDOFF = 2.0                   # roof underside to the module's PCB top (bosses)
+OLED_BOSS_D, OLED_PILOT_D, OLED_PILOT_DEPTH = 4.6, 1.8, 3.0  # M2 x 4 self-tapping screws
+OLED_WINDOW = (31.0, 17.0)            # at the roof underside, bevelled 45 degrees outward
+
+# LEDs D3-D7 (reverse mount on the back, shining up through the plate): holes in the roof with
+# tubes down to just above the plate, so each LED lights its own hole.
+LED_X = [131.75, 138.25, 143.75, 149.25, 154.75]
+LED_Y = -30.95
+LED_HOLE_D, LED_TUBE_D, LED_TUBE_BOTTOM = 3.0, 5.0, 7.8
+
+# Feet: two strips of self-adhesive solid rubber (10 mm wide, 3 mm thick) in shallow channels.
+STRIP_W, STRIP_T, STRIP_L = 10.0, 3.0, 290.0
+STRIP_CHANNEL_W, STRIP_CHANNEL_DEPTH = 10.4, 1.0
+STRIP_Y = (-56.0, 56.0)    # world Y of the strip centres (inboard of the screws)
 
 COLORS = {
     "Case top": (0.42, 0.27, 0.17),
     "Case bottom": (0.85, 0.76, 0.61),
-    "Weight": (0.80, 0.63, 0.30),
     "Plate foam": (0.93, 0.88, 0.80),
     "Gasket": (0.22, 0.22, 0.22),
     "Battery": (0.55, 0.62, 0.70),
     "Roller": (0.15, 0.13, 0.12),
-    "Feet": (0.10, 0.10, 0.10),
+    "Rubber strips": (0.10, 0.10, 0.10),
+    "OLED board": (0.10, 0.25, 0.55),
+    "OLED glass": (0.06, 0.06, 0.08),
+    "OLED screen": (0.35, 0.75, 0.95),
 }
 
 S, C = math.sin(math.radians(TILT)), math.cos(math.radians(TILT))
@@ -224,15 +264,22 @@ def cavity():
     return upper.fuse(lower)
 
 
+def d_shape(x, y_open, s, length, width, z0, z1):
+    """Plan-view D: straight from y_open, running length in direction s (+1/-1), with a round end."""
+    r = width / 2
+    yc = y_open + s * (length - r)
+    y0, y1 = sorted((y_open, yc))
+    return box(x - r, x + r, y0, y1, z0, z1).fuse(cyl_z(x, yc, width, z0, z1)).clean()
+
+
 def sock_pockets():
     """Pockets for the socks (local frame), both halves; each case half keeps its own side."""
     cuts = []
-    w = SOCK_W + 2 * POCKET_CLEAR
     edge = BOARD_H / 2
     for x in TAB_X:
         for s in (-1, 1):
-            y0, y1 = sorted((s * (edge - 0.5), s * (edge + SOCK_L + POCKET_CLEAR)))
-            cuts.append(box(x - w / 2, x + w / 2, y0, y1, SOCK_Z0, SOCK_Z0 + SOCK_H - SOCK_SQUEEZE))
+            cuts.append(d_shape(x, s * (edge - 0.5), s, SOCK_L + 0.5 + POCKET_CLEAR, SOCK_W + 2 * POCKET_CLEAR,
+                                SOCK_Z0, SOCK_Z0 + SOCK_H - SOCK_SQUEEZE))
     return [place(c) for c in cuts]
 
 
@@ -244,36 +291,26 @@ def screw_points():
     return pts
 
 
-# --- Weight ------------------------------------------------------------------------------------
+# --- Stepped floor ----------------------------------------------------------------------------
 
-def bone_face(grow=0.0):
-    w = (cq.Workplane("XY").center(BONE_X0, BONE_Y0)
-         .rect(BONE_L, BONE_SHAFT_W + 2 * grow).extrude(1))
-    for dx in (-BONE_L / 2, BONE_L / 2):
-        for dy in (-BONE_LOBE_DY, BONE_LOBE_DY):
-            w = w.union(cq.Workplane("XY").center(BONE_X0 + dx, BONE_Y0 + dy)
-                        .circle(BONE_LOBE_R + grow).extrude(1))
-    face = min(w.val().Faces(), key=lambda f: f.Center().z)
-    return face
+def floor_steps():
+    """World-horizontal steps on the floor, one per switch row, each UNDER_PCB_STEP below the PCB at
+    the row's front edge (so the gap under the PCB stays about the same from front to back)."""
+    steps = None
+    for y in ROW_EDGES:
+        yw, zw = to_world(y, -UNDER_PCB_STEP)
+        if zw < FLOOR + 0.5:
+            continue
+        blk = box(-OUT_X, OUT_X, yw, OUT_Y_BACK, FLOOR - 0.5, zw)
+        steps = blk if steps is None else steps.fuse(blk)
+    for x0, x1, y0, y1 in STEP_KEEPOUTS:
+        steps = steps.cut(box(x0, x1, y0, y1, 0, 60))
+    return steps.intersect(cavity()).clean()
 
 
 def extrude_face(face, z0, z1):
     f = face.translate((0, 0, z0 - face.Center().z))
     return cq.Solid.extrudeLinear(f, cq.Vector(0, 0, z1 - z0))
-
-
-def weight_holes():
-    dy = BONE_SHAFT_W / 2 + BONE_FLANGE / 2
-    return [(BONE_X0 + dx, BONE_Y0 + sy * dy) for dx in (-40, 40) for sy in (-1, 1)]
-
-
-def weight():
-    flange = extrude_face(bone_face(BONE_FLANGE), FLOOR, FLOOR + BONE_FLANGE_T)
-    boss = extrude_face(bone_face(), BONE_RECESS, FLOOR + 0.5)
-    wt = flange.fuse(boss).clean()
-    for x, y in weight_holes():  # M3 tapped, 5 mm deep
-        wt = wt.cut(cyl_z(x, y, 2.5, FLOOR - 0.1, FLOOR + 5.0))
-    return wt
 
 
 # --- Case halves ------------------------------------------------------------------------------
@@ -321,11 +358,7 @@ def bottom_case(shell):
     ring = ring.cut(box(BATTERY_XY[0] + bw / 2 - 1, BATTERY_XY[0] + bw / 2 + 5,  # lead exit
                         BATTERY_XY[1] - 5, BATTERY_XY[1] + 5, 0, 50))
     b = b.fuse(ring)
-    # Weight: window through the floor, plus countersunk M3 holes into the flange.
-    b = b.cut(extrude_face(bone_face(0.15), -1, FLOOR + 0.1))
-    for x, y in weight_holes():
-        b = b.cut(cyl_z(x, y, 3.4, -1, FLOOR + 0.1))
-        b = b.cut(cq.Solid.makeCone(3.3, 1.7, 1.6, cq.Vector(x, y, -0.01)))
+    b = b.fuse(floor_steps())
     # USB-C daughterboard pocket, opening and inserts.
     for c in usb_cuts():
         b = b.cut(c)
@@ -339,26 +372,104 @@ def bottom_case(shell):
     for x, y, z in screw_points():
         b = b.cut(cyl_z(x, y, SCREW_HOLE, -1, z + 1))
         b = b.cut(cyl_z(x, y, SCREW_CBORE, -1, z - SCREW_GRIP))
-    # Feet.
-    for x in (-FEET_X, FEET_X):
-        for y in (OUT_Y_FRONT + 11, OUT_Y_BACK - 11):
-            b = b.cut(cyl_z(x, y, FEET_D, -1, FEET_DEPTH))
+    # Channels for the rubber strips.
+    for y in STRIP_Y:
+        w = STRIP_CHANNEL_W
+        b = b.cut(box(-STRIP_L / 2 - 1, STRIP_L / 2 + 1, y - w / 2, y + w / 2, -1, STRIP_CHANNEL_DEPTH))
     return b.clean()
+
+
+ROOF_Z = POD_TOP - POD_ROOF  # roof underside
+
+
+def outer_prism(z0=0.0, z1=80.0):
+    yc, h = (OUT_Y_FRONT + OUT_Y_BACK) / 2, OUT_Y_BACK - OUT_Y_FRONT
+    return rrect(2 * OUT_X, h, OUTER_R, z0, z1, y=yc)
+
+
+def hood_solid():
+    """The pod and the low roof around the roller, before anything is cut out of them (world)."""
+    pod = place(box(HOOD_X0, 300, HOOD_Y0, 300, HOOD_BOTTOM, POD_TOP)).intersect(outer_prism())
+    pod = pod.cut(place(box(0, STEP_X, STEP_Y, 300, 0, 100)))
+    # Round the corners inside the opening, then the top edge.
+    n = cq.Vector(0, -S, C)
+    vertical = [e for e in pod.Edges() if e.geomType() == "LINE"
+                and abs((e.endPoint() - e.startPoint()).normalized().dot(n)) > 0.999]
+    pod = pod.fillet(POD_FILLET, vertical)
+    top = max((f for f in pod.Faces() if f.normalAt().dot(n) > 0.99), key=lambda f: f.Center().dot(n))
+    pod = pod.fillet(POD_FILLET, top.outerWire().Edges())
+    low = place(box(HOOD_X0, STEP_X + 0.5, STEP_Y - 0.5, INNER_H / 2 + 1.5, STEP_ROOF_Z, BEZEL_TOP))
+    return pod.fuse(low)
+
+
+def hood_inserts():
+    """Light tubes from the roof down to just above the LEDs' plate windows, and the OLED bosses."""
+    parts = [cyl_z(x, LED_Y, LED_TUBE_D, LED_TUBE_BOTTOM, ROOF_Z + 0.1) for x in LED_X]
+    parts += [cyl_z(x, y, OLED_BOSS_D, ROOF_Z - OLED_STANDOFF, ROOF_Z + 0.1) for x, y in oled_holes()]
+    return place(cq.Compound.makeCompound(parts))
+
+
+def oled_holes():
+    cx, cy = OLED_CENTRE
+    return [(cx + sx * OLED_HOLES[0] / 2, cy + sy * OLED_HOLES[1] / 2) for sx in (-1, 1) for sy in (-1, 1)]
+
+
+def hood_cavity():
+    """Inside of the hood and the roller slot (world)."""
+    xi0, xi1 = HOOD_X0 + HOOD_WALL, INNER_W / 2
+    yi0 = HOOD_Y0 + HOOD_WALL_FB
+    ys = STEP_Y - HOOD_WALL_FB           # inside face of the step's front wall
+    xs = STEP_X + HOOD_WALL_FB           # inside face of the step's right wall
+    inner = rrect(INNER_W, INNER_H, INNER_R, 0, 40)
+    cuts = [
+        box(xi0, xi1, yi0, ys, 6.0, ROOF_Z),                                   # under the pod
+        box(xs, xi1, ys - 1, INNER_H / 2, 6.0, ROOF_Z).intersect(inner),       # over the encoder
+        box(xi0, OUT_X - HOOD_OUTER_WALL, yi0, ys, BEZEL_TOP + 0.2, ROOF_Z),   # module over the bezel
+        box(xi0, xs, STEP_Y, INNER_H / 2, 6.0, STEP_ROOF_Z),                   # under the low roof
+        cq.Solid.makeCylinder(BUSHING_ARCH_R, xs - STEP_X + 1.0,               # over the bushing
+                              cq.Vector(STEP_X - 0.5, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0)),
+        box(*ROLLER_SLOT, 0, 40),
+    ]
+    return [place(c) for c in cuts]
+
+
+def hood_holes():
+    """The OLED window, the LED holes and the OLED screw pilots (world)."""
+    cuts = []
+    # Window: OLED_WINDOW at the roof underside, opening 45 degrees to the top.
+    cx, cy = OLED_CENTRE
+    (w, h), e = OLED_WINDOW, POD_ROOF + 0.2
+    lo = cq.Wire.makePolygon([cq.Vector(cx + dx * w / 2, cy + dy * h / 2, ROOF_Z - 0.1)
+                              for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
+    hi = cq.Wire.makePolygon([cq.Vector(cx + dx * (w / 2 + e), cy + dy * (h / 2 + e), POD_TOP + 0.1)
+                              for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
+    cuts.append(cq.Solid.makeLoft([lo, hi], True))
+    for x in LED_X:
+        cuts.append(cyl_z(x, LED_Y, LED_HOLE_D, LED_TUBE_BOTTOM - 1, POD_TOP + 1))
+    for x, y in oled_holes():
+        cuts.append(cyl_z(x, y, OLED_PILOT_D, ROOF_Z - OLED_STANDOFF - 1, ROOF_Z - OLED_STANDOFF + OLED_PILOT_DEPTH))
+    return [place(c) for c in cuts]
 
 
 def top_case(shell):
     t = shell.cut(half_space_local(SPLIT, False))
     t = _seam_reveal(t, cq.Vector(0, S, -C))
     t = t.cut(inner_prism(-50, 50))
-    for p in sock_pockets():
-        t = t.cut(p)
-    for x, y, z in screw_points():
-        t = t.cut(cyl_z(x, y, INSERT_D, z - 1, z + INSERT_DEPTH))
     # Chamfer the inside edge of the bezel.
     n = cq.Vector(0, -S, C)
     top = max((f for f in t.Faces() if f.normalAt().dot(n) > 0.99), key=lambda f: f.Center().dot(n))
     inner = [e for w in top.innerWires() for e in w.Edges()]
     t = t.chamfer(INNER_CHAMFER, None, inner)
+    t = t.fuse(hood_solid())
+    for c in hood_cavity():
+        t = t.cut(c)
+    t = t.fuse(hood_inserts())
+    for c in hood_holes():
+        t = t.cut(c)
+    for p in sock_pockets():
+        t = t.cut(p)
+    for x, y, z in screw_points():
+        t = t.cut(cyl_z(x, y, INSERT_D, z - 1, z + INSERT_DEPTH))
     return t.clean()
 
 
@@ -370,9 +481,9 @@ def gaskets():
     for x in TAB_X:
         for s in (-1, 1):
             edge = s * BOARD_H / 2
-            y0, y1 = sorted((edge, edge + s * SOCK_L))
-            sock = box(x - SOCK_W / 2, x + SOCK_W / 2, y0, y1, SOCK_Z0, SOCK_Z0 + h)
-            sock = sock.fillet(0.8, [e for e in sock.Edges()])
+            sock = d_shape(x, edge, s, SOCK_L, SOCK_W, SOCK_Z0, SOCK_Z0 + h)
+            sock = sock.fillet(0.6, [e for e in sock.Edges() if e.geomType() != "LINE"
+                                     or abs(e.tangentAt(0).z) < 0.5])
             p0, p1 = sorted((edge, edge + s * SOCK_POCKET_L))
             sock = sock.cut(box(x - SOCK_POCKET_W / 2, x + SOCK_POCKET_W / 2, p0 - 1 if s > 0 else p0,
                                 p1 if s > 0 else p1 + 1, PLATE_Z0, PLATE_Z0 + PLATE_T))
@@ -468,12 +579,25 @@ def roller():
     return place(r)
 
 
-def feet():
-    fs = []
-    for x in (-FEET_X, FEET_X):
-        for y in (OUT_Y_FRONT + 11, OUT_Y_BACK - 11):
-            fs.append(cq.Solid.makeCylinder(5.0, 2.5, cq.Vector(x, y, FEET_DEPTH - 2.5)))
-    return cq.Compound.makeCompound(fs)
+def strips():
+    z1 = STRIP_CHANNEL_DEPTH
+    return cq.Compound.makeCompound([box(-STRIP_L / 2, STRIP_L / 2, y - STRIP_W / 2, y + STRIP_W / 2,
+                                         z1 - STRIP_T, z1) for y in STRIP_Y])
+
+
+def oled():
+    """Stand-in OLED module: PCB (with its holes), glass, and the active area."""
+    cx, cy = OLED_CENTRE
+    z1 = ROOF_Z - OLED_STANDOFF
+    pcb = box(cx - OLED_PCB[0] / 2, cx + OLED_PCB[0] / 2, cy - OLED_PCB[1] / 2, cy + OLED_PCB[1] / 2,
+              z1 - OLED_PCB[2], z1)
+    for x, y in oled_holes():
+        pcb = pcb.cut(cyl_z(x, y, OLED_HOLES[2], z1 - 2, z1 + 1))
+    g = OLED_GLASS
+    glass = box(cx - g[0] / 2, cx + g[0] / 2, cy - g[1] / 2, cy + g[1] / 2, z1, z1 + g[2])
+    aa = box(cx - OLED_AA[0] / 2, cx + OLED_AA[0] / 2, cy - OLED_AA[1] / 2, cy + OLED_AA[1] / 2,
+             z1 + g[2], z1 + g[2] + 0.05)
+    return place(pcb), place(glass), place(aa)
 
 
 # --- Output ------------------------------------------------------------------------------------
@@ -482,10 +606,14 @@ def report(parts):
     for name, shape in parts.items():
         bb = shape.BoundingBox()
         print(f"{name:12s} {bb.xlen:6.1f} x {bb.ylen:6.1f} x {bb.zlen:5.1f} mm, {shape.Volume() / 1000:7.1f} cm3")
-    print(f"weight mass: {parts['Weight'].Volume() * BRASS_DENSITY:.0f} g (brass)")
     print(f"front height (top of the bezel at the front edge): {to_world(-(BOARD_H / 2 + BEZEL_FB), BEZEL_TOP)[1]:.1f} mm")
     print(f"back height: {to_world(BOARD_H / 2 + BEZEL_FB, BEZEL_TOP)[1]:.1f} mm")
     print(f"plate top at the front row edge: {to_world(-BOARD_H / 2, PLATE_Z0 + PLATE_T)[1]:.1f} mm")
+    print(f"hood top: {to_world(HOOD_Y0, POD_TOP)[1]:.1f} mm at its front, "
+          f"{to_world(BOARD_H / 2 + BEZEL_FB, POD_TOP)[1]:.1f} mm at the back")
+    for y in ROW_EDGES:
+        yw, zw = to_world(y, -UNDER_PCB_STEP)
+        print(f"floor step at world y {yw:6.1f}: {max(zw, FLOOR):.1f} mm")
 
 
 def write_step(shape, path, name, color):
@@ -497,28 +625,30 @@ def write_step(shape, path, name, color):
 
 def build_parts():
     shell = outer_shell()
+    board, glass, screen = oled()
     return {
         "Case top": top_case(shell),
         "Case bottom": bottom_case(shell),
-        "Weight": weight(),
         "Plate foam": plate_foam(),
         "Gasket": gaskets(),
         "Battery": battery(),
         "Roller": roller(),
-        "Feet": feet(),
+        "Rubber strips": strips(),
+        "OLED board": board,
+        "OLED glass": glass,
+        "OLED screen": screen,
     }
 
 
 FILES = {
     "Case top": "Dachshund60F-Case-Top.step",
     "Case bottom": "Dachshund60F-Case-Bottom.step",
-    "Weight": "Dachshund60F-Weight.step",
     "Gasket": "Dachshund60F-Gaskets.step",
 }
 
 
-EXPLODE = {"Case top": 70, "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38,
-           "Weight": -45, "Feet": -60}
+EXPLODE = {"Case top": 70, "OLED board": 70, "OLED glass": 70, "OLED screen": 70,
+           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Rubber strips": -40}
 
 
 def main():
@@ -546,7 +676,8 @@ def main():
             assembly.write_meshes(doc, meshes[0])
             assembly.write_meshes(assembly.build(parts, COLORS, EXPLODE), meshes[1])
             assembly.write_meshes(assembly.build(parts, COLORS, skip=("Board", "Case top", "Roller",
-                                                                      "Plate foam", "Gasket")), meshes[2])
+                                                                      "Plate foam", "Gasket", "OLED board",
+                                                                      "OLED glass", "OLED screen")), meshes[2])
             render.render(*meshes, os.path.join(HERE, "renders"))
 
 

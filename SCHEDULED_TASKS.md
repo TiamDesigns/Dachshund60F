@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-27 (case).
+Last updated: 2026-10-28 (case hood and OLED).
 
 ## Before ordering boards
 
@@ -32,7 +32,7 @@ Last updated: 2026-10-27 (case).
 
 ## Tiam's own items
 
-- **Print and fit the case.** Get the case from `hardware/case/` made (it's 336.5 mm long, so use a print service or split it). Check how much the socks squeeze (`SOCK_SQUEEZE`), the USB-C plug lead-in against real cables, whether the power switch can be reached through its slot, the reset pin hole, the screw-in stabilizers over the 3.5 mm foam, and the battery tray against the cell you buy. Pick a roller (12 mm across at most over the current PCB).
+- **Print and fit the case.** Get the case from `hardware/case/` made (it's 336.5 mm long, so use a print service or split it). Check how much the socks squeeze (`SOCK_SQUEEZE`), the USB-C plug lead-in against real cables, whether the power switch can be reached through its slot, the reset pin hole, the screw-in stabilizers over the 3.5 mm foam, the battery tray against the cell you buy, the encoder body under the hood's roof, and the roller's clearance in its slot. Pick a roller (12 mm across at most over the current PCB). Buy the rubber strip (10 × 3 mm, self-adhesive solid rubber, about 0.6 m) and 3 mm light pipes for the LED holes, or fill them with clear resin.
 - **Dongle enclosure.** Still to design: plastic, with nothing metal over the antenna strip.
-- **Display panel.** Pick OLED or e-paper (`firmware/displays/README.md`) and buy one so it arrives with the boards. The case is open over the sidebar; once the panel is picked, add a cover or bezel insert for it in `hardware/case/gen_case.py`. Check its worst-case current against what the module's REGOUT0 (+3V3 on J4) can supply alongside the other 3.3 V loads.
+- **Display module.** The case is built for a 1.3" SH1106 128×64 I2C OLED module (4 pins). Buy one so it arrives with the boards, measure its board, holes, glass and active area, and set the `OLED_*` parameters in `hardware/case/gen_case.py` before printing (see "Display" in `hardware/case/README.md`). On hardware, check its worst-case current (all pixels on) against what the module's REGOUT0 (+3V3 on J4) can supply alongside the other 3.3 V loads.
 - **nRF52840 Dongles (PCA10059), being ordered.** Two cover the wireless tests before the boards arrive: one runs the Pup (the keyboard firmware, `boards/Pup/README.md`), the other the receiver (`dongle/README.md`).
