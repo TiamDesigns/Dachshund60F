@@ -72,7 +72,8 @@ SPLIT = SOCK_Z0        # top/bottom case seam (local Z): the bottom case is the 
 BEZEL_TOP = PLATE_Z0 + PLATE_T + BEZEL_ABOVE_PLATE
 
 # Top case screws: M3 x 10 socket head from below into M3 x 4 heat-set inserts (OD 4.2).
-SCREWS = [(x, s * 66.6) for x in (-79.6, 0.0, 79.6) for s in (-1, 1)] + [(-163.9, 15.0), (163.9, 15.0)]
+SCREWS = ([(x, -66.6) for x in (-79.6, 0.0, 79.6)] + [(x, 66.6) for x in (-79.6, -30.0, 30.0, 79.6)]
+          + [(-163.9, 15.0), (163.9, 15.0)])  # the back row clears the USB-C daughterboard
 SCREW_HOLE, SCREW_CBORE, SCREW_GRIP = 3.4, 5.8, 6.0
 INSERT_D, INSERT_DEPTH = 4.2, 4.8
 
@@ -87,11 +88,11 @@ ROW_EDGES = [-40.45, -21.40, -2.36, 16.69, 38.12]
 UNDER_PCB_STEP = 3.5
 STEP_KEEPOUTS = [(125.0, 200.0, -200.0, 200.0),   # sidebar: SW1, SW2, J1, J2, the module
                  (41.0, 100.0, 10.0, 52.0),       # battery tray and lead exit
-                 (85.0, 200.0, 40.0, 200.0)]      # USB-C daughterboard and its cable
+                 (-26.0, 26.0, 40.0, 200.0)]      # USB-C daughterboard
 
-# USB-C daughterboard (hardware/step/Dachshund60F-USB.step, connector facing +Y): in the back wall,
-# flat on a ledge, receptacle face USB_FACE_INSET inside the back face.
-USB_X = 110.0          # world X of the connector centre
+# USB-C daughterboard (hardware/step/Dachshund60F-USB.step, connector facing +Y): centred in the back
+# wall, flat on a ledge, receptacle face USB_FACE_INSET inside the back face.
+USB_X = 0.0            # world X of the connector centre
 USB_Z = 6.0            # world Z of the daughterboard's bottom
 USB_FACE_INSET = 1.0
 USB_KICAD_CONNECTOR_X, USB_KICAD_FRONT_Y = 121.0, 98.7  # connector centre and shell face (KiCad)
@@ -111,44 +112,60 @@ SW2_LOCAL = (136.75, -6.45)      # reset button on the back
 RESET_PIN_D = 2.2
 
 # Roller on the encoder shaft (stand-in). The shaft axis is ~6.7 mm above the PCB top (assumed in
-# hardware/3dmodels), so a roller bigger than ~12 mm across would hit the PCB.
-ROLLER_X = (135.25, 143.25)
+# hardware/3dmodels), so a roller bigger than ~12 mm across would hit the PCB. The 20 mm shaft ends at
+# x = 135.05; the roller's blind bore takes the last 8 mm of it and the wheel carries on past the end.
+ROLLER_X = (131.0, 143.25)
 ROLLER_Y, ROLLER_Z, ROLLER_D = 50.025, PCB_T + 6.7, 12.0
 
-# Sidebar hood (local frame): a raised pod over the right end of the board. It covers the encoder,
-# holds the OLED under a window, has a hole over each of D3-D7, and steps down to bezel height
-# around the roller, which shows through a slot.
+# Sidebar hood (local frame): a pod over the right end of the board, its top at the height of a
+# keycap's bottom edge. It holds the OLED under a window and has a light channel over each of D3-D7.
+# The encoder body is taller, so it gets a cover of its own behind the pod, and the hood steps down
+# to bezel height around the roller, which shows through a slot.
+KEYCAP_BOTTOM = PLATE_Z0 + PLATE_T + 6.6  # Cherry-profile skirt at rest (MX top housing: +6.2)
 HOOD_X0 = 128.0            # left wall outside face (keycaps end at 127.0)
 HOOD_Y0 = -39.75           # front wall outside face (SW614's keycap ends at -40.95)
 HOOD_WALL = 1.6            # left wall; the front and step walls are HOOD_WALL_FB
 HOOD_WALL_FB = 2.0
 HOOD_BOTTOM = 7.6          # walls stop 1 mm above the plate
-POD_TOP, POD_ROOF = 18.0, 2.0  # roof top and thickness (the encoder body's top is at 15.0)
-POD_FILLET = 2.0
-HOOD_OUTER_WALL = 2.0      # over the right bezel the inside widens to within this of the outside
+POD_TOP, POD_ROOF = KEYCAP_BOTTOM, 1.5
+ENC_TOP = 17.0             # encoder cover (the body's top is at 15.0)
+POD_FILLET = 1.5
 STEP_X, STEP_Y = 143.6, 38.55  # the low part: x < STEP_X, y > STEP_Y (roller and bushing)
 STEP_ROOF_Z = 8.5          # underside of the low roof; its top is BEZEL_TOP
-ROLLER_SLOT = (134.75, 143.6, 43.5, 56.5)  # x0, x1, y0, y1
+ROLLER_SLOT = (130.5, 143.6, 43.5, 56.5)  # x0, x1, y0, y1
 BUSHING_ARCH_R = 4.0       # clearance arch in the step wall over the encoder's bushing (Ø7)
 
-# OLED: generic 1.3" SH1106 128x64 I2C module (4 pins: VCC GND SCL SDA; firmware overlay
-# oled-sh1106-128x64). Sizes from Pololu's #3761; clone modules vary, so measure yours.
-OLED_PCB = (35.4, 33.5, 1.0)          # x (along the board), y, thickness
-OLED_GLASS = (34.5, 23.0, 1.5)
-OLED_AA = (29.42, 14.70)              # active area
-OLED_HOLES = (30.4, 28.5, 3.05)       # hole spacing x, y, and hole diameter
-# Local XY of the module's centre. The header edge faces the back, so text is upright. The module
-# stays in front of the radio module's antenna (KiCad x > 333, y 67-79; local y > 20.5).
-OLED_CENTRE = (147.925, 0.25)
-OLED_STANDOFF = 2.0                   # roof underside to the module's PCB top (bosses)
-OLED_BOSS_D, OLED_PILOT_D, OLED_PILOT_DEPTH = 4.6, 1.8, 3.0  # M2 x 4 self-tapping screws
-OLED_WINDOW = (31.0, 17.0)            # at the roof underside, bevelled 45 degrees outward
+# Status screen. Each module sits in a locating frame under the roof, glass up behind a bevelled
+# window, held by thin double-sided tape on the glass border (OLED_TAPE). Sizes are nominal: measure
+# your module and correct them before printing. pcb and glass are x (along the board), y, thickness;
+# aa is the active area, aa_dy its offset from the board's centre (towards the front); back is the
+# height of the parts on the module's back. The header (wire) edge faces the back.
+DISPLAYS = {
+    # Pimoroni 1.12" Mono OLED (128x128, white/black) Breakout, I2C version: 28 x 42 mm, SH1107.
+    "sh1107-1.12": dict(overlay="oled-sh1107-128x128", pcb=(28.0, 42.0, 1.6), glass=(25.0, 27.0, 1.4),
+                        aa=(20.1, 20.1), aa_dy=4.0, back=1.0, centre=(144.8, -5.5)),
+    # Generic 1.3" SH1106 128x64 I2C module (Pololu #3761 sizes). It is wider than the sidebar, so it
+    # reaches into the right bezel, and the right-hand screw moves forward out of its way.
+    "sh1106-1.3": dict(overlay="oled-sh1106-128x64", pcb=(35.4, 33.5, 1.0), glass=(34.5, 23.0, 1.5),
+                       aa=(29.42, 14.70), aa_dy=0.0, back=1.0, centre=(147.925, 0.25), right_screw_y=-26.0),
+}
+DISPLAY = "sh1107-1.12"
+OLED = DISPLAYS[DISPLAY]
+SCREWS[-1] = (SCREWS[-1][0], OLED.get("right_screw_y", SCREWS[-1][1]))
+OLED_TAPE = 0.2            # glass to roof underside
+OLED_WINDOW_MARGIN = 0.8   # window edge outside the active area, each side
+OLED_FRAME_T, OLED_CLEAR = 1.0, 0.3
+# The module stays in front of the radio module's antenna (KiCad x > 333, y 67-79; local y > 20.5).
 
-# LEDs D3-D7 (reverse mount on the back, shining up through the plate): holes in the roof with
-# tubes down to just above the plate, so each LED lights its own hole.
+# LEDs D3-D7 (reverse mount on the back, shining up through the plate's 4 mm windows): a block of
+# light channels from the roof down to 1 mm above the plate, sealed to the plate by a strip of black
+# foam, so no LED lights its neighbour's hole. A diffuser disc sits in the top of each channel.
 LED_X = [131.75, 138.25, 143.75, 149.25, 154.75]
 LED_Y = -30.95
-LED_HOLE_D, LED_TUBE_D, LED_TUBE_BOTTOM = 3.0, 5.0, 7.8
+LED_HOLE_D = 3.0           # in the roof
+LED_BORE_D = 4.0           # the channel, and the diffuser disc (4 mm, 1 mm opal acrylic)
+LED_WALL = 1.5             # around the outer channels
+LED_SEAL_T, LED_SEAL_HOLE_D = 1.5, 4.4  # black closed-cell foam, squeezed to 1.0 mm
 
 # Feet: two strips of self-adhesive solid rubber (10 mm wide, 3 mm thick) in shallow channels.
 STRIP_W, STRIP_T, STRIP_L = 10.0, 3.0, 290.0
@@ -163,6 +180,7 @@ COLORS = {
     "Battery": (0.55, 0.62, 0.70),
     "Roller": (0.15, 0.13, 0.12),
     "Rubber strips": (0.10, 0.10, 0.10),
+    "LED seal": (0.08, 0.08, 0.08),
     "OLED board": (0.10, 0.25, 0.55),
     "OLED glass": (0.06, 0.06, 0.08),
     "OLED screen": (0.35, 0.75, 0.95),
@@ -225,17 +243,6 @@ def _plane_face(shape, normal, pick=max):
 
 def _seam_reveal(shape, normal):
     return shape.chamfer(SEAM_REVEAL, None, _plane_face(shape, normal).outerWire().Edges())
-
-
-def engraving():
-    """Back face of the bottom case: a bone and the board's name, 0.6 mm deep."""
-    plane = cq.Plane(origin=(-110, OUT_Y_BACK + 0.01, 11.5), xDir=(-1, 0, 0), normal=(0, 1, 0))
-    wp = cq.Workplane(plane)
-    text = wp.text("DACHSHUND60F", 6.0, -0.6, kind="bold", halign="center", valign="center").val()
-    bone = (cq.Workplane(plane).center(-52, 0).rect(12, 2.6).extrude(-0.6)
-            .union(cq.Workplane(plane).pushPoints([(-58, 1.5), (-58, -1.5), (-46, 1.5), (-46, -1.5)])
-                   .circle(1.7).extrude(-0.6))).val()
-    return text.fuse(bone)
 
 
 def outer_shell():
@@ -347,7 +354,6 @@ def bottom_case(shell):
     b = shell.cut(half_space_local(SPLIT, True))
     b = _seam_reveal(b, cq.Vector(0, -S, C))
     b = b.cut(cavity())
-    b = b.cut(engraving())
     for p in sock_pockets():
         b = b.cut(p)
     # Battery tray ribs.
@@ -387,31 +393,54 @@ def outer_prism(z0=0.0, z1=80.0):
     return rrect(2 * OUT_X, h, OUTER_R, z0, z1, y=yc)
 
 
-def hood_solid():
-    """The pod and the low roof around the roller, before anything is cut out of them (world)."""
-    pod = place(box(HOOD_X0, 300, HOOD_Y0, 300, HOOD_BOTTOM, POD_TOP)).intersect(outer_prism())
-    pod = pod.cut(place(box(0, STEP_X, STEP_Y, 300, 0, 100)))
-    # Round the corners inside the opening, then the top edge.
+def _rounded(solid):
+    """Fillet a hood block's corners inside the opening (square to the board), then its top edge."""
     n = cq.Vector(0, -S, C)
-    vertical = [e for e in pod.Edges() if e.geomType() == "LINE"
+    vertical = [e for e in solid.Edges() if e.geomType() == "LINE"
                 and abs((e.endPoint() - e.startPoint()).normalized().dot(n)) > 0.999]
-    pod = pod.fillet(POD_FILLET, vertical)
-    top = max((f for f in pod.Faces() if f.normalAt().dot(n) > 0.99), key=lambda f: f.Center().dot(n))
-    pod = pod.fillet(POD_FILLET, top.outerWire().Edges())
+    if vertical:
+        solid = solid.fillet(POD_FILLET, vertical)
+    top = max((f for f in solid.Faces() if f.normalAt().dot(n) > 0.99), key=lambda f: f.Center().dot(n))
+    return solid.fillet(POD_FILLET, top.outerWire().Edges())
+
+
+def hood_solid():
+    """The pod, the encoder cover and the low roof around the roller, before the cuts (world)."""
+    pod = place(box(HOOD_X0, 300, HOOD_Y0, STEP_Y, HOOD_BOTTOM, POD_TOP)).intersect(outer_prism())
+    pod = pod.fuse(place(box(STEP_X, 300, STEP_Y - 1, 300, HOOD_BOTTOM, POD_TOP)).intersect(outer_prism()))
+    cover = place(box(STEP_X, 300, STEP_Y - HOOD_WALL_FB, 300, HOOD_BOTTOM, ENC_TOP)).intersect(outer_prism())
     low = place(box(HOOD_X0, STEP_X + 0.5, STEP_Y - 0.5, INNER_H / 2 + 1.5, STEP_ROOF_Z, BEZEL_TOP))
-    return pod.fuse(low)
+    return _rounded(pod.clean()).fuse(_rounded(cover)).fuse(low)
+
+
+def led_block_xy():
+    r = LED_BORE_D / 2 + LED_WALL
+    return HOOD_X0 + HOOD_WALL, LED_X[-1] + r, HOOD_Y0 + HOOD_WALL_FB, LED_Y + r
+
+
+def oled_rect(grow=0.0):
+    """The module board's outline (local x0, x1, y0, y1), grown by grow."""
+    (cx, cy), (w, h, _) = OLED["centre"], OLED["pcb"]
+    return cx - w / 2 - grow, cx + w / 2 + grow, cy - h / 2 - grow, cy + h / 2 + grow
+
+
+def oled_z():
+    """Local z of the module board's top and bottom, and of the bottom of the parts on its back."""
+    top = ROOF_Z - OLED_TAPE - OLED["glass"][2]
+    bottom = top - OLED["pcb"][2]
+    return top, bottom, bottom - OLED["back"]
 
 
 def hood_inserts():
-    """Light tubes from the roof down to just above the LEDs' plate windows, and the OLED bosses."""
-    parts = [cyl_z(x, LED_Y, LED_TUBE_D, LED_TUBE_BOTTOM, ROOF_Z + 0.1) for x in LED_X]
-    parts += [cyl_z(x, y, OLED_BOSS_D, ROOF_Z - OLED_STANDOFF, ROOF_Z + 0.1) for x, y in oled_holes()]
-    return place(cq.Compound.makeCompound(parts))
-
-
-def oled_holes():
-    cx, cy = OLED_CENTRE
-    return [(cx + sx * OLED_HOLES[0] / 2, cy + sy * OLED_HOLES[1] / 2) for sx in (-1, 1) for sy in (-1, 1)]
+    """The LED channel block, and the frame that locates the OLED module."""
+    x0, x1, y0, y1 = led_block_xy()
+    parts = [box(x0, x1, y0, y1, HOOD_BOTTOM, ROOF_Z + 0.1)]
+    top, bottom, _ = oled_z()
+    frame = box(*oled_rect(OLED_CLEAR + OLED_FRAME_T), bottom + 0.5, ROOF_Z + 0.1)
+    frame = frame.cut(box(*oled_rect(OLED_CLEAR), 0, 40))
+    cx = OLED["centre"][0]
+    frame = frame.cut(box(cx - 8, cx + 8, 0, 300, 0, 40))  # gap at the back for the wires
+    return place(parts[0].fuse(frame).clean())
 
 
 def hood_cavity():
@@ -421,10 +450,11 @@ def hood_cavity():
     ys = STEP_Y - HOOD_WALL_FB           # inside face of the step's front wall
     xs = STEP_X + HOOD_WALL_FB           # inside face of the step's right wall
     inner = rrect(INNER_W, INNER_H, INNER_R, 0, 40)
+    _, _, back = oled_z()
     cuts = [
         box(xi0, xi1, yi0, ys, 6.0, ROOF_Z),                                   # under the pod
-        box(xs, xi1, ys - 1, INNER_H / 2, 6.0, ROOF_Z).intersect(inner),       # over the encoder
-        box(xi0, OUT_X - HOOD_OUTER_WALL, yi0, ys, BEZEL_TOP + 0.2, ROOF_Z),   # module over the bezel
+        box(xs, xi1, STEP_Y, INNER_H / 2, 6.0, ENC_TOP - POD_ROOF).intersect(inner),  # the encoder
+        box(*oled_rect(OLED_CLEAR), back - 0.3, ROOF_Z),                       # the module (bezel too)
         box(xi0, xs, STEP_Y, INNER_H / 2, 6.0, STEP_ROOF_Z),                   # under the low roof
         cq.Solid.makeCylinder(BUSHING_ARCH_R, xs - STEP_X + 1.0,               # over the bushing
                               cq.Vector(STEP_X - 0.5, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0)),
@@ -434,21 +464,35 @@ def hood_cavity():
 
 
 def hood_holes():
-    """The OLED window, the LED holes and the OLED screw pilots (world)."""
+    """The OLED window and the LED channels (world)."""
     cuts = []
-    # Window: OLED_WINDOW at the roof underside, opening 45 degrees to the top.
-    cx, cy = OLED_CENTRE
-    (w, h), e = OLED_WINDOW, POD_ROOF + 0.2
+    # Window: the active area plus a margin at the roof underside, opening 45 degrees to the top.
+    cx, cy = OLED["centre"]
+    cy -= OLED["aa_dy"]
+    w, h = (a + 2 * OLED_WINDOW_MARGIN for a in OLED["aa"])
+    e = POD_ROOF + 0.2
     lo = cq.Wire.makePolygon([cq.Vector(cx + dx * w / 2, cy + dy * h / 2, ROOF_Z - 0.1)
                               for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
     hi = cq.Wire.makePolygon([cq.Vector(cx + dx * (w / 2 + e), cy + dy * (h / 2 + e), POD_TOP + 0.1)
                               for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
     cuts.append(cq.Solid.makeLoft([lo, hi], True))
     for x in LED_X:
-        cuts.append(cyl_z(x, LED_Y, LED_HOLE_D, LED_TUBE_BOTTOM - 1, POD_TOP + 1))
-    for x, y in oled_holes():
-        cuts.append(cyl_z(x, y, OLED_PILOT_D, ROOF_Z - OLED_STANDOFF - 1, ROOF_Z - OLED_STANDOFF + OLED_PILOT_DEPTH))
+        cuts.append(cyl_z(x, LED_Y, LED_BORE_D, HOOD_BOTTOM - 1, ROOF_Z))
+        cuts.append(cyl_z(x, LED_Y, LED_HOLE_D, ROOF_Z - 0.1, POD_TOP + 1))
     return [place(c) for c in cuts]
+
+
+def led_seal_face():
+    """The black foam strip under the LED block, with a hole over each LED (local XY, z = 0)."""
+    x0, x1, y0, y1 = led_block_xy()
+    f = box(x0, x1, y0, y1, -1, 1)
+    for x in LED_X:
+        f = f.cut(cyl_z(x, LED_Y, LED_SEAL_HOLE_D, -2, 2))
+    return min((fc for fc in f.Faces() if fc.normalAt().z < -0.99), key=lambda fc: fc.Center().z).translate((0, 0, 1))
+
+
+def led_seal():
+    return place(extrude_face(led_seal_face(), PLATE_Z0 + PLATE_T, HOOD_BOTTOM))
 
 
 def top_case(shell):
@@ -586,17 +630,14 @@ def strips():
 
 
 def oled():
-    """Stand-in OLED module: PCB (with its holes), glass, and the active area."""
-    cx, cy = OLED_CENTRE
-    z1 = ROOF_Z - OLED_STANDOFF
-    pcb = box(cx - OLED_PCB[0] / 2, cx + OLED_PCB[0] / 2, cy - OLED_PCB[1] / 2, cy + OLED_PCB[1] / 2,
-              z1 - OLED_PCB[2], z1)
-    for x, y in oled_holes():
-        pcb = pcb.cut(cyl_z(x, y, OLED_HOLES[2], z1 - 2, z1 + 1))
-    g = OLED_GLASS
-    glass = box(cx - g[0] / 2, cx + g[0] / 2, cy - g[1] / 2, cy + g[1] / 2, z1, z1 + g[2])
-    aa = box(cx - OLED_AA[0] / 2, cx + OLED_AA[0] / 2, cy - OLED_AA[1] / 2, cy + OLED_AA[1] / 2,
-             z1 + g[2], z1 + g[2] + 0.05)
+    """Stand-in OLED module: board, glass and active area."""
+    top, bottom, _ = oled_z()
+    pcb = box(*oled_rect(), bottom, top)
+    (cx, cy), (gw, gh, gt) = OLED["centre"], OLED["glass"]
+    cy -= OLED["aa_dy"]
+    glass = box(cx - gw / 2, cx + gw / 2, cy - gh / 2, cy + gh / 2, top, top + gt)
+    aw, ah = OLED["aa"]
+    aa = box(cx - aw / 2, cx + aw / 2, cy - ah / 2, cy + ah / 2, top + gt, top + gt + 0.05)
     return place(pcb), place(glass), place(aa)
 
 
@@ -609,8 +650,8 @@ def report(parts):
     print(f"front height (top of the bezel at the front edge): {to_world(-(BOARD_H / 2 + BEZEL_FB), BEZEL_TOP)[1]:.1f} mm")
     print(f"back height: {to_world(BOARD_H / 2 + BEZEL_FB, BEZEL_TOP)[1]:.1f} mm")
     print(f"plate top at the front row edge: {to_world(-BOARD_H / 2, PLATE_Z0 + PLATE_T)[1]:.1f} mm")
-    print(f"hood top: {to_world(HOOD_Y0, POD_TOP)[1]:.1f} mm at its front, "
-          f"{to_world(BOARD_H / 2 + BEZEL_FB, POD_TOP)[1]:.1f} mm at the back")
+    print(f"hood top: {to_world(HOOD_Y0, POD_TOP)[1]:.1f} mm at its front, {POD_TOP - BEZEL_TOP:.1f} mm "
+          f"above the bezel; encoder cover {ENC_TOP - BEZEL_TOP:.1f} mm above the bezel")
     for y in ROW_EDGES:
         yw, zw = to_world(y, -UNDER_PCB_STEP)
         print(f"floor step at world y {yw:6.1f}: {max(zw, FLOOR):.1f} mm")
@@ -634,6 +675,7 @@ def build_parts():
         "Battery": battery(),
         "Roller": roller(),
         "Rubber strips": strips(),
+        "LED seal": led_seal(),
         "OLED board": board,
         "OLED glass": glass,
         "OLED screen": screen,
@@ -647,7 +689,7 @@ FILES = {
 }
 
 
-EXPLODE = {"Case top": 70, "OLED board": 70, "OLED glass": 70, "OLED screen": 70,
+EXPLODE = {"Case top": 70, "OLED board": 70, "OLED glass": 70, "OLED screen": 70, "LED seal": 50,
            "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Rubber strips": -40}
 
 
@@ -661,6 +703,9 @@ def main():
     dxf = os.path.join(OUT, "Dachshund60F-Plate-Foam.dxf")
     cq.exporters.export(cq.Workplane("XY").add(foam_face()), dxf, "DXF")
     print(f"{os.path.relpath(dxf, HW)}: {os.path.getsize(dxf) / 1e6:.1f} MB")
+    # The LED seal: a strip of 1.5 mm black closed-cell foam (same frame).
+    dxf = os.path.join(OUT, "Dachshund60F-LED-Seal.dxf")
+    cq.exporters.export(cq.Workplane("XY").add(led_seal_face()), dxf, "DXF")
     if "--parts" in sys.argv:
         return
     import assembly
@@ -677,7 +722,8 @@ def main():
             assembly.write_meshes(assembly.build(parts, COLORS, EXPLODE), meshes[1])
             assembly.write_meshes(assembly.build(parts, COLORS, skip=("Board", "Case top", "Roller",
                                                                       "Plate foam", "Gasket", "OLED board",
-                                                                      "OLED glass", "OLED screen")), meshes[2])
+                                                                      "OLED glass", "OLED screen",
+                                                                      "LED seal")), meshes[2])
             render.render(*meshes, os.path.join(HERE, "renders"))
 
 
