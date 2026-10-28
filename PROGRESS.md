@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: wider roller for the flipped encoder (2026-10-28)
+
+- The case follows SW3's new direction: the encoder's raised cover is now at the left end of the sidebar, next to the keys, with the bushing arch in its right wall. Right of it the hood steps down to bezel height, and the roller sits in a 16.5 × 13 mm slot.
+- Roller: 12 mm across (the PCB still limits it) and 15.55 mm wide, up from 12.25, ending in line with the screen's right edge. Its top is about 4.2 mm above the case around it and 1.1 mm above the screen's hood.
+- New render `16-section-encoder` (a cut along the shaft). Not printed or fitted.
+
 ### Mainboard: roller encoder flipped (2026-10-28)
 
 - SW3 (PEC12R, horizontal) moved from (330.3, 47.025) at 0° to (314.3, 52.025) at 180°. The body now sits just right of the last key column (left face at x ≈ 308.15 mm; SW113's keycap ends near 305.25) and the shaft points right, toward the board edge: shaft face at x ≈ 317.85, tip at x ≈ 331.3, on the same centre line (y 49.525). The wheel can be about 17 mm wide now.

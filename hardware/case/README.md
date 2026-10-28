@@ -41,7 +41,7 @@ The assembly places the boards as components, so their colours and names carry o
   (2.2 mm with 18.2 mm caps), 1.0 mm from the hood's side and 1.2 mm from its front (SW614).
 - Hood: its top is at the height of a keycap's bottom edge, 6.6 mm above the plate (`KEYCAP_BOTTOM`), which
   is 3.1 mm above the bezel and 21.7 mm above the desk at its front edge. The encoder's body is taller (about
-  13.4 mm above the PCB), so a cover over it, right of the wheel, stands 3.8 mm higher.
+  13.4 mm above the PCB), so a cover over it, left of the wheel and next to the keys, stands 3.8 mm higher.
 - No weight for now. The floor is plain underneath, so a weight can be added later.
 
 ## Stack and gasket mount
@@ -75,12 +75,16 @@ The assembly places the boards as components, so their colours and names carry o
   the steps, wired to J2. Its leads run over the steps to the sidebar.
 - **Hood:** the top case rises over the sidebar (right of the keys, from SW614's keycap to the back) into a
   hood with a 1.5 mm roof. It holds the screen and the LED channels, and the encoder sits under its own cover.
-  Around the roller it steps down to bezel height, and only the wheel shows, through a 13.1 × 13 mm slot,
-  standing about 4 mm proud. An arch in the step wall clears the encoder's bushing.
-- **Roller:** 12 mm across and 12.25 mm wide. With the shaft about 6.7 mm above the PCB, a roller bigger
-  than about 12 mm across would touch the PCB, since the board has no slot under it. The 20 mm shaft ends
-  about 4 mm short of the wheel's left face, so the wheel needs a blind bore about 8 mm deep (a longer
-  shaft isn't needed).
+  Right of the cover it steps down to bezel height around the roller, and only the wheel shows, through a
+  16.5 × 13 mm slot, standing about 4 mm proud. An arch in the cover's right wall clears the encoder's
+  bushing.
+- **Roller:** 12 mm across and 15.55 mm wide, from just past the bushing to just inside the right wall, so
+  its right face lines up with the screen's. SW3 is turned so its shaft points right (since 2026-10-28):
+  the body sits next to the keys and the shaft runs under the wheel. With the shaft about 6.7 mm above the
+  PCB, a roller bigger than about 12 mm across would touch the PCB, since the board has no slot under it.
+  The wheel's top is about 4.2 mm above the case around it, 1.1 mm above the screen's hood and well below
+  the keycap tops. The wheel needs a blind bore 9 mm deep for the shaft (6 mm D-shaft, which ends 6.5 mm
+  short of the wheel's right face).
 - **Indicator LEDs (D3–D7):** each LED has its own channel, a 4 mm bore through a solid block from the
   roof down to 1 mm above the plate, with 1.5 mm walls between neighbours. A strip of 1.5 mm black
   closed-cell foam (EVA or Poron, cut from `Dachshund60F-LED-Seal.dxf`) seals the block to the plate, so

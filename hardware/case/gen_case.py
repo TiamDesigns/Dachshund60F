@@ -112,15 +112,17 @@ SW2_LOCAL = (136.75, -6.45)      # reset button on the back
 RESET_PIN_D = 2.2
 
 # Roller on the encoder shaft (stand-in). The shaft axis is ~6.7 mm above the PCB top (assumed in
-# hardware/3dmodels), so a roller bigger than ~12 mm across would hit the PCB. The 20 mm shaft ends at
-# x = 135.05; the roller's blind bore takes the last 8 mm of it and the wheel carries on past the end.
-ROLLER_X = (131.0, 143.25)
+# hardware/3dmodels), so a roller bigger than ~12 mm across would hit the PCB. SW3 is turned so its
+# shaft points right: the body is at x 130.15-138.55, the bushing to 143.55 and the shaft's tip at 153.05.
+# The roller's blind bore takes the shaft from just past the bushing to its tip, and the wheel carries on
+# past the end to just inside the case wall, under the screen's right edge.
+ROLLER_X = (144.05, 159.6)
 ROLLER_Y, ROLLER_Z, ROLLER_D = 50.025, PCB_T + 6.7, 12.0
 
 # Sidebar hood (local frame): a pod over the right end of the board, its top at the height of a
 # keycap's bottom edge. It holds the screen under a window and has a light channel over each of D3-D7.
-# The encoder body is taller, so it gets a cover of its own behind the pod, and the hood steps down
-# to bezel height around the roller, which shows through a slot.
+# The encoder body is taller, so it gets a cover of its own behind the pod's left end, next to the
+# keys, and right of it the hood steps down to bezel height around the roller, which shows through a slot.
 KEYCAP_BOTTOM = PLATE_Z0 + PLATE_T + 6.6  # Cherry-profile skirt at rest (MX top housing: +6.2)
 HOOD_X0 = 128.0            # left wall outside face (keycaps end at 127.0)
 HOOD_Y0 = -39.75           # front wall outside face (SW614's keycap ends at -40.95)
@@ -130,10 +132,10 @@ HOOD_BOTTOM = 7.6          # walls stop 1 mm above the plate
 POD_TOP, POD_ROOF = KEYCAP_BOTTOM, 1.5
 ENC_TOP = 17.0             # encoder cover (the body's top is at 15.0)
 POD_FILLET = 1.5
-STEP_X, STEP_Y = 143.6, 38.55  # the low part: x < STEP_X, y > STEP_Y (roller and bushing)
+STEP_X, STEP_Y = 143.6, 38.55  # the encoder cover: x < STEP_X, y > STEP_Y; the low part right of it
 STEP_ROOF_Z = 8.5          # underside of the low roof; its top is BEZEL_TOP
-ROLLER_SLOT = (130.5, 143.6, 43.5, 56.5)  # x0, x1, y0, y1
-BUSHING_ARCH_R = 4.0       # clearance arch in the step wall over the encoder's bushing (Ø7)
+ROLLER_SLOT = (143.6, 160.1, 43.5, 56.5)  # x0, x1, y0, y1
+BUSHING_ARCH_R = 4.0       # clearance arch in the cover's right wall over the encoder's bushing (Ø7)
 
 # Status screen. The glass is taped to the roof's underside (DISPLAY_TAPE) behind a bevelled window
 # over its active area. A frame under the roof locates either the module's board (OLED modules, whose
@@ -422,9 +424,8 @@ def _rounded(solid):
 def hood_solid():
     """The pod, the encoder cover and the low roof around the roller, before the cuts (world)."""
     pod = place(box(HOOD_X0, 300, HOOD_Y0, STEP_Y, HOOD_BOTTOM, POD_TOP)).intersect(outer_prism())
-    pod = pod.fuse(place(box(STEP_X, 300, STEP_Y - 1, 300, HOOD_BOTTOM, POD_TOP)).intersect(outer_prism()))
-    cover = place(box(STEP_X, 300, STEP_Y - HOOD_WALL_FB, 300, HOOD_BOTTOM, ENC_TOP)).intersect(outer_prism())
-    low = place(box(HOOD_X0, STEP_X + 0.5, STEP_Y - 0.5, INNER_H / 2 + 1.5, STEP_ROOF_Z, BEZEL_TOP))
+    cover = place(box(HOOD_X0, STEP_X, STEP_Y - HOOD_WALL_FB, 300, HOOD_BOTTOM, ENC_TOP)).intersect(outer_prism())
+    low = place(box(STEP_X - 0.5, INNER_W / 2 + 1.0, STEP_Y - 0.5, INNER_H / 2 + 1.5, STEP_ROOF_Z, BEZEL_TOP))
     return _rounded(pod.clean()).fuse(_rounded(cover)).fuse(low)
 
 
@@ -471,17 +472,17 @@ def hood_cavity():
     xi0, xi1 = HOOD_X0 + HOOD_WALL, INNER_W / 2
     yi0 = HOOD_Y0 + HOOD_WALL_FB
     ys = STEP_Y - HOOD_WALL_FB           # inside face of the step's front wall
-    xs = STEP_X + HOOD_WALL_FB           # inside face of the step's right wall
+    xs = STEP_X - HOOD_WALL_FB           # inside face of the cover's right wall
     inner = rrect(INNER_W, INNER_H, INNER_R, 0, 40)
     back = display_z()[4]
     cuts = [
         box(xi0, xi1, yi0, ys, 6.0, ROOF_Z),                                   # under the pod
-        box(xs, xi1, STEP_Y, INNER_H / 2, 6.0, ENC_TOP - POD_ROOF).intersect(inner),  # the encoder
+        box(xi0, xs, STEP_Y, INNER_H / 2, 6.0, ENC_TOP - POD_ROOF).intersect(inner),  # the encoder
         box(*display_rect(SCREEN["frame"], DISPLAY_CLEAR), back - 0.3, ROOF_Z),  # the screen (bezel too)
         box(*display_rect("pcb", DISPLAY_CLEAR), back - 0.3, ROOF_Z),
-        box(xi0, xs, STEP_Y, INNER_H / 2, 6.0, STEP_ROOF_Z),                   # under the low roof
-        cq.Solid.makeCylinder(BUSHING_ARCH_R, xs - STEP_X + 1.0,               # over the bushing
-                              cq.Vector(STEP_X - 0.5, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0)),
+        box(STEP_X, xi1, STEP_Y, INNER_H / 2, 6.0, STEP_ROOF_Z).intersect(inner),  # under the low roof
+        cq.Solid.makeCylinder(BUSHING_ARCH_R, STEP_X - xs + 1.0,               # over the bushing
+                              cq.Vector(xs - 0.5, ROLLER_Y, ROLLER_Z), cq.Vector(1, 0, 0)),
         box(*ROLLER_SLOT, 0, 40),
     ]
     return [place(c) for c in cuts]
