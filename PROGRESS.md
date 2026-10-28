@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### SW3 3D model from Bourns' drawing (2026-10-28)
+
+- The roller encoder's stand-in (three hand-placed STEPs: body, bushing, shaft) is replaced by one model generated in `hardware/3dmodels/gen_models.py` from the PEC12R-2xxxF-S drawing in Bourns' datasheet: shaft axis 10.0 mm above the PCB top (the old stand-in assumed 6.7), body 12.5 × 13.4 mm centred on it and 6.0 mm deep, standing 3.3 mm off the board on its frame's feet, hub Ø7 × 5, Ø6 shaft with the D-flat, 20 mm from the rear face to the tip. Details and what's approximate are in `hardware/3dmodels/README.md`.
+- On the board (SW3 at 314.3, 52.025, 180°): body x 310.8–316.8, y 43.275–55.775, 3.3–16.7 mm above the PCB top; hub x 316.8–321.8; shaft to its tip at x 330.8 (0.5 mm shorter than the old stand-in's); axis y 49.525, 10.0 mm above the PCB top. The footprint now uses the new model with no offset; STEP exports refreshed for the mainboard and assembly.
+- Not checked against a real part yet.
+
 ### Case: wider roller for the flipped encoder (2026-10-28)
 
 - The case follows SW3's new direction: the encoder's raised cover is now at the left end of the sidebar, next to the keys, with the bushing arch in its right wall. Right of it the hood steps down to bezel height, and the roller sits in a 16.5 × 13 mm slot.

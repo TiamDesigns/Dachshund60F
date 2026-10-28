@@ -8636,7 +8636,7 @@
 			(uuid "425a6610-f237-4077-ab7e-06046d5b7e74")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R_Horizontal_standin_body.step"
+		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R-2x20F-S_standin.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -8645,28 +8645,6 @@
 			)
 			(rotate
 				(xyz 0 0 0)
-			)
-		)
-		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R_Horizontal_standin_bushing.step"
-			(offset
-				(xyz -2.5 -2.5 6.7)
-			)
-			(scale
-				(xyz 1 1 1)
-			)
-			(rotate
-				(xyz 0 90 0)
-			)
-		)
-		(model "${KIPRJMOD}/../3dmodels/Bourns_PEC12R_Horizontal_standin_shaft.step"
-			(offset
-				(xyz -7.5 -2.5 6.7)
-			)
-			(scale
-				(xyz 1 1 1)
-			)
-			(rotate
-				(xyz 0 90 0)
 			)
 		)
 	)
