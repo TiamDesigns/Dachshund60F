@@ -38,19 +38,19 @@ The assembly places the boards as components, so their colours and names carry o
 ## Numbers
 
 - Outside: 336.5 × 144.0 mm. The plan-view corners have continuous curvature, like Apple's: each is a
-  superellipse (exponent 5) running 11 mm along both edges, which leaves the straight edge with no kink, so
-  reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 7 mm radius. The top edge
-  rolls over the same way: the same superellipse on its side, 2.5 mm down the wall and 2.5 mm across the
+  superellipse (exponent 5) running 8 mm along both edges, which leaves the straight edge with no kink, so
+  reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 5 mm radius. The top edge
+  rolls over the same way: the same superellipse on its side, 1.5 mm down the wall and 1.5 mm across the
   top (`TOP_ROLL`), so the wall, the roll and the top meet with no change in curvature. It's built as a
   loft through sections of that curve all round the outline, not as a round fillet. The hump's ends are
-  still plain 2 mm fillets. Front height 14.2 mm (top of the bezel at the front edge, after the thumb
+  1 mm fillets. Front height 14.2 mm (top of the bezel at the front edge, after the thumb
   scoop), back height 35.4 mm.
   The plate's top is 12.6 mm above the desk at the front row.
 - Typing angle: 7°, built into the case (the bottom is flat).
 - Bezel: 9 mm on the ends, 12 mm front and back (the socks reach 8 mm past the plate edge). One height all
   round: its top is level with a keycap's bottom edge, 6.6 mm above the plate (`KEYCAP_BOTTOM`), so no switch
   shows from any angle. The key opening is 1 mm outside the keycaps (`KEY_GAP`, with 18 mm caps), with
-  1.5 mm corners and a 0.5 mm chamfer, and it runs under the sidebar's front for the bottom row. Over the
+  1 mm corners (the smallest a 2 mm cutter leaves) and a 0.3 mm chamfer, and it runs under the sidebar's front for the bottom row. Over the
   board's edge and the sidebar the bezel is a 1.5 mm roof.
 - Beside the arrows: the bottom row has a 0.5 u gap between the right Ctrl and the left arrow, under the
   right Shift. The bezel comes back into it as an 8.6 mm tongue, 1 mm from the keycaps on all three sides
@@ -115,7 +115,7 @@ The assembly places the boards as components, so their colours and names carry o
   top is 7.9 mm above the bezel, 0.6 mm under the hump and about level with the keycap tops. The wheel needs
   a blind bore 19 mm deep for the shaft (6 mm D-shaft, 12 mm flat) and can be hollow beyond it.
 - **Wheel look and click,** after the Lemokey L1's corner wheel: a straight knurl round the rim (44 ribs,
-  0.6 mm wide and 0.5 mm deep, along the shaft) and 0.8 mm chamfered ends. SW3's push switch is pressed
+  0.6 mm wide and 0.5 mm deep, along the shaft) and 0.5 mm chamfered ends. SW3's push switch is pressed
   along the shaft, not down, so the wheel's right end carries an amber push cap: an 11 mm disc, slightly
   domed, set 0.6 mm into the wheel (`Wheel cap` in the assembly; glue it in, or print the wheel in two
   colours). Push the cap towards the keys. It travels 0.5 mm and takes a firm push (Bourns: 610 gf).
@@ -185,8 +185,8 @@ pixels, 12 × 15 cells of text with the 10 × 16 font. Build the firmware with
     square-cornered glass and board, have 2 mm dog-bone reliefs at the corners instead (`DOGBONE_D`). The
     LED block is as wide as the screen's frame, so there's no corner where they meet.
   - Walls at least 1 mm: the hump over the encoder, the screen's frame (1.3 mm), the lip outside the seam's
-    groove (1 mm under the seam's 0.6 mm reveal chamfer; the groove can't sit further in, because the
-    corners' tightest radius is 3.4 mm), and the wall between the USB-C board's pocket and its opening (it
+    groove (1.2 mm under the seam's 0.4 mm reveal chamfer; at the corners the groove follows the outline's
+    superellipse shrunk round the same centre, since a true offset 3 mm in would loop on itself), and the wall between the USB-C board's pocket and its opening (it
     was a 0.1 mm sliver; the opening now runs into the pocket).
   - No undercuts: the top case is cut from below (inside) and above (outside, the scoop, roll and hump with a
     ball-end mill); the bottom from above (inside) and below (feet channels, screw counterbores). The power

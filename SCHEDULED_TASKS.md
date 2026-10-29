@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-28 (continuous-curvature top edge, deeper scoop, CNC rules, tongue and groove).
+Last updated: 2026-10-29 (case: continuous-curvature top edge, deeper scoop, CNC rules, tongue and groove, tighter radii).
 
 ## Before ordering boards
 

@@ -77,11 +77,11 @@ BEZEL_FB = 12.0        # wall outside the outline front and back (the socks reac
 # superellipse quadrant that leaves the straight edge with zero curvature and eases in, so there's no
 # visible kink where the arc starts. CORNER_L is how far along each edge the curve runs (about the look
 # of a 7 mm radius); CORNER_N is its exponent (2 would be a circle).
-CORNER_L, CORNER_N = 11.0, 5.0
-TOP_ROLL = 2.5         # the top edge's continuous-curvature roll: how far it runs down the wall and across the top
-SEAM_REVEAL = 0.6      # chamfer on both halves at the seam, so it reads as a groove
-INNER_CHAMFER = 0.5    # chamfer on the key opening's top edge
-FOOT_CHAMFER = 1.0     # bottom edge, so the case seems to float
+CORNER_L, CORNER_N = 8.0, 5.0
+TOP_ROLL = 1.5         # the top edge's continuous-curvature roll: how far it runs down the wall and across the top
+SEAM_REVEAL = 0.4      # chamfer on both halves at the seam, so it reads as a groove
+INNER_CHAMFER = 0.3    # chamfer on the key opening's top edge
+FOOT_CHAMFER = 0.6     # bottom edge, so the case seems to float
 BEZEL_ABOVE_PLATE = 6.6  # bezel top above the plate top: a keycap's bottom edge, so no switch shows
 FLOOR = 3.0            # bottom thickness
 UNDER_PCB_FRONT = 3.0  # space under the PCB at the front edge (hot-swap sockets are 1.85 mm)
@@ -182,7 +182,7 @@ ROLLER_Y, ROLLER_Z, ROLLER_D = ENC_AXIS_Y, ENC_AXIS_Z, 19.0
 # Its look follows the Lemokey L1's corner wheel: a straight knurl round the rim says "roll", and a
 # contrasting cap set into its end says "push".
 WHEEL_RIBS, WHEEL_RIB_GAP, WHEEL_RIB_DEPTH = 44, 0.6, 0.5
-WHEEL_CHAMFER = 0.8
+WHEEL_CHAMFER = 0.5
 WHEEL_CAP_D, WHEEL_CAP_T, WHEEL_CAP_DOME, WHEEL_CAP_SINK = 11.0, 1.5, 0.5, 0.6
 
 # Top case. One bezel height all round, at a keycap's bottom edge, with the key opening 1 mm outside the
@@ -196,7 +196,7 @@ KEYCAP_INSET = 0.525       # keycap edge inside its 19.05 mm grid square
 # to KEY_GRID_ROW5_X1, under the sidebar's front.
 KEY_GRID = (-158.25, 127.5, -59.513, 59.55)
 KEY_GRID_ROW5_Y, KEY_GRID_ROW5_X1 = -40.46, 146.55
-OPENING_R = 1.5            # plan-view corner radius of the opening
+OPENING_R = 1.0            # plan-view corner radius of the opening
 # The bottom row has a 0.5 u gap between the right Ctrl (ends at 12.5 u) and the left arrow (13 u), under
 # the right Shift: the bezel comes back into it as a tongue, KEY_GAP from the keycaps on all three sides.
 ARROW_GAP_X = (KEY_GRID[0] + 12.5 * 19.05, KEY_GRID[0] + 13 * 19.05)
@@ -208,7 +208,7 @@ FRONT_SCOOP_DROP, FRONT_SCOOP_FLAT = 3.5, 2.5
 ROOF_T = 1.5               # bezel roof over the board edge and the sidebar
 HUMP_R = ROLLER_D / 2 + 0.8  # outside radius of the hump over the encoder body (1 mm wall over the pocket)
 HUMP_X = (130.15, 144.0)
-HUMP_FILLET = 2.0
+HUMP_FILLET = 1.0
 ENC_CLEAR = 0.5            # body to the hump's pocket, all round
 ENC_POCKET_R = 1.5         # pocket corners (leaves 0.85 mm of wall at the hump's shoulders)
 ROLLER_SLOT_CLEAR = 0.5    # wheel to the slot's sides
@@ -450,13 +450,12 @@ def seam_groove():
 def seam_band(off0, off1, z0, z1):
     """A band following the outline, off0..off1 in from the outside, from z0 to z1 (local, from the
     seam), less TONGUE_GAP_ZONE and the left end's screw."""
-    pts, nrms, arc = outline(OUTLINE_STEP, OUTLINE_SAMPLES)
-    params = [a / arc[-1] for a in arc[:-1]] + [1.0]
     wires = []
     for off in (off0, off1):
+        pts, _, arc = outline(OUTLINE_STEP, OUTLINE_SAMPLES, off)
+        params = [a / arc[-1] for a in arc[:-1]] + [1.0]
         vs = []
-        for (x, y), (nx, ny) in zip(pts, nrms):
-            x, y = x - nx * off, y - ny * off
+        for x, y in pts:
             vs.append(cq.Vector(x, y, to_world((y + SPLIT * S) / C, SPLIT)[1]))
         wires.append(cq.Wire.assembleEdges([cq.Edge.makeSpline(vs, periodic=True, parameters=params)]))
     n = cq.Vector(0, -S, C)
@@ -529,12 +528,15 @@ def top_surface():
 OUTLINE_STEP, OUTLINE_SAMPLES = 8.0, 32  # outline points: spacing on the straight edges, and per corner
 
 
-def outline(step=OUTLINE_STEP, samples=OUTLINE_SAMPLES):
+def outline(step=OUTLINE_STEP, samples=OUTLINE_SAMPLES, inset=0.0):
     """The case's plan outline (world XY), counter-clockwise from the right end's middle: (points,
-    outward normals, arc lengths). The corners are the squircle's (continuous curvature)."""
-    w, h = 2 * OUT_X, OUT_Y_BACK - OUT_Y_FRONT
+    outward normals, arc lengths). The corners are the squircle's (continuous curvature). With inset, the
+    outline inset by that much on the straight edges, its corners shrunk round the same centres (a little
+    further in than inset, never closer, and never looping on itself as a true offset past the corners'
+    tightest radius would)."""
+    w, h = 2 * (OUT_X - inset), OUT_Y_BACK - OUT_Y_FRONT - 2 * inset
     yc = (OUT_Y_FRONT + OUT_Y_BACK) / 2
-    L, n = CORNER_L, CORNER_N
+    L, n = CORNER_L - inset, CORNER_N
 
     def corner(sx, sy, t):
         cx, cy = sx * (w / 2 - L), yc + sy * (h / 2 - L)
@@ -547,8 +549,23 @@ def outline(step=OUTLINE_STEP, samples=OUTLINE_SAMPLES):
         return p, (nx / k, ny / k)
 
     def line(a, b, nrm):
-        m = max(1, int(math.dist(a, b) / step))
-        return [((a[0] + (b[0] - a[0]) * i / m, a[1] + (b[1] - a[1]) * i / m), nrm) for i in range(m)]
+        # Spacing grows from the corners' (about 0.4 mm) to step and back, so the lofts through these
+        # points don't overshoot where the corners start.
+        d = math.dist(a, b)
+        s0 = L * math.pi / 2 / samples
+        ends = []
+        s = s0
+        while sum(ends) + s < d / 2 and s < step:
+            ends.append(s)
+            s *= 1.5
+        mid = d - 2 * sum(ends)
+        m = max(1, round(mid / step))
+        gaps = ends + [mid / m] * m + ends[::-1]
+        out, t = [], 0.0
+        for gp in gaps:
+            out.append(((a[0] + (b[0] - a[0]) * t / d, a[1] + (b[1] - a[1]) * t / d), nrm))
+            t += gp
+        return out
 
     pts = []
     for i, (sx, sy) in enumerate([(1, 1), (-1, 1), (-1, -1), (1, -1)]):
@@ -557,7 +574,7 @@ def outline(step=OUTLINE_STEP, samples=OUTLINE_SAMPLES):
             ts = ts[::-1]
         arc = [corner(sx, sy, t) for t in ts]
         if i == 0:  # the right end, from its middle up to the first corner
-            pts += line((OUT_X, yc), arc[0][0], (1.0, 0.0))
+            pts += line((OUT_X - inset, yc), arc[0][0], (1.0, 0.0))
         pts += arc[:-1]
         nxt = [(-1, 1), (-1, -1), (1, -1), (1, 1)][i]
         a = arc[-1][0]
@@ -566,7 +583,7 @@ def outline(step=OUTLINE_STEP, samples=OUTLINE_SAMPLES):
             nsx, nsy = nxt
             b = corner(nsx, nsy, 0.0 if nsx * nsy > 0 else math.pi / 2)[0]
         else:
-            b = (OUT_X, yc)
+            b = (OUT_X - inset, yc)
         pts += [arc[-1]] + line(a, b, nrm)[1:]
     s, d = [0.0], 0.0
     for (p, _), (q, _) in zip(pts, pts[1:] + pts[:1]):
@@ -604,7 +621,15 @@ def outer_shell():
     so the wall, the roll and the top meet with no kink in curvature. The foot is chamfered."""
     pts, nrms, arc = outline(OUTLINE_STEP, OUTLINE_SAMPLES)
     n, L = CORNER_N, TOP_ROLL
-    thetas = [math.pi / 2 * k / 10 for k in range(11)]
+    # Sections evenly spaced along the roll's curve (evenly spaced angles bunch up at its ends, and the
+    # loft, which approximates across the sections, then bulges out of the wall).
+    dense = [math.pi / 2 * k / 2000 for k in range(2001)]
+    ab = [(math.cos(t) ** (2 / n), math.sin(t) ** (2 / n)) for t in dense]
+    run = [0.0]
+    for p, q in zip(ab, ab[1:]):
+        run.append(run[-1] + math.dist(p, q))
+    thetas = [dense[min(range(len(run)), key=lambda i: abs(run[i] - run[-1] * k / 10))] for k in range(11)]
+    gap = L * run[-1] / 10
     rows = {k: [] for k in ("bottom", "foot", "wall")}
     sections = [[] for _ in range(len(thetas) + 1)]
     for (x, y), (nx, ny) in zip(pts, nrms):
@@ -617,8 +642,8 @@ def outer_shell():
         o = c + dw * L + dt * L
         rows["bottom"].append(cq.Vector(x - nx * FOOT_CHAMFER, y - ny * FOOT_CHAMFER, 0))  # the foot's chamfer
         rows["foot"].append(cq.Vector(x, y, FOOT_CHAMFER))
-        rows["wall"].append(c + dw * (L + 2))  # the roll's loft starts 2 mm down the wall, so it leaves it straight
-        sections[0].append(c + dw * (L + 1))
+        rows["wall"].append(c + dw * (L + 2 * gap))  # the roll's loft starts down the wall, so it leaves it straight
+        sections[0].append(c + dw * (L + gap))
         for i, t in enumerate(thetas[:-1]):
             p = o - dt * (L * math.cos(t) ** (2 / n)) - dw * (L * math.sin(t) ** (2 / n))
             sections[i + 1].append(p)
@@ -827,7 +852,8 @@ def split_end(bottom):
     """The bottom case's aluminium part and its polycarbonate panel."""
     x0, y0, y1 = CASE_PANEL
     panel = round_edges_at(box(x0, OUT_X + 1, y0, y1, -10, 100), x0, 1.5)
-    return bottom.cut(panel).clean(), bottom.intersect(panel).clean()
+    # fix(): the cut leaves the seam reveal's thin band with a bad edge where it's split.
+    return bottom.cut(panel).clean().fix(), bottom.intersect(panel).clean().fix()
 
 
 ROOF_Z = BEZEL_TOP - ROOF_T  # roof underside
