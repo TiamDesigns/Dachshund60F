@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Mainboard: status LEDs moved right, wider gap after D3 (2026-10-29)
+
+- The five status LEDs on the back moved right, with more room between the layer LED and the battery gauge (Tiam's call; the case gets a notch in the gap): D3 310.0 → 310.5, D4 316.5 → 318.5, D5 322.0 → 324.0, D6 327.5 → 329.5, D7 333.0 → 335.0 (y 130.5). The gap after D3 is 8.0 mm (was 6.5); the battery LEDs keep their 5.5 mm pitch. Each LED's light cutout and its 100 nF cap (C14–C18) moved with it.
+- Rerouted: the battery group's data links, GND stubs and VDD bus moved with it; new D3 → D4 link, VDD feed under C15, D3's supply, and its buffered data input, which now comes up left of C14 and runs down right of D3's cutout. D7's DOUT run is longer by 2 mm. A GND stitching via at (323.85, 133.35) that D5's pads now straddle is gone, and D7's silkscreen reference moved under it, off the board edge. Zones refilled.
+- D7's cutout is now 0.8 mm from the board edge (its pads 1.1 mm).
+- DRC (kicad-cli, with schematic parity): 0 errors, 0 unconnected items, 0 parity issues; with every severity, the same 222 items as before. Plate regenerated (its LED windows follow the LEDs); STEP exports refreshed for the mainboard, plate and assembly. `keyboard.json`'s indicator positions follow the new x (15.25, 15.67, 15.96, 16.24, 16.53 u).
+- `hardware/case/` isn't updated yet: its light-channel block, LED holes and LED seal still use the old positions (case-local x = KiCad x − 178.25: 132.25, 140.25, 145.75, 151.25, 156.75).
+- host-lib tests: 139 pass, 1 fails ("WebHID: a dongle waits for its keyboard…"), which fails the same way without this change.
+
 ### Case: deeper F-row bezel (2026-10-29)
 
 - The bar between the F row and the number row and the posts after Esc, F4, F8 and F12 were only the roof's 1.5 mm deep. They now run down as ribs, on the same plan footprint (1 mm from the keycaps), to 1 mm above the plate (`F_ROW_RIB_CLEAR`). Checked against the board's models: 1.1 mm to the plate, 2.2 mm to the switch housings, nothing else nearby (stabilizers, LEDs and the foam are elsewhere or under the plate).
