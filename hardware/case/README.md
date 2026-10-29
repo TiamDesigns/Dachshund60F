@@ -30,7 +30,7 @@ changes.
 | `Dachshund60F-Plate-Foam.dxf` | Plate–PCB foam outline with every cutout, to extrude 3.5 mm (board-centred origin, plate frame) |
 | `Dachshund60F-LED-Seal.dxf` | The black foam strip that seals the LED channels to the plate, to cut from 1.5 mm foam (same frame) |
 | `Dachshund60F-Case-Assembly.step` | All of the above plus the mainboard and plate, the USB-C daughterboard, and stand-ins for the battery, the roller, the screen, the LED seal and the feet |
-| `Dachshund60F-Keycaps.step` | Cherry-profile keycaps (GMK numbers, rows R1 R1 R2 R3 R4 R4) on every key of the default layout, in the same frame as the assembly, so they import on top of it. Written by `keycaps.py` (`--full` for the 6.25 u spacebar). Stand-ins for looks and clearances: no legends |
+| `Dachshund60F-Keycaps.step` | Cherry-profile keycaps (GMK numbers, rows R1 R1 R2 R3 R4 R4) on every key of the default layout, in the same frame as the assembly, so they import on top of it. Written by `keycaps.py` (`--full` for the 6.25 u spacebar). GMK-style doubleshot legends (shifted character over the base one, smaller words on the mods; Inter stands in for GMK's typeface, `--font` to change it). Stand-ins for looks and clearances |
 
 All parts are in the desk frame: the case bottom is Z = 0, X runs along the board and Y points to the back.
 The assembly places the boards as components, so their colours and names carry over from `hardware/step/`.
