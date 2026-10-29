@@ -11,7 +11,7 @@ Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
                                   the sidebar (screen window and mount, LED holes, roller slot) and
                                   a round hump over the encoder
 - Dachshund60F-Case-Bottom.step   bottom case (aluminium): tub with a floor stepped by switch row,
-                                  lower gasket seats, USB-C, battery tray, channels for rubber strip feet
+                                  lower gasket seats, USB-C, battery tray, pockets for the feet
 - Dachshund60F-Case-Panel.step    a polycarbonate panel in the middle of the right end (side wall and
                                   the floor inside it): next to and under the antenna, with the power
                                   switch's cap
@@ -21,7 +21,7 @@ Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
 - Dachshund60F-Gaskets.step       the eight silicone socks on the plate tabs
 - Dachshund60F-Case-Assembly.step everything above plus the mainboard, plate,
                                   USB-C daughterboard, and stand-ins for the battery, the
-                                  roller, the screen and the rubber strips
+                                  roller, the screen and the feet
 
 Frames. "Local" is the board frame of hardware/step/: X along the board, Y to the back, origin at
 the centre of the mainboard outline, PCB bottom at Z = 0, plate bottom at Z = 5.0. "World" is the
@@ -77,7 +77,7 @@ BEZEL_FB = 12.0        # wall outside the outline front and back (the socks reac
 # superellipse quadrant that leaves the straight edge with zero curvature and eases in, so there's no
 # visible kink where the arc starts. CORNER_L is how far along each edge the curve runs (about the look
 # of a 7 mm radius); CORNER_N is its exponent (2 would be a circle).
-CORNER_L, CORNER_N = 8.0, 5.0
+CORNER_L, CORNER_N = 6.0, 5.0
 TOP_ROLL = 1.5         # the top edge's continuous-curvature roll: how far it runs down the wall and across the top
 SEAM_REVEAL = 0.4      # chamfer on both halves at the seam, so it reads as a groove
 INNER_CHAMFER = 0.3    # chamfer on the key opening's top edge
@@ -133,7 +133,7 @@ STEP_KEEPOUTS = [(125.0, 200.0, -200.0, 200.0),   # sidebar: SW1, SW2, J1, J2, t
 # USB-C daughterboard (hardware/step/Dachshund60F-USB.step, connector facing +Y): centred in the back
 # wall, flat on a ledge, receptacle face USB_FACE_INSET inside the back face.
 USB_X = 0.0            # world X of the connector centre
-USB_Z = 6.0            # world Z of the daughterboard's bottom
+USB_Z = 10.5           # world Z of the daughterboard's bottom (2.3 mm under the hot-swap sockets)
 USB_FACE_INSET = 1.0
 USB_KICAD_CONNECTOR_X, USB_KICAD_FRONT_Y = 121.0, 98.7  # connector centre and shell face (KiCad)
 USB_BOARD_X = (100.0, 142.0)
@@ -262,10 +262,12 @@ LED_BORE_D = 4.0           # the channel, and the diffuser disc (4 mm, 1 mm opal
 LED_WALL = 1.5             # around the outer channels
 LED_SEAL_T, LED_SEAL_HOLE_D = 1.5, 4.4  # black closed-cell foam, squeezed to 1.0 mm
 
-# Feet: two strips of self-adhesive solid rubber (10 mm wide, 3 mm thick) in shallow channels.
-STRIP_W, STRIP_T, STRIP_L = 10.0, 3.0, 290.0
-STRIP_CHANNEL_W, STRIP_CHANNEL_DEPTH = 10.4, 1.0
-STRIP_Y = (-56.0, 56.0)    # world Y of the strip centres (inboard of the screws)
+# Feet: eight splitkb SKUF silicone feet (41.8 x 5.8 x 2 mm, 3M 9488A adhesive), each in a 1 mm pocket, so
+# they stand 1 mm proud: four along the front and four along the back, inboard of the screws.
+FOOT_L, FOOT_W, FOOT_T = 41.8, 5.8, 2.0
+FOOT_POCKET_L, FOOT_POCKET_W, FOOT_POCKET_DEPTH = 42.4, 6.4, 1.0  # the usual SKUF pocket
+FOOT_X = (-120.0, -40.0, 40.0, 120.0)  # world X of the foot centres
+FOOT_Y = (-56.0, 56.0)                 # world Y of the foot centres
 
 COLORS = {
     "Case top": (0.62, 0.63, 0.65),     # bead-blasted aluminium
@@ -277,7 +279,7 @@ COLORS = {
     "Battery": (0.55, 0.62, 0.70),
     "Roller": (0.15, 0.13, 0.12),
     "Wheel cap": (0.90, 0.55, 0.15),  # amber
-    "Rubber strips": (0.10, 0.10, 0.10),
+    "Feet": (0.10, 0.10, 0.10),
     "LED seal": (0.08, 0.08, 0.08),
     "Display board": (0.10, 0.25, 0.55),
     "Display glass": (0.06, 0.06, 0.08),
@@ -842,10 +844,11 @@ def bottom_case(shell):
     for x, y, z in screw_points():
         b = b.cut(cyl_z(x, y, SCREW_HOLE, -1, z + 1))
         b = b.cut(cyl_z(x, y, SCREW_CBORE, -1, z - SCREW_GRIP))
-    # Channels for the rubber strips.
-    for y in STRIP_Y:
-        w = STRIP_CHANNEL_W
-        b = b.cut(box(-STRIP_L / 2 - 1, STRIP_L / 2 + 1, y - w / 2, y + w / 2, -1, STRIP_CHANNEL_DEPTH))
+    # Pockets for the feet.
+    for x in FOOT_X:
+        for y in FOOT_Y:
+            b = b.cut(box(x - FOOT_POCKET_L / 2, x + FOOT_POCKET_L / 2, y - FOOT_POCKET_W / 2, y + FOOT_POCKET_W / 2,
+                          -1, FOOT_POCKET_DEPTH))
     b, failed = cnc_round(b.clean(), (0, 0, 1))
     if failed:
         print("bottom case: inside corners left sharp at", failed)
@@ -1151,10 +1154,9 @@ def wheel_cap():
     return place(disc.fuse(dome).clean())
 
 
-def strips():
-    z1 = STRIP_CHANNEL_DEPTH
-    return cq.Compound.makeCompound([box(-STRIP_L / 2, STRIP_L / 2, y - STRIP_W / 2, y + STRIP_W / 2,
-                                         z1 - STRIP_T, z1) for y in STRIP_Y])
+def feet():
+    z1 = FOOT_POCKET_DEPTH
+    return cq.Compound.makeCompound([rrect(FOOT_L, FOOT_W, 1.0, z1 - FOOT_T, z1, x, y) for x in FOOT_X for y in FOOT_Y])
 
 
 def display():
@@ -1221,7 +1223,7 @@ def build_parts():
         "Battery": battery(),
         "Roller": roller(),
         "Wheel cap": wheel_cap(),
-        "Rubber strips": strips(),
+        "Feet": feet(),
         "LED seal": led_seal(),
         "Display board": board,
         "Display glass": glass,
@@ -1239,7 +1241,7 @@ FILES = {
 
 
 EXPLODE = {"Case top": 70, "Display board": 70, "Display glass": 70, "Display area": 70, "LED seal": 50,
-           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Wheel cap": 38, "Rubber strips": -40,
+           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Wheel cap": 38, "Feet": -40,
            "Case panel": -20, "Switch cap": -20}
 
 

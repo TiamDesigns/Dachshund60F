@@ -23,13 +23,13 @@ changes.
 | File | What |
 | --- | --- |
 | `Dachshund60F-Case-Top.step` | Top case (aluminium): the bezel, the upper half of the gasket pockets, the sidebar roof and the encoder hump |
-| `Dachshund60F-Case-Bottom.step` | Bottom case (aluminium): the tub with its stepped floor, gasket seats, USB-C pocket, battery tray, channels for the rubber strips |
+| `Dachshund60F-Case-Bottom.step` | Bottom case (aluminium): the tub with its stepped floor, gasket seats, USB-C pocket, battery tray, pockets for the feet |
 | `Dachshund60F-Case-Panel.step` | A polycarbonate panel in the middle of the right side (the side wall and the floor inside it), next to and under the radio's antenna, with the power switch |
 | `Dachshund60F-Switch-Cap.step` | The power switch's cap: a slider in the end wall and the grip pressed onto it from outside |
 | `Dachshund60F-Gaskets.step` | The eight silicone socks, as installed (squeezed to 4.6 mm) |
 | `Dachshund60F-Plate-Foam.dxf` | Plate–PCB foam outline with every cutout, to extrude 3.5 mm (board-centred origin, plate frame) |
 | `Dachshund60F-LED-Seal.dxf` | The black foam strip that seals the LED channels to the plate, to cut from 1.5 mm foam (same frame) |
-| `Dachshund60F-Case-Assembly.step` | All of the above plus the mainboard and plate, the USB-C daughterboard, and stand-ins for the battery, the roller, the screen, the LED seal and the rubber strips |
+| `Dachshund60F-Case-Assembly.step` | All of the above plus the mainboard and plate, the USB-C daughterboard, and stand-ins for the battery, the roller, the screen, the LED seal and the feet |
 | `Dachshund60F-Keycaps.step` | Cherry-profile keycaps (GMK numbers, rows R1 R1 R2 R3 R4 R4) on every key of the default layout, in the same frame as the assembly, so they import on top of it. Written by `keycaps.py` (`--full` for the 6.25 u spacebar). Stand-ins for looks and clearances: no legends |
 
 All parts are in the desk frame: the case bottom is Z = 0, X runs along the board and Y points to the back.
@@ -38,8 +38,8 @@ The assembly places the boards as components, so their colours and names carry o
 ## Numbers
 
 - Outside: 336.5 × 144.0 mm. The plan-view corners have continuous curvature, like Apple's: each is a
-  superellipse (exponent 5) running 8 mm along both edges, which leaves the straight edge with no kink, so
-  reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 5 mm radius. The top edge
+  superellipse (exponent 5) running 6 mm along both edges, which leaves the straight edge with no kink, so
+  reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 4 mm radius. The top edge
   rolls over the same way: the same superellipse on its side, 1.5 mm down the wall and 1.5 mm across the
   top (`TOP_ROLL`), so the wall, the roll and the top meet with no change in curvature. It's built as a
   loft through sections of that curve all round the outline, not as a round fillet. The hump's ends are
@@ -98,7 +98,7 @@ The assembly places the boards as components, so their colours and names carry o
 ## Openings and parts inside
 
 - **USB-C:** centred in the back wall. The daughterboard sits flat in a pocket on two tapped M3 holes
-  (4.8 mm of thread), with the receptacle 1 mm inside the back face and a shallow lead-in for the plug. A JST-SH 4-pin
+  (4.8 mm of thread), with the receptacle 1 mm inside the back face and a shallow lead-in for the plug. The port's centre is 13.7 mm off the desk: the board sits as high as it can, 2.3 mm under the hot-swap sockets of the mainboard's back row. A JST-SH 4-pin
   cable runs over the steps to J1 under the right end of the mainboard: about 200 mm.
 - **Power switch (SW1):** a cap that slides with the switch. A slider in a pocket in the end wall's inside
   face takes SW1's actuator in a notch open at the top, so the board drops onto it. Its stem runs out
@@ -134,10 +134,11 @@ The assembly places the boards as components, so their colours and names carry o
   to 4.2 mm for M3 × 4 heat-set inserts. The back row skips the middle, where the
   daughterboard is. Two of them, in the right end wall either side of the power switch, hold the
   polycarbonate panel.
-- **Feet:** two strips of self-adhesive solid rubber, 10 mm wide and 3 mm thick, each 290 mm long, in
-  1 mm channels under the front and the back (inboard of the screws). They stand 2 mm proud. This is
-  stock rubber strip, sold by the metre for doors and machine feet; pick solid neoprene, EPDM or silicone
-  (not sponge), with adhesive on one side.
+- **Feet:** eight SKUF silicone feet (41.8 × 5.8 × 2 mm, 3M 9488A adhesive), the usual feet for custom
+  keyboards: firm enough not to squish, grippy on a hard desk. Each sits in a 42.4 × 6.4 × 1 mm pocket
+  (`FOOT_*`), so it stands 1 mm proud and its edges can't peel. Four along the front and four along the
+  back, inboard of the screws, at x = ±40 and ±120 mm. Sold by Keebio (8 for about $3) and splitkb (4 for
+  about €2.75); Mode's SixtyFive feet fit the same pockets.
 
 ## Display
 
