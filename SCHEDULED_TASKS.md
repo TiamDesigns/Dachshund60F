@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-29 (case: screws front and back, 6.5 mm ends, gasket seats, dowel pins, case BOM).
+Last updated: 2026-10-29 (case: F-row bezel carried down as ribs to 1 mm above the plate).
 
 ## Before ordering boards
 
