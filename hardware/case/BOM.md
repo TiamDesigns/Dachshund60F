@@ -2,7 +2,7 @@
 
 Everything that goes into the case and holds it together, for the default layout (split spacebar). The PCBs
 are line items only; their parts are in each board's own BOM (`hardware/<board>/`). Counts follow
-`gen_case.py`: if you change `SCREWS`, `DOWELS` or `FOOT_X`, change them here too.
+`gen_case.py`: if you change `SCREWS`, `DOWELS`, `FOOT_X` or `WEIGHT_SCREWS`, change them here too.
 
 ## Made parts
 
@@ -16,16 +16,19 @@ are line items only; their parts are in each board's own BOM (`hardware/<board>/
 | 1 | Wheel push cap, 11 mm disc | Amber acrylic or polycarbonate, glued in | `Wheel cap` in the assembly |
 | 1 | Plate foam, 3.5 mm | Poron, cut | `step/Dachshund60F-Plate-Foam.dxf` |
 | 1 | LED seal, 1.5 mm | Black closed-cell foam (EVA or Poron), cut | `step/Dachshund60F-LED-Seal.dxf` |
-| 5 | LED diffuser discs, 4 mm | 1 mm opal acrylic (or frosted film), punched | |
+| 1 | LED light guide | Opaque PETG or ASA (black, or white for brighter dots), 3D printed | `step/Dachshund60F-LED-Guide.step` |
+| 5 | LED plugs (diffusers), 2.9 mm shaft on a 4 mm head | Clear resin, printed, or turned from 4 mm acrylic rod; tops frosted | `step/Dachshund60F-LED-Plugs.step` |
+| 1 | Weight, 80 × 64 mm, stepped 3–10 mm thick, about 285 g | Brass (C360), CNC, engraved 0.3 mm (0.6 mm cutter), brushed | `step/Dachshund60F-Weight.step` |
 
 ## Bought parts
 
 | Qty | Part | Notes |
 |---:|---|---|
-| 12 | M3 × 10 socket head cap screw (ISO 4762), stainless or black | Bottom case to top case, six along the front and six along the back, into tapped M3 holes |
+| 8 | M3 × 10 socket head cap screw (ISO 4762), stainless or black | Bottom case to top case, four along the front and four along the back, into tapped M3 holes |
 | 2 | M3 × 6 button head screw (ISO 7380) | USB-C daughterboard into tapped holes in the bottom case |
+| 4 | M3 × 5 button head screw (ISO 7380) | The weight, from inside the bottom case into tapped holes in it |
 | 2 | Dowel pin, 3 mm m6 × 8 mm, hardened steel (ISO 8734) | Pressed into the bottom case (2.98 mm hole), sliding into the top (3.05 mm, one slotted) |
-| 8 | SKUF silicone feet, 41.8 × 5.8 × 2 mm, 3M 9488A adhesive | In 1 mm pockets, stand 1 mm proud. Keebio (8 for about $3) or splitkb (4 for about €2.75) |
+| 4 | SKUF silicone feet, 41.8 × 5.8 × 2 mm, 3M 9488A adhesive | In 1 mm pockets, stand 1 mm proud. Keebio (8 for about $3) or splitkb (4 for about €2.75) |
 | 8 | Gasket socks, silicone, 8 × 5 × 5 mm, D-shaped, 6.5 × 2.8 mm slot | One on each plate tab, seated 1 mm into the bottom case |
 | 1 | LiPo cell 803450, 8 × 34 × 50 mm, about 1500 mAh, with protection board and a JST-PH 2-pin lead | In the tray on the floor. JST-PH polarity varies between vendors: check it against J2 |
 | 1 | E-paper panel, GoodDisplay GDEY0213B74 (2.13", 250 × 122) | Taped under the roof's window |

@@ -28,7 +28,10 @@ changes.
 | `Dachshund60F-Switch-Cap.step` | The power switch's cap: a slider in the end wall and the grip pressed onto it from outside |
 | `Dachshund60F-Gaskets.step` | The eight silicone socks, as installed (squeezed to 4.6 mm) |
 | `Dachshund60F-Plate-Foam.dxf` | Plate–PCB foam outline with every cutout, to extrude 3.5 mm (board-centred origin, plate frame) |
-| `Dachshund60F-LED-Seal.dxf` | The black foam strip that seals the LED channels to the plate, to cut from 1.5 mm foam (same frame) |
+| `Dachshund60F-LED-Seal.dxf` | The black foam strip that seals the light guide to the plate, to cut from 1.5 mm foam (same frame) |
+| `Dachshund60F-LED-Guide.step` | The light guide over the five status LEDs, to 3D print in an opaque material |
+| `Dachshund60F-LED-Plugs.step` | The five clear plugs that sit in the roof's LED holes and diffuse the light |
+| `Dachshund60F-Weight.step` | The brass weight in the bottom, with its engraving |
 | `Dachshund60F-Case-Assembly.step` | All of the above plus the mainboard and plate, the USB-C daughterboard, and stand-ins for the battery, the roller, the screen, the LED seal and the feet |
 | `Dachshund60F-Keycaps.step` | Cherry-profile keycaps (GMK numbers, rows R1 R1 R2 R3 R4 R4) on every key of the default layout, in the same frame as the assembly, so they import on top of it. Written by `keycaps.py` (`--full` for the 6.25 u spacebar). GMK-style doubleshot legends (shifted character over the base one, smaller words on the mods; Inter stands in for GMK's typeface, `--font` to change it). Stand-ins for looks and clearances |
 
@@ -64,15 +67,21 @@ The assembly places the boards as components, so their colours and names carry o
 - Thumb scoop: across the whole front, corner to corner (the arrows are in the space bar's row, so there's
   nowhere it has to return to full height). The bezel stays flat for 2.5 mm in front of the key opening
   (`FRONT_SCOOP_FLAT`), at keycap-bottom height, then falls away to the outer edge, 3.5 mm lower there
-  (`FRONT_SCOOP_DROP`). The fall is a quintic (10t³ − 15t⁴ + 6t⁵), which leaves the flat and meets the front's
-  roll with no change in slope or curvature, so there's no crease to feel or catch the light. It's steepest
-  halfway, at about 32°.
+  (`FRONT_SCOOP_DROP`). It swoops: the fall leaves the flat with no change in slope or curvature, steepens,
+  and is still falling at about 29° (to the bezel) when it reaches the front's roll, instead of levelling
+  out at the edge. It's the quintic Bezier with heights 0, 0, 0, ⅓, ⅔, 1 times the drop, so the last part
+  runs straight into the roll with no crease.
 - Encoder hump: the encoder's body stands 16.7 mm above the PCB top, 5.1 mm above the bezel, so a hump
   covers it: a cylinder on the roller's axis, 10.3 mm in radius (the wheel's plus 0.8 mm, so its wall over
   the encoder's pocket is 1 mm), with 2 mm rounded
   ends. It stands 8.5 mm above the bezel, level with the keycap tops, and the wheel continues its curve to
   the right.
-- No weight for now. The floor is plain underneath, so a weight can be added later.
+- Weight: a brass block set flush into the bottom between the middle screws, 80 × 64 mm with 3 mm corners
+  and a 0.4 mm chamfer, about 285 g. Its top steps up with the floor's steps inside, so 2 mm of aluminium
+  stays over it everywhere and it's 3 to 10 mm thick. Four M3 × 5 button heads from inside, in 1 mm
+  counterbores in the floor's steps, hold it into tapped holes where it's thickest. Its face is engraved
+  0.3 mm deep with a 0.6 mm cutter: a dachshund in one line, side on, and "Dachshund60F" under it, reading
+  the right way up when the board is turned over front to back (`WEIGHT_*`, `DOG`, `ENGRAVE_*`).
 
 ## Stack and gasket mount
 
@@ -88,7 +97,7 @@ The assembly places the boards as components, so their colours and names carry o
   under it, so the halves seat on their faces. It locates them, stops them shifting and hides the light gap.
   It runs all round the outline, over the polycarbonate panel too, and stops only at the power switch and
   the roller's notch (`TONGUE`, `GROOVE`, `TONGUE_GAP_ZONES`). Two 3 mm steel dowel pins at opposite corners
-  (front left and back right, `DOWELS`) put the top exactly in place before the screws go in: pressed into
+  (front left and back right, over the feet at x = ±101 mm, `DOWELS`) put the top exactly in place before the screws go in: pressed into
   the bottom case, a sliding fit in the top, the back right hole a 0.6 mm slot along the line between them so
   the pair can't bind. Nothing else touches the plate or the PCB; the board floats on the socks. More or less squeeze
   is `SOCK_SQUEEZE`.
@@ -108,13 +117,18 @@ The assembly places the boards as components, so their colours and names carry o
 - **Power switch (SW1):** a cap that slides with the switch. A slider in a pocket in the end wall's inside
   face takes SW1's actuator in a notch open at the top, so the board drops onto it. Its stem runs out
   through a window to a 14 × 5.5 mm ridged grip, flush in a recess in the right end face. The slider goes
-  in from inside before the board, then the grip is pressed (or glued) onto the stem from outside. The
-  pocket allows 1.5 mm of travel each way (C&K's PCM12 travel; check yours).
+  in from inside before the board, then the grip is pressed (or glued) onto the stem from outside. Each
+  pocket is the part's length plus the switch's 1.5 mm travel (C&K's PCM12; check yours) plus 0.25 mm at
+  each end, centred on the switch's middle, where its two positions sit either side. So at on and at off
+  the switch's own detent holds the cap and the grip rests just short of the recess's end wall. Nothing off
+  the shelf extends a PCM12's actuator, so the cap is made: print it, or cut it from polycarbonate.
 - **Reset (SW2):** a 2.2 mm pin hole through the floor, square to the PCB.
 - **Battery:** a tray of low ribs for an 803450 LiPo (8 × 34 × 50 mm, about 1500 mAh), in a pocket in
   the steps, wired to J2. Its leads run over the steps to the sidebar.
 - **Sidebar roof:** right of the keys the bezel carries on as a flat 1.5 mm roof at the same height. It
-  holds the screen under a window and the LED channels. The encoder sits under the hump, in a pocket with
+  holds the screen under a window and the LEDs' holes. The screen and the LED row are centred on the
+  sidebar as seen from above (from the key opening to the end face). The glass reaches 1.75 mm into the end
+  wall, in a slot that runs up from the seam so a cutter can reach it. The encoder sits under the hump, in a pocket with
   0.5 mm all round (0.85 mm of wall left at the hump's shoulders) and a tunnel for its hub, and the wheel
   shows through a slot 0.3 mm wider than it.
 - **Roller:** 19 mm across and 21 mm wide, from just past the encoder's hub out through a notch in the
@@ -128,23 +142,28 @@ The assembly places the boards as components, so their colours and names carry o
   along the shaft, not down, so the wheel's right end carries an amber push cap: an 11 mm disc, slightly
   domed, set 0.6 mm into the wheel (`Wheel cap` in the assembly; glue it in, or print the wheel in two
   colours). Push the cap towards the keys. It travels 0.5 mm and takes a firm push (Bourns: 610 gf).
-- **Indicator LEDs (D3–D7):** each LED has its own channel, a 4 mm bore through a solid block from the
-  roof down to 1 mm above the plate, with 1.5 mm walls between neighbours. A strip of 1.5 mm black
-  closed-cell foam (EVA or Poron, cut from `Dachshund60F-LED-Seal.dxf`) seals the block to the plate, so
-  light can't leak sideways under it; it is soft, so it doesn't stiffen the gasket mount. In the top of each
-  channel, against the roof's 3 mm hole, goes a 4 mm diffuser disc: 1 mm opal (milky) acrylic or a frosted
-  polycarbonate film, punched with a 4 mm hole punch and fixed with a drop of UV glue.
-- Screws: twelve M3 × 10 socket heads from below into tapped M3 holes in the top case (2.5 mm drill, 5 mm of
-  full thread, 1.7 × the diameter; heat-set inserts are for plastic), six along the front and six along the
-  back at x = ±26.5, ±79.6 and ±132.7 mm: an even 53.1 mm pitch, each 13.3 mm from the nearest sock, and
-  the back row's middle pair clear of the daughterboard (`SCREWS`). None in the ends. For a printed
+- **Indicator LEDs (D3–D7):** D3 shows something different from the other four, so it stands apart: an
+  8 mm gap to D4, then 5.5 mm, with a 0.6 mm score across the roof in the gap. Over them sits a 3D-printed
+  light guide (`Dachshund60F-LED-Guide.step`, opaque: black PETG, or white inside for brighter dots), from
+  1 mm above the plate to the roof's underside, with a 3.2 mm channel straight up from each LED. A strip of
+  1.5 mm black closed-cell foam (EVA or Poron, cut from `Dachshund60F-LED-Seal.dxf`) seals it to the plate,
+  so light can't leak sideways under it; it is soft, so it doesn't stiffen the gasket mount. The diffusers
+  are clear plugs (`Dachshund60F-LED-Plugs.step`: a 2.9 mm shaft through the roof's 3 mm hole, flush with
+  the top, on a 4 mm × 1 mm head), printed in clear resin or turned from acrylic rod, their tops frosted.
+  Their heads sit in counterbores at the top of the guide's channels, so the plugs locate the guide; a few
+  dots of glue hold the guide to the roof while the top case goes on.
+- Screws: eight M3 × 10 socket heads from below into tapped M3 holes in the top case (2.5 mm drill, 5 mm of
+  full thread, 1.7 × the diameter; heat-set inserts are for plastic), four along the front and four along
+  the back at x = ±50.5 and ±151.5 mm: an even 101 mm pitch, each at least 10.7 mm from the nearest sock and
+  clear of the daughterboard (`SCREWS`). None in the ends. Underneath, the screws, the feet and the weight
+  keep one 50.5 mm rhythm: screw, foot, screw, weight, screw, foot, screw. For a printed
   prototype, open the holes to 4.2 mm for M3 × 4 heat-set inserts. All the case's hardware is in
   [BOM.md](BOM.md).
-- **Feet:** eight SKUF silicone feet (41.8 × 5.8 × 2 mm, 3M 9488A adhesive), the usual feet for custom
+- **Feet:** four SKUF silicone feet (41.8 × 5.8 × 2 mm, 3M 9488A adhesive), the usual feet for custom
   keyboards: firm enough not to squish, grippy on a hard desk. Each sits in a 42.4 × 6.4 × 1 mm pocket
-  (`FOOT_*`), so it stands 1 mm proud and its edges can't peel. Four along the front and four along the
-  back, inboard of the screws, at x = ±40 and ±120 mm. Sold by Keebio (8 for about $3) and splitkb (4 for
-  about €2.75); Mode's SixtyFive feet fit the same pockets.
+  (`FOOT_*`), so it stands 1 mm proud and its edges can't peel. Two along the front and two along the back,
+  at x = ±101 mm, halfway between the screws. Sold by Keebio (8 for about $3) and splitkb (4 for about
+  €2.75); Mode's SixtyFive feet fit the same pockets.
 
 ## Display
 
