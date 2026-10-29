@@ -212,6 +212,7 @@ ARROW_GAP_X = (KEY_GRID[0] + 12.5 * 19.05, KEY_GRID[0] + 13 * 19.05)
 # from the grid's left edge): the bezel fills those gaps too, a bar across the board and four posts.
 F_ROW_GAP_U = 0.25
 F_ROW_POSTS_U = (1.0, 5.25, 9.5, 13.75)
+F_ROW_RIB_CLEAR = 1.0  # the bar and posts run down as ribs (stiffer than the 1.5 mm roof) to this far above the plate
 # Thumb scoop: across the whole front, the bezel stays flat for FRONT_SCOOP_FLAT in front of the key
 # opening, then its top falls away to the outer edge, FRONT_SCOOP_DROP lower there. The fall is a quintic
 # (z = BEZEL_TOP - drop * (10t^3 - 15t^4 + 6t^5), t = 0 at its start, 1 at the edge), which leaves the flat
@@ -923,6 +924,21 @@ def key_opening(z0, z1):
     return o.fillet(OPENING_R, vertical)
 
 
+def f_row_ribs():
+    """The F-row bar and posts carried down under the roof as ribs, on the same plan footprint (KEY_GAP from
+    the keycaps), to F_ROW_RIB_CLEAR above the plate (local frame)."""
+    g = KEY_GAP - KEYCAP_INSET
+    x0, x1, _, y1 = KEY_GRID
+    u = 19.05
+    yf = y1 - u
+    z0, z1 = PLATE_Z0 + PLATE_T + F_ROW_RIB_CLEAR, ROOF_Z + 0.5
+    ribs = box(x0 - g - 1, x1 + g + 1, yf - F_ROW_GAP_U * u + g, yf - g, z0, z1)
+    for a in F_ROW_POSTS_U:
+        ribs = ribs.fuse(box(x0 + a * u + g, x0 + (a + F_ROW_GAP_U) * u - g, yf - F_ROW_GAP_U * u + g, y1 + g + 1,
+                             z0, z1))
+    return ribs.clean()
+
+
 def hump():
     """The hump over the encoder body: a cylinder round the roller's axis, from the bezel's roof up."""
     x0, x1 = HUMP_X
@@ -1042,6 +1058,7 @@ def top_case(shell):
                                    rim.offset2D(INNER_CHAMFER + 0.3, "arc")[0].translate((0, 0, 0.3))], True)
         # As B-splines: OCCT drops the cut of its cones from the top surface without a word.
         t = t.cut(place(cq.Solid(BRepBuilderAPI_NurbsConvert(flare.wrapped, True).Shape())))
+    t = t.fuse(place(f_row_ribs()))
     t = t.fuse(hump())
     for c in roof_cuts():
         t = t.cut(c)

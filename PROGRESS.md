@@ -6,6 +6,11 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: deeper F-row bezel (2026-10-29)
+
+- The bar between the F row and the number row and the posts after Esc, F4, F8 and F12 were only the roof's 1.5 mm deep. They now run down as ribs, on the same plan footprint (1 mm from the keycaps), to 1 mm above the plate (`F_ROW_RIB_CLEAR`). Checked against the board's models: 1.1 mm to the plate, 2.2 mm to the switch housings, nothing else nearby (stabilizers, LEDs and the foam are elsewhere or under the plate).
+- Not made or fitted.
+
 ### Case: screws front and back, narrower ends, gasket seats, dowel pins, case BOM (2026-10-29)
 
 - Screws: twelve M3 × 10, six along the front and six along the back at x = ±26.5, ±79.6 and ±132.7 mm (an even 53.1 mm pitch, 13.3 mm from the nearest sock), none in the ends.
