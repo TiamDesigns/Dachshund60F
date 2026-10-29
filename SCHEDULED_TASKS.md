@@ -2,7 +2,7 @@
 
 Open work to pick up in later prompts. Each task is written so it can be pasted into a prompt. When a task is finished, delete it here in the same change, and record what was done in `PROGRESS.md`.
 
-Last updated: 2026-10-29 (case: F-row bezel carried down as ribs to 1 mm above the plate).
+Last updated: 2026-10-29 (case: swooping scoop, centred screen and LEDs, printed light guide, 8 screws and 4 feet, engraved weight, switch stops).
 
 ## Before ordering boards
 

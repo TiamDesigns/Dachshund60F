@@ -100,14 +100,16 @@ BEZEL_TOP = PLATE_Z0 + PLATE_T + BEZEL_ABOVE_PLATE
 # Top case screws: M3 x 10 socket head from below into tapped M3 holes (heat-set inserts are for plastic;
 # in aluminium the thread is tapped: a 2.5 mm drill, TAP_DEPTH of full thread (1.7 x d, plenty in 6061), the
 # drill 0.8 mm deeper; under the thumb scoop there's no room for more).
-# Six along the front and six along the back at an even 53.1 mm pitch, each 13.3 mm from the nearest
-# sock; the back row's middle pair clears the USB-C daughterboard. None in the ends.
-SCREW_X = (-132.7, -79.6, -26.5, 26.5, 79.6, 132.7)
+# Eight: four along the front and four along the back at an even 101 mm pitch (x = +-50.5, +-151.5), each
+# at least 10.7 mm from the nearest sock and clear of the USB-C daughterboard. None in the ends. Underneath
+# they keep one 50.5 mm rhythm with the feet (FOOT_X) halfway between them, and the weight between the
+# middle pair.
+SCREW_X = (-151.5, -50.5, 50.5, 151.5)
 SCREWS = [(x, y) for y in (-66.6, 66.6) for x in SCREW_X]
 # Two steel dowel pins (3 mm m6 x 8) at opposite corners locate the top case on the bottom before the screws
 # go in: pressed into the bottom case, a sliding fit in the top case, the second hole slotted along the line
 # between them so the pair can't bind.
-DOWELS = [(-150.0, -66.6), (150.0, 66.6)]
+DOWELS = [(-101.0, -66.6), (101.0, 66.6)]  # over the feet, between the screws
 DOWEL_D, DOWEL_L = 3.0, 8.0
 DOWEL_PRESS_D, DOWEL_SLIP_D, DOWEL_SLOT = 2.98, 3.05, 0.6
 SCREW_HOLE, SCREW_CBORE, SCREW_GRIP = 3.4, 5.8, 6.0
@@ -167,8 +169,14 @@ PANEL_LAP = 4.0
 # Power switch cap (SW1, C&K PCM12, slides along y). A slider in a pocket in the end wall's inside face
 # takes the switch's actuator in a notch open at the top, so the board drops onto it; its stem runs out
 # through a window to a ridged grip in a recess in the end face. The grip is pressed (or glued) onto the
-# stem from outside once the slider is in. CAP_TRAVEL is the switch's (C&K: 1.5 mm, check yours).
+# stem from outside once the slider is in. CAP_TRAVEL is the switch's (C&K: 1.5 mm, check yours). Its two
+# positions sit either side of the switch's middle (its outer pins are symmetric), and every pocket is the
+# part's length plus the travel plus CAP_END_CLEAR at each end: so at on and at off the switch's own detent
+# holds the cap, with its grip just short of the recess's end wall (0.15-0.35 mm, with the notch's play).
+# No off-the-shelf actuator extension fits a PCM12, so the cap is made (printed or cut).
 CAP_TRAVEL = 1.5
+SW1_Y = KICAD_ORIGIN[1] - 112.0  # local y of the switch's middle (SW1 at KiCad y 112)
+CAP_END_CLEAR = 0.25
 CAP_Y, CAP_Z = -11.87, -0.89  # local y, z of the actuator's middle in the board model (it hangs under the PCB)
 CAP_ACTUATOR = (1.5, 1.4)     # notch for the actuator (1.3 x 0.8): across the slide (y), depth (x)
 CAP_FLANGE = (2.1, 11.0, 4.2)  # slider flange in the wall: x, y, z
@@ -214,9 +222,11 @@ F_ROW_GAP_U = 0.25
 F_ROW_POSTS_U = (1.0, 5.25, 9.5, 13.75)
 F_ROW_RIB_CLEAR = 1.0  # the bar and posts run down as ribs (stiffer than the 1.5 mm roof) to this far above the plate
 # Thumb scoop: across the whole front, the bezel stays flat for FRONT_SCOOP_FLAT in front of the key
-# opening, then its top falls away to the outer edge, FRONT_SCOOP_DROP lower there. The fall is a quintic
-# (z = BEZEL_TOP - drop * (10t^3 - 15t^4 + 6t^5), t = 0 at its start, 1 at the edge), which leaves the flat
-# and meets the front's roll with no change in slope or curvature (curvature-continuous, like the corners).
+# opening, then its top swoops down to the outer edge, FRONT_SCOOP_DROP lower there, and is still falling
+# when it reaches the front's roll. The fall is the quintic Bezier with its heights at 0, 0, 0, 1/3, 2/3, 1
+# times the drop (z = BEZEL_TOP - drop * (10/3 t^3 (1 - t) + t^5), t = 0 at its start, 1 at the edge): it
+# leaves the flat with no change in slope or curvature, steepens, and runs straight (5/3 of the mean slope,
+# no curvature) into the roll, so it never flattens out again near the edge.
 FRONT_SCOOP_DROP, FRONT_SCOOP_FLAT = 3.5, 2.5
 ROOF_T = 1.5               # bezel roof over the board edge and the sidebar
 HUMP_R = ROLLER_D / 2 + 0.8  # outside radius of the hump over the encoder body (1 mm wall over the pocket)
@@ -225,7 +235,10 @@ HUMP_FILLET = 1.0
 ENC_CLEAR = 0.5            # body to the hump's pocket, all round
 ENC_POCKET_R = 1.5         # pocket corners (leaves 0.85 mm of wall at the hump's shoulders)
 ROLLER_SLOT_CLEAR = 0.3    # wheel to the slot's sides
-LED_BLOCK_X0, LED_BLOCK_Y0, LED_BLOCK_BOTTOM = 129.6, -37.75, 7.6  # light channel block (bottom 1 mm above the plate)
+
+# The sidebar as seen from above runs from the key opening's right edge to the end face; the screen and the
+# LED row are centred on it (the glass reaches 1.75 mm into the end wall, in a slot up from the seam).
+SIDEBAR_MID = (KEY_GRID[1] + KEY_GAP - KEYCAP_INSET + BOARD_W / 2 + BEZEL_SIDE) / 2
 
 # Status screen. The glass is taped to the roof's underside (DISPLAY_TAPE) behind a bevelled window
 # over its active area. A frame under the roof locates either the module's board (OLED modules, whose
@@ -238,8 +251,8 @@ DISPLAYS = {
     # A bare 2.13" e-paper panel (GoodDisplay GDEY0213B74, SSD1680, 250 x 122) standing on end, 120 x 248
     # in portrait, flex cable at the back, folded under to an Adafruit eInk Breakout Friend (#4224).
     "eink-2.13": dict(overlay="eink-2in13-v4-portrait", frame="glass",
-                      glass=(29.2, 59.2, 1.0), glass_c=(144.8, 3.1), aa=(23.71, 48.55), aa_dy=1.8,
-                      pcb=(21.5, 34.7, 1.6), pcb_c=(141.8, 13.35), pcb_gap=0.1, back=1.9),
+                      glass=(29.2, 59.2, 1.0), glass_c=(SIDEBAR_MID, 3.1), aa=(23.71, 48.55), aa_dy=1.8,
+                      pcb=(21.5, 34.7, 1.6), pcb_c=(143.0, 13.35), pcb_gap=0.1, back=1.9),
     # Pimoroni 1.12" Mono OLED (128x128, white/black) Breakout, I2C version: 28 x 42 mm, SH1107.
     "sh1107-1.12": dict(overlay="oled-sh1107-128x128", frame="pcb",
                         glass=(25.0, 27.0, 1.4), glass_c=(144.8, -9.5), aa=(20.1, 20.1), aa_dy=0.0,
@@ -256,25 +269,60 @@ DISPLAY_TAPE = 0.2           # glass to roof underside
 DISPLAY_WINDOW_MARGIN = 0.8  # window edge outside the active area, each side
 DISPLAY_FRAME_T, DISPLAY_CLEAR = 1.3, 0.3
 DISPLAY_WIRE_GAP = 16.0      # width of the gap at the back of the frame
+J4_BOX = (129.6, 149.9, -14.2, -11.7, 10.15)  # J4's 8-pin header in the board model: x0, x1, y0, y1, top
 # The driver board stays in front of and left of the radio module's antenna (KiCad x > 333, y 67-79;
-# local x > 154.75, y 20.5-32.5). Only the panel's glass reaches over it.
+# local x > 154.75, y 20.5-32.5), 1 mm clear. Only the panel's glass reaches over it.
 
-# LEDs D3-D7 (reverse mount on the back, shining up through the plate's 4 mm windows): a block of
-# light channels from the roof down to 1 mm above the plate, sealed to the plate by a strip of black
-# foam, so no LED lights its neighbour's hole. A diffuser disc sits in the top of each channel.
-LED_X = [131.75, 138.25, 143.75, 149.25, 154.75]
+# LEDs D3-D7 (reverse mount on the back, shining up through the plate's 4 mm windows). D3 shows something
+# different from D4-D7, so it stands apart (an 8 mm gap, the others 5.5 mm), with a score across the roof
+# in the gap. Over them a 3D-printed light guide (opaque, black or white inside) stands from 1 mm above the
+# plate to the roof's underside, a channel straight up from each LED, sealed to the plate by a strip of
+# black foam so no LED lights its neighbour's hole. A clear plug in each 3 mm roof hole, flush with the
+# top, is the diffuser: its 4 mm head sits in a counterbore at the top of the guide's channel, so the plugs
+# locate the guide, and the guide holds the plugs up in the roof.
+LED_X = [132.25, 140.25, 145.75, 151.25, 156.75]  # KiCad x 310.5, 318.5, 324.0, 329.5, 335.0
 LED_Y = -30.95
 LED_HOLE_D = 3.0           # in the roof
-LED_BORE_D = 4.0           # the channel, and the diffuser disc (4 mm, 1 mm opal acrylic)
-LED_WALL = 1.5             # around the outer channels
+LED_CHANNEL_D = 3.2        # the guide's channel
+LED_HEAD_D, LED_HEAD_T = 4.0, 1.0  # the plug's head and the counterbore it sits in
+LED_PLUG_CLEAR = 0.05      # plug to hole and counterbore, each side (glue or a light press)
+LED_GUIDE_BOTTOM = PLATE_Z0 + PLATE_T + 1.0  # 1 mm above the plate (the seal fills it)
+LED_GUIDE_Y = (LED_Y - 3.0, LED_Y + 2.75)    # its back face 0.1 mm off the screen's frame
+LED_GUIDE_WALL = 1.0       # at the ends (the right end stays inside the end wall)
 LED_SEAL_T, LED_SEAL_HOLE_D = 1.5, 4.4  # black closed-cell foam, squeezed to 1.0 mm
+LED_SCORE_W, LED_SCORE_L = 0.6, 5.0     # the score between D3 and D4: a 90-degree V, 0.3 mm deep
 
-# Feet: eight splitkb SKUF silicone feet (41.8 x 5.8 x 2 mm, 3M 9488A adhesive), each in a 1 mm pocket, so
-# they stand 1 mm proud: four along the front and four along the back, inboard of the screws.
+# Feet: four splitkb SKUF silicone feet (41.8 x 5.8 x 2 mm, 3M 9488A adhesive), each in a 1 mm pocket, so
+# they stand 1 mm proud: two along the front and two along the back, each halfway between two screws.
 FOOT_L, FOOT_W, FOOT_T = 41.8, 5.8, 2.0
 FOOT_POCKET_L, FOOT_POCKET_W, FOOT_POCKET_DEPTH = 42.4, 6.4, 1.0  # the usual SKUF pocket
-FOOT_X = (-120.0, -40.0, 40.0, 120.0)  # world X of the foot centres
+FOOT_X = (-101.0, 101.0)               # world X of the foot centres: halfway between the screws
 FOOT_Y = (-56.0, 56.0)                 # world Y of the foot centres
+
+# Weight: a brass block set into the bottom between the middle screws, flush with the bottom face and
+# engraved there with a dachshund (a single-line side view) and the board's name. Its top steps up with
+# the floor's steps inside, leaving WEIGHT_FLOOR of aluminium over it everywhere, and four M3 x 5 button
+# head screws (ISO 7380) from inside, in 1 mm counterbores, hold it into tapped holes.
+WEIGHT_W, WEIGHT_H = 80.0, 64.0  # world x, y, centred on the bottom face
+WEIGHT_FLOOR = 2.0               # aluminium left over it
+WEIGHT_R, WEIGHT_CLEAR, WEIGHT_CHAMFER = 3.0, 0.1, 0.4  # plan corners, pocket clearance, visible edge
+WEIGHT_SCREWS = [(x, y) for y in (7.5, 23.5) for x in (-30.0, 30.0)]  # world, where it's thickest
+WEIGHT_SCREW_CBORE = (6.2, 1.0)  # for the button heads, in the floor's top
+ENGRAVE_DEPTH, ENGRAVE_W = 0.3, 0.6  # a 0.6 mm engraving cutter
+ENGRAVE_FONT = "/usr/share/fonts/opentype/inter/InterDisplay-Medium.otf"
+ENGRAVE_TEXT, ENGRAVE_TEXT_SIZE = "Dachshund60F", 6.5
+# The dachshund, facing right, as the strokes of one line drawing (mm, x right, y up as you look at the
+# bottom with the board turned over front to back): tail, back, head and snout down the chest to the
+# front paw; the rump and back leg; the belly between the legs; the ear.
+DOG = [
+    [(0.0, 16.0), (3.4, 13.4), (7.6, 11.8), (12, 11.6), (22, 11.9), (32, 11.9), (40, 12.6), (44.5, 15.2),
+     (47.5, 18.6), (51, 19.6), (54.5, 18.6), (60, 16.0), (62.6, 14.6), (61.6, 13.4), (55.5, 13.0),
+     (51.5, 11.8), (49.0, 8.6), (48.6, 5.0), (49.2, 1.2), (51.4, 0.0)],
+    [(7.0, 11.2), (5.0, 8.6), (5.0, 4.6), (6.4, 1.6), (9.4, 0.0)],
+    [(47.0, 0.0), (45.4, 1.6), (44.8, 5.2), (40, 5.9), (20, 5.9), (14.4, 5.4), (13.4, 2.0), (14.6, 0.0)],
+    [(51.5, 18.4), (49.3, 15.4), (49.6, 11.8), (51.2, 12.6)],
+]
+DOG_SCALE, DOG_V, TEXT_V = 0.85, 2.0, -15.0  # the drawing's size, and where it and the name sit (up from the middle)
 
 COLORS = {
     "Case top": (0.62, 0.63, 0.65),     # bead-blasted aluminium
@@ -289,6 +337,9 @@ COLORS = {
     "Feet": (0.10, 0.10, 0.10),
     "Dowels": (0.75, 0.75, 0.78),
     "LED seal": (0.08, 0.08, 0.08),
+    "LED guide": (0.12, 0.12, 0.13),     # printed, opaque
+    "LED plugs": (0.92, 0.94, 0.95),     # clear, frosted
+    "Weight": (0.80, 0.64, 0.32),        # brass
     "Display board": (0.10, 0.25, 0.55),
     "Display glass": (0.06, 0.06, 0.08),
     "Display area": (0.35, 0.75, 0.95),
@@ -499,9 +550,10 @@ SCOOP_Y1 = -(BOARD_H / 2 + BEZEL_FB) - FRONT_SCOOP_DROP * S / C  # where the wor
 
 
 def scoop_z(yl):
-    """Local z of the bezel's top at local y (flat, then the thumb scoop, flat again past the front)."""
-    t = min(max((SCOOP_Y0 - yl) / (SCOOP_Y0 - SCOOP_Y1), 0.0), 1.0)
-    return BEZEL_TOP - FRONT_SCOOP_DROP * t ** 3 * (10 - 15 * t + 6 * t * t)
+    """Local z of the bezel's top at local y (flat, then the thumb scoop, carrying on straight past the front)."""
+    t = max((SCOOP_Y0 - yl) / (SCOOP_Y0 - SCOOP_Y1), 0.0)
+    f = 10 / 3 * t ** 3 * (1 - t) + t ** 5 if t <= 1.0 else 1.0 + 5 / 3 * (t - 1.0)  # straight on past the edge
+    return BEZEL_TOP - FRONT_SCOOP_DROP * f
 
 
 def scoop_profile(samples=24):
@@ -513,21 +565,24 @@ TOP_SURFACE_HALF = 400.0  # the top surface runs local x and y +-this
 
 
 def top_surface():
-    """The bezel's top surface (world frame) as one face: flat, the thumb scoop, flat again past the front.
-    In the local frame its profile is a degree-5 B-spline: the scoop's quintic is exactly a Bezier with its
-    heights at 0, 0, 0, 1, 1, 1 times the drop, so it meets both flats with matching slope and curvature,
-    and the knots there are reduced to C2, so the surface is one smooth patch."""
+    """The bezel's top surface (world frame) as one face: flat, the thumb scoop, then straight on past the
+    front. In the local frame its profile is a degree-5 B-spline: the scoop is exactly a Bezier with its
+    heights at 0, 0, 0, 1/3, 2/3, 1 times the drop, so it meets the flat and the straight run past the edge
+    with matching slope and curvature, and the knots there are reduced to C2, so the surface is one smooth
+    patch."""
     big = TOP_SURFACE_HALF
     y0, y1, b, d = SCOOP_Y0, SCOOP_Y1, BEZEL_TOP, FRONT_SCOOP_DROP
+    run = 20.0  # past the front edge
+    fall = d * 5 / 3 / (y0 - y1)  # the scoop's slope at the edge
     pieces = [[(big + (y0 - big) * i / 5, b) for i in range(6)],
-              [(y0 + (y1 - y0) * i / 5, z) for i, z in enumerate([b, b, b, b - d, b - d, b - d])],
-              [(y1 + (-big - y1) * i / 5, b - d) for i in range(6)]]
+              [(y0 + (y1 - y0) * i / 5, b - d * f) for i, f in enumerate([0, 0, 0, 1 / 3, 2 / 3, 1])],
+              [(y1 - run * i / 5, b - d - fall * run * i / 5) for i in range(6)]]
     poles = pieces[0] + pieces[1][1:] + pieces[2][1:]
     arr = TColgp_Array1OfPnt(1, len(poles))
     for i, (y, z) in enumerate(poles):
         arr.SetValue(i + 1, gp_Pnt(-big, y, z))
     knots, mults = TColStd_Array1OfReal(1, 4), TColStd_Array1OfInteger(1, 4)
-    for i, (k, m) in enumerate([(-big, 6), (-y0, 5), (-y1, 5), (big, 6)]):  # parameter u = -y
+    for i, (k, m) in enumerate([(-big, 6), (-y0, 5), (-y1, 5), (run - y1, 6)]):  # parameter u = -y
         knots.SetValue(i + 1, k)
         mults.SetValue(i + 1, m)
     curve = Geom_BSplineCurve(arr, knots, mults, 5)
@@ -814,9 +869,9 @@ def _cap_x():
 
 def switch_cap_cuts():
     f0, f1, g0, face = _cap_x()
-    y, c, t = CAP_Y, CAP_CLEAR, CAP_TRAVEL  # room to slide a full travel either way
+    y, c, t, e = SW1_Y, CAP_CLEAR, CAP_TRAVEL, CAP_END_CLEAR  # the travel, centred on the switch
     def slab(x0, x1, w, h):  # cut from the end (along X), so its corners along X are rounded
-        b = box(x0, x1, y - w / 2 - t - c, y + w / 2 + t + c, CAP_Z - h / 2 - c, CAP_Z + h / 2 + c)
+        b = box(x0, x1, y - w / 2 - t / 2 - e, y + w / 2 + t / 2 + e, CAP_Z - h / 2 - c, CAP_Z + h / 2 + c)
         return b.fillet(CNC_MIN_R, [e for e in b.Edges() if abs(e.tangentAt(0).x) > 0.999])
     return [place(slab(f0 - 1.0, f1 + c, CAP_FLANGE[1], CAP_FLANGE[2])),
             place(slab(f1 - 0.1, g0 + 0.1, CAP_STEM[0], CAP_STEM[1])),
@@ -876,6 +931,12 @@ def bottom_case(shell):
         for y in FOOT_Y:
             b = b.cut(box(x - FOOT_POCKET_L / 2, x + FOOT_POCKET_L / 2, y - FOOT_POCKET_W / 2, y + FOOT_POCKET_W / 2,
                           -1, FOOT_POCKET_DEPTH))
+    # The weight's pocket, and its screws' holes and counterbores in the floor over it.
+    b = b.cut(weight_body(WEIGHT_CLEAR, -1.0))
+    for x, y in WEIGHT_SCREWS:
+        zf = floor_top(y)
+        b = b.cut(cyl_z(x, y, SCREW_HOLE, zf - WEIGHT_FLOOR - 1, zf + 1))
+        b = b.cut(cyl_z(x, y, WEIGHT_SCREW_CBORE[0], zf - WEIGHT_SCREW_CBORE[1], zf + 1))
     b, failed = cnc_round(b.clean(), (0, 0, 1))
     if failed:
         print("bottom case: inside corners left sharp at", failed)
@@ -948,9 +1009,9 @@ def hump():
     return place(c.fillet(HUMP_FILLET, edges))
 
 
-def led_block_xy():
-    r = LED_BORE_D / 2 + LED_WALL
-    return LED_BLOCK_X0, LED_X[-1] + r, LED_BLOCK_Y0, LED_Y + r
+def led_guide_xy():
+    r = LED_HEAD_D / 2 + LED_GUIDE_WALL
+    return LED_X[0] - r, LED_X[-1] + r, LED_GUIDE_Y[0], LED_GUIDE_Y[1]
 
 
 def _rect(size, centre, grow=0.0):
@@ -973,19 +1034,17 @@ def display_z():
 
 
 def roof_inserts():
-    """The LED channel block, and the frame that locates the screen, under the roof."""
+    """The frame that locates the screen, under the roof."""
     _, glass_bottom, _, pcb_bottom, _ = display_z()
     part = SCREEN["frame"]
-    # The LED block is as wide as the frame it meets, so there's no inside corner where they join.
-    x0, x1, y0, y1 = led_block_xy()
-    fx0, fx1, _, _ = display_rect(part, DISPLAY_CLEAR + DISPLAY_FRAME_T)
-    parts = [box(min(x0, fx0), max(x1, fx1), y0, y1, LED_BLOCK_BOTTOM, ROOF_Z + 0.1)]
     z0 = glass_bottom - 1.0 if part == "glass" else pcb_bottom + 0.5
     frame = box(*display_rect(part, DISPLAY_CLEAR + DISPLAY_FRAME_T), z0, ROOF_Z + 0.1)
     frame = frame.cut(dogbone_box(*display_rect(part, DISPLAY_CLEAR), 0, 40))
     cx = SCREEN[part + "_c"][0]
     frame = frame.cut(box(cx - DISPLAY_WIRE_GAP / 2, cx + DISPLAY_WIRE_GAP / 2, 0, 300, 0, 40))
-    return place(parts[0].fuse(frame).clean())
+    x0, x1, y0, y1, z1 = J4_BOX  # a notch over J4's header (or the wires soldered into its holes)
+    frame = frame.cut(box(x0 - 0.5, x1 + 0.5, y0 - 0.5, y1 + 0.5, 0, z1 + 0.5))
+    return place(frame.clean())
 
 
 def roller_slot():
@@ -1009,11 +1068,15 @@ def roof_cuts():
     slot = roller_slot()
     back = display_z()[4]
     screen = [dogbone_box(*display_rect(p, DISPLAY_CLEAR), back - 0.3, ROOF_Z) for p in (SCREEN["frame"], "pcb")]
+    # Where the glass reaches into the end wall, its pocket runs on down to the seam, so a cutter can reach it.
+    gx0, gx1, gy0, gy1 = display_rect(SCREEN["frame"], DISPLAY_CLEAR)
+    if gx1 > INNER_W / 2:
+        screen.append(dogbone_box(INNER_W / 2 - 2.0, gx1, gy0, gy1, SPLIT - 1.0, ROOF_Z))
     return [place(c) for c in [pocket, tunnel, slot] + screen]
 
 
 def roof_holes():
-    """The screen window and the LED channels (world)."""
+    """The screen window, the LEDs' holes and the score between D3 and D4 (world)."""
     cuts = []
     # Window: the active area plus a margin at the roof underside, opening 45 degrees to the top.
     cx, cy = SCREEN["glass_c"]
@@ -1026,14 +1089,18 @@ def roof_holes():
                               for dx, dy in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))])
     cuts.append(cq.Solid.makeLoft([lo, hi], True))
     for x in LED_X:
-        cuts.append(cyl_z(x, LED_Y, LED_BORE_D, LED_BLOCK_BOTTOM - 1, ROOF_Z))
-        cuts.append(cyl_z(x, LED_Y, LED_HOLE_D, ROOF_Z - 0.1, BEZEL_TOP + 1))
+        cuts.append(cyl_z(x, LED_Y, LED_HOLE_D, ROOF_Z - 1.0, BEZEL_TOP + 1))
+    xs, w = (LED_X[0] + LED_X[1]) / 2, LED_SCORE_W / 2
+    v = cq.Wire.makePolygon([cq.Vector(xs - w - 0.5, 0, BEZEL_TOP + 0.5), cq.Vector(xs + w + 0.5, 0, BEZEL_TOP + 0.5),
+                             cq.Vector(xs, 0, BEZEL_TOP - w)], close=True)
+    score = cq.Solid.extrudeLinear(cq.Face.makeFromWires(v), cq.Vector(0, LED_SCORE_L, 0))
+    cuts.append(score.translate((0, LED_Y - LED_SCORE_L / 2, 0)))
     return [place(c) for c in cuts]
 
 
 def led_seal_face():
-    """The black foam strip under the LED block, with a hole over each LED (local XY, z = 0)."""
-    x0, x1, y0, y1 = led_block_xy()
+    """The black foam strip under the light guide, with a hole over each LED (local XY, z = 0)."""
+    x0, x1, y0, y1 = led_guide_xy()
     f = box(x0, x1, y0, y1, -1, 1)
     for x in LED_X:
         f = f.cut(cyl_z(x, LED_Y, LED_SEAL_HOLE_D, -2, 2))
@@ -1041,7 +1108,29 @@ def led_seal_face():
 
 
 def led_seal():
-    return place(extrude_face(led_seal_face(), PLATE_Z0 + PLATE_T, LED_BLOCK_BOTTOM))
+    return place(extrude_face(led_seal_face(), PLATE_Z0 + PLATE_T, LED_GUIDE_BOTTOM))
+
+
+def led_guide():
+    """The printed light guide: a block from the seal to the roof's underside, a channel up from each LED
+    and a counterbore at its top for each plug's head. Its ends are rounded to clear the roof's inside
+    corners (CNC_MIN_R)."""
+    x0, x1, y0, y1 = led_guide_xy()
+    g = box(x0, x1, y0, y1, LED_GUIDE_BOTTOM, ROOF_Z)
+    g = g.fillet(CNC_MIN_R, [e for e in g.Edges() if abs(e.tangentAt(0).z) > 0.999])
+    for x in LED_X:
+        g = g.cut(cyl_z(x, LED_Y, LED_CHANNEL_D, LED_GUIDE_BOTTOM - 1, ROOF_Z + 1))
+        g = g.cut(cyl_z(x, LED_Y, LED_HEAD_D + 2 * LED_PLUG_CLEAR, ROOF_Z - LED_HEAD_T, ROOF_Z + 1))
+    return place(g.clean())
+
+
+def led_plugs():
+    """The clear plugs: a 3 mm shaft through the roof, flush with its top, on a 4 mm head under it."""
+    plugs = []
+    for x in LED_X:
+        p = cyl_z(x, LED_Y, LED_HOLE_D - 2 * LED_PLUG_CLEAR, ROOF_Z, BEZEL_TOP)
+        plugs.append(p.fuse(cyl_z(x, LED_Y, LED_HEAD_D, ROOF_Z - LED_HEAD_T, ROOF_Z)).clean())
+    return place(cq.Compound.makeCompound(plugs))
 
 
 def top_case(shell):
@@ -1207,6 +1296,65 @@ def wheel_cap():
     return place(disc.fuse(dome).clean())
 
 
+def floor_top(yw):
+    """World z of the floor's top (its steps) at world y, away from the keep-outs."""
+    z = FLOOR
+    for y in ROW_EDGES:
+        ye, ze = to_world(y, -UNDER_PCB_STEP)
+        if ze >= FLOOR + 0.5 and yw >= ye:
+            z = ze
+    return z
+
+
+def weight_y():
+    return (OUT_Y_FRONT + OUT_Y_BACK) / 2
+
+
+def weight_body(grow=0.0, z0=0.0):
+    """The weight's plain shape (world), grown by grow (sides and top) for its pocket."""
+    yc = weight_y()
+    y0, y1 = yc - WEIGHT_H / 2 - grow, yc + WEIGHT_H / 2 + grow
+    edges = sorted({y0, y1} | {to_world(y, -UNDER_PCB_STEP)[0] for y in ROW_EDGES
+                               if y0 < to_world(y, -UNDER_PCB_STEP)[0] < y1})
+    body = None
+    for a, b in zip(edges, edges[1:]):
+        blk = box(-WEIGHT_W / 2 - grow, WEIGHT_W / 2 + grow, a, b, z0, floor_top((a + b) / 2) - WEIGHT_FLOOR + grow)
+        body = blk if body is None else body.fuse(blk)
+    body = body.intersect(rrect(WEIGHT_W + 2 * grow, WEIGHT_H + 2 * grow, WEIGHT_R + grow, z0 - 1, 60, 0, yc)).clean()
+    # Where a step meets the sides the pocket's inside corner is rounded (CNC_MIN_R), so the weight's is too.
+    steps = [e for e in body.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999
+             and abs(abs(e.Center().x) - WEIGHT_W / 2 - grow) < 1e-6 and y0 + 1e-6 < e.Center().y < y1 - 1e-6]
+    return body.fillet(CNC_MIN_R + WEIGHT_CLEAR + 0.1 - grow, steps) if steps else body
+
+
+def engraving():
+    """The weight's engraving (world), ENGRAVE_DEPTH into its bottom face: the dachshund and the name."""
+    yc = weight_y()
+    xs = [x for stroke in DOG for x, _ in stroke]
+    u0 = -(max(xs) + min(xs)) / 2 * DOG_SCALE
+    cut = None
+    for stroke in DOG:
+        # As you look at the bottom (turned over front to back) up is towards the front: world y = yc - v.
+        pts = [cq.Vector(u0 + x * DOG_SCALE, yc - (DOG_V + y * DOG_SCALE), -0.1) for x, y in stroke]
+        outline = cq.Wire.assembleEdges([cq.Edge.makeSpline(pts)]).offset2D(ENGRAVE_W / 2, "arc")[0]
+        groove = cq.Solid.extrudeLinear(cq.Face.makeFromWires(outline), cq.Vector(0, 0, ENGRAVE_DEPTH + 0.1))
+        cut = groove if cut is None else cut.fuse(groove)
+    plane = cq.Plane(origin=(0, yc - TEXT_V, 0), xDir=(1, 0, 0), normal=(0, 0, -1))
+    text = (cq.Workplane(plane).text(ENGRAVE_TEXT, ENGRAVE_TEXT_SIZE, ENGRAVE_DEPTH + 0.1, fontPath=ENGRAVE_FONT,
+                                     halign="center", valign="center").val().translate((0, 0, ENGRAVE_DEPTH)))
+    return cut.fuse(text).clean()
+
+
+def weight():
+    w = weight_body()
+    w = w.chamfer(WEIGHT_CHAMFER, None, [e for e in w.Edges() if abs(e.Center().z) < 1e-6])
+    w = w.cut(engraving())
+    for x, y in WEIGHT_SCREWS:
+        top = floor_top(y) - WEIGHT_FLOOR
+        w = w.cut(cyl_z(x, y, TAP_DRILL, top - 4.8, top + 1))
+    return w
+
+
 def feet():
     z1 = FOOT_POCKET_DEPTH
     return cq.Compound.makeCompound([rrect(FOOT_L, FOOT_W, 1.0, z1 - FOOT_T, z1, x, y) for x in FOOT_X for y in FOOT_Y])
@@ -1277,8 +1425,11 @@ def build_parts():
         "Roller": roller(),
         "Wheel cap": wheel_cap(),
         "Feet": feet(),
+        "Weight": weight(),
         "Dowels": dowels(),
         "LED seal": led_seal(),
+        "LED guide": led_guide(),
+        "LED plugs": led_plugs(),
         "Display board": board,
         "Display glass": glass,
         "Display area": screen,
@@ -1291,11 +1442,14 @@ FILES = {
     "Case panel": "Dachshund60F-Case-Panel.step",
     "Switch cap": "Dachshund60F-Switch-Cap.step",
     "Gasket": "Dachshund60F-Gaskets.step",
+    "LED guide": "Dachshund60F-LED-Guide.step",
+    "LED plugs": "Dachshund60F-LED-Plugs.step",
+    "Weight": "Dachshund60F-Weight.step",
 }
 
 
-EXPLODE = {"Case top": 70, "Display board": 70, "Display glass": 70, "Display area": 70, "LED seal": 50,
-           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Wheel cap": 38, "Feet": -40,
+EXPLODE = {"Case top": 70, "Display board": 70, "Display glass": 70, "Display area": 70, "LED seal": 50, "LED guide": 62, "LED plugs": 78,
+           "Board": 38, "Plate foam": 38, "Gasket": 38, "Roller": 38, "Wheel cap": 38, "Feet": -40, "Weight": -55,
            "Case panel": -20, "Switch cap": -20}
 
 
@@ -1329,7 +1483,8 @@ def main():
             assembly.write_meshes(assembly.build(parts, COLORS, skip=("Board", "Case top", "Roller", "Wheel cap",
                                                                       "Plate foam", "Gasket", "Display board",
                                                                       "Display glass", "Display area",
-                                                                      "LED seal")), meshes[2])
+                                                                      "LED seal", "LED guide", "LED plugs")),
+                                 meshes[2])
             render.render(*meshes, os.path.join(HERE, "renders"))
 
 

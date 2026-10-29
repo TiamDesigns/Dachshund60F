@@ -6,13 +6,24 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: Fusion review changes (2026-10-29)
+
+- Thumb scoop: it now keeps falling right to the front edge (about 29° to the bezel where it meets the roll) instead of levelling out there. The fall is the quintic Bezier 0, 0, 0, 1/3, 2/3, 1 times the 3.5 mm drop, and the top surface carries straight on past the edge, so the surface stays one C2 patch.
+- Screen and LEDs: the e-paper glass is centred on the sidebar as seen from above (`SIDEBAR_MID`, x 146.86), 2.06 mm further right. It reaches 1.75 mm into the end wall, in a slot up from the seam so a cutter reaches it. The driver board moves 1.2 mm right (1 mm clear of the antenna). The LED holes follow the mainboard's new LED positions (#61), and a 0.6 mm V score across the roof sits in the 8 mm gap after D3.
+- Light guide: the machined LED block is gone. In its place is a 3D-printed guide (`Dachshund60F-LED-Guide.step`) with a 3.2 mm channel over each LED, and five clear plugs (`Dachshund60F-LED-Plugs.step`: 2.9 mm through the 3 mm roof holes, flush, on 4 × 1 mm heads in counterbores in the guide). The plugs locate the guide. The LED seal follows the guide's outline. The screen frame got a notch over J4's header, which it had been touching.
+- Underside: 8 screws (was 12) at x = ±50.5 and ±151.5 front and back, 4 SKUF feet (was 8) at x = ±101, and the dowels moved over the feet. Screws and feet keep one 50.5 mm rhythm with the weight in the middle.
+- Weight: an 80 × 64 mm brass block flush in the bottom, stepped 3–10 mm thick to leave 2 mm of floor under the floor's steps, about 285 g. Four M3 × 5 button heads from inside hold it. Its face is engraved 0.3 mm deep with a single-line dachshund and "Dachshund60F" (Inter Display Medium), reading upright when the board is turned over front to back. The step corners where it meets its pocket are rounded to match the pocket's.
+- Power switch: every pocket (flange, stem window, grip recess) is now the part's length plus the 1.5 mm travel plus 0.25 mm at each end, centred on the switch's middle. So at on and at off the switch's detent holds the cap with the grip just short of the recess wall (it allowed 1.5 mm of travel each way before). No off-the-shelf extension fits a PCM12, so the cap stays a made part.
+- New renders: 22-bottom-plan and 23-weight. BOM and README updated.
+- Not made or fitted.
+
 ### Mainboard: status LEDs moved right, wider gap after D3 (2026-10-29)
 
 - The five status LEDs on the back moved right, with more room between the layer LED and the battery gauge (Tiam's call; the case gets a notch in the gap): D3 310.0 → 310.5, D4 316.5 → 318.5, D5 322.0 → 324.0, D6 327.5 → 329.5, D7 333.0 → 335.0 (y 130.5). The gap after D3 is 8.0 mm (was 6.5); the battery LEDs keep their 5.5 mm pitch. Each LED's light cutout and its 100 nF cap (C14–C18) moved with it.
 - Rerouted: the battery group's data links, GND stubs and VDD bus moved with it; new D3 → D4 link, VDD feed under C15, D3's supply, and its buffered data input, which now comes up left of C14 and runs down right of D3's cutout. D7's DOUT run is longer by 2 mm. A GND stitching via at (323.85, 133.35) that D5's pads now straddle is gone, and D7's silkscreen reference moved under it, off the board edge. Zones refilled.
 - D7's cutout is now 0.8 mm from the board edge (its pads 1.1 mm).
 - DRC (kicad-cli, with schematic parity): 0 errors, 0 unconnected items, 0 parity issues; with every severity, the same 222 items as before. Plate regenerated (its LED windows follow the LEDs); STEP exports refreshed for the mainboard, plate and assembly. `keyboard.json`'s indicator positions follow the new x (15.25, 15.67, 15.96, 16.24, 16.53 u).
-- `hardware/case/` isn't updated yet: its light-channel block, LED holes and LED seal still use the old positions (case-local x = KiCad x − 178.25: 132.25, 140.25, 145.75, 151.25, 156.75).
+- The case follows in "Case: Fusion review changes" above (case-local x = KiCad x − 178.25: 132.25, 140.25, 145.75, 151.25, 156.75).
 - host-lib tests: 139 pass, 1 fails ("WebHID: a dongle waits for its keyboard…"), which fails the same way without this change.
 
 ### Case: deeper F-row bezel (2026-10-29)
