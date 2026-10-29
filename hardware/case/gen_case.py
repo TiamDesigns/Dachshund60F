@@ -71,7 +71,7 @@ PLATE_MID = PLATE_Z0 + PLATE_T / 2
 # --- Case ------------------------------------------------------------------------------------
 TILT = 7.0             # typing angle, degrees
 GAP = 0.75             # board/plate edge to case wall, all round
-BEZEL_SIDE = 9.0       # wall outside the outline on the ends (no gaskets there)
+BEZEL_SIDE = 6.5       # wall outside the outline on the ends (no gaskets or screws there)
 BEZEL_FB = 12.0        # wall outside the outline front and back (the socks reach 8 mm out)
 # Plan-view corners: continuous curvature (as on Apple's products), not circular arcs. Each corner is a
 # superellipse quadrant that leaves the straight edge with zero curvature and eases in, so there's no
@@ -94,15 +94,22 @@ SOCK_SQUEEZE = 0.4     # the case pocket is this much shorter than a free sock
 POCKET_CLEAR = 0.15    # sideways clearance around a sock in its case pocket
 TAB_X = [BOARD_W * f - BOARD_W / 2 for f in (1 / 8, 3 / 8, 5 / 8, 7 / 8)]  # plate tab centres
 SOCK_Z0 = PLATE_MID - (SOCK_H - SOCK_SQUEEZE) / 2  # compressed sock bottom
-SPLIT = SOCK_Z0        # top/bottom case seam (local Z): the bottom case is the socks' floor
+SPLIT = SOCK_Z0 + 1.0  # top/bottom case seam (local Z): the socks sit 1 mm deep in seats in the bottom case
 BEZEL_TOP = PLATE_Z0 + PLATE_T + BEZEL_ABOVE_PLATE
 
 # Top case screws: M3 x 10 socket head from below into tapped M3 holes (heat-set inserts are for plastic;
 # in aluminium the thread is tapped: a 2.5 mm drill, TAP_DEPTH of full thread (1.7 x d, plenty in 6061), the
 # drill 0.8 mm deeper; under the thumb scoop there's no room for more).
-SCREWS = ([(x, -66.6) for x in (-79.6, 0.0, 79.6)] + [(x, 66.6) for x in (-79.6, -30.0, 30.0, 79.6)]
-          + [(-163.9, 15.0), (163.9, -26.0), (163.9, 15.0)])
-# The back row clears the USB-C daughterboard. The last two hold the polycarbonate panel (CASE_PANEL).
+# Six along the front and six along the back at an even 53.1 mm pitch, each 13.3 mm from the nearest
+# sock; the back row's middle pair clears the USB-C daughterboard. None in the ends.
+SCREW_X = (-132.7, -79.6, -26.5, 26.5, 79.6, 132.7)
+SCREWS = [(x, y) for y in (-66.6, 66.6) for x in SCREW_X]
+# Two steel dowel pins (3 mm m6 x 8) at opposite corners locate the top case on the bottom before the screws
+# go in: pressed into the bottom case, a sliding fit in the top case, the second hole slotted along the line
+# between them so the pair can't bind.
+DOWELS = [(-150.0, -66.6), (150.0, 66.6)]
+DOWEL_D, DOWEL_L = 3.0, 8.0
+DOWEL_PRESS_D, DOWEL_SLIP_D, DOWEL_SLOT = 2.98, 3.05, 0.6
 SCREW_HOLE, SCREW_CBORE, SCREW_GRIP = 3.4, 5.8, 6.0
 TAP_DRILL, TAP_DEPTH = 2.5, 5.0
 # CNC (3-axis, 6061): inside corners along the cutter's axis get a radius of at least CNC_MIN_R and a third
@@ -111,11 +118,11 @@ CNC_MIN_R, CNC_MAX_R = 1.0, 3.0
 DOGBONE_D = 2.0
 # Tongue and groove at the seam: a tongue on the top case's lower face in a groove in the bottom case's top
 # face, both following the outline (offsets in from the outside; heights from the seam). 0.15 mm a side
-# and 0.2 mm under the tongue, so the halves seat on their faces. It stops at the right end's middle (the
-# polycarbonate panel, the power switch and the roller's notch) and round the left end's screw.
+# and 0.2 mm under the tongue, so the halves seat on their faces. It runs over the polycarbonate panel too
+# (it keeps the panel in), and stops only at the power switch and the roller's notch.
 TONGUE = (1.75, 2.95, 1.5)
 GROOVE = (1.6, 3.1, 1.7)
-TONGUE_GAP_ZONE = (145.0, -36.0, 64.0)  # world x from, y from, y to
+TONGUE_GAP_ZONES = [(145.0, -22.0, -2.0), (145.0, 38.0, 62.0)]  # world x from, y from, y to
 
 # Plate foam (Poron, 3.5 mm sheet, 3.4 mm installed between PCB top and plate bottom).
 FOAM_HOLE_GROW = 0.3   # each plate hole, grown by this much
@@ -155,6 +162,7 @@ RESET_PIN_D = 2.2
 # and the floor inside it, from the power switch to past the radio module's antenna (world x0, y0, y1).
 # The top case over it stays aluminium.
 CASE_PANEL = (150.0, -32.0, 36.0)
+PANEL_LAP = 4.0
 
 # Power switch cap (SW1, C&K PCM12, slides along y). A slider in a pocket in the end wall's inside face
 # takes the switch's actuator in a notch open at the top, so the board drops onto it; its stem runs out
@@ -215,7 +223,7 @@ HUMP_X = (130.15, 144.0)
 HUMP_FILLET = 1.0
 ENC_CLEAR = 0.5            # body to the hump's pocket, all round
 ENC_POCKET_R = 1.5         # pocket corners (leaves 0.85 mm of wall at the hump's shoulders)
-ROLLER_SLOT_CLEAR = 0.5    # wheel to the slot's sides
+ROLLER_SLOT_CLEAR = 0.3    # wheel to the slot's sides
 LED_BLOCK_X0, LED_BLOCK_Y0, LED_BLOCK_BOTTOM = 129.6, -37.75, 7.6  # light channel block (bottom 1 mm above the plate)
 
 # Status screen. The glass is taped to the roof's underside (DISPLAY_TAPE) behind a bevelled window
@@ -236,15 +244,13 @@ DISPLAYS = {
                         glass=(25.0, 27.0, 1.4), glass_c=(144.8, -9.5), aa=(20.1, 20.1), aa_dy=0.0,
                         pcb=(28.0, 42.0, 1.6), pcb_c=(144.8, -5.5), pcb_gap=0.0, back=1.0),
     # Generic 1.3" SH1106 128x64 I2C module (Pololu #3761 sizes). It is wider than the sidebar, so it
-    # reaches into the right bezel, and the right-hand screw moves forward out of its way.
+    # reaches into the right bezel (check it against the 6.5 mm ends before using it).
     "sh1106-1.3": dict(overlay="oled-sh1106-128x64", frame="pcb",
                        glass=(34.5, 23.0, 1.5), glass_c=(147.925, 0.25), aa=(29.42, 14.70), aa_dy=0.0,
-                       pcb=(35.4, 33.5, 1.0), pcb_c=(147.925, 0.25), pcb_gap=0.0, back=1.0,
-                       right_screw_y=-26.0),
+                       pcb=(35.4, 33.5, 1.0), pcb_c=(147.925, 0.25), pcb_gap=0.0, back=1.0),
 }
 DISPLAY = "eink-2.13"
 SCREEN = DISPLAYS[DISPLAY]
-SCREWS[-1] = (SCREWS[-1][0], SCREEN.get("right_screw_y", SCREWS[-1][1]))
 DISPLAY_TAPE = 0.2           # glass to roof underside
 DISPLAY_WINDOW_MARGIN = 0.8  # window edge outside the active area, each side
 DISPLAY_FRAME_T, DISPLAY_CLEAR = 1.3, 0.3
@@ -280,6 +286,7 @@ COLORS = {
     "Roller": (0.15, 0.13, 0.12),
     "Wheel cap": (0.90, 0.55, 0.15),  # amber
     "Feet": (0.10, 0.10, 0.10),
+    "Dowels": (0.75, 0.75, 0.78),
     "LED seal": (0.08, 0.08, 0.08),
     "Display board": (0.10, 0.25, 0.55),
     "Display glass": (0.06, 0.06, 0.08),
@@ -455,7 +462,7 @@ def seam_groove():
 
 def seam_band(off0, off1, z0, z1):
     """A band following the outline, off0..off1 in from the outside, from z0 to z1 (local, from the
-    seam), less TONGUE_GAP_ZONE and the left end's screw."""
+    seam), less TONGUE_GAP_ZONES."""
     wires = []
     for off in (off0, off1):
         pts, _, arc = outline(OUTLINE_STEP, OUTLINE_SAMPLES, off)
@@ -467,10 +474,9 @@ def seam_band(off0, off1, z0, z1):
     n = cq.Vector(0, -S, C)
     face = cq.Face.makeFromWires(wires[0], [wires[1]]).translate(n * z0)
     band = cq.Solid.extrudeLinear(face, n * (z1 - z0))
-    x0, y0, y1 = TONGUE_GAP_ZONE
-    band = band.cut(box(x0, 300, y0, y1, -50, 100))
-    x, y, _ = screw_points()[-3]
-    return band.cut(cyl_z(x, y, 7.0, -50, 100)).clean()
+    for x0, y0, y1 in TONGUE_GAP_ZONES:
+        band = band.cut(box(x0, 300, y0, y1, -50, 100))
+    return band.clean()
 
 
 def _sew(shapes, tol=1e-4):
@@ -720,12 +726,30 @@ def sock_pockets():
     return [place(c) for c in cuts]
 
 
-def screw_points():
+def screw_points(xy=None):
     pts = []
-    for x, y in SCREWS:
+    for x, y in SCREWS if xy is None else xy:
         yw, zw = to_world(y, SPLIT)
         pts.append((x, yw, zw))
     return pts
+
+
+def dowel_holes(top):
+    """The dowel pins' holes: pressed into the bottom case, a sliding fit in the top case, where the
+    second hole is a slot along the line between the pins."""
+    (xa, ya, za), (xb, yb, zb) = screw_points(DOWELS)
+    h = DOWEL_L / 2 + 0.5
+    if not top:
+        return [cyl_z(x, y, DOWEL_PRESS_D, z - h, z + 1) for x, y, z in ((xa, ya, za), (xb, yb, zb))]
+    angle = math.degrees(math.atan2(yb - ya, xb - xa))
+    slot = (cq.Workplane("XY").workplane(offset=zb - 1).center(xb, yb)
+            .slot2D(DOWEL_SLIP_D + DOWEL_SLOT, DOWEL_SLIP_D, angle).extrude(h + 1).val())
+    return [cyl_z(xa, ya, DOWEL_SLIP_D, za - 1, za + h), slot]
+
+
+def dowels():
+    return cq.Compound.makeCompound([cyl_z(x, y, DOWEL_D, z - DOWEL_L / 2, z + DOWEL_L / 2)
+                                     for x, y, z in screw_points(DOWELS)])
 
 
 # --- Stepped floor ----------------------------------------------------------------------------
@@ -844,6 +868,8 @@ def bottom_case(shell):
     for x, y, z in screw_points():
         b = b.cut(cyl_z(x, y, SCREW_HOLE, -1, z + 1))
         b = b.cut(cyl_z(x, y, SCREW_CBORE, -1, z - SCREW_GRIP))
+    for c in dowel_holes(False):
+        b = b.cut(c)
     # Pockets for the feet.
     for x in FOOT_X:
         for y in FOOT_Y:
@@ -856,9 +882,17 @@ def bottom_case(shell):
 
 
 def split_end(bottom):
-    """The bottom case's aluminium part and its polycarbonate panel."""
+    """The bottom case's aluminium part and its polycarbonate panel. The panel's floor laps over a
+    PANEL_LAP ledge left in the aluminium's lower half on its three inner sides, so it can't drop out;
+    the top case (the tongue runs over it) holds it down and stops it sliding."""
     x0, y0, y1 = CASE_PANEL
-    panel = round_edges_at(box(x0, OUT_X + 1, y0, y1, -10, 100), x0, 1.5)
+    lap, zl, xw = PANEL_LAP, FLOOR / 2, INNER_W / 2
+    panel = round_edges_at(box(x0, OUT_X + 1, y0, y1, zl, 100), x0, 1.5)
+    panel = panel.fuse(round_edges_at(box(x0 + lap, xw, y0 + lap, y1 - lap, -10, zl + 0.01), x0 + lap, 1.5),
+                       box(xw - 0.01, OUT_X + 1, y0, y1, -10, zl + 0.01)).clean()
+    inside = [e for e in panel.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999
+              and abs(e.Center().x - xw) < 0.05 and min(abs(e.Center().y - y0), abs(e.Center().y - y1)) < 0.05]
+    panel = panel.fillet(CNC_MIN_R, inside)  # the ledge's inside corners at the wall
     # fix(): the cut leaves the seam reveal's thin band with a bad edge where it's split.
     return bottom.cut(panel).clean().fix(), bottom.intersect(panel).clean().fix()
 
@@ -883,7 +917,7 @@ def key_opening(z0, z1):
     yf = y1 - u  # the F row's front edge
     o = o.cut(box(x0 - 10, x1 + 10, yf - F_ROW_GAP_U * u + g, yf - g, z0 - 1, z1 + 1))
     for a in F_ROW_POSTS_U:
-        o = o.cut(box(x0 + a * u + g, x0 + (a + F_ROW_GAP_U) * u - g, yf - 10, y1 + 10, z0 - 1, z1 + 1))
+        o = o.cut(box(x0 + a * u + g, x0 + (a + F_ROW_GAP_U) * u - g, yf - F_ROW_GAP_U * u + g, y1 + 10, z0 - 1, z1 + 1))
     o = o.clean()
     vertical = [e for e in o.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999]
     return o.fillet(OPENING_R, vertical)
@@ -1018,6 +1052,8 @@ def top_case(shell):
         t = t.cut(p)
     for x, y, z in screw_points():
         t = t.cut(cyl_z(x, y, TAP_DRILL, z - 1, z + TAP_DEPTH + 0.8))
+    for c in dowel_holes(True):
+        t = t.cut(c)
     t = t.fuse(seam_band(*TONGUE[:2], -TONGUE[2], 0.01))
     t, failed = cnc_round(t.clean(), (0, -S, C))
     if failed:
@@ -1224,6 +1260,7 @@ def build_parts():
         "Roller": roller(),
         "Wheel cap": wheel_cap(),
         "Feet": feet(),
+        "Dowels": dowels(),
         "LED seal": led_seal(),
         "Display board": board,
         "Display glass": glass,

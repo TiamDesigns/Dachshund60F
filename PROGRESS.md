@@ -6,6 +6,17 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: screws front and back, narrower ends, gasket seats, dowel pins, case BOM (2026-10-29)
+
+- Screws: twelve M3 × 10, six along the front and six along the back at x = ±26.5, ±79.6 and ±132.7 mm (an even 53.1 mm pitch, 13.3 mm from the nearest sock), none in the ends.
+- End bezels 9 → 6.5 mm, so the case is 331.5 mm long. The wheel is 21 mm wide (was 23.5) and still ends 0.25 mm inside the end face; its slot is 0.3 mm round it (was 0.5).
+- The polycarbonate panel has no screws: its floor laps 4 mm over a ledge in the aluminium, and the tongue now runs over it (it stops only at the power switch and the roller's notch).
+- The seam moved up 1 mm, so each sock sits 1 mm deep in a seat in the bottom case and stays put while the top goes on.
+- Two 3 mm × 8 mm dowel pins at the front-left and back-right corners locate the top case: pressed into the bottom, sliding in the top, one hole slotted.
+- F-row posts fixed: they ran about 5 mm past the bar, under the number row's caps (1, 5, 9 and Backspace touched at 0 mm and couldn't travel). They now stop at the bar.
+- New `hardware/case/BOM.md`: the case's made and bought parts, screws, pins, feet, socks, foams, battery, screen, cable, switches, stabilizers, keycaps, and the PCBs as line items.
+- Not made or fitted.
+
 ### Case: continuous-curvature top edge, deeper scoop, CNC rules, tongue and groove, tighter radii, F-row bezel, feet (2026-10-28)
 
 - Top edge: the 4 mm round fillet is now a 1.5 mm roll with the corners' superellipse profile (`TOP_ROLL`), so the wall, the roll and the top meet with no change in curvature. `outer_shell` builds it as a loft through sections of that curve round the outline, onto a top surface that is one exact B-spline patch.

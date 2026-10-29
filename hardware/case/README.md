@@ -37,7 +37,7 @@ The assembly places the boards as components, so their colours and names carry o
 
 ## Numbers
 
-- Outside: 336.5 × 144.0 mm. The plan-view corners have continuous curvature, like Apple's: each is a
+- Outside: 331.5 × 144.0 mm. The plan-view corners have continuous curvature, like Apple's: each is a
   superellipse (exponent 5) running 6 mm along both edges, which leaves the straight edge with no kink, so
   reflections flow round it (`CORNER_L`, `CORNER_N`). It looks about like a 4 mm radius. The top edge
   rolls over the same way: the same superellipse on its side, 1.5 mm down the wall and 1.5 mm across the
@@ -47,7 +47,7 @@ The assembly places the boards as components, so their colours and names carry o
   scoop), back height 35.4 mm.
   The plate's top is 12.6 mm above the desk at the front row.
 - Typing angle: 7°, built into the case (the bottom is flat).
-- Bezel: 9 mm on the ends, 12 mm front and back (the socks reach 8 mm past the plate edge). One height all
+- Bezel: 6.5 mm on the ends (no screws or gaskets there), 12 mm front and back (the socks reach 8 mm past the plate edge). One height all
   round: its top is level with a keycap's bottom edge, 6.6 mm above the plate (`KEYCAP_BOTTOM`), so no switch
   shows from any angle. The key opening is 1 mm outside the keycaps (`KEY_GAP`, with 18 mm caps), with
   1 mm corners (the smallest a 2 mm cutter leaves) and a 0.3 mm chamfer, and it runs under the sidebar's front for the bottom row. Over the
@@ -79,13 +79,16 @@ The assembly places the boards as components, so their colours and names carry o
   holes grown by 0.3 mm, and the plate outline trimmed 0.3 mm inside the board edge, so it clears every
   switch, stabilizer, the J4 header, the LED windows and the roller notch.
 - Gaskets: silicone socks on the plate's eight tabs: 8 × 5 × 5 mm outside, with the closed end round in
-  plan, and a centred 6.5 × 2.8 × 1.2 mm pocket that takes a 1.2–1.6 mm plate. The seam between the two halves is at the
-  socks' lower face, so the bottom case is the seat and the top case holds a 4.6 mm pocket over each: 0.4 mm
-  of squeeze. At the seam a tongue on the top case (1.2 mm wide, 1.5 mm tall, 1.75 mm in from the outside)
+  plan, and a centred 6.5 × 2.8 × 1.2 mm pocket that takes a 1.2–1.6 mm plate. Each sock sits 1 mm deep in a seat in the bottom case, so
+  they stay put on the plate's tabs while the top goes on; the seam is 1 mm above the socks' lower face, and
+  the top case holds the rest of each in a pocket, 4.6 mm in all: 0.4 mm of squeeze. At the seam a tongue on the top case (1.2 mm wide, 1.5 mm tall, 1.75 mm in from the outside)
   sits in a groove in the bottom case (1.5 × 1.7 mm, one 1.5 mm cutter), 0.15 mm clear each side and 0.2 mm
   under it, so the halves seat on their faces. It locates them, stops them shifting and hides the light gap.
-  It runs all round the outline except the right end's middle (the polycarbonate panel, the power switch and
-  the roller's notch) and round the left end's screw (`TONGUE`, `GROOVE`). Nothing else touches the plate or the PCB; the board floats on the socks. More or less squeeze
+  It runs all round the outline, over the polycarbonate panel too, and stops only at the power switch and
+  the roller's notch (`TONGUE`, `GROOVE`, `TONGUE_GAP_ZONES`). Two 3 mm steel dowel pins at opposite corners
+  (front left and back right, `DOWELS`) put the top exactly in place before the screws go in: pressed into
+  the bottom case, a sliding fit in the top, the back right hole a 0.6 mm slot along the line between them so
+  the pair can't bind. Nothing else touches the plate or the PCB; the board floats on the socks. More or less squeeze
   is `SOCK_SQUEEZE`.
 - Under the PCB: 3 mm at the front edge (the hot-swap sockets are 1.85 mm).
 - Stepped floor: under each of the other five switch rows the floor rises in one step, to 3.5 mm below the
@@ -111,9 +114,9 @@ The assembly places the boards as components, so their colours and names carry o
 - **Sidebar roof:** right of the keys the bezel carries on as a flat 1.5 mm roof at the same height. It
   holds the screen under a window and the LED channels. The encoder sits under the hump, in a pocket with
   0.5 mm all round (0.85 mm of wall left at the hump's shoulders) and a tunnel for its hub, and the wheel
-  shows through a slot 0.5 mm wider than it.
-- **Roller:** 19 mm across and 23.5 mm wide, from just past the encoder's hub out through a notch in the
-  right end wall to 0.25 mm inside the end face. Below its axis the notch follows the wheel's curve, 0.5 mm
+  shows through a slot 0.3 mm wider than it.
+- **Roller:** 19 mm across and 21 mm wide, from just past the encoder's hub out through a notch in the
+  right end wall to 0.25 mm inside the end face. Below its axis the notch follows the wheel's curve, 0.3 mm
   away; above it the sides run straight up. SW3 (Bourns PEC12R-2230F-S0024, 24 detents, 30 mm shaft) is
   turned so its shaft points right; its axis is 10.0 mm above the PCB top, so the wheel clears the PCB by 0.5 mm. Its
   top is 7.9 mm above the bezel, 0.6 mm under the hump and about level with the keycap tops. The wheel needs
@@ -129,11 +132,12 @@ The assembly places the boards as components, so their colours and names carry o
   light can't leak sideways under it; it is soft, so it doesn't stiffen the gasket mount. In the top of each
   channel, against the roof's 3 mm hole, goes a 4 mm diffuser disc: 1 mm opal (milky) acrylic or a frosted
   polycarbonate film, punched with a 4 mm hole punch and fixed with a drop of UV glue.
-- Screws: ten M3 × 10 socket heads from below into tapped M3 holes in the top case (2.5 mm drill, 5 mm of
-  full thread, 1.7 × the diameter; heat-set inserts are for plastic). For a printed prototype, open the holes
-  to 4.2 mm for M3 × 4 heat-set inserts. The back row skips the middle, where the
-  daughterboard is. Two of them, in the right end wall either side of the power switch, hold the
-  polycarbonate panel.
+- Screws: twelve M3 × 10 socket heads from below into tapped M3 holes in the top case (2.5 mm drill, 5 mm of
+  full thread, 1.7 × the diameter; heat-set inserts are for plastic), six along the front and six along the
+  back at x = ±26.5, ±79.6 and ±132.7 mm: an even 53.1 mm pitch, each 13.3 mm from the nearest sock, and
+  the back row's middle pair clear of the daughterboard (`SCREWS`). None in the ends. For a printed
+  prototype, open the holes to 4.2 mm for M3 × 4 heat-set inserts. All the case's hardware is in
+  [BOM.md](BOM.md).
 - **Feet:** eight SKUF silicone feet (41.8 × 5.8 × 2 mm, 3M 9488A adhesive), the usual feet for custom
   keyboards: firm enough not to squish, grippy on a hard desk. Each sits in a 42.4 × 6.4 × 1 mm pocket
   (`FOOT_*`), so it stands 1 mm proud and its edges can't peel. Four along the front and four along the
@@ -171,8 +175,8 @@ pixels, 12 × 15 cells of text with the 10 × 16 font. Build the firmware with
   overlay.
 - Other screens: `DISPLAY` in `gen_case.py` also takes Pimoroni's 1.12" 128 × 128 SH1107 OLED
   (`"sh1107-1.12"`, overlay `oled-sh1107-128x128`, 8 text rows) and a 1.3" SH1106 128 × 64 module
-  (`"sh1106-1.3"`, which is wider than the sidebar, so it reaches into the right bezel and the right-hand
-  screw moves forward). OLED modules sit in the frame by their board and use J4 pins 1–4 (3V3, GND,
+  (`"sh1106-1.3"`, which is wider than the sidebar, so it reaches into the right bezel: check it against
+  the 6.5 mm ends before using it). OLED modules sit in the frame by their board and use J4 pins 1–4 (3V3, GND,
   DIN = SDA, CLK = SCL).
 
 ## Making it
@@ -183,7 +187,9 @@ pixels, 12 × 15 cells of text with the 10 × 16 font. Build the firmware with
   panel (`CASE_PANEL`): the side wall from world y −32 to 36 mm, and the floor inside it to x = 150 mm,
   next to and under the radio module's antenna, which faces down and right (the module is on the back of
   the PCB). It also takes the power switch's cap. Smoked or clear PC both work, and it can be milled or
-  printed.
+  printed. It has no screws: its floor laps 4 mm over a ledge left in the aluminium's lower half on its
+  three inner sides (`PANEL_LAP`), so it can't drop out, and the top case's tongue runs over it and holds it
+  down.
 - CNC rules the two aluminium halves follow (3-axis, 6061):
   - Inside corners along the cutter's axis are rounded, a third of the pocket's depth and at least 1 mm
     (`CNC_MIN_R`, `cnc_round`, which finds every sharp one and rounds it). The screen's pockets, which take a
@@ -203,7 +209,7 @@ pixels, 12 × 15 cells of text with the 10 × 16 font. Build the firmware with
   needed, and a polycarbonate window in the roof over x > 154.75 mm, y 20.5–32.5 mm is the fallback.
 - Battery: it stays where it is, more than 50 mm from the module. Next to or under the antenna it would
   detune it, and the sidebar is only about 32 mm wide inside, narrower than the 34 mm cell.
-- Each half is 336.5 mm long. For a printed prototype use a print service (JLC3DP and similar take it in
+- Each half is 331.5 mm long. For a printed prototype use a print service (JLC3DP and similar take it in
   one piece) or split each half for printing.
 - The steps are solid. Milled in aluminium, they're simply where less material is removed; for a print a
   service can make them a sparse infill.
