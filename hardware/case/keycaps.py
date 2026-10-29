@@ -11,7 +11,7 @@ The profile is Cherry as GMK makes it, with the numbers from KeyV2's cherry.scad
 18.16 mm at the bottom, a top 6.31 mm narrower and 3.52 mm shallower, set 2 mm back, a 0.65 mm
 cylindrical dish, and per row a height and a top tilt. Rows are as in a GMK kit: the F row and the
 number row are R1, then R2, R3 (home), and R4 for Shift and the bottom row. They're stand-ins to look at
-and check clearances with, not a model to mould from: no legends, no draft, and a plain cross stem.
+and check clearances with, not a model to mould from: no draft, and a plain cross stem.
 """
 
 import json
@@ -47,6 +47,19 @@ ALPHA = (0.93, 0.90, 0.83)        # cream
 MOD = (0.42, 0.33, 0.27)          # walnut
 ACCENT = (0.90, 0.55, 0.15)       # amber, as the wheel's cap
 ACCENT_KEYS = {"Esc", "Enter"}
+DARK = (0.16, 0.12, 0.10)         # legends on the light caps
+
+# Legends, doubleshot style: a second-colour body LEGEND_DEPTH deep in the top, flush with the dish. Laid
+# out as GMK does: one centred character on the alphas and arrows, the shifted character over the base one
+# on the number row and symbols, and a smaller centred word on the modifiers. GMK's own typeface isn't
+# free, so the first font found in LEGEND_FONTS stands in (Inter and Helvetica are close; --font overrides).
+LEGEND_DEPTH = 0.4
+LEGEND_SIZE = {"single": 4.6, "pair": 3.4, "word": 2.6}  # font size (em), mm
+PAIR_SPACING = 4.4                # between the centres of a stacked pair, along the top
+LEGEND_FONTS = ["/usr/share/fonts/opentype/inter/Inter-Medium.otf",
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+                "C:/Windows/Fonts/arial.ttf", "/Library/Fonts/Arial.ttf"]
+NO_LEGEND = {"Space"}
 
 
 def _wire(w, d, r, origin, ydir):
@@ -98,6 +111,43 @@ def keycap(width, row):
     return cap.clean()
 
 
+def _font():
+    if "--font" in sys.argv:
+        return sys.argv[sys.argv.index("--font") + 1]
+    return next((f for f in LEGEND_FONTS if os.path.exists(f)), None)
+
+
+def legend(cap, width, row, text):
+    """The legend body for a cap (same frame as keycap()): the text, projected down onto the top and
+    LEGEND_DEPTH deep. None for a blank key."""
+    if text[0] in NO_LEGEND:
+        return None
+    h, tilt = ROWS[row]
+    origin, ydir = _top_frame(h, tilt)
+    normal = cq.Vector(1, 0, 0).cross(ydir)
+    if len(text) == 2:
+        lines = [(text[1], LEGEND_SIZE["pair"], PAIR_SPACING / 2), (text[0], LEGEND_SIZE["pair"], -PAIR_SPACING / 2)]
+    else:
+        size = LEGEND_SIZE["single"] if len(text[0]) == 1 else LEGEND_SIZE["word"]
+        lines = [(text[0], size, 0.0)]
+    font, above = _font(), 1.0
+    prism = None
+    for t, size, dy in lines:
+        plane = cq.Plane(origin=(origin + normal * above + ydir * dy).toTuple(), xDir=(1, 0, 0),
+                         normal=normal.toTuple())
+        kw = {"fontPath": font} if font else {}
+        p = cq.Workplane(plane).text(t, size, -(above + DISH_DEPTH + LEGEND_DEPTH + 0.5), halign="center",
+                                     valign="center", **kw).val()
+        prism = p if prism is None else prism.fuse(p)
+    skin = cap.cut(cap.translate(normal * -LEGEND_DEPTH))  # the top LEGEND_DEPTH of every upward face
+    body = prism.intersect(skin).clean()
+    return body if body.Volume() > 1e-3 else None
+
+
+def legend_colour(name, width):
+    return MOD if colour(name, width) == ALPHA else ALPHA if colour(name, width) == MOD else DARK
+
+
 def keys(full_space):
     """(name, width, row, local x, local y) for each key in the chosen layout."""
     data = json.load(open(BOARD_JSON))
@@ -108,8 +158,7 @@ def keys(full_space):
         if "option" in k and k["option"][1] != choice:
             continue
         w = k.get("w", 1)
-        name = k["legend"][0]
-        out.append((name, w, ROW_OF[k["row"]], x0 + (k["x"] + w / 2) * U, y1 - (k["y"] + 0.5) * U))
+        out.append((k["legend"], w, ROW_OF[k["row"]], x0 + (k["x"] + w / 2) * U, y1 - (k["y"] + 0.5) * U))
     return out
 
 
@@ -124,13 +173,21 @@ def main():
     cache = {}
     a = cq.Assembly(name="Keycaps")
     used = {}
-    for name, w, row, x, y in keys(full):
+    for text, w, row, x, y in keys(full):
+        name = text[0]
         if (w, row) not in cache:
             cache[(w, row)] = keycap(w, row)
-        shape = g.place(cache[(w, row)].translate((x, y, g.KEYCAP_BOTTOM)))
+        cap = cache[(w, row)]
+        mark = legend(cap, w, row, text)
         used[name] = used.get(name, 0) + 1
         label = name if used[name] == 1 else f"{name} {used[name]}"
-        a.add(shape, name=f"{label} ({row}, {w:g}u)", color=cq.Color(*colour(name, w)))
+        key = cq.Assembly(name=f"{label} ({row}, {w:g}u)")
+        key.add(g.place((cap.cut(mark) if mark else cap).translate((x, y, g.KEYCAP_BOTTOM))), name="cap",
+                color=cq.Color(*colour(name, w)))
+        if mark:
+            key.add(g.place(mark.translate((x, y, g.KEYCAP_BOTTOM))), name="legend",
+                    color=cq.Color(*legend_colour(name, w)))
+        a.add(key)
     os.makedirs(g.OUT, exist_ok=True)
     Interface_Static.SetIVal_s("write.surfacecurve.mode", 0)  # no 2D pcurves: a third of the size
     a.export(OUT)
