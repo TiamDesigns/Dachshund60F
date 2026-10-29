@@ -6,6 +6,10 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: F-row ribs (2026-10-29)
+
+- The F row's bar and posts were only 1.5 mm of roof, 3.8 mm wide. Under the roof they now carry on down as ribs to 1 mm above the plate's top (`F_ROW_RIB_CLEAR`), 5.6 mm deep in all. Not made or fitted.
+
 ### Case: screws front and back, narrower ends, gasket seats, dowel pins, case BOM (2026-10-29)
 
 - Screws: twelve M3 × 10, six along the front and six along the back at x = ±26.5, ±79.6 and ±132.7 mm (an even 53.1 mm pitch, 13.3 mm from the nearest sock), none in the ends.
