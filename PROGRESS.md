@@ -6,6 +6,11 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: bezel in the F-row gaps (2026-10-29)
+
+- The F-row stands 0.25 u behind the number row, and its groups (Esc, F1–F4, F5–F8, F9–F12, Delete) have 0.25 u gaps, which showed the plate. The bezel now comes back into all of them as 3.8 mm bars, 1 mm from the keycaps on both sides, so the F-row sits in five openings of its own.
+- Checked against `Dachshund60F-Keycaps.step`: no clashes, 0.99 mm minimum gap. Renders not redrawn (needs EGL or OSMesa). Not made or fitted.
+
 ### Case: bezel beside the arrows, thumb scoop along the front (2026-10-28)
 
 - The 0.5 u gap in the bottom row between the right Ctrl and the left arrow (under the right Shift) showed the plate. The bezel now comes back into it as a tongue, 1 mm from the keycaps on all three sides.

@@ -171,6 +171,11 @@ OPENING_R = 1.5            # plan-view corner radius of the opening
 # The bottom row has a 0.5 u gap between the right Ctrl (ends at 12.5 u) and the left arrow (13 u), under
 # the right Shift: the bezel comes back into it as a tongue, KEY_GAP from the keycaps on all three sides.
 ARROW_GAP_X = (KEY_GRID[0] + 12.5 * 19.05, KEY_GRID[0] + 13 * 19.05)
+# The F-row sits 0.25 u behind the number row, in groups with 0.25 u gaps (Esc | F1-F4 | F5-F8 | F9-F12 |
+# Delete): the bezel comes back into the row gap as a bar across the opening, and into each group gap as a
+# bar from it to the back, KEY_GAP from the keycaps on both sides.
+FROW_GAP_Y = (KEY_GRID[3] - 1.25 * 19.05, KEY_GRID[3] - 19.05)
+FROW_GAPS_X = [(KEY_GRID[0] + u * 19.05, KEY_GRID[0] + (u + 0.25) * 19.05) for u in (1, 5.25, 9.5, 13.75)]
 # Thumb scoop: across the whole front, the bezel's top falls away from the key opening to the outer edge,
 # FRONT_SCOOP_DROP lower there. It leaves the flat bezel tangentially just inside the opening (so the
 # opening's front edge stays at keycap-bottom height) and is concave over its outer two thirds, flattening
@@ -567,6 +572,9 @@ def key_opening(z0, z1):
     main = box(x0 - g, x1 + g, y0 - g, y1 + g, z0, z1)
     run = box(x1, KEY_GRID_ROW5_X1 + g, y0 - g, KEY_GRID_ROW5_Y + g, z0, z1)
     o = main.fuse(run).cut(box(ARROW_GAP_X[0] + g, ARROW_GAP_X[1] - g, y0 - 10, KEY_GRID_ROW5_Y - g, z0 - 1, z1 + 1))
+    o = o.cut(box(x0 - 10, x1 + 10, FROW_GAP_Y[0] + g, FROW_GAP_Y[1] - g, z0 - 1, z1 + 1))
+    for a, b in FROW_GAPS_X:
+        o = o.cut(box(a + g, b - g, FROW_GAP_Y[1] - g - 1, y1 + 10, z0 - 1, z1 + 1))
     o = o.clean()
     vertical = [e for e in o.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999]
     return o.fillet(OPENING_R, vertical)
