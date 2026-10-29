@@ -200,6 +200,10 @@ OPENING_R = 1.0            # plan-view corner radius of the opening
 # The bottom row has a 0.5 u gap between the right Ctrl (ends at 12.5 u) and the left arrow (13 u), under
 # the right Shift: the bezel comes back into it as a tongue, KEY_GAP from the keycaps on all three sides.
 ARROW_GAP_X = (KEY_GRID[0] + 12.5 * 19.05, KEY_GRID[0] + 13 * 19.05)
+# The F row stands 0.25 u behind the number row, in blocks of four (gaps after Esc, F4, F8 and F12, in units
+# from the grid's left edge): the bezel fills those gaps too, a bar across the board and four posts.
+F_ROW_GAP_U = 0.25
+F_ROW_POSTS_U = (1.0, 5.25, 9.5, 13.75)
 # Thumb scoop: across the whole front, the bezel stays flat for FRONT_SCOOP_FLAT in front of the key
 # opening, then its top falls away to the outer edge, FRONT_SCOOP_DROP lower there. The fall is a quintic
 # (z = BEZEL_TOP - drop * (10t^3 - 15t^4 + 6t^5), t = 0 at its start, 1 at the edge), which leaves the flat
@@ -872,6 +876,11 @@ def key_opening(z0, z1):
     main = box(x0 - g, x1 + g, y0 - g, y1 + g, z0, z1)
     run = box(x1, KEY_GRID_ROW5_X1 + g, y0 - g, KEY_GRID_ROW5_Y + g, z0, z1)
     o = main.fuse(run).cut(box(ARROW_GAP_X[0] + g, ARROW_GAP_X[1] - g, y0 - 10, KEY_GRID_ROW5_Y - g, z0 - 1, z1 + 1))
+    u = 19.05
+    yf = y1 - u  # the F row's front edge
+    o = o.cut(box(x0 - 10, x1 + 10, yf - F_ROW_GAP_U * u + g, yf - g, z0 - 1, z1 + 1))
+    for a in F_ROW_POSTS_U:
+        o = o.cut(box(x0 + a * u + g, x0 + (a + F_ROW_GAP_U) * u - g, yf - 10, y1 + 10, z0 - 1, z1 + 1))
     o = o.clean()
     vertical = [e for e in o.Edges() if e.geomType() == "LINE" and abs(e.tangentAt(0).z) > 0.999]
     return o.fillet(OPENING_R, vertical)
@@ -988,11 +997,14 @@ def top_case(shell):
     # The key opening, with the chamfer on its top edge cut by a 45-degree flare (the top is flat all
     # round the opening: the thumb scoop starts FRONT_SCOOP_FLAT in front of it).
     t = t.cut(place(key_opening(ROOF_Z - 1, BEZEL_TOP + 1)))
-    rim = max(key_opening(ROOF_Z - 1, BEZEL_TOP).Faces(), key=lambda f: f.Center().z).outerWire()
-    flare = cq.Solid.makeLoft([rim.translate((0, 0, -INNER_CHAMFER)),
-                               rim.offset2D(INNER_CHAMFER + 0.3, "arc")[0].translate((0, 0, 0.3))], True)
-    # As B-splines: OCCT drops the cut of its cones from the top surface without a word.
-    t = t.cut(place(cq.Solid(BRepBuilderAPI_NurbsConvert(flare.wrapped, True).Shape())))
+    for f in key_opening(ROOF_Z - 1, BEZEL_TOP).Faces():  # the opening is in pieces (the F row's posts)
+        if f.geomType() != "PLANE" or abs(f.Center().z - BEZEL_TOP) > 1e-6:
+            continue
+        rim = f.outerWire()
+        flare = cq.Solid.makeLoft([rim.translate((0, 0, -INNER_CHAMFER)),
+                                   rim.offset2D(INNER_CHAMFER + 0.3, "arc")[0].translate((0, 0, 0.3))], True)
+        # As B-splines: OCCT drops the cut of its cones from the top surface without a word.
+        t = t.cut(place(cq.Solid(BRepBuilderAPI_NurbsConvert(flare.wrapped, True).Shape())))
     t = t.fuse(hump())
     for c in roof_cuts():
         t = t.cut(c)

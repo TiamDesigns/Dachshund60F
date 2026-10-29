@@ -55,6 +55,10 @@ The assembly places the boards as components, so their colours and names carry o
 - Beside the arrows: the bottom row has a 0.5 u gap between the right Ctrl and the left arrow, under the
   right Shift. The bezel comes back into it as an 8.6 mm tongue, 1 mm from the keycaps on all three sides
   (`ARROW_GAP_X`), so no plate shows there.
+- F row: it stands 0.25 u behind the number row, in blocks of four. The bezel fills those gaps the same way:
+  a 3.8 mm bar right across between the F row and the number row, and 3.8 mm posts after Esc, F4, F8 and F12
+  (`F_ROW_GAP_U`, `F_ROW_POSTS_U`), each 1 mm from the keycaps, with the opening's 1 mm corners and 0.3 mm
+  chamfer.
 - Thumb scoop: across the whole front, corner to corner (the arrows are in the space bar's row, so there's
   nowhere it has to return to full height). The bezel stays flat for 2.5 mm in front of the key opening
   (`FRONT_SCOOP_FLAT`), at keycap-bottom height, then falls away to the outer edge, 3.5 mm lower there
