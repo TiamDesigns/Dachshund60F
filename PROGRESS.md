@@ -6,6 +6,17 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: continuous-curvature top edge, deeper scoop, CNC rules, tongue and groove, tighter radii, F-row bezel, feet (2026-10-28)
+
+- Top edge: the 4 mm round fillet is now a 1.5 mm roll with the corners' superellipse profile (`TOP_ROLL`), so the wall, the roll and the top meet with no change in curvature. `outer_shell` builds it as a loft through sections of that curve round the outline, onto a top surface that is one exact B-spline patch.
+- Thumb scoop: a 2.5 mm flat land in front of the key opening, then a quintic fall to 3.5 mm lower at the front edge (was 2.5 mm, starting at the opening). Front height 14.2 mm.
+- CNC rules for the aluminium halves (3-axis, 6061): `cnc_round` finds every sharp inside corner along a cutter's axis and rounds it (a third of the depth, at least 1 mm); the screen's pockets have 2 mm dog-bones; the LED block matches the frame's width; the switch pockets in the polycarbonate panel are rounded along X (and the cap to match); the panel's split has 1.5 mm corners. Walls of at least 1 mm: hump 10.3 mm radius, screen frame 1.3 mm, and the 0.1 mm sliver between the USB-C board's pocket and its opening is gone. Heat-set inserts are now tapped M3 (2.5 mm drill, 5 mm of thread; 4.8 mm for the USB-C board). The opening's chamfer is cut by a 45° flare instead of a chamfer operation.
+- Tongue and groove at the seam: 1.2 × 1.5 mm tongue on the top case in a 1.5 × 1.7 mm groove in the bottom (0.15 mm a side, 0.2 mm under), 1.75 mm in from the outside, except across the right end's middle and round the left end's screw. The seam's reveal chamfer is 0.6 mm (was 0.8), so the groove's outer lip stays 1 mm.
+- Tighter radii (2026-10-29): plan corners 11 → 8 mm superellipse (about a 5 mm radius), key opening's corners 1.5 → 1 mm and its chamfer 0.5 → 0.3 mm, hump ends 2 → 1 mm, seam reveal 0.6 → 0.4 mm, foot chamfer 1 → 0.6 mm, wheel chamfers 0.8 → 0.5 mm. Inside corners stay at the CNC minimums. The tongue and groove follow the outline's corners shrunk round their centres (a true 3 mm offset of the tighter corners loops). The roll's sections are now evenly spaced along its curve: with evenly spaced angles the loft bulged up to 0.65 mm out of the wall at the ends.
+- The bezel fills the F row's 0.25 u gaps (2026-10-29): a bar right across between the F row and the number row, and posts after Esc, F4, F8 and F12, 1 mm from the keycaps like the tongue beside the arrows.
+- Later on 2026-10-29: plan corners tighter again (6 mm superellipse, about a 4 mm radius); the USB-C daughterboard raised 4.5 mm, so the port's centre is 13.7 mm off the desk (2.3 mm under the back row's hot-swap sockets, as high as it goes); the 3 mm rubber strips replaced by eight SKUF silicone feet (41.8 × 5.8 × 2 mm) in 1 mm pockets, standing 1 mm proud.
+- Not made or fitted.
+
 ### Case: bezel beside the arrows, thumb scoop along the front (2026-10-28)
 
 - The 0.5 u gap in the bottom row between the right Ctrl and the left arrow (under the right Shift) showed the plate. The bezel now comes back into it as a tongue, 1 mm from the keycaps on all three sides.
