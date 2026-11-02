@@ -72,6 +72,13 @@ add flex cuts along the plate edge between the prongs; to firm it up, add a tab 
 are `FRONT_FORKS` and `BACK_FORKS`, and the prong pitch `PRONG_PITCH`, in the script. If the socks feel loose,
 widen `TAB_WIDTH` to 3.0 mm.
 
+## Polycarbonate plate
+
+A polycarbonate plate is cut from the same outline as the FR4 one: `Dachshund60F-Plate-outline.dxf` is the plate's
+Edge.Cuts (outline with the twelve prongs and the post reliefs, and every switch, stabilizer, LED and display
+cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts`. Regenerate it after any change to the
+plate (rerun `gen_plate.py` first). The copper accents exist only on the FR4 plate.
+
 ## Encoder module post reliefs
 
 The encoder module's two M2 posts stand at mainboard (307.2, 41.7) and (307.2, 58.3), only 1.2 mm from the
