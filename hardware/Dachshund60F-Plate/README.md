@@ -79,7 +79,7 @@ If the socks feel loose, widen `TAB_WIDTH` to 3.0 mm.
 
 A polycarbonate plate is cut from the same outline as the FR4 one: `Dachshund60F-Plate-outline.dxf` is the plate's
 Edge.Cuts (outline with the six branched nubs, their twelve prongs and the post reliefs, and every switch, stabilizer, LED and display
-cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts`. Regenerate it after any change to the
+cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts --output-units mm --mode-single -o Dachshund60F-Plate-outline.dxf Dachshund60F-Plate.kicad_pcb`. Regenerate it after any change to the
 plate (rerun `gen_plate.py` first). The copper accents exist only on the FR4 plate.
 
 ## Encoder module post reliefs
