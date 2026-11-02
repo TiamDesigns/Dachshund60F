@@ -110,7 +110,8 @@ switch footprints and wire them to the same diode.
   toward -x): pin 1 COL14, 2 ENC_A (P0.11), 3 GND, 4 ENC_B (P0.12), 5 ENC_SW.
   The 10 nF debounce capacitors on A and B (C10, C11) and the push-switch
   diode D114 stay on the mainboard, so the pin map and the firmware did not
-  change. The encoder's old spot at the right end of the sidebar is empty.
+  change. A 6.0 × 2.5 mm slot just left of J5 (x 303.6 to 309.6, y 48.75 to 51.25 mm) lets the cable reach the
+  module above. The encoder's old spot at the right end of the sidebar is empty.
 - **USB-C:** 5.1 kΩ pull-downs on CC1 and CC2, and ESD protection on D+/D−
   (e.g. USBLC6-2).
 - **Antenna:** keep the MDBT50Q antenna keep-out free of copper on all layers,
