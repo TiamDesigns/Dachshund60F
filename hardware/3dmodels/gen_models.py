@@ -8,7 +8,7 @@ Writes:
 
 - USB_C_Receptacle_HRO_TYPE-C-31-M-12.step
 - JST_PH_S2B-PH-SM4-TB_standin.step
-- Bourns_PEC12R-2x30F-S_standin.step
+- Bourns_PEC12R-2x20F-S_standin.step
 
 Each model is built in its KiCad footprint's frame, so the footprints place it
 with zero offset and rotation: X is the footprint's x, Y is the footprint's
@@ -277,7 +277,7 @@ def main():
     for name, parts, filename in (
         ("HRO TYPE-C-31-M-12", hro_type_c_31_m_12(), "USB_C_Receptacle_HRO_TYPE-C-31-M-12.step"),
         ("JST S2B-PH-SM4-TB", jst_ph_s2b_ph_sm4_tb(), "JST_PH_S2B-PH-SM4-TB_standin.step"),
-        ("Bourns PEC12R-2x30F-S", bourns_pec12r_2xf_s(30.0), "Bourns_PEC12R-2x30F-S_standin.step"),
+        ("Bourns PEC12R-2x20F-S", bourns_pec12r_2xf_s(20.0), "Bourns_PEC12R-2x20F-S_standin.step"),
     ):
         for shape, _ in parts:
             if not shape.isValid():
