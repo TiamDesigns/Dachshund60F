@@ -54,13 +54,30 @@ MASK_INSET = 0.05
 MIN_ACCENT_AREA = 2.0  # mm²
 
 # Gasket tabs for silicone socks: 6.5 mm deep, 2.8 mm wide pocket, 8 x 5 x 5 mm
-# outside. A tab exactly fills the pocket, so the sock's open end sits against
-# the plate edge. Four on the top edge, four on the bottom, none on the ends.
-TAB_WIDTH = 2.8
+# outside. A prong exactly fills the pocket, so the sock's open end sits against
+# the plate edge. Forked tabs: three on the top edge, three on the bottom, none
+# on the ends, each tab forking into two prongs, one per sock (twelve socks).
+# The sock is 5 mm wide, so the prongs are PRONG_PITCH apart, centre to centre
+# (7 mm leaves 2 mm of case wall between neighbouring sock pockets and 4.2 mm of
+# slot between the prongs).
+TAB_WIDTH = 2.8          # one prong
 TAB_LENGTH = 6.5
 SOCK_LENGTH = 8.0
 SOCK_WIDTH = 5.0
-TAB_FRACTIONS = (1 / 8, 3 / 8, 5 / 8, 7 / 8)
+PRONG_PITCH = 7.0
+# Fork centres, in mm from the middle of the plate (x = 0 is the USB-C connector
+# on the top, back edge). Front: even thirds, symmetric. Back: the plate's top
+# edge ends at the encoder notch (x = +127.75 here) and the USB-C sits at x = 0,
+# so the three forks are spread evenly over the edge that is left (the centre
+# one 15 mm left of the connector) instead.
+FRONT_FORKS = (-106.17, 0.0, 106.17)
+BACK_FORKS = (-107.7, -15.0, 77.7)
+
+# Reliefs for the encoder module's two M2 posts (they stand 1.2 mm from the notch
+# edge), Ø5.2 centred on the module's holes (mainboard mm), open to the edge
+# where the circle would leave a sliver.
+POST_RELIEFS = ((307.2, 41.7), (307.2, 58.3))
+POST_RELIEF_D = 5.2
 
 # Every inside corner of the outline gets at least this radius (tab roots).
 OUTLINE_INSIDE_RADIUS = 0.5
@@ -138,8 +155,13 @@ def read_mainboard():
     board = pcbnew.LoadBoard(MAINBOARD)
 
     x0, y0, x1, y1 = bbox_mm(board.GetBoardEdgesBoundingBox())
+    # Only the arcs in the outline's four corners count: the mainboard also has
+    # an inner cut-out (the encoder cable slot) whose ends are arcs of their own.
+    def in_corner(d):
+        cx, cy = pcbnew.ToMM(d.GetCenter().x), pcbnew.ToMM(d.GetCenter().y)
+        return min(abs(cx - x0), abs(cx - x1)) < 8 and min(abs(cy - y0), abs(cy - y1)) < 8
     radii = {round(pcbnew.ToMM(d.GetRadius()), 3) for d in board.GetDrawings()
-             if d.GetLayer() == pcbnew.Edge_Cuts and d.GetShape() == pcbnew.SHAPE_T_ARC}
+             if d.GetLayer() == pcbnew.Edge_Cuts and d.GetShape() == pcbnew.SHAPE_T_ARC and in_corner(d)}
     if len(radii) != 1:
         raise SystemExit(f"expected one corner radius on the mainboard outline, got {radii}")
     # The bounding box includes the line width; the outline itself is 0.025 mm in.
@@ -232,11 +254,15 @@ def build(mb):
     # --- outline -----------------------------------------------------------
     outline = rounded_rect(x0, y0, x1, y1, mb["corner_radius"])
 
-    tab_xs = [x0 + f * (x1 - x0) for f in TAB_FRACTIONS]
+    cx = (x0 + x1) / 2
+    # Prong centres: the top edge is y0 (the keyboard's back), the bottom edge y1 (its front).
+    top_prongs = [cx + f + d for f in BACK_FORKS for d in (-PRONG_PITCH / 2, PRONG_PITCH / 2)]
+    bottom_prongs = [cx + f + d for f in FRONT_FORKS for d in (-PRONG_PITCH / 2, PRONG_PITCH / 2)]
     tabs = []
-    for tx in tab_xs:
-        # Each tab overlaps the plate by 1 mm so the union has no seam.
+    for tx in top_prongs:
+        # Each prong overlaps the plate by 1 mm so the union has no seam.
         tabs.append(rect(tx - TAB_WIDTH / 2, y0 - TAB_LENGTH, tx + TAB_WIDTH / 2, y0 + 1))
+    for tx in bottom_prongs:
         tabs.append(rect(tx - TAB_WIDTH / 2, y1 - 1, tx + TAB_WIDTH / 2, y1 + TAB_LENGTH))
     outline = union([outline] + tabs)
 
@@ -248,6 +274,14 @@ def build(mb):
     notch = rect(NOTCH_LEFT, y0 - 10, x1 + 10, notch_bottom)
     round_outside_corners(notch, NOTCH_RADIUS)
     outline.BooleanSubtract(notch)
+    # Relief round each of the encoder module's posts; the one by the top edge is
+    # a slot open to that edge (a circle there would leave a 0.1 mm sliver).
+    for k, (rx, ry) in enumerate(POST_RELIEFS):
+        c = rect(rx - 0.05, ry - 0.05, rx + 0.05, ry + 0.05)
+        c.Inflate(mm(POST_RELIEF_D / 2 - 0.05), ROUND, MAX_ERROR)
+        outline.BooleanSubtract(c)
+        if ry - POST_RELIEF_D / 2 - y0 < 0.5:
+            outline.BooleanSubtract(rect(rx - POST_RELIEF_D / 2, y0 - 1, rx + POST_RELIEF_D / 2, ry))
     outline.Simplify()
 
     round_inside_corners(outline, OUTLINE_INSIDE_RADIUS)
@@ -288,13 +322,14 @@ def build(mb):
     mask.Simplify()
 
     socks = []
-    for tx in tab_xs:
+    for tx in top_prongs:
         socks.append((tx, y0 - SOCK_LENGTH, y0))
+    for tx in bottom_prongs:
         socks.append((tx, y1, y1 + SOCK_LENGTH))
 
     return {
         "plate": plate, "copper": copper, "mask": mask, "socks": socks,
-        "tab_xs": tab_xs, "notch_bottom": notch_bottom, "led_windows": led_windows,
+        "top_prongs": top_prongs, "bottom_prongs": bottom_prongs, "notch_bottom": notch_bottom, "led_windows": led_windows,
     }
 
 
@@ -377,8 +412,8 @@ def main():
     print(f"plate outline {x1 - x0:.2f} x {y1 - y0:.2f} mm, corner radius {mb['corner_radius']} mm")
     print(f"{len(mb['switches'])} switch cutouts, {len(mb['stabs'])} stabilizer cutouts, "
           f"LED windows over {', '.join(geo['led_windows'])}")
-    print("gasket tabs at x = " + ", ".join(f"{x:.2f}" for x in geo["tab_xs"])
-          + f" (top edge y = {y0}, bottom edge y = {y1})")
+    print("prongs, top edge (y = %s): x = " % y0 + ", ".join(f"{x:.2f}" for x in geo["top_prongs"]))
+    print("prongs, bottom edge (y = %s): x = " % y1 + ", ".join(f"{x:.2f}" for x in geo["bottom_prongs"]))
     print(f"encoder notch: x >= {NOTCH_LEFT}, y <= {geo['notch_bottom']}")
     print(f"wrote {os.path.relpath(OUT)}")
 

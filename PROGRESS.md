@@ -6,6 +6,14 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Plate: forked gasket tabs and encoder-post reliefs (2026-11-02)
+
+- Tiam's call: six forked tabs instead of eight single ones, so twelve gaskets, all seated in the case's top shell. Three forks on the top (back) edge and three on the bottom (front) edge, two prongs each, 7 mm apart centre to centre; a prong is the old tab (2.8 wide, 6.5 long, 1.6 mm FR4). The 2 mm slot Tiam asked for becomes 4.2 mm between 2.8 mm prongs at 7 mm pitch (the 5 mm socks need that pitch).
+- Fork centres from the plate middle (x = 0 at the USB-C): bottom -106.17, 0, +106.17; top -107.7, -15.0, +77.7. The top can't be symmetric: the encoder notch takes the top edge's right-hand end and the USB-C is at x = 0. Mainboard x of the prongs: top 67.05, 74.05, 159.75, 166.75, 252.45, 259.45; bottom 68.58, 75.58, 174.75, 181.75, 280.92, 287.92. Nothing on the mainboard's front side is near either edge.
+- Two Ø5.2 reliefs in the plate for the encoder module's M2 posts, at mainboard (307.2, 41.7) and (307.2, 58.3). The one by the top edge is a slot open to that edge (a circle would leave a 0.1 mm sliver). Web to the Delete cutout 1.4 mm.
+- `gen_plate.py`: parameters `FRONT_FORKS`, `BACK_FORKS`, `PRONG_PITCH`, `POST_RELIEFS`; the corner-radius check now only counts the outline's four corner arcs (the mainboard's new cable slot also has R1.0 arcs, which made the script stop). Plate regenerated with KiCad 10's Python, as the README says (the KiCad MCP wasn't reachable from this session, and the .kicad_pcb was not edited by hand). DRC (kicad-cli): 0 violations, 0 unconnected.
+- Not done: STEP exports of the plate and the assembly weren't refreshed, and `hardware/case/gen_case.py` still builds eight tabs and sockets.
+
 ### Mainboard Rev 1.1: encoder off the mainboard, new encoder module (2026-11-02)
 
 - Tiam's calls: nothing is ordered yet, so the mainboard is updated in place as Rev 1.1 (silk "mainboard v1.1" and the logo's "Rev 1.1"); keep the Bourns PEC12R-2230F-S0024 and ignore the click along the shaft; JST SH connectors; no extra expansion-port breakouts, only the rotary change.
