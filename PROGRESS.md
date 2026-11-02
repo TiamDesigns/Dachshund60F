@@ -14,7 +14,8 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - `gen_plate.py` read the encoder's courtyard from the mainboard; it now uses a fixed `ENCODER_BOX` with the old values, so the plate is unchanged. `export_fab.py` and `export_step.py` include the module. STEP exports refreshed for the mainboard, assembly and the new module (the USB, dongle and plate files are untouched).
 - `.mcp.json` pointed the Konnect server at `OneDrive\Documents\KiCad`, which doesn't exist now that the files moved to `Documents`; it points at `Documents\KiCad`. Restart the session for the KiCad tools to connect.
 - Docs updated: boards README, bring-up plan, design decisions, plate README, root README. The case README and generator still describe the encoder on the mainboard; the case thread owns those.
-- Not ordered, made or fitted. The cable between J5 and J1 has no slot in the mainboard.
+- Cable slot (the case thread's request): a 6.0 × 2.5 mm slot with 1 mm corner radius, centred at KiCad x 306.6, y 50.0 (x 303.6 to 309.6, y 48.75 to 51.25), just left of J5's body, so the cable passes from the back to the module above. It was moved 1.6 mm right of the requested x 305 to clear SW113's mounting hole and silkscreen; J5's back silkscreen outline is removed because the slot would clip it (DRC now reports J5's footprint as differing from the library, nothing else new). Zones refilled; DRC 222 items, same count as before, 0 unconnected.
+- Not ordered, made or fitted.
 
 ### Case: Fusion review changes (2026-10-29)
 

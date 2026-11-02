@@ -35,8 +35,8 @@ from the PCB's top face.
 - J1's pad row at u = 5.3, v = 9 to 13 (pin 1 at v = 13); its courtyard is u 0.0 to 6.6, v 6.6 to 15.4.
   The cable leaves toward -u.
 - On the mainboard, J5 is on the back at x = 313.4 mm, y = 48.0 (pin 5) to 52.0 (pin 1), body toward -x
-  (courtyard x 308.1 to 314.7, y 45.6 to 54.4), cable leaving toward -x. The mainboard has no slot for the
-  cable; it reaches the module around the board edge unless the case needs one.
+  (courtyard x 308.1 to 314.7, y 45.6 to 54.4), cable leaving toward -x. A 6.0 × 2.5 mm slot in the mainboard
+  (x 303.6 to 309.6, y 48.75 to 51.25, 1 mm corner radius) lets the cable pass from J5 up to the module.
 
 ## Status
 
