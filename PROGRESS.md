@@ -6,6 +6,13 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Encoder module: 20 mm shaft, PEC12R-2220F-S0024 (2026-11-02)
+
+- Tiam asked for a shorter shaft, so SW1 on the encoder module is now the Bourns PEC12R-2220F-S0024 (20 mm shaft, same body, footprint and pins as the 30 mm -2230F-S0024 it replaces). Schematic value, MPN and LCSC (C49673168, which showed no stock on 2026-10-28, so JLC may have to source it globally or you solder it by hand), the PCB's value field and the docs are updated.
+- 3D model: `gen_models.py` now builds `Bourns_PEC12R-2x20F-S_standin.step` (flat length F = 7.0 mm from the datasheet table; the shaft tip is at footprint x = -16.5, 10 mm shorter than before). The 30 mm model is gone. On the module the shaft tip is at u = 31.5 (hub end and board outline unchanged at u = 22.5, axis 10 mm above the PCB top). The module STEP is refreshed; the mainboard has no encoder, so its STEP files are unchanged.
+- Module DRC and ERC: nothing new (0 errors, 0 unconnected; the same library-mismatch and MPN-field notes). The BOM and CPL list SW1 with C49673168.
+- Not ordered, made or fitted. The case thread's roller and cover follow the shorter shaft.
+
 ### Mainboard Rev 1.1: encoder off the mainboard, new encoder module (2026-11-02)
 
 - Tiam's calls: nothing is ordered yet, so the mainboard is updated in place as Rev 1.1 (silk "mainboard v1.1" and the logo's "Rev 1.1"); keep the Bourns PEC12R-2230F-S0024 and ignore the click along the shaft; JST SH connectors; no extra expansion-port breakouts, only the rotary change.

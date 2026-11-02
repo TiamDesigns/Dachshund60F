@@ -102,8 +102,8 @@ switch footprints and wire them to the same diode.
   about 4.7 V on USB. Their input-high threshold (0.7 × VDD) is then about
   3.3 V, so the data line goes through an SN74LV1T34 buffer powered from
   LED_VDD. Its TTL-level input reads 3.3 V logic at any LED voltage.
-- **Encoder:** Bourns PEC12R-2230F-S0024 (shaft parallel to the board, 24
-  detents, push switch, 30 mm shaft), with a wide roller so it turns like a
+- **Encoder:** Bourns PEC12R-2220F-S0024 (shaft parallel to the board, 24
+  detents, push switch, 20 mm shaft), with a wide roller so it turns like a
   mouse wheel. Since mainboard Rev 1.1 it sits on its own small board,
   `hardware/Dachshund60F-Encoder/`, cabled to the mainboard's port J5 (JST
   SH 1.0 mm, 5 pins, on the back at x 313.4, y 50.025 mm, cable leaving
