@@ -138,8 +138,14 @@ def read_mainboard():
     board = pcbnew.LoadBoard(MAINBOARD)
 
     x0, y0, x1, y1 = bbox_mm(board.GetBoardEdgesBoundingBox())
+    # Only the outline's corner arcs count: the cable slot beside J5 has arcs of its own.
+    def in_corner(d):
+        c = d.GetCenter()
+        cx, cy = pcbnew.ToMM(c.x), pcbnew.ToMM(c.y)
+        return (cx - x0 < 6 or x1 - cx < 6) and (cy - y0 < 6 or y1 - cy < 6)
+
     radii = {round(pcbnew.ToMM(d.GetRadius()), 3) for d in board.GetDrawings()
-             if d.GetLayer() == pcbnew.Edge_Cuts and d.GetShape() == pcbnew.SHAPE_T_ARC}
+             if d.GetLayer() == pcbnew.Edge_Cuts and d.GetShape() == pcbnew.SHAPE_T_ARC and in_corner(d)}
     if len(radii) != 1:
         raise SystemExit(f"expected one corner radius on the mainboard outline, got {radii}")
     # The bounding box includes the line width; the outline itself is 0.025 mm in.
