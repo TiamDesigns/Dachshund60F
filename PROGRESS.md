@@ -6,6 +6,13 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Plate: branched gasket nubs (2026-11-02)
+
+- Tiam's correction: the forked tabs were read wrongly. Each of the six positions is now one nub that branches: a 4 mm neck leaves the plate edge, then splits into two 1.5 mm wide, 12 mm long arms running back along the edge in opposite directions (a T), with a 1.2 mm slot between each arm and the plate edge, so each arm is a cantilever held only through the neck. The free end of each arm carries one prong (2.8 x 6.5 mm, pointing outward, flush with the arm's end): still twelve gaskets, on six nubs. Estimated stiffness at the prong about 15 N/mm in 1.6 mm FR4 (3EI/L^3, E ~ 20 GPa).
+- Nothing is cut into the plate's switch area; the nub lives entirely outside the outline. Sock outlines on Cmts.User now start at the arm's outer face (2.7 mm past the plate edge) and reach 8 mm past it. Nub centres unchanged (bottom -106.17, 0, +106.17; top -107.7, -15.0, +77.7); prongs sit +-12.6 mm from each. Parameters in gen_plate.py: NECK_WIDTH, SLOT, ARM_WIDTH, ARM_LENGTH, FRONT_NUBS, BACK_NUBS.
+- kicad-cli DRC 0 violations; Plate and Assembly STEP and the polycarbonate DXF regenerated. Not fabricated.
+- Case (Fusion): the 12 sock pockets move to the arm ends and each nub gets a 0.5 mm clearance pocket in the top shell.
+
 ### Plate: forked gasket tabs and encoder-post reliefs (2026-11-02)
 
 - Tiam's call: six forked tabs instead of eight single ones, so twelve gaskets, all seated in the case's top shell. Three forks on the top (back) edge and three on the bottom (front) edge, two prongs each, 7 mm apart centre to centre; a prong is the old tab (2.8 wide, 6.5 long, 1.6 mm FR4). The 2 mm slot Tiam asked for becomes 4.2 mm between 2.8 mm prongs at 7 mm pitch (the 5 mm socks need that pitch).

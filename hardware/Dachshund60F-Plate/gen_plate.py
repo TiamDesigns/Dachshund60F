@@ -53,25 +53,34 @@ COPPER_EDGE_CLEARANCE = 0.4
 MASK_INSET = 0.05
 MIN_ACCENT_AREA = 2.0  # mm²
 
-# Gasket tabs for silicone socks: 6.5 mm deep, 2.8 mm wide pocket, 8 x 5 x 5 mm
-# outside. A prong exactly fills the pocket, so the sock's open end sits against
-# the plate edge. Forked tabs: three on the top edge, three on the bottom, none
-# on the ends, each tab forking into two prongs, one per sock (twelve socks).
-# The sock is 5 mm wide, so the prongs are PRONG_PITCH apart, centre to centre
-# (7 mm leaves 2 mm of case wall between neighbouring sock pockets and 4.2 mm of
-# slot between the prongs).
+# Gasket nubs for silicone socks (6.5 mm deep, 2.8 mm wide pocket, 8 x 5 x 5 mm
+# outside). Six branched nubs: three on the top edge, three on the bottom, none
+# on the ends. Each nub leaves the plate edge as one short neck, then splits into
+# two arms that run back along the plate edge in opposite directions (a T). A slot
+# SLOT wide separates each arm from the plate edge, so the arm is a cantilever
+# spring held only by the neck and the material flexes. Each arm's free end carries
+# one prong (the 2.8 x 6.5 mm tab the sock slides over, pointing outward): twelve
+# gaskets on six nubs. The sock's open end sits against the arm's outer face.
+# Everything stays outside the plate outline, so no switch cutout is touched.
+NECK_WIDTH = 4.0
+SLOT = 1.2               # between the plate edge and the arm
+ARM_WIDTH = 1.5          # in plane; the arm bends in this direction
+ARM_LENGTH = 12.0        # from the neck's side face to the arm's free end
 TAB_WIDTH = 2.8          # one prong
 TAB_LENGTH = 6.5
 SOCK_LENGTH = 8.0
 SOCK_WIDTH = 5.0
-PRONG_PITCH = 7.0
-# Fork centres, in mm from the middle of the plate (x = 0 is the USB-C connector
+# Nub centres, in mm from the middle of the plate (x = 0 is the USB-C connector
 # on the top, back edge). Front: even thirds, symmetric. Back: the plate's top
 # edge ends at the encoder notch (x = +127.75 here) and the USB-C sits at x = 0,
-# so the three forks are spread evenly over the edge that is left (the centre
+# so the three nubs are spread evenly over the edge that is left (the centre
 # one 15 mm left of the connector) instead.
-FRONT_FORKS = (-106.17, 0.0, 106.17)
-BACK_FORKS = (-107.7, -15.0, 77.7)
+FRONT_NUBS = (-106.17, 0.0, 106.17)
+BACK_NUBS = (-107.7, -15.0, 77.7)
+# Where a prong sits: the prong's outer edge is flush with the arm's end.
+PRONG_OFFSET = NECK_WIDTH / 2 + ARM_LENGTH - TAB_WIDTH / 2
+# Distance from the plate edge to the arms' outer face, where the prongs start.
+ARM_OUTER = SLOT + ARM_WIDTH
 
 # Reliefs for the encoder module's two M2 posts (they stand 1.2 mm from the notch
 # edge), Ø5.2 centred on the module's holes (mainboard mm), open to the edge
@@ -255,15 +264,24 @@ def build(mb):
     outline = rounded_rect(x0, y0, x1, y1, mb["corner_radius"])
 
     cx = (x0 + x1) / 2
-    # Prong centres: the top edge is y0 (the keyboard's back), the bottom edge y1 (its front).
-    top_prongs = [cx + f + d for f in BACK_FORKS for d in (-PRONG_PITCH / 2, PRONG_PITCH / 2)]
-    bottom_prongs = [cx + f + d for f in FRONT_FORKS for d in (-PRONG_PITCH / 2, PRONG_PITCH / 2)]
+    # Nubs: the top edge is y0 (the keyboard's back), the bottom edge y1 (its front).
+    top_nubs = [cx + f for f in BACK_NUBS]
+    bottom_nubs = [cx + f for f in FRONT_NUBS]
+    top_prongs = [n + s * PRONG_OFFSET for n in top_nubs for s in (-1, 1)]
+    bottom_prongs = [n + s * PRONG_OFFSET for n in bottom_nubs for s in (-1, 1)]
+    reach = NECK_WIDTH / 2 + ARM_LENGTH
     tabs = []
+    # Overlaps of 0.5-1 mm between the pieces keep the union free of seams.
+    for n in top_nubs:
+        tabs.append(rect(n - NECK_WIDTH / 2, y0 - ARM_OUTER, n + NECK_WIDTH / 2, y0 + 1))              # neck
+        tabs.append(rect(n - reach, y0 - ARM_OUTER, n + reach, y0 - SLOT))                              # both arms
+    for n in bottom_nubs:
+        tabs.append(rect(n - NECK_WIDTH / 2, y1 - 1, n + NECK_WIDTH / 2, y1 + ARM_OUTER))
+        tabs.append(rect(n - reach, y1 + SLOT, n + reach, y1 + ARM_OUTER))
     for tx in top_prongs:
-        # Each prong overlaps the plate by 1 mm so the union has no seam.
-        tabs.append(rect(tx - TAB_WIDTH / 2, y0 - TAB_LENGTH, tx + TAB_WIDTH / 2, y0 + 1))
+        tabs.append(rect(tx - TAB_WIDTH / 2, y0 - ARM_OUTER - TAB_LENGTH, tx + TAB_WIDTH / 2, y0 - ARM_OUTER + 0.5))
     for tx in bottom_prongs:
-        tabs.append(rect(tx - TAB_WIDTH / 2, y1 - 1, tx + TAB_WIDTH / 2, y1 + TAB_LENGTH))
+        tabs.append(rect(tx - TAB_WIDTH / 2, y1 + ARM_OUTER - 0.5, tx + TAB_WIDTH / 2, y1 + ARM_OUTER + TAB_LENGTH))
     outline = union([outline] + tabs)
 
     ex0, ey0, ex1, ey1 = mb["encoder"]
@@ -323,13 +341,13 @@ def build(mb):
 
     socks = []
     for tx in top_prongs:
-        socks.append((tx, y0 - SOCK_LENGTH, y0))
+        socks.append((tx, y0 - ARM_OUTER - SOCK_LENGTH, y0 - ARM_OUTER))
     for tx in bottom_prongs:
-        socks.append((tx, y1, y1 + SOCK_LENGTH))
+        socks.append((tx, y1 + ARM_OUTER, y1 + ARM_OUTER + SOCK_LENGTH))
 
     return {
         "plate": plate, "copper": copper, "mask": mask, "socks": socks,
-        "top_prongs": top_prongs, "bottom_prongs": bottom_prongs, "notch_bottom": notch_bottom, "led_windows": led_windows,
+        "top_prongs": top_prongs, "bottom_prongs": bottom_prongs, "top_nubs": top_nubs, "bottom_nubs": bottom_nubs, "notch_bottom": notch_bottom, "led_windows": led_windows,
     }
 
 
@@ -412,8 +430,10 @@ def main():
     print(f"plate outline {x1 - x0:.2f} x {y1 - y0:.2f} mm, corner radius {mb['corner_radius']} mm")
     print(f"{len(mb['switches'])} switch cutouts, {len(mb['stabs'])} stabilizer cutouts, "
           f"LED windows over {', '.join(geo['led_windows'])}")
-    print("prongs, top edge (y = %s): x = " % y0 + ", ".join(f"{x:.2f}" for x in geo["top_prongs"]))
-    print("prongs, bottom edge (y = %s): x = " % y1 + ", ".join(f"{x:.2f}" for x in geo["bottom_prongs"]))
+    print("nubs, top edge (y = %s): x = " % y0 + ", ".join(f"{x:.2f}" for x in geo["top_nubs"]))
+    print("prongs, top edge: x = " + ", ".join(f"{x:.2f}" for x in geo["top_prongs"]))
+    print("nubs, bottom edge (y = %s): x = " % y1 + ", ".join(f"{x:.2f}" for x in geo["bottom_nubs"]))
+    print("prongs, bottom edge: x = " + ", ".join(f"{x:.2f}" for x in geo["bottom_prongs"]))
     print(f"encoder notch: x >= {NOTCH_LEFT}, y <= {geo['notch_bottom']}")
     print(f"wrote {os.path.relpath(OUT)}")
 
