@@ -8398,20 +8398,6 @@
 	)
 	(wire
 		(pts
-			(xy 38.1 332.74)
-			(xy 40.64 332.74)
-		)
-		(uuid "8b31972a-351a-4383-b64d-ae7a58613f90")
-	)
-	(wire
-		(pts
-			(xy 38.1 327.66)
-			(xy 40.64 327.66)
-		)
-		(uuid "a03d7595-9f23-4d89-9738-5a2f5f753c9a")
-	)
-	(wire
-		(pts
 			(xy 59.69 95.25)
 			(xy 57.15 95.25)
 		)
@@ -8594,13 +8580,6 @@
 	)
 	(wire
 		(pts
-			(xy 22.86 327.66)
-			(xy 20.32 327.66)
-		)
-		(uuid "e1e2d026-fef4-48a5-99c7-95703aa95fb8")
-	)
-	(wire
-		(pts
 			(xy 53.34 341.63)
 			(xy 53.34 339.09)
 		)
@@ -8612,13 +8591,6 @@
 			(xy 102.87 148.59)
 		)
 		(uuid "f5791102-113c-40b8-97ad-c79f210dbdca")
-	)
-	(wire
-		(pts
-			(xy 22.86 332.74)
-			(xy 20.32 332.74)
-		)
-		(uuid "0940b459-5420-4251-a305-391574f7db04")
 	)
 	(wire
 		(pts
@@ -9025,13 +8997,6 @@
 			(xy 111.76 284.48)
 		)
 		(uuid "517e1984-5f6f-4aee-bfe2-a688c2cf62c4")
-	)
-	(wire
-		(pts
-			(xy 22.86 330.2)
-			(xy 20.32 330.2)
-		)
-		(uuid "faf667e3-d031-48d2-9f3f-560e83fda8bc")
 	)
 	(wire
 		(pts
@@ -11062,26 +11027,6 @@
 		)
 		(uuid "0fbf1431-bb40-4543-8f62-54ba07520f77")
 	)
-	(label "ENC_SW"
-		(at 40.64 332.74 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "9c56e0a9-01a1-4ed1-a455-e9b466160e50")
-	)
-	(label "COL14"
-		(at 40.64 327.66 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "62d1f142-6f25-4e3a-a94a-ada462fc0c56")
-	)
 	(label "COL14"
 		(at 57.15 95.25 180)
 		(effects
@@ -11341,6 +11286,61 @@
 			(justify left bottom)
 		)
 		(uuid "93acb1b2-0ee6-4f42-a216-bb5d8ab545fe")
+	)
+	(wire
+		(pts
+			(xy 25.4 325.12)
+			(xy 20.32 325.12)
+		)
+		(uuid "00e215c8-79c6-464a-9c69-b2bf314d002a")
+	)
+	(wire
+		(pts
+			(xy 25.4 327.66)
+			(xy 20.32 327.66)
+		)
+		(uuid "ac7712d5-4a1a-422e-b14f-946a19058902")
+	)
+	(wire
+		(pts
+			(xy 25.4 330.2)
+			(xy 20.32 330.2)
+		)
+		(uuid "42070cee-2d32-4efa-8ba1-a0e3c5fb2ba7")
+	)
+	(wire
+		(pts
+			(xy 25.4 332.74)
+			(xy 20.32 332.74)
+		)
+		(uuid "771f2c02-8d3f-48d1-a48a-34e8819d8215")
+	)
+	(wire
+		(pts
+			(xy 25.4 335.28)
+			(xy 20.32 335.28)
+		)
+		(uuid "a3792336-5ad1-45e4-81ab-cbc0456986e1")
+	)
+	(label "COL14"
+		(at 20.32 325.12 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "8de33d56-a74e-4dbb-9fb1-1e700a4cd620")
+	)
+	(label "ENC_SW"
+		(at 20.32 335.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "2d03df0c-0301-4ee2-a8b8-3a8a303f8ddb")
 	)
 	(label "ENC_A"
 		(at 20.32 327.66 180)
@@ -14049,31 +14049,31 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:RotaryEncoder_Switch")
+		(lib_id "Connector_Generic:Conn_01x05")
 		(at 30.48 330.2 0)
 		(unit 1)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "9b978d94-68d2-4b99-a770-06ef52338d22")
-		(property "Reference" "SW3"
-			(at 30.48 321.31 0)
+		(uuid "899c9ad3-2d96-4112-8f50-2aa8b061e807")
+		(property "Reference" "J5"
+			(at 30.48 320.04 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "PEC12R-2230F-S0024 (shaft parallel to the board, 30 mm)"
-			(at 30.48 323.85 0)
+		(property "Value" "Encoder"
+			(at 30.48 340.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "MPN" "Bourns PEC12R-2230F-S0024"
-			(at 30.48 323.85 0)
+		(property "MPN" "JST SM05B-SRSS-TB"
+			(at 30.48 340.36 0)
 			(hide yes)
 			(effects
 				(font
@@ -14082,7 +14082,7 @@
 			)
 		)
 		(property "LCSC" ""
-			(at 30.48 323.85 0)
+			(at 30.48 340.36 0)
 			(hide yes)
 			(effects
 				(font
@@ -14090,7 +14090,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Rotary_Encoder:RotaryEncoder_Bourns_Horizontal_PEC12R-2x17F-Sxxxx"
+		(property "Footprint" "Connector_JST:JST_SH_SM05B-SRSS-TB_1x05-1MP_P1.00mm_Horizontal"
 			(at 30.48 330.2 0)
 			(hide yes)
 			(effects
@@ -14099,7 +14099,7 @@
 				)
 			)
 		)
-		(property "Datasheet" "https://www.bourns.com/docs/product-datasheets/pec12r.pdf"
+		(property "Datasheet" "https://www.jst-mfg.com/product/pdf/eng/eSH.pdf"
 			(at 30.48 330.2 0)
 			(hide yes)
 			(effects
@@ -14108,7 +14108,7 @@
 				)
 			)
 		)
-		(property "Description" "Rotary encoder, dual channel, incremental quadrate outputs, with switch and MP Pin"
+		(property "Description" "Encoder module cable port: pin 1 COL14, 2 ENC_A, 3 GND, 4 ENC_B, 5 ENC_SW (JST SH 1.0 mm, side entry)"
 			(at 30.48 330.2 0)
 			(hide yes)
 			(effects
@@ -14120,7 +14120,7 @@
 		(instances
 			(project "Dachshund60F"
 				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
-					(reference "SW3")
+					(reference "J5")
 					(unit 1)
 				)
 			)

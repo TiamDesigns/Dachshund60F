@@ -4,8 +4,8 @@
 
 Writes to out_dir (default hardware/fab/):
 
-- <board>-gerbers.zip  for the mainboard, USB-C daughterboard, dongle and plate
-- <board>-bom.csv and <board>-cpl.csv  for JLCPCB assembly of the three PCBs
+- <board>-gerbers.zip  for the mainboard, USB-C daughterboard, dongle, plate and encoder module
+- <board>-bom.csv and <board>-cpl.csv  for JLCPCB assembly of the four PCBs
 
 Each zip holds the copper, mask, paste, silkscreen and outline Gerbers plus
 Excellon drill files (plated and non-plated holes separate, mm), set up the
@@ -32,8 +32,8 @@ import zipfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 KICAD_CLI = os.environ.get("KICAD_CLI", r"C:\Program Files\KiCad\10.0\bin\kicad-cli.exe")
-BOARDS = ["Dachshund60F", "Dachshund60F-USB", "Dachshund60F-Dongle", "Dachshund60F-Plate"]
-ASSEMBLED = ["Dachshund60F", "Dachshund60F-USB", "Dachshund60F-Dongle"]
+BOARDS = ["Dachshund60F", "Dachshund60F-USB", "Dachshund60F-Dongle", "Dachshund60F-Plate", "Dachshund60F-Encoder"]
+ASSEMBLED = ["Dachshund60F", "Dachshund60F-USB", "Dachshund60F-Dongle", "Dachshund60F-Encoder"]
 # Kailh socket centre relative to the switch footprint's origin (midpoint of its two pads), KiCad axes.
 SOCKET_FOOTPRINT = "SW_Hotswap_Kailh_MX"
 SOCKET_OFFSET = (-0.6215, -3.81)

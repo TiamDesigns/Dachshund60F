@@ -6,6 +6,16 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Mainboard Rev 1.1: encoder off the mainboard, new encoder module (2026-11-02)
+
+- Tiam's calls: nothing is ordered yet, so the mainboard is updated in place as Rev 1.1 (silk "mainboard v1.1" and the logo's "Rev 1.1"); keep the Bourns PEC12R-2230F-S0024 and ignore the click along the shaft; JST SH connectors; no extra expansion-port breakouts, only the rotary change.
+- Mainboard: SW3 is gone. J5 (JST SH 5-pin, side entry, SM05B-SRSS-TB) replaces it on the back at x 313.4, y 48.0 to 52.0 mm (pin 1 at y 52.0), cable leaving toward -x: pin 1 COL14, 2 ENC_A, 3 GND, 4 ENC_B, 5 ENC_SW. The old routes were reconnected to J5's pads; C10, C11 and D114 stay on the mainboard, so P0.11/P0.12 and the matrix push switch are unchanged and the firmware, `board.json` and Doghouse don't change. Zones refilled. DRC with every severity: 221 items (was 222), 0 unconnected, no new ones; schematic parity shows only the missing-MPN-field notes that every part already had. ERC unchanged.
+- New project `hardware/Dachshund60F-Encoder/`: 22.5 × 22.0 mm, the same PEC12R footprint and model (SW1, shaft along +u, hub end at the board edge, axis 10 mm above the top), J1 (JST SH 5-pin) on the bottom side leaving at the -u edge, two M2 holes at (2.7, 2.7) and (2.7, 19.3), GND pours. DRC and ERC clean apart from the same library-mismatch and MPN-field notes. Layout and pinout in its README. Built with a script in the session, not committed; edit it in KiCad from here.
+- `gen_plate.py` read the encoder's courtyard from the mainboard; it now uses a fixed `ENCODER_BOX` with the old values, so the plate is unchanged. `export_fab.py` and `export_step.py` include the module. STEP exports refreshed for the mainboard, assembly and the new module (the USB, dongle and plate files are untouched).
+- `.mcp.json` pointed the Konnect server at `OneDrive\Documents\KiCad`, which doesn't exist now that the files moved to `Documents`; it points at `Documents\KiCad`. Restart the session for the KiCad tools to connect.
+- Docs updated: boards README, bring-up plan, design decisions, plate README, root README. The case README and generator still describe the encoder on the mainboard; the case thread owns those.
+- Not ordered, made or fitted. The cable between J5 and J1 has no slot in the mainboard.
+
 ### Case: Fusion review changes (2026-10-29)
 
 - Thumb scoop: it now keeps falling right to the front edge (about 29° to the bezel where it meets the roll) instead of levelling out there. The fall is the quintic Bezier 0, 0, 0, 1/3, 2/3, 1 times the 3.5 mm drop, and the top surface carries straight on past the edge, so the surface stays one C2 patch.

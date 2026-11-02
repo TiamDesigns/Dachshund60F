@@ -63,8 +63,8 @@ switch footprints and wire them to the same diode.
 
 | Signal | Pin | Notes |
 |---|---|---|
-| Encoder A | P0.11 | To GND through the encoder; internal pull-up. |
-| Encoder B | P0.12 | Same as A. The push switch is in the matrix at (0, 14). |
+| Encoder A | P0.11 | Encoder port J5 pin 2. To GND through the encoder module; internal pull-up. |
+| Encoder B | P0.12 | J5 pin 4. Same as A. The push switch is in the matrix at (0, 14), through J5 pins 1 (COL14) and 5 (ENC_SW) and diode D114. |
 | LED data | P0.06 | SK6812MINI-E chain of 6, in this order: LED 0 layer, LEDs 1–4 battery gauge (25/50/75/100%), LED 5 under Caps Lock. LEDs 0–4 sit in a row above the Right arrow. Driven by SPI MOSI. |
 | LED power enable | P0.08 | Active-high EN of the TPS22917 load switch feeding the LEDs, with a 100 kΩ pull-down so the LEDs stay off through reset and sleep. |
 | Display CLK / DIN | P0.19 / P0.21 | J4 pins 4 and 3. SPI SCK/MOSI for e-paper, or SCL/SDA for an I2C OLED (the display module supplies the pull-ups). |
@@ -103,13 +103,14 @@ switch footprints and wire them to the same diode.
   3.3 V, so the data line goes through an SN74LV1T34 buffer powered from
   LED_VDD. Its TTL-level input reads 3.3 V logic at any LED voltage.
 - **Encoder:** Bourns PEC12R-2230F-S0024 (shaft parallel to the board, 24
-  detents, push switch, 30 mm shaft), with a wide
-  roller so it turns like a mouse wheel. A/B go to GPIO and C to GND, with
-  10 nF from each of A and B to GND. Its body sits just right of the last
-  key column (SW3 at x 314.3, y 52.025 mm, rotated 180°) with the shaft
-  pointing right, toward the board edge. The 30 mm shaft's tip is at
-  x 340.8, 3.3 mm past the board edge, so the wheel can reach out through
-  the case's end wall. The PCB is about 12.7 mm wider than the layout.
+  detents, push switch, 30 mm shaft), with a wide roller so it turns like a
+  mouse wheel. Since mainboard Rev 1.1 it sits on its own small board,
+  `hardware/Dachshund60F-Encoder/`, cabled to the mainboard's port J5 (JST
+  SH 1.0 mm, 5 pins, on the back at x 313.4, y 50.025 mm, cable leaving
+  toward -x): pin 1 COL14, 2 ENC_A (P0.11), 3 GND, 4 ENC_B (P0.12), 5 ENC_SW.
+  The 10 nF debounce capacitors on A and B (C10, C11) and the push-switch
+  diode D114 stay on the mainboard, so the pin map and the firmware did not
+  change. The encoder's old spot at the right end of the sidebar is empty.
 - **USB-C:** 5.1 kΩ pull-downs on CC1 and CC2, and ESD protection on D+/D−
   (e.g. USBLC6-2).
 - **Antenna:** keep the MDBT50Q antenna keep-out free of copper on all layers,
