@@ -30,10 +30,12 @@ can't drift apart.
   stabilizer's left cutout sits inside the 1.25u Mod cutout. The switches in the merged slot (SW604,
   SW606 and SW615) are the soldered ones, so the PCB holds them. The hot-swap 2.25u Mod (SW608) keeps a
   full cutout.
-- **Encoder:** the plate stops short of the roller (SW3). A notch takes out the top-right corner,
+- **Encoder:** the plate stops short of the roller. A notch takes out the top-right corner,
   x ≥ 306.0 mm and y ≤ 59.0 mm, with a 2 mm inside radius. That clears the body (its left face at
   x ≈ 308.15 mm), the 20 mm shaft pointing right (tip at x ≈ 331.3 mm) and a wheel on it, and leaves a 2.8 mm web next to the Delete cutout. Supporting the roller is up to the
-  case.
+  case. Since mainboard Rev 1.1 the encoder is on its own module board, so `gen_plate.py` no longer reads
+  it from the mainboard: the notch keeps the bottom edge the old on-board encoder gave it (`ENCODER_BOX`),
+  and the output is unchanged.
 - **Display header:** a slot over J4 (the courtyard plus 0.2 mm), for the 8.5 mm-tall pin header.
 - **Indicator LEDs:** 4 × 4 mm windows over D3–D7, the layer and battery LEDs. The Caps LED (D2) sits
   inside its switch cutout, so it needs no window.

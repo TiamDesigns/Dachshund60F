@@ -5,7 +5,7 @@ Run with KiCad's own Python (it ships the pcbnew module), from the repo root:
     "C:/Program Files/KiCad/10.0/bin/python.exe" hardware/Dachshund60F-Plate/gen_plate.py
 
 Everything is read from hardware/Dachshund60F/Dachshund60F.kicad_pcb, so rerun
-this after moving a switch, stabilizer, the encoder, J4 or the indicator LEDs.
+this after moving a switch, stabilizer, J4 or the indicator LEDs.
 The output overwrites Dachshund60F-Plate.kicad_pcb; edit the parameters below,
 not the generated board.
 """
@@ -67,10 +67,13 @@ OUTLINE_INSIDE_RADIUS = 0.5
 # Every outside corner gets at least this radius (tab tips, notch ends).
 OUTLINE_OUTSIDE_RADIUS = 1.0
 
-# Encoder notch: the plate stops short of the horizontal roller encoder (SW3).
-# Its left edge leaves a 2.8 mm web next to the Delete cutout and leaves the
-# whole 20 mm shaft and a wheel on it clear.
-ENCODER_REF = "SW3"
+# Encoder notch: the plate stops short of the roller. The encoder is on its own
+# module board since mainboard Rev 1.1, so the mainboard has no encoder to
+# measure; ENCODER_BOX is the courtyard (x0, y0, x1, y1, in mainboard mm) the
+# old on-board encoder had, which fixed the notch's bottom edge. Its left edge
+# leaves a 2.8 mm web next to the Delete cutout and leaves the whole shaft and
+# a wheel on it clear.
+ENCODER_BOX = (308.105, 41.33, 328.595, 57.72)
 NOTCH_LEFT = 306.0
 NOTCH_BELOW_COURTYARD = 1.3
 NOTCH_RADIUS = 2.0
@@ -190,7 +193,7 @@ def read_mainboard():
         "corner_radius": radii.pop(),
         "switches": sorted(switches),
         "stabs": sorted(stabs),
-        "encoder": courtyard(ENCODER_REF),
+        "encoder": ENCODER_BOX,
         "display": courtyard(DISPLAY_REF),
         "leds": [(ref, *position(ref)) for ref in LED_REFS],
     }

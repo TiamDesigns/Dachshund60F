@@ -10,6 +10,7 @@ the result when you want a snapshot):
 - Dachshund60F-Assembly.step  mainboard and plate, already stacked
 - Dachshund60F-USB.step       USB-C daughterboard
 - Dachshund60F-Dongle.step    2.4 GHz dongle
+- Dachshund60F-Encoder.step   encoder module (the roller encoder on its own board)
 
 The mainboard, plate and assembly share one origin: the centre of the
 mainboard outline, so the separate files line up in X and Y. In every file the
@@ -89,7 +90,7 @@ def main():
         subprocess.run([KICAD_CLI, "pcb", "export", "step", "--force", "--user-origin", "0x0mm",
                         "-o", plate_abs, PLATE], capture_output=True, check=True)
         assembly(plate_abs, os.path.join(OUT, "Dachshund60F-Assembly.step"))
-    for name in ("Dachshund60F-USB", "Dachshund60F-Dongle"):
+    for name in ("Dachshund60F-USB", "Dachshund60F-Dongle", "Dachshund60F-Encoder"):
         export(os.path.join(HERE, name, f"{name}.kicad_pcb"), os.path.join(OUT, f"{name}.step"))
 
 
