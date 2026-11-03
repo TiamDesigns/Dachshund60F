@@ -11,6 +11,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - `claude/plate-branched-tabs` now merges `origin/main` (PR 67's corner notch and the rename of firmware, app and docs), keeping main's notch bottom (`ENCODER_BOX` 55.7), `POST_RELIEFS` (306.6, 41.7) and (306.6, 57.8), and this branch's gasket nubs.
 - Tiam approved a wider web: `NOTCH_LEFT` goes from 304.0 to 305.25, so the plate web beside the Delete cutout (right edge at x 303.25) is 2.0 mm instead of 0.75 (the mainboard's own notch stays at 304.0). Checked against the encoder module: its board runs under the web at z 1.8 to 3.3 and the plate is at z 5.0 to 6.6; its connector, pins and frame ears all stand in the notch (x from 314.6, y 42.7 to 56.3); the module's M2 posts get `POST_RELIEF_D` 3.8 (the case's bosses are dia 3.4; was 5.2), which leaves 1.45 mm of web at the two reliefs.
 - Plate regenerated with KiCad 10's Python on main's boards; kicad-cli DRC 0 violations, 0 unconnected; Plate and Assembly STEP and the polycarbonate DXF regenerated. Not fabricated.
+- Merged `origin/main` again after PR 69 (the PCB projects renamed to `hardware/Dachshund70/`): `MAINBOARD` in `gen_plate.py` already points at `../Dachshund70/Dachshund70.kicad_pcb`. Regenerating against it gave the same plate (only fresh UUIDs) and DRC still shows 0 violations, so the plate, DXF and STEP files are unchanged; the plate files keep their Dachshund60F names until the rename thread renames them.
 
 ### Plate: gasket prongs parallel to the edge (2026-11-03)
 
