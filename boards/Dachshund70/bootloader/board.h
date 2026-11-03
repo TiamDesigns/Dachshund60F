@@ -1,12 +1,12 @@
 /*
- * Dachshund60F board definition for the Adafruit nRF52 bootloader.
+ * Dachshund70 board definition for the Adafruit nRF52 bootloader.
  *
- * Pins come from boards/Dachshund60F/board.json. Copy this directory to
- * src/boards/dachshund60f/ in the bootloader tree (build.sh does that).
+ * Pins come from boards/Dachshund70/board.json. Copy this directory to
+ * src/boards/dachshund70/ in the bootloader tree (build.sh does that).
  */
 
-#ifndef DACHSHUND60F_H
-#define DACHSHUND60F_H
+#ifndef DACHSHUND70_H
+#define DACHSHUND70_H
 
 /* VDDH (battery or USB) powers the module, so GPIO runs at REGOUT0. The
  * SK6812 data input needs 3.3 V. Written to UICR on first boot. */
@@ -37,7 +37,7 @@
 // BLE OTA
 //--------------------------------------------------------------------+
 #define BLEDIS_MANUFACTURER "Dachshund"
-#define BLEDIS_MODEL        "Dachshund60F"
+#define BLEDIS_MODEL        "Dachshund70"
 
 //--------------------------------------------------------------------+
 // USB
@@ -51,9 +51,9 @@
 //--------------------------------------------------------------------+
 // UF2
 //--------------------------------------------------------------------+
-#define UF2_PRODUCT_NAME "Dachshund60F"
+#define UF2_PRODUCT_NAME "Dachshund70"
 #define UF2_VOLUME_LABEL "DACHSHUND"
-#define UF2_BOARD_ID     "nRF52840-Dachshund60F-v1"
-#define UF2_INDEX_URL    "https://github.com/TiamDesigns/Dachshund60F"
+#define UF2_BOARD_ID     "nRF52840-Dachshund70-v1"
+#define UF2_INDEX_URL    "https://github.com/TiamDesigns/Dachshund70"
 
-#endif // DACHSHUND60F_H
+#endif // DACHSHUND70_H

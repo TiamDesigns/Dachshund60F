@@ -3,7 +3,7 @@
  * Battery and Device Information services, and host profiles.
  *
  * Profiles: profile n advertises with identity n, its own random static
- * address, so each paired computer sees its own "Dachshund60F" and keeps
+ * address, so each paired computer sees its own "Dachshund70" and keeps
  * its own bond. A profile with a bond only takes that host: a stranger that
  * connects is dropped, and pairing from anyone else is refused, until
  * BT_CLR (or the configurator) forgets the host. The selected profile is

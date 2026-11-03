@@ -7,7 +7,7 @@
  * every board in the pack.
  */
 
-import type { AdvancedOptions, BoardSettings, DebounceAlgorithm } from "@dachshund60f/host-lib";
+import type { AdvancedOptions, BoardSettings, DebounceAlgorithm } from "@dachshund70/host-lib";
 
 export type PresetSettings = Omit<BoardSettings, "name">;
 export type FeaturesOff = AdvancedOptions["off"];

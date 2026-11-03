@@ -1,6 +1,6 @@
 /*
  * Compiled-in default keymap: the keymap after a factory reset. This file's
- * sizes and default_keymap.c are the Dachshund60F's; a board with its own
+ * sizes and default_keymap.c are the Dachshund70's; a board with its own
  * (boards/<name>/firmware/, picked by CMakeLists.txt) defines KB_BOARD_KEYMAP
  * and brings board_keymap.h with the sizes and its own default_keymap.c.
  */

@@ -1,4 +1,4 @@
-# Dachshund60F
+# Dachshund70
 
 79-key board with an F-row, arrows and a split or full spacebar. It has one
 rotary encoder right of Delete and runs on a Raytac MDBT50Q-P1MV2 (nRF52840).

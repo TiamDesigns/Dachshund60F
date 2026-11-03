@@ -1,13 +1,13 @@
 # Dongle firmware
 
-The 2.4 GHz receiver for the Dachshund60F: a second nRF52840 on USB. To the computer it is the keyboard, with the same three HID interfaces (boot keyboard, NKRO and media, config) and its own USB IDs (1209:0002, "Dachshund60F Receiver"). Over the air it listens for the keyboard with Nordic's Enhanced ShockBurst (ESB) at 2 Mbps on 2475 MHz.
+The 2.4 GHz receiver for the Dachshund70: a second nRF52840 on USB. To the computer it is the keyboard, with the same three HID interfaces (boot keyboard, NKRO and media, config) and its own USB IDs (1209:0002, "Dachshund70 Receiver"). Over the air it listens for the keyboard with Nordic's Enhanced ShockBurst (ESB) at 2 Mbps on 2475 MHz.
 
 - Reports from the keyboard go straight to USB, so a key reaches the computer at the next 1 ms USB poll after the keyboard sends it.
 - The computer's lock LEDs and USB state, and config requests from Doghouse, ride back to the keyboard in ESB acknowledgements. The keyboard polls for them every 10 ms while in use and every 100 ms while idle.
 - If the keyboard goes quiet for 400 ms (asleep, off, out of range), every key is released on the computer. Doghouse requests then get `unreachable`, and Doghouse waits for the keyboard to come back.
 - Packets are defined in `firmware/core/include/kb/link.h` and tested on the host with the other core tests.
 
-It runs on Nordic's nRF52840 Dongle (PCA10059). The Dachshund60F-Dongle PCB uses the same button and LED pins (`boards/Dachshund60F/board.json`), so this firmware is meant for both.
+It runs on Nordic's nRF52840 Dongle (PCA10059). The Dachshund60F-Dongle PCB uses the same button and LED pins (`boards/Dachshund70/board.json`), so this firmware is meant for both.
 
 ## Build
 

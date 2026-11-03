@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { boardGeometry, fitUnit, legendSize } from "./geometry.ts";
 
 const def = JSON.parse(
-  readFileSync(new URL("../../../boards/Dachshund60F/keyboard.json", import.meta.url), "utf8"),
+  readFileSync(new URL("../../../boards/Dachshund70/keyboard.json", import.meta.url), "utf8"),
 );
 
 test("split spacebar layout has 79 keys, full bar has 77", () => {

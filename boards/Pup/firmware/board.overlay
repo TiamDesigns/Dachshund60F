@@ -9,7 +9,7 @@
  * Flash: Nordic's MBR at 0, the application from 0x1000, the settings
  * last, and Nordic's USB bootloader from 0xe0000 (it and the MBR keep
  * their settings in the last two pages). The same two data partitions as
- * the Dachshund60F: Zephyr settings (Bluetooth bonds, the dongle pairing),
+ * the Dachshund70: Zephyr settings (Bluetooth bonds, the dongle pairing),
  * then the keymap storage.
  */
 /delete-node/ &boot_partition;

@@ -103,16 +103,16 @@ test("firmware default keymap has the size in default_keymap.h", () => {
   }
 });
 
-test("firmware default keymap matches the Dachshund60F matrix", () => {
-  const board = JSON.parse(readFileSync(path.join(repoDir, "boards/Dachshund60F/board.json"), "utf8")) as {
+test("firmware default keymap matches the Dachshund70 matrix", () => {
+  const board = JSON.parse(readFileSync(path.join(repoDir, "boards/Dachshund70/board.json"), "utf8")) as {
     matrix: { rows: number; cols: number };
   };
   assert.equal(defineNumber(keymapH, "DEFAULT_KEYMAP_ROWS"), board.matrix.rows);
   assert.equal(defineNumber(keymapH, "DEFAULT_KEYMAP_COLS"), board.matrix.cols);
 });
 
-test("firmware default keymap matches host-lib's Dachshund60F default", () => {
-  const host = defaultKeymap("Dachshund60F");
+test("firmware default keymap matches host-lib's Dachshund70 default", () => {
+  const host = defaultKeymap("Dachshund70");
   assert.ok(host);
   // Encoders are mapped in phase 9; only keys are compared for now.
   assert.deepEqual(firmware, host.keys);

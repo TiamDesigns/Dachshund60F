@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Build the Adafruit nRF52 UF2 bootloader for the Dachshund60F.
+# Build the Adafruit nRF52 UF2 bootloader for the Dachshund70.
 # Needs git, cmake, ninja, arm-none-eabi-gcc and Python 3 with intelhex.
-# Usage: boards/Dachshund60F/bootloader/build.sh [workdir]   (default: build/bootloader)
+# Usage: boards/Dachshund70/bootloader/build.sh [workdir]   (default: build/bootloader)
 set -euo pipefail
 
 # Adafruit_nRF52_Bootloader commit this board was checked against (master,
@@ -19,19 +19,19 @@ fi
 git -C "$SRC" checkout -q "$REV"
 git -C "$SRC" submodule update --init --depth 1 lib/tinyusb lib/nrfx lib/uf2
 
-mkdir -p "$SRC/src/boards/dachshund60f"
-cp "$HERE"/board.h "$HERE"/board.mk "$HERE"/board.cmake "$HERE"/pinconfig.c "$SRC/src/boards/dachshund60f/"
+mkdir -p "$SRC/src/boards/dachshund70"
+cp "$HERE"/board.h "$HERE"/board.mk "$HERE"/board.cmake "$HERE"/pinconfig.c "$SRC/src/boards/dachshund70/"
 
 # Configure from inside the bootloader checkout: its CMake runs `git describe`
 # in the current directory to get the version number.
 cd "$SRC"
-cmake -S . -B _build/dachshund60f -G Ninja -DBOARD=dachshund60f
-cmake --build _build/dachshund60f
+cmake -S . -B _build/dachshund70 -G Ninja -DBOARD=dachshund70
+cmake --build _build/dachshund70
 
 # One file for the first SWD flash: MBR + S140 SoftDevice + bootloader + UICR.
-OUT="$PWD/_build/dachshund60f"
-python3 tools/hexmerge.py -o "$OUT/dachshund60f_bootloader_s140_6.1.1.hex" \
+OUT="$PWD/_build/dachshund70"
+python3 tools/hexmerge.py -o "$OUT/dachshund70_bootloader_s140_6.1.1.hex" \
   "$OUT/bootloader.hex" lib/softdevice/s140_nrf52_6.1.1/s140_nrf52_6.1.1_softdevice.hex
 echo
-echo "SWD (blank chip):  $OUT/dachshund60f_bootloader_s140_6.1.1.hex"
+echo "SWD (blank chip):  $OUT/dachshund70_bootloader_s140_6.1.1.hex"
 echo "UF2 (update only): $OUT/bootloader_mbr.uf2"

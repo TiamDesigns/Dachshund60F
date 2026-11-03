@@ -39,7 +39,7 @@ LOG_MODULE_REGISTER(indicators, LOG_LEVEL_INF);
 
 /*
  * The chain, in data order. Must match the indicators in
- * boards/Dachshund60F/keyboard.json (checked by host-lib's board tests).
+ * boards/Dachshund70/keyboard.json (checked by host-lib's board tests).
  */
 static const struct kb_led_def chain[] = {
     {KB_LED_ROLE_LAYER, 0},

@@ -1,5 +1,5 @@
 /*
- * 2.4 GHz dongle firmware: a USB receiver for the Dachshund60F.
+ * 2.4 GHz dongle firmware: a USB receiver for the Dachshund70.
  *
  * To the computer it is the keyboard (the same HID interfaces, from
  * firmware/src/kb_usb.c, with the dongle's own IDs); over the air it

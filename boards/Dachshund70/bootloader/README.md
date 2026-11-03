@@ -1,8 +1,8 @@
-# Dachshund60F UF2 bootloader
+# Dachshund70 UF2 bootloader
 
 Board files for the [Adafruit nRF52 bootloader](https://github.com/adafruit/Adafruit_nRF52_Bootloader),
 which gives the keyboard its UF2 drive. Pins come from `../board.json`; the
-flash layout matches `../dachshund60f.dts`.
+flash layout matches `../dachshund70.dts`.
 
 | File | What it is |
 |---|---|
@@ -45,15 +45,15 @@ On Linux or WSL:
 ```sh
 sudo apt install gcc-arm-none-eabi cmake ninja-build
 pip install intelhex
-boards/Dachshund60F/bootloader/build.sh    # from the repo root
+boards/Dachshund70/bootloader/build.sh    # from the repo root
 ```
 
 The output lands in
-`build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund60f/`. CI builds
+`build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund70/`. CI builds
 the same files and uploads them as the `bootloader-<sha>` artifact. The two you
 need are:
 
-- `dachshund60f_bootloader_s140_6.1.1.hex`: MBR, SoftDevice and bootloader in
+- `dachshund70_bootloader_s140_6.1.1.hex`: MBR, SoftDevice and bootloader in
   one file, for the first flash over SWD.
 - `bootloader_mbr.uf2`: updates the bootloader later by copying it onto the
   UF2 drive.
@@ -64,8 +64,8 @@ Connect the probe to the SWD header (SWDIO, SWDCLK, nRESET, VDD, GND), power the
 board, and erase the whole chip while programming. Use one of:
 
 ```sh
-nrfutil device program --firmware dachshund60f_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ
-pyocd flash -t nrf52840 --erase chip dachshund60f_bootloader_s140_6.1.1.hex
+nrfutil device program --firmware dachshund70_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ
+pyocd flash -t nrf52840 --erase chip dachshund70_bootloader_s140_6.1.1.hex
 JLinkExe -device NRF52840_XXAA -if SWD -speed 4000 -autoconnect 1   # then: erase, loadfile <hex>, r, g, q
 ```
 
@@ -74,7 +74,7 @@ Then:
 1. Reset the board. It has no app yet, so the DACHSHUND drive appears and the
    LEDs show the bootloader colours.
 2. Open `INFO_UF2.TXT` on the drive and check it reads
-   `Board-ID: nRF52840-Dachshund60F-v1`.
+   `Board-ID: nRF52840-Dachshund70-v1`.
 3. Copy `build/firmware/firmware/zephyr/zephyr.uf2` onto the drive. The board
    resets into the firmware (1209:0001).
 4. Hold Esc for 3 s and check the drive comes back. Then unplug, hold Esc, plug

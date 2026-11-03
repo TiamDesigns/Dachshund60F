@@ -3,7 +3,7 @@
  * to the board on redo and its `before` on undo.
  */
 
-import type { EncoderAction, KeycodeId } from "@dachshund60f/host-lib";
+import type { EncoderAction, KeycodeId } from "@dachshund70/host-lib";
 
 export type Edit =
   | { kind: "key"; layer: number; row: number; col: number; before: KeycodeId; after: KeycodeId }

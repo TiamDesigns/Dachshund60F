@@ -25,7 +25,7 @@ import {
   type KeyboardDefinition,
   type MockBoardManager,
   type Uf2Image,
-} from "@dachshund60f/host-lib";
+} from "@dachshund70/host-lib";
 
 import type { Desktop } from "./desktop.ts";
 

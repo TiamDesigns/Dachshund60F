@@ -6,7 +6,7 @@
     MACRO_COUNT,
     macroBytes,
     type MacroStep,
-  } from "@dachshund60f/host-lib";
+  } from "@dachshund70/host-lib";
 
   import { newStep } from "../advanced.ts";
   import type { BoardSession } from "../app-state.svelte.ts";

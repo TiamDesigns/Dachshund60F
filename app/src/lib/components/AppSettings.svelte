@@ -1,6 +1,6 @@
 <script lang="ts">
   /** Doghouse's own settings (not a board's): theme, version and updates. */
-  import { HOST_LIB_VERSION, protocol } from "@dachshund60f/host-lib";
+  import { HOST_LIB_VERSION, protocol } from "@dachshund70/host-lib";
 
   import { app } from "../app-state.svelte.ts";
   import { RELEASES_URL } from "../app-version.ts";

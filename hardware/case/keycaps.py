@@ -5,7 +5,7 @@
 
 Needs CadQuery. Writes hardware/case/step/Dachshund60F-Keycaps.step, one named part per key, in the same
 frame as Dachshund60F-Case-Assembly.step, so the two import on top of each other. The keys come from
-boards/Dachshund60F/keyboard.json; the case's own numbers (key grid, tilt, keycap bottom) from gen_case.py.
+boards/Dachshund70/keyboard.json; the case's own numbers (key grid, tilt, keycap bottom) from gen_case.py.
 
 The profile is Cherry as GMK makes it, with the numbers from KeyV2's cherry.scad (rsheldiii/KeyV2):
 18.16 mm at the bottom, a top 6.31 mm narrower and 3.52 mm shallower, set 2 mm back, a 0.65 mm
@@ -24,7 +24,7 @@ from OCP.Interface import Interface_Static
 
 import gen_case as g
 
-BOARD_JSON = os.path.join(os.path.dirname(g.HW), "boards", "Dachshund60F", "keyboard.json")
+BOARD_JSON = os.path.join(os.path.dirname(g.HW), "boards", "Dachshund70", "keyboard.json")
 OUT = os.path.join(g.OUT, "Dachshund60F-Keycaps.step")
 
 U = 19.05
