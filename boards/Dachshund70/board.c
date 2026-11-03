@@ -1,5 +1,5 @@
 /*
- * Dachshund60F early board init.
+ * Dachshund70 early board init.
  *
  * The board runs in high-voltage mode (battery/VSYS on VDDH), where REG0
  * outputs 1.8 V by default. GPIO then runs at 1.8 V, which is too low for the
@@ -10,7 +10,7 @@
 #include <zephyr/init.h>
 #include <hal/nrf_power.h>
 
-static int dachshund60f_init(void)
+static int dachshund70_init(void)
 {
     if ((nrf_power_mainregstatus_get(NRF_POWER) == NRF_POWER_MAINREGSTATUS_HIGH) &&
         ((NRF_UICR->REGOUT0 & UICR_REGOUT0_VOUT_Msk) ==
@@ -32,4 +32,4 @@ static int dachshund60f_init(void)
     return 0;
 }
 
-SYS_INIT(dachshund60f_init, PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);
+SYS_INIT(dachshund70_init, PRE_KERNEL_1, CONFIG_KERNEL_INIT_PRIORITY_DEFAULT);

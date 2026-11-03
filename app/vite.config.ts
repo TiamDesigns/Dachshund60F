@@ -13,7 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // host-lib is consumed as TypeScript source, so there is no build step to forget.
-      "@dachshund60f/host-lib": fileURLToPath(new URL("../host-lib/src/index.ts", import.meta.url)),
+      "@dachshund70/host-lib": fileURLToPath(new URL("../host-lib/src/index.ts", import.meta.url)),
       // Keyboard definitions live with the boards: boards/<model>/keyboard.json.
       "@boards": fileURLToPath(new URL("../boards", import.meta.url)),
     },

@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-/* The Dachshund60F chain: layer, a four-step battery gauge, Caps Lock. */
+/* The Dachshund70 chain: layer, a four-step battery gauge, Caps Lock. */
 static const struct kb_led_def chain[] = {
     {KB_LED_ROLE_LAYER, 0},   {KB_LED_ROLE_BATTERY, 1}, {KB_LED_ROLE_BATTERY, 2},
     {KB_LED_ROLE_BATTERY, 3}, {KB_LED_ROLE_BATTERY, 4}, {KB_LED_ROLE_CAPS, 0},

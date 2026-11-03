@@ -2,7 +2,7 @@
  * Keymap helpers for the editor, independent of any board connection.
  */
 
-import type { KeycodeId } from "@dachshund60f/host-lib";
+import type { KeycodeId } from "@dachshund70/host-lib";
 
 export const TRANSPARENT: KeycodeId = "KC_TRNS";
 export const NO_KEY: KeycodeId = "KC_NO";

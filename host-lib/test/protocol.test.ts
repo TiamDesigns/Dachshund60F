@@ -82,7 +82,7 @@ test("payload codecs round-trip and check their input", () => {
     layers: 4,
     encoders: 1,
     macroBufferSize: 1024,
-    model: "Dachshund60F",
+    model: "Dachshund70",
   };
   const bytes = protocol.encodeHandshakeResponse(hs);
   assert.equal(bytes.length, 46);

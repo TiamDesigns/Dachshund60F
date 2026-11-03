@@ -1,13 +1,13 @@
 {
   "schema": 1,
-  "name": "Dachshund60F",
+  "name": "Dachshund70",
   "status": "proposed: pins chosen for PCB routing; update this file if the schematic changes them",
   "mcu": "nRF52840 (Raytac MDBT50Q-P1MV2)",
   "usb": {
     "warning": "pid.codes TEST PIDs: not unique, in-house testing only. Must not ship on boards that are sold or redistributed. Replace with a registered pid.codes PID first.",
-    "keyboard": { "vid": "0x1209", "pid": "0x0001", "manufacturer": "Dachshund", "product": "Dachshund60F" },
-    "dongle": { "vid": "0x1209", "pid": "0x0002", "manufacturer": "Dachshund", "product": "Dachshund60F Receiver" },
-    "bootloader": { "vid": "0x1209", "pid": "0x0003", "manufacturer": "Dachshund", "product": "Dachshund60F" }
+    "keyboard": { "vid": "0x1209", "pid": "0x0001", "manufacturer": "Dachshund", "product": "Dachshund70" },
+    "dongle": { "vid": "0x1209", "pid": "0x0002", "manufacturer": "Dachshund", "product": "Dachshund70 Receiver" },
+    "bootloader": { "vid": "0x1209", "pid": "0x0003", "manufacturer": "Dachshund", "product": "Dachshund70" }
   },
   "matrix": {
     "rows": 6,

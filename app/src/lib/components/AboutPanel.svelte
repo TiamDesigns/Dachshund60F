@@ -7,7 +7,7 @@
     protocol,
     type InputTiming,
     type MockBoard,
-  } from "@dachshund60f/host-lib";
+  } from "@dachshund70/host-lib";
 
   import { app, BREEDS, type BoardSession } from "../app-state.svelte.ts";
 
@@ -41,7 +41,7 @@
     const version = `${major ?? 0}.${(minor ?? 0) + 1}.0`;
     const image = new Uint8Array(8192).fill(0xff);
     image.set(encodeFirmwareInfo({ protocolVersion: protocol.PROTOCOL_VERSION, version, model: info.model }), 1024);
-    const file = new File([makeUf2(image, APP_FLASH.start) as Uint8Array<ArrayBuffer>], `dachshund60f-${version}.uf2`);
+    const file = new File([makeUf2(image, APP_FLASH.start) as Uint8Array<ArrayBuffer>], `dachshund70-${version}.uf2`);
     void app.prepareUpdate(session, file);
   }
 

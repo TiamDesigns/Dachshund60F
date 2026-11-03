@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { defaultLayoutChoices, keycodeInfo, type KeycodeId } from "@dachshund60f/host-lib";
+  import { defaultLayoutChoices, keycodeInfo, type KeycodeId } from "@dachshund70/host-lib";
 
   import type { BoardSession } from "../app-state.svelte.ts";
   import { countAssigned, NO_KEY, resolveKey, TRANSPARENT } from "../keymap.ts";

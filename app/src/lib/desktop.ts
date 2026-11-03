@@ -4,7 +4,7 @@
  * written straight onto the board's UF2 drive, and the app updates itself
  * from GitHub Releases. In a browser none of this is loaded.
  */
-import type { TauriHidBridge } from "@dachshund60f/host-lib";
+import type { TauriHidBridge } from "@dachshund70/host-lib";
 import { getVersion } from "@tauri-apps/api/app";
 import { Channel, invoke } from "@tauri-apps/api/core";
 import type { Update } from "@tauri-apps/plugin-updater";

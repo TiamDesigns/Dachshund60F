@@ -1,5 +1,5 @@
 /*
- * Dachshund60F: Raytac MDBT50Q-P1MV2 (nRF52840), 6x15 COL2ROW matrix,
+ * Dachshund70: Raytac MDBT50Q-P1MV2 (nRF52840), 6x15 COL2ROW matrix,
  * one encoder, six SK6812MINI-E indicators.
  *
  * Every pin here comes from board.json; host-lib's board tests check that
@@ -12,11 +12,11 @@
 #include <zephyr/dt-bindings/adc/nrf-saadc.h>
 #include <zephyr/dt-bindings/i2c/i2c.h>
 #include <zephyr/dt-bindings/led/led.h>
-#include "dachshund60f-pinctrl.dtsi"
+#include "dachshund70-pinctrl.dtsi"
 
 / {
-	model = "Dachshund60F";
-	compatible = "dachshund,dachshund60f";
+	model = "Dachshund70";
+	compatible = "dachshund,dachshund70";
 
 	chosen {
 		zephyr,sram = &sram0;

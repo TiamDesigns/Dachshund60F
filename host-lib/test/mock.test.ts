@@ -16,11 +16,11 @@ import {
 } from "../src/index.js";
 
 const definition = JSON.parse(
-  readFileSync(new URL("../../../boards/Dachshund60F/keyboard.json", import.meta.url), "utf8"),
+  readFileSync(new URL("../../../boards/Dachshund70/keyboard.json", import.meta.url), "utf8"),
 ) as KeyboardDefinition;
 
 function manager(): MockBoardManager {
-  return new MockBoardManager({ definitions: { Dachshund60F: definition } });
+  return new MockBoardManager({ definitions: { Dachshund70: definition } });
 }
 
 async function rejectsWith(promise: Promise<unknown>, code: string): Promise<void> {
@@ -65,9 +65,9 @@ test("a mock Pup plugs in and reads its one-key keymap", async () => {
 });
 
 test("default keymaps are fresh copies", () => {
-  const a = defaultKeymap("Dachshund60F")!;
+  const a = defaultKeymap("Dachshund70")!;
   a.keys[0]![0]![0] = "KC_A";
-  assert.equal(defaultKeymap("Dachshund60F")!.keys[0]![0]![0], "KC_ESC");
+  assert.equal(defaultKeymap("Dachshund70")!.keys[0]![0]![0], "KC_ESC");
   assert.equal(defaultKeymap("NoSuchBoard"), undefined);
 });
 
@@ -76,8 +76,8 @@ test("manager lists boards as they are plugged and unplugged", () => {
   const seen: number[] = [];
   m.subscribe((boards) => seen.push(boards.length));
 
-  const usb = m.plug("Dachshund60F", "usb", { name: "Biscuit" });
-  const dongle = m.plug("Dachshund60F", "dongle");
+  const usb = m.plug("Dachshund70", "usb", { name: "Biscuit" });
+  const dongle = m.plug("Dachshund70", "dongle");
   assert.notEqual(usb.info.id, dongle.info.id);
   assert.equal(usb.info.connection, "usb");
   assert.equal(dongle.info.connection, "dongle");
@@ -91,7 +91,7 @@ test("manager lists boards as they are plugged and unplugged", () => {
 });
 
 test("edits stay live until saved, and revert restores the saved state", async () => {
-  const board: Board = manager().plug("Dachshund60F", "usb");
+  const board: Board = manager().plug("Dachshund70", "usb");
   const events: string[] = [];
   board.subscribe((e: BoardEvent) => events.push(e.type));
 
@@ -114,20 +114,20 @@ test("edits stay live until saved, and revert restores the saved state", async (
 });
 
 test("getKeymap returns a copy", async () => {
-  const board = manager().plug("Dachshund60F", "usb");
+  const board = manager().plug("Dachshund70", "usb");
   const keymap = await board.getKeymap();
   keymap.keys[0]![0]![0] = "KC_Z";
   assert.equal((await board.getKeymap()).keys[0]![0]![0], "KC_ESC");
 });
 
 test("setKey validates layer, position and keycode", async () => {
-  const board = manager().plug("Dachshund60F", "usb");
+  const board = manager().plug("Dachshund70", "usb");
   await rejectsWith(board.setKey({ layer: 4, row: 0, col: 0 }, "KC_A"), "out-of-range");
   await rejectsWith(board.setKey({ layer: -1, row: 0, col: 0 }, "KC_A"), "out-of-range");
   await rejectsWith(board.setKey({ layer: 0, row: 6, col: 0 }, "KC_A"), "out-of-range");
   await rejectsWith(board.setKey({ layer: 0, row: 0, col: 15 }, "KC_A"), "out-of-range");
   await rejectsWith(board.setKey({ layer: 0, row: 0.5, col: 0 }, "KC_A"), "out-of-range");
-  // (3, 12) is an empty matrix slot on the Dachshund60F.
+  // (3, 12) is an empty matrix slot on the Dachshund70.
   await rejectsWith(board.setKey({ layer: 0, row: 3, col: 12 }, "KC_A"), "out-of-range");
   await rejectsWith(board.setKey({ layer: 0, row: 0, col: 0 }, "KC_NOPE"), "invalid-value");
   await rejectsWith(board.setKey({ layer: 0, row: 0, col: 0 }, "MO(4)"), "invalid-value");
@@ -137,7 +137,7 @@ test("setKey validates layer, position and keycode", async () => {
 });
 
 test("setEncoder validates encoder and keycodes", async () => {
-  const board = manager().plug("Dachshund60F", "usb");
+  const board = manager().plug("Dachshund70", "usb");
   await board.setEncoder(2, 0, { cw: "KC_PGDN", ccw: "KC_PGUP" });
   assert.deepEqual((await board.getKeymap()).encoders[2]![0], { cw: "KC_PGDN", ccw: "KC_PGUP" });
   await rejectsWith(board.setEncoder(0, 1, { cw: "KC_A", ccw: "KC_B" }), "out-of-range");
@@ -146,7 +146,7 @@ test("setEncoder validates encoder and keycodes", async () => {
 });
 
 test("settings are validated and saved with the keymap", async () => {
-  const board = manager().plug("Dachshund60F", "dongle", { name: "Noodle" });
+  const board = manager().plug("Dachshund70", "dongle", { name: "Noodle" });
   assert.deepEqual(await board.getSettings(), { ...DEFAULT_SETTINGS, name: "Noodle" });
 
   const next = await board.setSettings({ debounceMs: 8, nkro: false });
@@ -170,8 +170,8 @@ test("settings are validated and saved with the keymap", async () => {
 
 test("battery simulation charges on USB and drains wirelessly", async () => {
   const m = manager();
-  const usb = m.plug("Dachshund60F", "usb", { battery: { percent: 99, charging: true } });
-  const dongle = m.plug("Dachshund60F", "dongle", { battery: { percent: 6, charging: false } });
+  const usb = m.plug("Dachshund70", "usb", { battery: { percent: 99, charging: true } });
+  const dongle = m.plug("Dachshund70", "dongle", { battery: { percent: 6, charging: false } });
   const levels: number[] = [];
   dongle.subscribe((e) => {
     if (e.type === "battery") levels.push(e.battery.percent);
@@ -190,7 +190,7 @@ test("battery simulation charges on USB and drains wirelessly", async () => {
 
 test("calls on an unplugged board fail with disconnected", async () => {
   const m = manager();
-  const board = m.plug("Dachshund60F", "usb");
+  const board = m.plug("Dachshund70", "usb");
   const events: string[] = [];
   board.subscribe((e) => events.push(e.type));
   m.unplug(board.info.id);
@@ -205,16 +205,16 @@ test("a combined manager lists every manager's boards and passes on changes", ()
   const combined = new CombinedBoardManager([a, b]);
   const seen: number[] = [];
   combined.subscribe((boards) => seen.push(boards.length));
-  a.plug("Dachshund60F", "usb");
-  b.plug("Dachshund60F", "dongle");
+  a.plug("Dachshund70", "usb");
+  b.plug("Dachshund70", "dongle");
   assert.equal(combined.list().length, 2);
   a.unplug(combined.list()[0]!.info.id);
   assert.deepEqual(seen, [1, 2, 1]);
 });
 
 test("a mock board reboots, and in its bootloader takes new firmware", async () => {
-  const mgr = new MockBoardManager({ definitions: { Dachshund60F: definition } });
-  const board = mgr.plug("Dachshund60F", "usb", { id: "D60F-TEST" });
+  const mgr = new MockBoardManager({ definitions: { Dachshund70: definition } });
+  const board = mgr.plug("Dachshund70", "usb", { id: "D70-TEST" });
   await board.setSettings({ name: "Saved" });
   await board.save();
   await board.setSettings({ name: "Unsaved" });
@@ -224,14 +224,14 @@ test("a mock board reboots, and in its bootloader takes new firmware", async () 
   await board.reboot(true);
   await new Promise((resolve) => setTimeout(resolve, 10));
   assert.deepEqual(mgr.list(), []);
-  assert.deepEqual(mgr.bootloaderIds(), ["D60F-TEST"]);
+  assert.deepEqual(mgr.bootloaderIds(), ["D70-TEST"]);
 
-  await mgr.flash("D60F-TEST", "0.2.0");
+  await mgr.flash("D70-TEST", "0.2.0");
   const back = mgr.list()[0]!;
-  assert.equal(back.info.id, "D60F-TEST");
+  assert.equal(back.info.id, "D70-TEST");
   assert.equal(back.info.firmwareVersion, "0.2.0");
   assert.equal((await back.getSettings()).name, "Saved");
   assert.deepEqual(lists, [0, 1]);
-  await assert.rejects(mgr.flash("D60F-TEST", "0.3.0"));
+  await assert.rejects(mgr.flash("D70-TEST", "0.3.0"));
   mgr.dispose();
 });

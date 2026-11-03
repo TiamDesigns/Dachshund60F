@@ -103,12 +103,12 @@ mod tests {
         assert_eq!(info_of(&dir), None);
         fs::write(
             dir.join("INFO_UF2.TXT"),
-            "Board-ID: nRF52840-Dachshund60F-v1\n",
+            "Board-ID: nRF52840-Dachshund70-v1\n",
         )
         .unwrap();
         assert_eq!(
             info_of(&dir).as_deref(),
-            Some("Board-ID: nRF52840-Dachshund60F-v1\n")
+            Some("Board-ID: nRF52840-Dachshund70-v1\n")
         );
         fs::remove_dir_all(&dir).unwrap();
     }

@@ -7,7 +7,7 @@ import type {
   DefinitionIndicator,
   DefinitionKey,
   KeyboardDefinition,
-} from "@dachshund60f/host-lib";
+} from "@dachshund70/host-lib";
 
 export interface Rect {
   x: number;

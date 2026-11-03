@@ -1,7 +1,7 @@
 # Keyboard firmware options. USB IDs and strings must match
-# boards/Dachshund60F/board.json (checked by the host-lib board tests).
+# boards/Dachshund70/board.json (checked by the host-lib board tests).
 
-menu "Dachshund60F keyboard"
+menu "Dachshund70 keyboard"
 
 config KB_USB_VID
 	hex "USB vendor ID"
@@ -21,7 +21,7 @@ config KB_USB_MANUFACTURER
 
 config KB_USB_PRODUCT
 	string "USB product string"
-	default "Dachshund60F"
+	default "Dachshund70"
 
 config KB_USB_MAX_POWER_MA
 	int "USB bMaxPower in mA"
@@ -43,7 +43,7 @@ config KB_DONGLE
 
 config KB_MODEL
 	string "Keyboard definition name, reported to the host"
-	default "Dachshund60F"
+	default "Dachshund70"
 	help
 	  The folder name under boards/; the configurator loads that
 	  board's keyboard.json. At most 16 bytes.
@@ -211,7 +211,7 @@ if KB_SCREEN
 
 config KB_SCREEN_TEXT
 	string "Custom text shown under the status widgets"
-	default "Dachshund60F"
+	default "Dachshund70"
 	help
 	  Up to 23 characters; longer text is cut off. Shown only when the
 	  panel has a free row after the enabled status widgets.

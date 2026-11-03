@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "name": "Dachshund60F",
+  "name": "Dachshund70",
   "keys": [
     {"row": 0, "col": 0, "x": 0, "y": 0, "legend": ["Esc"]},
     {"row": 0, "col": 1, "x": 1.25, "y": 0, "legend": ["F1"]},
@@ -117,5 +117,5 @@
     {"id": 4, "role": "battery", "label": "Battery 100%", "level": 4, "at": {"x": 16.53, "y": 4.75}},
     {"id": 5, "role": "lock", "label": "Caps Lock", "underKey": {"row": 3, "col": 0}}
   ],
-  "bootloader": {"uf2BoardId": "nRF52840-Dachshund60F-v1", "volume": "DACHSHUND"}
+  "bootloader": {"uf2BoardId": "nRF52840-Dachshund70-v1", "volume": "DACHSHUND"}
 }

@@ -7,7 +7,7 @@
     type BoardSettings,
     type DebounceAlgorithm,
     type IndicatorColours,
-  } from "@dachshund60f/host-lib";
+  } from "@dachshund70/host-lib";
 
   const DEFAULT_VIEW: BoardSettings = { ...DEFAULT_SETTINGS };
 

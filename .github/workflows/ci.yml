@@ -135,31 +135,31 @@ jobs:
         include:
           - variant: keyboard
             app: firmware
-            board: dachshund60f/nrf52840
+            board: dachshund70/nrf52840
           # One build per supported panel on the J4 display header.
           - variant: keyboard + oled-ssd1306-128x32
             app: firmware
-            board: dachshund60f/nrf52840
+            board: dachshund70/nrf52840
             display: oled-ssd1306-128x32
           - variant: keyboard + oled-ssd1306-128x64
             app: firmware
-            board: dachshund60f/nrf52840
+            board: dachshund70/nrf52840
             display: oled-ssd1306-128x64
           - variant: keyboard + oled-sh1106-128x64
             app: firmware
-            board: dachshund60f/nrf52840
+            board: dachshund70/nrf52840
             display: oled-sh1106-128x64
           - variant: keyboard + oled-sh1107-128x128
             app: firmware
-            board: dachshund60f/nrf52840
+            board: dachshund70/nrf52840
             display: oled-sh1107-128x128
           - variant: keyboard + eink-2in13-v4
             app: firmware
-            board: dachshund60f/nrf52840
+            board: dachshund70/nrf52840
             display: eink-2in13-v4
           - variant: keyboard + eink-2in13-v4-portrait
             app: firmware
-            board: dachshund60f/nrf52840
+            board: dachshund70/nrf52840
             display: eink-2in13-v4-portrait
           - variant: dongle
             app: dongle
@@ -170,7 +170,7 @@ jobs:
             board: nrf52840dongle/nrf52840
             artifact: pup
     env:
-      # BOARD_ROOT makes Zephyr find boards/Dachshund60F/board.yml in this repo.
+      # BOARD_ROOT makes Zephyr find boards/Dachshund70/board.yml in this repo.
       EXTRA_ARGS: >-
         -DBOARD_ROOT=${{ github.workspace }}/kb
         ${{ matrix.display && format('-DEXTRA_DTC_OVERLAY_FILE=displays/{0}.overlay', matrix.display) || '' }}
@@ -210,7 +210,7 @@ jobs:
           if-no-files-found: warn
 
   bootloader:
-    name: UF2 bootloader (Dachshund60F)
+    name: UF2 bootloader (Dachshund70)
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -220,12 +220,12 @@ jobs:
           "$GITHUB_WORKSPACE/.github/scripts/apt-install.sh" gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
           pip install intelhex
       - name: Build
-        run: boards/Dachshund60F/bootloader/build.sh
+        run: boards/Dachshund70/bootloader/build.sh
       - uses: actions/upload-artifact@v4
         with:
           name: bootloader-${{ github.sha }}
           path: |
-            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund60f/dachshund60f_bootloader_s140_6.1.1.hex
-            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund60f/bootloader_mbr.uf2
-            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund60f/bootloader.hex
+            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund70/dachshund70_bootloader_s140_6.1.1.hex
+            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund70/bootloader_mbr.uf2
+            build/bootloader/Adafruit_nRF52_Bootloader/_build/dachshund70/bootloader.hex
           if-no-files-found: error
