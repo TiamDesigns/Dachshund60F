@@ -42,19 +42,49 @@ can't drift apart.
 
 ## Gasket tabs
 
-Eight tabs, four on the top edge and four on the bottom, at x = 58.81, 138.44, 218.06 and 297.69 mm
-(at ⅛, ⅜, ⅝ and ⅞ of the length). There are none on the ends. Each tab is 2.8 mm wide and 6.5 mm long,
-the size of the silicone sock's pocket (8 × 5 × 5 mm outside, 6.5 × 2.8 × 1.2 mm inside, fits 1.2–1.6 mm
-plates). A tab fills the whole pocket, so the sock's open end sits against the plate edge. Tab roots have
-a 0.5 mm radius and tips a 1 mm radius.
+Six forked tabs, three on the top edge (the keyboard's back) and three on the bottom (its front), none on the
+ends. Each tab forks into two prongs, and each prong slides into its own silicone sock, so there are twelve
+gaskets. A prong is 2.8 mm wide and 6.5 mm long, the size of the sock's pocket (8 × 5 × 5 mm outside,
+6.5 × 2.8 × 1.2 mm inside, fits 1.2–1.6 mm plates), and fills the whole pocket, so the sock's open end sits
+against the plate edge. The socks are 5 mm wide, so the prongs are 7 mm apart, centre to centre (a 4.2 mm slot
+between them, and 2 mm of case wall between neighbouring sock pockets). Tab roots have a 0.5 mm radius and
+tips a 1 mm radius.
+
+Fork centres (mm from the middle of the plate, x = 0 at the USB-C connector on the back edge), prongs at ±3.5 mm
+from each:
+
+| Edge | Fork centres |
+| --- | --- |
+| Bottom (front) | −106.17, 0, +106.17 (even thirds, symmetric) |
+| Top (back) | −107.7, −15.0, +77.7 |
+
+The back can't be symmetric: the encoder notch takes out the right-hand end of the top edge (plate edge to
+x ≈ +125), and the USB-C connector is at x = 0, so the three forks are spread evenly over the edge that is left,
+with the middle one 15 mm left of the connector. In mainboard coordinates the prongs are at x = 67.05, 74.05,
+159.75, 166.75, 252.45, 259.45 on the top edge (y = 39.0) and x = 68.58, 75.58, 174.75, 181.75, 280.92, 287.92 on the
+bottom edge (y = 160.1).
 
 The sock outlines (8 × 5 mm) are drawn on Cmts.User, so the case pockets can be placed from them. Each
-sock reaches 8 mm past the plate edge, at y = 31.0 mm on the top edge and y = 168.1 mm on the bottom.
+sock reaches 8 mm past the plate edge.
 
-Feel: short tabs with plain roots (no relief cuts beside them), on FR4, give a moderate bounce. To soften
-it, drop to six tabs (remove the ⅜ and ⅝ pairs) or add flex cuts. To firm it up, add a tab on each end.
-The tab count and positions are `TAB_FRACTIONS` in the script. If the socks feel loose, widen
-`TAB_WIDTH` to 3.0 mm.
+Feel: short prongs with plain roots (no relief cuts beside them), on FR4, give a moderate bounce. To soften it,
+add flex cuts along the plate edge between the prongs; to firm it up, add a tab on each end. The fork centres
+are `FRONT_FORKS` and `BACK_FORKS`, and the prong pitch `PRONG_PITCH`, in the script. If the socks feel loose,
+widen `TAB_WIDTH` to 3.0 mm.
+
+## Polycarbonate plate
+
+A polycarbonate plate is cut from the same outline as the FR4 one: `Dachshund60F-Plate-outline.dxf` is the plate's
+Edge.Cuts (outline with the twelve prongs and the post reliefs, and every switch, stabilizer, LED and display
+cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts`. Regenerate it after any change to the
+plate (rerun `gen_plate.py` first). The copper accents exist only on the FR4 plate.
+
+## Encoder module post reliefs
+
+The encoder module's two M2 posts stand at mainboard (307.2, 41.7) and (307.2, 58.3), only 1.2 mm from the
+notch edge. Each has a Ø5.2 mm relief in the plate (`POST_RELIEFS`). The one by the top edge is a slot open to
+the edge, because a plain circle would leave a 0.1 mm sliver of FR4 between it and the edge. The web left between
+the relief and the Delete cutout is 1.4 mm.
 
 ## Copper accents
 
