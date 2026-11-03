@@ -30,7 +30,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "step")
 KICAD_CLI = os.environ.get("KICAD_CLI", r"C:\Program Files\KiCad\10.0\bin\kicad-cli.exe")
 
-MAINBOARD = os.path.join(HERE, "Dachshund60F", "Dachshund60F.kicad_pcb")
+MAINBOARD = os.path.join(HERE, "Dachshund70", "Dachshund70.kicad_pcb")
 PLATE = os.path.join(HERE, "Dachshund60F-Plate", "Dachshund60F-Plate.kicad_pcb")
 
 # Centre of the mainboard outline (19..337.5 x 39..160.1 mm).
@@ -90,8 +90,10 @@ def main():
         subprocess.run([KICAD_CLI, "pcb", "export", "step", "--force", "--user-origin", "0x0mm",
                         "-o", plate_abs, PLATE], capture_output=True, check=True)
         assembly(plate_abs, os.path.join(OUT, "Dachshund60F-Assembly.step"))
-    for name in ("Dachshund60F-USB", "Dachshund60F-Dongle", "Dachshund60F-Encoder"):
-        export(os.path.join(HERE, name, f"{name}.kicad_pcb"), os.path.join(OUT, f"{name}.step"))
+    for name in ("Dachshund70-USB", "Dachshund70-Dongle", "Dachshund70-Encoder"):
+        # The STEP files keep their Dachshund60F names until the plate and case work lands.
+        step = name.replace("Dachshund70", "Dachshund60F")
+        export(os.path.join(HERE, name, f"{name}.kicad_pcb"), os.path.join(OUT, f"{step}.step"))
 
 
 if __name__ == "__main__":

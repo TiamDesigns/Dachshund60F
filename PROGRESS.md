@@ -29,7 +29,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - Not ordered, made or fitted.
 ### Renamed to Dachshund70, part 1: firmware, app and docs (2026-11-03)
 
-- Tiam renamed the project from Dachshund60F to Dachshund70. This change covers everything outside `hardware/`: the Zephyr board is now `dachshund70/nrf52840` in `boards/Dachshund70/`, the USB product strings are "Dachshund70" and "Dachshund70 Receiver", the Bluetooth name and DIS model are "Dachshund70", and the UF2 board ID is `nRF52840-Dachshund70-v1` (no board had been flashed, so nothing old needs to keep working). The host library and Doghouse packages are `@dachshund70/…`, and Doghouse is bumped to 0.1.4 because 0.1.3 doesn't know a board called Dachshund70.
+- Tiam renamed the project from Dachshund70 to Dachshund70. This change covers everything outside `hardware/`: the Zephyr board is now `dachshund70/nrf52840` in `boards/Dachshund70/`, the USB product strings are "Dachshund70" and "Dachshund70 Receiver", the Bluetooth name and DIS model are "Dachshund70", and the UF2 board ID is `nRF52840-Dachshund70-v1` (no board had been flashed, so nothing old needs to keep working). The host library and Doghouse packages are `@dachshund70/…`, and Doghouse is bumped to 0.1.4 because 0.1.3 doesn't know a board called Dachshund70.
 - The "Dachshund" manufacturer name, the DACHSHUND UF2 drive label and the dog in Doghouse stay as they are. The 2026-10-26 project review keeps the old name, and the README notes it.
 - Still to do: the KiCad projects, silkscreens, STEP files, fab exports, and the plate and case scripts (`SCHEDULED_TASKS.md`), then the GitHub repo name (Tiam).
 
@@ -37,7 +37,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 - Tiam's call: the battery slide switch (C&K PCM12SMTR, SPDT, used as an on/off in the VBAT to VBAT_SW line) leaves the mainboard and goes on the USB daughterboard, so it is reached from the back of the case.
 - Cable: the mainboard J1 and the daughterboard J2 are now JST SH 6-pin (SM06B-SRSS-TB(LF)(SN), LCSC C160405) instead of 4-pin. Pins 1 to 4 stay where they were (VBUS, D-, D+, GND); pin 5 is VBAT and pin 6 is VBAT_SW. A pin-for-pin 6-way cable is needed.
-- Daughterboard (`hardware/Dachshund60F-USB/`, rev 1.1): 54 × 9 mm (was 42 × 9; the extra 12 mm is on the right, so the USB-C stays at x 121 and H1 at x 104.5). H2 moved from x 137.5 to 140.0 to make room for the wider J2. SW1 sits on the top side at x 148.4 (pad row y 104.0, footprint origin y 102.4), actuator out of the back (top) edge by 0.75 mm and sliding along it; the 3D model is 7.7 mm wide, 1.5 mm tall. VBAT_SW runs from J2 pin 6 over the top of H2 on the front; VBAT drops from pin 5 through a via and runs along the bottom edge on the back to a via by the switch. Which way the knob must slide to switch on is not checked: pad 2 is the common, the knob at the left (-x) end is the throw on pad 3 (unused), and on the right end it joins pad 1 (VBAT). Check it with a meter on the first board. DRC: the only messages are SW1's silkscreen crossing the back edge, like the USB-C's already did; 0 unconnected. ERC and parity clean.
+- Daughterboard (`hardware/Dachshund70-USB/`, rev 1.1): 54 × 9 mm (was 42 × 9; the extra 12 mm is on the right, so the USB-C stays at x 121 and H1 at x 104.5). H2 moved from x 137.5 to 140.0 to make room for the wider J2. SW1 sits on the top side at x 148.4 (pad row y 104.0, footprint origin y 102.4), actuator out of the back (top) edge by 0.75 mm and sliding along it; the 3D model is 7.7 mm wide, 1.5 mm tall. VBAT_SW runs from J2 pin 6 over the top of H2 on the front; VBAT drops from pin 5 through a via and runs along the bottom edge on the back to a via by the switch. Which way the knob must slide to switch on is not checked: pad 2 is the common, the knob at the left (-x) end is the throw on pad 3 (unused), and on the right end it joins pad 1 (VBAT). Check it with a meter on the first board. DRC: the only messages are SW1's silkscreen crossing the back edge, like the USB-C's already did; 0 unconnected. ERC and parity clean.
 - Mainboard (rev 1.1): SW1 is removed; J1 is the 6-pin port at (331.0, 87.0) mm on the back with pins 5 and 6 routed down the right edge to where the switch's pads were (VBAT at x 335.4, VBAT_SW at x 336.4). The GND via at J1's pin 4 moved 1 mm east. DRC with every severity: 218 items (was 222), 0 unconnected; ERC unchanged.
 - STEP exports for the mainboard, assembly and daughterboard refreshed. Docs updated: bring-up plan, boards README, design decisions. The case README and generator still describe SW1 on the mainboard; the case thread owns those.
 - Not ordered, made or fitted.
@@ -63,7 +63,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 - Tiam's calls: nothing is ordered yet, so the mainboard is updated in place as Rev 1.1 (silk "mainboard v1.1" and the logo's "Rev 1.1"); keep the Bourns PEC12R-2230F-S0024 and ignore the click along the shaft; JST SH connectors; no extra expansion-port breakouts, only the rotary change.
 - Mainboard: SW3 is gone. J5 (JST SH 5-pin, side entry, SM05B-SRSS-TB) replaces it on the back at x 313.4, y 48.0 to 52.0 mm (pin 1 at y 52.0), cable leaving toward -x: pin 1 COL14, 2 ENC_A, 3 GND, 4 ENC_B, 5 ENC_SW. The old routes were reconnected to J5's pads; C10, C11 and D114 stay on the mainboard, so P0.11/P0.12 and the matrix push switch are unchanged and the firmware, `board.json` and Doghouse don't change. Zones refilled. DRC with every severity: 221 items (was 222), 0 unconnected, no new ones; schematic parity shows only the missing-MPN-field notes that every part already had. ERC unchanged.
-- New project `hardware/Dachshund60F-Encoder/`: 22.5 × 22.0 mm, the same PEC12R footprint and model (SW1, shaft along +u, hub end at the board edge, axis 10 mm above the top), J1 (JST SH 5-pin) on the bottom side leaving at the -u edge, two M2 holes at (2.7, 2.7) and (2.7, 19.3), GND pours. DRC and ERC clean apart from the same library-mismatch and MPN-field notes. Layout and pinout in its README. Built with a script in the session, not committed; edit it in KiCad from here.
+- New project `hardware/Dachshund70-Encoder/`: 22.5 × 22.0 mm, the same PEC12R footprint and model (SW1, shaft along +u, hub end at the board edge, axis 10 mm above the top), J1 (JST SH 5-pin) on the bottom side leaving at the -u edge, two M2 holes at (2.7, 2.7) and (2.7, 19.3), GND pours. DRC and ERC clean apart from the same library-mismatch and MPN-field notes. Layout and pinout in its README. Built with a script in the session, not committed; edit it in KiCad from here.
 - `gen_plate.py` read the encoder's courtyard from the mainboard; it now uses a fixed `ENCODER_BOX` with the old values, so the plate is unchanged. `export_fab.py` and `export_step.py` include the module. STEP exports refreshed for the mainboard, assembly and the new module (the USB, dongle and plate files are untouched).
 - `.mcp.json` pointed the Konnect server at `OneDrive\Documents\KiCad`, which doesn't exist now that the files moved to `Documents`; it points at `Documents\KiCad`. Restart the session for the KiCad tools to connect.
 - Docs updated: boards README, bring-up plan, design decisions, plate README, root README. The case README and generator still describe the encoder on the mainboard; the case thread owns those.
@@ -446,7 +446,7 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 
 - `.mcp.json` registers the Konnect v0.13.0 MCP server (mixelpixx/Konnect, AGPL-3.0, beta) for KiCad 10. It runs from the KiCad 3rd-party plugin folder.
 - Konnect is installed through KiCad's Plugin and Content Manager, and KiCad's IPC API server is enabled. It connects from Claude Code with 228 tools, and KiCad 10.0.3 was detected.
-- `hardware/Dachshund60F/`: the KiCad 10 project (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`).
+- `hardware/Dachshund70/`: the KiCad 10 project (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`).
 - `.gitignore` excludes KiCad lock files, `.history/` backups, `*.kicad_prl` view state and `fp-info-cache`.
 - The kbplacer and kleplacement KiCad plugins are already installed and can place switches from the KLE layout.
 
@@ -461,7 +461,7 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 - LEDs: the load switch is a TPS22917 (KiCad has no TPS22918 symbol); its QOD pin is unconnected and EN has a 100 kΩ pull-down.
 - DCCH is unconnected, so firmware must run REG0 in LDO mode.
 - Matrix: 80 switch positions with one 1N4148W each. The 6.25u bar (SW606) and the 2.75u split space (SW615) share diode D606. The encoder push is at (0,14) through D114.
-- Footprints: the hot-swap and stabilizer footprints are vendored into `hardware/Dachshund60F/lib/keyswitch.pretty` (perigoso v2.4, CC-BY-SA-4.0) and converted to the KiCad 10 format; see `lib/README.md`.
+- Footprints: the hot-swap and stabilizer footprints are vendored into `hardware/Dachshund70/lib/keyswitch.pretty` (perigoso v2.4, CC-BY-SA-4.0) and converted to the KiCad 10 format; see `lib/README.md`.
 - Spacebar: hot-swap sockets for the 6.25u bar and the split space physically overlap. SW604, SW606 and SW615 use solder-only 3-pin plate-mount footprints (stock `SW_Cherry_MX_*_Plate`); the rest of the board is hot-swap.
 - Placement: switches, stabilizers and the encoder are on the front at KLE positions (19.05 mm pitch). All SMD parts are on the back. An 18 mm strip above the F-row holds the module (antenna at the top edge), power, connectors, reset and SWD. The outline is 306.8 × 138.1 mm.
 
@@ -541,7 +541,7 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 ### Repo housekeeping (2026-10-23)
 
 - CI runs once per pull request. Before, every push to a PR branch started two identical runs (push and pull_request). Pushes now trigger CI only on `main`; a branch gets CI through its PR or with "Run workflow" in the Actions tab. A newer push to a PR cancels its run that is still going.
-- The USB-C daughterboard (`hardware/Dachshund60F-USB/`), designed on 2026-10-22 on a local branch, was rebased onto main and got its own PR.
+- The USB-C daughterboard (`hardware/Dachshund70-USB/`), designed on 2026-10-22 on a local branch, was rebased onto main and got its own PR.
 - Deleted the fully merged branches `doghouse-app`, `phase2-firmware`, `status-screen`, `dongle-pcb` and `ci-one-run-per-pr`, locally and on GitHub.
 
 ### UF2 bootloader board definition (2026-10-23)
@@ -590,7 +590,7 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 
 - SW604, SW606 (rotated 180°) and SW615 are soldered 3-pin footprints, placed with their centre holes on the KLE key centres. Stock MX footprints have their origin at pin 1, not the centre.
 - DRC before routing: there are no shorts or drill overlaps, except that the 6.25u stabilizer's right holes and the right Mod's stabilizer holes coincide (0.04 mm apart, a warning). The remaining courtyard errors on the spacebar row are expected because the two layouts deliberately overlap; add them as DRC exclusions in KiCad. The stock SK6812MINI-E reverse-mount footprint has 0.25–0.35 mm copper-to-cutout clearance against a 0.5 mm rule (fixed on 2026-10-23 with a project footprint; see "LED cutout clearance"). About 189 "footprint differs from library" warnings remain (run Update Footprints from Library in KiCad). Unrouted nets are expected.
-- DRC fixes (2026-10-21, after review): removed a duplicate GND via at (319.3, 67.1) and a dangling /COL2 stub. The GND pours now use solid connections for SMD pads and thermal reliefs for through-hole pads, which cleared all starved thermals. The ST1–ST6 reference text is hidden. `Dachshund60F.kicad_dru` adds two rules: 0.2 mm edge clearance at the D2/D3 LED cutouts (stock reverse-mount pads are 0.247 mm from the cutout corners, so check with the fab), and 0 mm for SW1's edge-mount tabs.
+- DRC fixes (2026-10-21, after review): removed a duplicate GND via at (319.3, 67.1) and a dangling /COL2 stub. The GND pours now use solid connections for SMD pads and thermal reliefs for through-hole pads, which cleared all starved thermals. The ST1–ST6 reference text is hidden. `Dachshund70.kicad_dru` adds two rules: 0.2 mm edge clearance at the D2/D3 LED cutouts (stock reverse-mount pads are 0.247 mm from the cutout corners, so check with the fab), and 0 mm for SW1's edge-mount tabs.
 
 ### PCB: module decoupling rework and re-route (2026-10-22)
 
@@ -612,7 +612,7 @@ The layer LED no longer sits under Esc. A row of five reverse-mount SK6812MINI-E
 - Schematic: D4–D7 (battery) and C15–C18 were added. The chain is now U1 P0.06 → D3 (layer) → D4 → D5 → D6 → D7 → D2 (Caps), and D2's DOUT is unconnected. ERC is clean, and the chain was checked in the exported netlist.
 - `board.json`: indicator count 6. `keyboard.json`: indicator `id` is the chain index. Free-standing LEDs have an `at` position (centre, key units) instead of `underKey`, and battery LEDs carry a `level` from 1 to 4. The host-lib tests now check that ids follow the chain, that each indicator has exactly one position, and that no free-standing LED sits under a key.
 - Re-routed the whole board with the same Freerouting pipeline. The DSN export now adds router keep-outs that KiCad leaves out: each LED cutout plus 0.15 mm, and a 0.35 mm band inside the board edge that follows the 5 mm corners. GND stitching now stays clear of the rounded corners and of all six LEDs.
-- `Dachshund60F.kicad_dru`: the 0.2 mm LED cutout rule now covers D2–D7. KiCad's `memberOfFootprint` didn't match a `D[2-7]` pattern, so the six references are listed one by one.
+- `Dachshund70.kicad_dru`: the 0.2 mm LED cutout rule now covers D2–D7. KiCad's `memberOfFootprint` didn't match a `D[2-7]` pattern, so the six references are listed one by one.
 - DRC (kicad-cli): 0 errors and 0 unconnected items. The warnings are the same as before, plus 8 stale footprint copies for the new parts.
 - The LED_D5 data line and LED_VDD both run about 310 mm across the board to the Caps LED; that's fine at 800 kHz.
 - SPEC.md lists only layer and lock-state indicators under Lighting, so the battery gauge needs adding to the spec before the firmware and GUI work on it.
@@ -631,7 +631,7 @@ The case will carry a low-power display (e-ink or OLED) between the encoder and 
 
 ### PCB: USB-C daughterboard (2026-10-22)
 
-The USB-C port lives on its own board, `hardware/Dachshund60F-USB/` (KiCad 10, 2 layers, 1.6 mm). It connects to mainboard J1 with a JST-SH 4-pin cable.
+The USB-C port lives on its own board, `hardware/Dachshund70-USB/` (KiCad 10, 2 layers, 1.6 mm). It connects to mainboard J1 with a JST-SH 4-pin cable.
 
 - Shape: a 42 × 9 mm rectangle with 1 mm corners, so it sits along the case bezel. Two 3.2 mm plated holes sit 33 mm apart, on the board's centre line. They take M3 screws, or M2 with a washer. The 33 mm spacing matches the uDB S-series screw pattern, so a stock uDB-S board can use the same case bosses (it has a Pico-EZmate connector, so it needs an EZmate-to-JST-SH cable).
 - Layout: the USB-C receptacle (HRO TYPE-C-31-M-12) is centred on the front edge. Its shell sticks out 1.3 mm past the edge, the same as uDB-S. J2 (JST SM04B-SRSS-TB) sits at the right end with its opening on the rear edge. The protection parts sit at the left end. All parts are on the front. The back carries the board name and J2's pinout.
@@ -648,7 +648,7 @@ The USB-C port lives on its own board, `hardware/Dachshund60F-USB/` (KiCad 10, 2
 
 ### PCB: 2.4 GHz dongle (2026-10-23, merged to main in PR #1)
 
-The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCad 10, 2 layers, 1.6 mm), a 40 × 24 mm desk puck that connects to the computer with a USB-C cable. `hardware/Dachshund60F-Dongle/README.md` has the full design notes, the polling-rate limit and the latency budget.
+The receiver for phase 14 now has a board: `hardware/Dachshund70-Dongle/` (KiCad 10, 2 layers, 1.6 mm), a 40 × 24 mm desk puck that connects to the computer with a USB-C cable. `hardware/Dachshund70-Dongle/README.md` has the full design notes, the polling-rate limit and the latency budget.
 
 - Form factor: a puck with a cable rather than a plug-in stick, chosen so the receiver can sit next to the keyboard, away from USB 3 noise and the PC case.
 - Parts:
@@ -688,9 +688,9 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 
 ### PCB: LED cutout clearance (2026-10-23)
 
-- D2–D7 now use a project footprint, `Dachshund60F:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4` in `hardware/Dachshund60F/lib/Dachshund60F.pretty` (registered in the project `fp-lib-table`). It is the stock KiCad footprint with the corner-relief light cutout replaced by a plain 3.4 × 3.4 mm cutout with 0.5 mm corners.
+- D2–D7 now use a project footprint, `Dachshund70:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4` in `hardware/Dachshund70/lib/Dachshund70.pretty` (registered in the project `fp-lib-table`). It is the stock KiCad footprint with the corner-relief light cutout replaced by a plain 3.4 × 3.4 mm cutout with 0.5 mm corners.
 - Pads are now 0.35 mm from the routed edge (was 0.247 mm), and the nearest track about 0.36 mm. The LED body (3.2 × 2.8 mm) clears the rounded corners by about 0.05 mm. Nothing was re-routed.
-- `Dachshund60F.kicad_dru`: the LED cutout rule is raised from 0.2 mm to 0.3 mm. The schematic's footprint fields for D2–D7 point at the new footprint.
+- `Dachshund70.kicad_dru`: the LED cutout rule is raised from 0.2 mm to 0.3 mm. The schematic's footprint fields for D2–D7 point at the new footprint.
 - Checks (kicad-cli): ERC 0. DRC: 0 errors and 0 unconnected items after refilling the zones. The warnings are unchanged.
 
 ### 3D models for case design (2026-10-23)
@@ -698,7 +698,7 @@ The receiver for phase 14 now has a board: `hardware/Dachshund60F-Dongle/` (KiCa
 `python hardware/export_step.py` writes STEP files of every board to `hardware/step/` (committed since 2026-10-23, so they reach every device): the mainboard, the plate, the mainboard and plate stacked, the daughterboard and the dongle. The mainboard, plate and assembly share an origin (the centre of the mainboard outline). The plate's bottom face is 5.0 mm above the PCB's bottom face, so the plate's top is 5.0 mm above the PCB's top (the MX spec).
 
 - Mainboard: the footprints had lost their 3D model links (only J4 had one). Every footprint now carries its library's models again.
-- Keyswitch models (perigoso v2.4, CC-BY-SA-4.0) are vendored into `hardware/Dachshund60F/lib/keyswitch.3dshapes/`: the Kailh hot-swap socket, the Cherry MX switch (PCB and plate versions) and the 2u and 6.25u stabilizers. The vendored hot-swap footprints now show the switch body as well as the socket. The three soldered spacebar-row switches use the plate-mount switch model without a keycap.
+- Keyswitch models (perigoso v2.4, CC-BY-SA-4.0) are vendored into `hardware/Dachshund70/lib/keyswitch.3dshapes/`: the Kailh hot-swap socket, the Cherry MX switch (PCB and plate versions) and the 2u and 6.25u stabilizers. The vendored hot-swap footprints now show the switch body as well as the socket. The three soldered spacebar-row switches use the plate-mount switch model without a keycap.
 - The two spacebar layouts are both modelled, so their switches overlap in the 3D view.
 - USB-C receptacle (daughterboard and dongle J1): KiCad has no model for the HRO TYPE-C-31-M-12, so `hardware/3dmodels/` has one (see below).
 - Dongle D1 uses KiCad's Würth PLCC4 3.2 × 2.8 mm RGB LED model (same package as the ASMB-MTB0).
@@ -723,7 +723,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - `docs/bringup-test-plan.md` has new continuity checks, a USB-only power stage and an LED check on USB.
 - Saving with KiCad 10.0.7 re-wrote the zone fills and the 3D model blocks, so the PCB diff is large; only the parts above changed.
 - STEP files in `hardware/step/` re-exported on Tiam's PC with KiCad 10.0.6 after the power path, LED buffer and test pads (no missing-model warnings; the encoder and J2 still use the stand-ins).
-- KiCad 10.0.6 re-saves `Dachshund60F.kicad_pro` without the unused teardrop `td_enabled` flags and with `null` for empty net colours and net-class assignments, undoing what 10.0.7's pcbnew wrote. That re-save is committed; DRC and ERC are identical either way.
+- KiCad 10.0.6 re-saves `Dachshund70.kicad_pro` without the unused teardrop `td_enabled` flags and with `null` for empty net colours and net-class assignments, undoing what 10.0.7's pcbnew wrote. That re-save is committed; DRC and ERC are identical either way.
 
 ### PCB: test pads (2026-10-23)
 
@@ -776,7 +776,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 
 - Code (firmware, host-lib, Doghouse, protocol, scripts): MIT, in `LICENSE`. host-lib and Doghouse carry `"license": "MIT"`.
 - Hardware (`hardware/`: the three PCBs and the plate): CERN-OHL-P-2.0, in `hardware/LICENSE`.
-- Third-party files keep their own licences: the vendored keyswitch footprints are CC-BY-SA-4.0 (see `hardware/Dachshund60F/lib/README.md`), and the UF2 bootloader build fetches Adafruit's MIT-licensed source.
+- Third-party files keep their own licences: the vendored keyswitch footprints are CC-BY-SA-4.0 (see `hardware/Dachshund70/lib/README.md`), and the UF2 bootloader build fetches Adafruit's MIT-licensed source.
 
 ## Tested
 

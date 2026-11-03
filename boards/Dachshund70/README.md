@@ -106,7 +106,7 @@ switch footprints and wire them to the same diode.
 - **Encoder:** Bourns PEC12R-2220F-S0024 (shaft parallel to the board, 24
   detents, push switch, 20 mm shaft), with a wide roller so it turns like a
   mouse wheel. Since mainboard Rev 1.1 it sits on its own small board,
-  `hardware/Dachshund60F-Encoder/`, cabled to the mainboard's port J5 (JST
+  `hardware/Dachshund70-Encoder/`, cabled to the mainboard's port J5 (JST
   SH 1.0 mm, 5 pins, on the back to the right of the corner notch, pad row at
   x 331.8, y 44.5 (pin 5) to 48.5 mm (pin 1), cable leaving toward -x into the
   notch): pin 1 COL14, 2 ENC_A (P0.11), 3 GND, 4 ENC_B (P0.12), 5 ENC_SW.

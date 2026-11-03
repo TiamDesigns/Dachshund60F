@@ -163,7 +163,7 @@
 		)
 		(path "/bef6eb7c-aed8-4298-8750-c4baf07191a3")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -316,7 +316,7 @@
 		)
 		(path "/3f2ceb84-e455-435b-8a54-e25df131de15")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -898,7 +898,7 @@
 		)
 		(path "/93509854-4705-4438-b8a8-75cd2dd7268a")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -1059,7 +1059,7 @@
 		)
 		(path "/1f907dbb-334d-4d8c-b3bf-79bdd1392684")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -1208,7 +1208,7 @@
 		)
 		(path "/adab4fda-4af5-45a1-8eab-e206efc4c601")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr exclude_from_pos_files exclude_from_bom)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_circle
@@ -1341,7 +1341,7 @@
 		)
 		(path "/7f22fbe5-718c-4e6c-beb3-0e4f5f66e02d")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -1494,7 +1494,7 @@
 		)
 		(path "/9ac079f1-f30e-4bed-803e-4936afacecc6")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -2076,7 +2076,7 @@
 		)
 		(path "/4812ee90-46b2-48b1-ad7b-f1ed72e1768c")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -2225,7 +2225,7 @@
 		)
 		(path "/c6abb73a-2359-4b09-a9a8-f8201e41f04e")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr exclude_from_pos_files exclude_from_bom)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_circle
@@ -2346,7 +2346,7 @@
 		)
 		(path "/165ee9fb-48de-4d1d-8562-89080de6ad05")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -2507,7 +2507,7 @@
 		)
 		(path "/ee8bd060-aa1b-4780-be6b-fe7a9814d9db")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -2668,7 +2668,7 @@
 		)
 		(path "/24bda8e3-67d3-4516-9a50-5f01df035b99")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -2829,7 +2829,7 @@
 		)
 		(path "/f72857eb-f385-4c95-845d-7d6433b1c41d")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -3002,7 +3002,7 @@
 		)
 		(path "/f063c04c-2c94-4c29-92ca-d7564dbfe327")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -3163,7 +3163,7 @@
 		)
 		(path "/24c17bea-1422-4b18-971d-18035021af55")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -3316,7 +3316,7 @@
 		)
 		(path "/6a81eb49-edac-4b7c-b74c-139b4838521d")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -3586,7 +3586,7 @@
 		)
 		(path "/4d62be44-e9cf-4ca0-ab5a-4386ccdf9a3d")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr through_hole)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -3867,7 +3867,7 @@
 		)
 		(path "/35a55898-ee83-4cdd-b18d-adf6042a7ac1")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -4686,7 +4686,7 @@
 		)
 		(path "/66118518-4970-4aff-9f60-1185dc2b9179")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -5113,7 +5113,7 @@
 		)
 		(path "/77a95e44-4abd-4228-aa53-648cb0915f5f")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-Dongle.kicad_sch")
+		(sheetfile "Dachshund70-Dongle.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -5545,7 +5545,7 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "Dachshund60F"
+	(gr_text "Dachshund70"
 		(at 116 103 0)
 		(layer "B.SilkS")
 		(uuid "f4880d64-c8c7-42a3-9e7d-576b4369ce9c")
