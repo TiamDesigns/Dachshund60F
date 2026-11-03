@@ -55,7 +55,7 @@ BUILD_ASSERT(DT_PROP_LEN_OR(DT_PATH(zephyr_user), matrix_col_gpios, 1) == COLS,
 #define DEBOUNCE_ALGO KB_DEBOUNCE_EAGER_PRESS
 #endif
 
-/* The recovery key: (0, 0), Esc on the Dachshund60F and the button on the Pup. */
+/* The recovery key: (0, 0), Esc on the Dachshund70 and the button on the Pup. */
 #define RECOVERY_ROW 0
 #define RECOVERY_COL 0
 

@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "name": "Pup",
-  "status": "Nordic nRF52840 Dongle (PCA10059), pins from Nordic's documentation for it; a test board for the wireless outputs until the Dachshund60F PCB exists",
+  "status": "Nordic nRF52840 Dongle (PCA10059), pins from Nordic's documentation for it; a test board for the wireless outputs until the Dachshund70 PCB exists",
   "mcu": "nRF52840 (Nordic nRF52840 Dongle, PCA10059)",
   "zephyrBoard": "nrf52840dongle/nrf52840",
   "usb": {
-    "warning": "pid.codes TEST PID, the same as the Dachshund60F's: in-house testing only.",
+    "warning": "pid.codes TEST PID, the same as the Dachshund70's: in-house testing only.",
     "keyboard": { "vid": "0x1209", "pid": "0x0001", "manufacturer": "Dachshund", "product": "Dachshund Pup" }
   },
   "matrix": {

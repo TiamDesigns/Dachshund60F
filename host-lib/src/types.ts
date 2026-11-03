@@ -42,7 +42,7 @@ export interface InputTiming {
 export interface BoardInfo {
   /** USB serial number: unique per board, stable across connections. */
   id: string;
-  /** Keyboard definition name, e.g. "Dachshund60F" (boards/<model>/). */
+  /** Keyboard definition name, e.g. "Dachshund70" (boards/<model>/). */
   model: string;
   connection: ConnectionKind;
   firmwareVersion: string;

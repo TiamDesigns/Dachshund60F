@@ -1,10 +1,10 @@
 # firmware/displays/
 
-One devicetree overlay per supported panel on the Dachshund60F's J4 display
+One devicetree overlay per supported panel on the Dachshund70's J4 display
 header. Pick one at build time:
 
 ```
-west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD" -DEXTRA_DTC_OVERLAY_FILE=displays/oled-ssd1306-128x64.overlay
+west build -p -b dachshund70/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD" -DEXTRA_DTC_OVERLAY_FILE=displays/oled-ssd1306-128x64.overlay
 ```
 
 With no overlay, the firmware is built without a screen. CI builds a UF2 for
@@ -29,7 +29,7 @@ the character framebuffer draws in portrait. The SSD16xx driver's own
 
 J4 follows the Waveshare e-Paper module order: 1 VCC (+3V3), 2 GND, 3 DIN,
 4 CLK, 5 CS, 6 DC, 7 RST, 8 BUSY. A 4-pin I2C OLED uses VCC, GND, DIN (SDA)
-and CLK (SCL). Pins come from `boards/Dachshund60F/board.json`. Overlays
+and CLK (SCL). Pins come from `boards/Dachshund70/board.json`. Overlays
 refer to J4 pins only through `<&display_header PIN FLAGS>`; the host-lib
 tests reject raw `&gpio` references here.
 
@@ -42,7 +42,7 @@ of character cells. By default:
 - Row 1: lock keys (left) and connection (right)
 - Row 2: custom text, centred, if the panel has the row
 
-Kconfig options under "Dachshund60F keyboard → Status screen" change it
+Kconfig options under "Dachshund70 keyboard → Status screen" change it
 without code changes: `CONFIG_KB_SCREEN_TEXT`, the `CONFIG_KB_SCREEN_SHOW_*`
 switches, `CONFIG_KB_SCREEN_FONT_INDEX`, `CONFIG_KB_SCREEN_INVERT` and
 `CONFIG_KB_SCREEN_EPD_MIN_INTERVAL_MS`. Put the settings in a `.conf` file in

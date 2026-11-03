@@ -1,5 +1,0 @@
-board:
-  name: dachshund60f
-  full_name: Dachshund60F
-  socs:
-    - name: nrf52840

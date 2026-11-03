@@ -1,5 +1,5 @@
 # Keyboard firmware (nRF52840), Zephyr application.
-# Build for the Dachshund60F with -DBOARD_ROOT=<repo root> (see CLAUDE.md).
+# Build for the Dachshund70 with -DBOARD_ROOT=<repo root> (see CLAUDE.md).
 # Add a screen with -DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay.
 cmake_minimum_required(VERSION 3.20.0)
 

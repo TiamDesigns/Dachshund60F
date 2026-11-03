@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BoardError, type ConnectionStatus, type DonglePairing, type DongleStatus, type Output } from "@dachshund60f/host-lib";
+  import { BoardError, type ConnectionStatus, type DonglePairing, type DongleStatus, type Output } from "@dachshund70/host-lib";
 
   import { app, type BoardSession } from "../app-state.svelte.ts";
   import InfoTip from "./InfoTip.svelte";

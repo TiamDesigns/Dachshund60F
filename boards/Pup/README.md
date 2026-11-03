@@ -2,16 +2,16 @@
 
 A one-key test board: the keyboard firmware on Nordic's nRF52840 Dongle
 (PCA10059). Use it to try Bluetooth and the 2.4 GHz dongle before the
-Dachshund60F PCB exists. With two dongles, one runs the Pup and the other
+Dachshund70 PCB exists. With two dongles, one runs the Pup and the other
 runs the receiver (`dongle/`).
 
 - **Key:** SW1, the button on top, types `a` by default. Remap it in
   Doghouse, which finds the Pup like any board (same USB IDs as the
-  Dachshund60F; the model name `Pup` loads `keyboard.json`).
+  Dachshund70; the model name `Pup` loads `keyboard.json`).
 - **LED:** LD2, the RGB LED, walks red, green and blue at power-up, then
   shows Caps Lock in the Caps Lock colour from Doghouse (each colour is on or
   off, so dim colours come out bright). LD1, the green LED, is unused.
-- **Everything else is the Dachshund60F's firmware:** USB, Bluetooth with
+- **Everything else is the Dachshund70's firmware:** USB, Bluetooth with
   three host profiles, the 2.4 GHz link, settings, the config protocol.
   There is no battery, encoder or screen.
 

@@ -1,4 +1,4 @@
-# Dachshund60F
+# Dachshund70
 
 79-key board with an F-row, arrows and a split or full spacebar. It has one
 rotary encoder right of Delete and runs on a Raytac MDBT50Q-P1MV2 (nRF52840).
@@ -94,7 +94,8 @@ switch footprints and wire them to the same diode.
 
 - **Power:** VBUS to the module's VBUS pad. VDDH (nRF52840 high-voltage
   mode) is VSYS, fed from USB through a Schottky, or from the battery through
-  the power slide switch and a load-sharing P-MOSFET that turns off while USB
+  the power slide switch (on the USB daughterboard, reached through
+  J1 pins 5 and 6) and a load-sharing P-MOSFET that turns off while USB
   is in. On USB, VDDH reads the USB rail, not the battery.
 - **GPIO voltage:** set REGOUT0 to 3.3 V (UICR). The default is 1.8 V, too low
   to drive the SK6812 data input.
@@ -102,16 +103,19 @@ switch footprints and wire them to the same diode.
   about 4.7 V on USB. Their input-high threshold (0.7 × VDD) is then about
   3.3 V, so the data line goes through an SN74LV1T34 buffer powered from
   LED_VDD. Its TTL-level input reads 3.3 V logic at any LED voltage.
-- **Encoder:** Bourns PEC12R-2230F-S0024 (shaft parallel to the board, 24
-  detents, push switch, 30 mm shaft), with a wide roller so it turns like a
+- **Encoder:** Bourns PEC12R-2220F-S0024 (shaft parallel to the board, 24
+  detents, push switch, 20 mm shaft), with a wide roller so it turns like a
   mouse wheel. Since mainboard Rev 1.1 it sits on its own small board,
   `hardware/Dachshund60F-Encoder/`, cabled to the mainboard's port J5 (JST
-  SH 1.0 mm, 5 pins, on the back at x 313.4, y 50.025 mm, cable leaving
-  toward -x): pin 1 COL14, 2 ENC_A (P0.11), 3 GND, 4 ENC_B (P0.12), 5 ENC_SW.
+  SH 1.0 mm, 5 pins, on the back to the right of the corner notch, pad row at
+  x 331.8, y 44.5 (pin 5) to 48.5 mm (pin 1), cable leaving toward -x into the
+  notch): pin 1 COL14, 2 ENC_A (P0.11), 3 GND, 4 ENC_B (P0.12), 5 ENC_SW.
   The 10 nF debounce capacitors on A and B (C10, C11) and the push-switch
   diode D114 stay on the mainboard, so the pin map and the firmware did not
-  change. A 6.0 × 2.5 mm slot just left of J5 (x 303.6 to 309.6, y 48.75 to 51.25 mm) lets the cable reach the
-  module above. The encoder's old spot at the right end of the sidebar is empty.
+  change. The mainboard's top-right corner is cut away for the module: a notch open to the top edge,
+  x 304.0 to 326.4 mm and y 39.0 to 57.0 mm, with a 4.2 mm lobe at (306.6, 57.8) for the module's lower
+  screw head. The cable from J5 goes straight into the notch, so the module sits in the notch and needs
+  no slot or clearance hole in the board.
 - **USB-C:** 5.1 kΩ pull-downs on CC1 and CC2, and ESD protection on D+/D−
   (e.g. USBLC6-2).
 - **Antenna:** keep the MDBT50Q antenna keep-out free of copper on all layers,

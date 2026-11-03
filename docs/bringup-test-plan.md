@@ -1,4 +1,4 @@
-# Dachshund60F bring-up and test plan
+# Dachshund70 bring-up and test plan
 
 As of 2026-10-23. The editable copy, with the results log, is the [Claude Doc](https://claude.ai/artifact/4cqRPnLR6nG84q44rr7kXN); this file is a snapshot of it.
 
@@ -10,9 +10,9 @@ The boards, as designed on main (2026-10-23):
 
 | Board | KiCad project | What it carries | Test access |
 | --- | --- | --- | --- |
-| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-P1MV2, MCP73831 charger (300 mA), JST-PH battery J2, slide switch, TPS22917 LED switch, 6× SK6812MINI-E, encoder port J5, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
-| USB-C daughterboard | `hardware/Dachshund60F-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, JST-SH J2 | Connector pins and part pads |
-| Encoder module | `hardware/Dachshund60F-Encoder/` | Bourns PEC12R-2230F-S0024 roller encoder, JST-SH cable port J1 to the mainboard's J5 | Connector pins and the encoder's pads |
+| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-P1MV2, MCP73831 charger (300 mA), JST-PH battery J2, 6-pin daughterboard port J1, TPS22917 LED switch, 6× SK6812MINI-E, encoder port J5, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
+| USB-C daughterboard | `hardware/Dachshund60F-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, the battery slide switch SW1 (C&K PCM12SMTR, actuator out of the back edge), 6-pin JST-SH J2 | Connector pins and part pads |
+| Encoder module | `hardware/Dachshund60F-Encoder/` | Bourns PEC12R-2220F-S0024 roller encoder, JST-SH cable port J1 to the mainboard's J5 | Connector pins and the encoder's pads |
 | Dongle | `hardware/Dachshund60F-Dongle/` | MDBT50Q-P1MV2, HRO USB-C, USBLC6-2SC6, PTC, PAIR and RESET buttons, RGB LED, SWD J2 | No test points. Probe C1–C4 and J2 |
 
 Recommended order:
@@ -36,7 +36,7 @@ The first six rows are enough to bring every board up. The rest unlock the measu
 | SWD probe | Flashing the bootloader and RTT logs | J-Link (EDU Mini is fine), an nRF52840 DK used as a probe through its Debug Out header, or a CMSIS-DAP probe such as the Raspberry Pi Debug Probe with pyOCD |
 | 1.27 mm 1×5 cable or pogo clip for J3 (mainboard) and J2 (dongle) | Connecting the probe | Pin order on both: 1 VDD, 2 SWDIO, 3 SWDCLK, 4 nRESET, 5 GND. Most probes have a 2×5 1.27 mm Cortex connector, so make or buy an adapter and label it |
 | USB-C cables: C-to-C, A-to-C, and a known-good short one | Enumeration in both plug orientations, Rd check | A USB-C charger too, to prove the 5.1 kΩ Rd resistors |
-| 1:1 JST-SH 4-pin cable, daughterboard to mainboard | USB to the mainboard | Pin 1 to pin 1. A reversed cable puts VBUS on GND. Check it with the DMM before first use |
+| 1:1 JST-SH 6-pin cable, daughterboard to mainboard | USB, and the battery through the switch, to the mainboard | Pin 1 to pin 1. A reversed cable puts VBUS on VBAT_SW and VBAT on GND. Check it with the DMM before first use |
 | Nordic Power Profiler Kit II (PPK2) | Current in every power state, battery life | Source mode powers the board at battery voltage and measures from about 200 nA to 1 A. The best single purchase for this plan |
 | Oscilloscope, 2+ channels, 100 MHz | Rail ripple, switch bounce, encoder quadrature, LED data edges | 10× probes with short ground springs for ripple |
 | Logic analyser, 8+ channels, 24 MHz or faster | Scan rate, latency markers, LED data timing | A Saleae, or a cheap FX2 clone with sigrok/PulseView. 24 MHz resolves the 800 kHz LED protocol |
@@ -74,7 +74,9 @@ Every board passes this stage with no power applied. Measure resistances with th
 | D+, D− to shield | J2-3, J2-2 to shell | Open |
 | Pin-for-pin continuity | USB-C D+ (A6/B6) to J2-3, D− (A7/B7) to J2-2 | Under 1 Ω, both rows of the receptacle |
 
-Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other, and so on for all four. Mark pin 1 on both plugs.
+Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other, and so on for all six. Mark pin 1 on both plugs.
+
+Then the switch: J2-5 (VBAT) and J2-6 (VBAT_SW) are open with the switch off and under 1 Ω with it on.
 
 ### Dongle
 
@@ -94,7 +96,7 @@ Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other,
 | VBUS to GND | J1-1 to J1-4, or C2 | High |
 | VBAT to GND | J2 battery pins | High |
 | VSYS to GND, switch on | C4 or C5 pads | High |
-| VBAT_SW to VBAT | SW1 pin 2 (or Q1 drain) to J2-1, switch off, then on | Open, then under 1 Ω |
+| VBAT_SW to VBAT | J1-6 (or Q1 drain) to J1-5 with the daughterboard cable plugged in, switch off, then on | Open, then under 1 Ω. With the cable unplugged both are open |
 | Q1 body diode | Diode test, red on VBAT_SW (Q1 drain), black on VSYS (C4) | About 0.5–0.7 V forward, open the other way |
 | D8 power-path Schottky | Diode test, red on VBUS (C1), black on VSYS (C4) | About 0.15–0.3 V forward, open the other way |
 | Gate pull-down R3 | Across R3 | 100 kΩ |
@@ -122,7 +124,7 @@ Nine bare 1.5 mm round pads on the back, each labelled with its net on the silks
 | TP2 | VBAT | Below the charger, above J2 (322.0, 93.2) |
 | TP8 | GND | Just below TP2 (321.5, 96.5) |
 | TP7 | CHG_STAT | Left of the module, near C8/C9 (308.5, 71.5) |
-| TP3 | VBAT_SW (after the switch, before Q1) | Next to SW1 (331.5, 110.5) |
+| TP3 | VBAT_SW (after the switch, before Q1) | Near Q1 (331.5, 110.5) |
 | TP4 | VSYS | Above U3, below the J4 header (323.1, 116.0) |
 | TP5 | +3V3 | Beside SW2 (reset), above J4 (318.2, 110.4) |
 | TP6 | LED_VDD | Below U3, near D3/D4 (314.6, 123.4) |
@@ -141,13 +143,14 @@ A blank nRF52840 runs its regulator at the factory REGOUT0 setting, so VDD reads
 VSYS has two sources, in Microchip's load-sharing arrangement for the MCP73831 (AN1149):
 
 - **USB:** VBUS through the B5819W Schottky D8, so VSYS sits about 0.2–0.3 V below VBUS (around 4.7 V).
-- **Battery:** VBAT through the slide switch SW1 (net VBAT_SW), then the AO3401A P-MOSFET Q1 into VSYS. Q1's gate is on VBUS with a 100 kΩ pull-down (R3). With USB unplugged the gate sits at 0 V, so Q1 is fully on. With USB in, the gate is above the source, so Q1 is off and the battery only charges.
+- **Battery:** VBAT through the slide switch SW1 on the USB daughterboard (out to the daughterboard on J1-5, back on J1-6 as net VBAT_SW), then the AO3401A P-MOSFET Q1 into VSYS. Q1's gate is on VBUS with a 100 kΩ pull-down (R3). With USB unplugged the gate sits at 0 V, so Q1 is fully on. With USB in, the gate is above the source, so Q1 is off and the battery only charges.
 
 So:
 
 - On USB the keyboard runs whatever the switch says, and with no battery fitted. The switch only disconnects the battery.
 - On battery it runs only with the switch on.
 - The charger sits on VBAT, before the switch, so USB charges the battery with the switch off too.
+- The battery path now goes through the cable: with the daughterboard unplugged there is no battery power at all.
 - With USB in, the SAADC's VDDH/5 reading shows the USB-fed VSYS, not the cell. Firmware has to read the battery with USB unplugged, or show "charging" from CHG_STAT instead.
 
 ### Mainboard
@@ -224,16 +227,16 @@ Each board gets its bootloader once over SWD; after that, firmware goes on by co
 
 ### Mainboard: bootloader, then firmware
 
-The bootloader board files are in `boards/Dachshund60F/bootloader/` (merged in PR #7). Its README (`boards/Dachshund60F/bootloader/README.md`) has the full procedure; in short:
+The bootloader board files are in `boards/Dachshund70/bootloader/` (merged in PR #7). Its README (`boards/Dachshund70/bootloader/README.md`) has the full procedure; in short:
 
-1. Build it with `boards/Dachshund60F/bootloader/build.sh` on Linux or WSL, or download the `bootloader-<sha>` artifact from a CI run.
-2. Flash `dachshund60f_bootloader_s140_6.1.1.hex` with a full erase:
-    - `nrfutil device program --firmware dachshund60f_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ`
-    - or `pyocd flash -t nrf52840 --erase chip dachshund60f_bootloader_s140_6.1.1.hex`
+1. Build it with `boards/Dachshund70/bootloader/build.sh` on Linux or WSL, or download the `bootloader-<sha>` artifact from a CI run.
+2. Flash `dachshund70_bootloader_s140_6.1.1.hex` with a full erase:
+    - `nrfutil device program --firmware dachshund70_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ`
+    - or `pyocd flash -t nrf52840 --erase chip dachshund70_bootloader_s140_6.1.1.hex`
 3. Take the bench supply off J2, then power the board from USB alone (no battery). Reset. With no app, the DACHSHUND drive mounts (1209:0003) and the six LEDs show the bootloader colours.
-4. Check `INFO_UF2.TXT` reads `Board-ID: nRF52840-Dachshund60F-v1`.
+4. Check `INFO_UF2.TXT` reads `Board-ID: nRF52840-Dachshund70-v1`.
 5. Check +3V3 now reads 3.3 V (the bootloader set REGOUT0).
-6. Build the firmware (`west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"`, or take `zephyr.uf2` from CI) and copy `build/firmware/firmware/zephyr/zephyr.uf2` to the drive. The board resets into the firmware and enumerates as 1209:0001.
+6. Build the firmware (`west build -p -b dachshund70/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"`, or take `zephyr.uf2` from CI) and copy `build/firmware/firmware/zephyr/zephyr.uf2` to the drive. The board resets into the firmware and enumerates as 1209:0001.
 7. Check every way back into the bootloader: hold Esc 3 s in the firmware; hold Esc while pressing reset; double-tap reset. The drive must come back each time.
 8. Brick test: copy a deliberately bad UF2 (for example the dongle's) and check the bootloader still comes up on double-tap reset. A UF2 with the wrong family ID should be refused outright.
 
@@ -264,7 +267,7 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 
 | Area | Test | Pass | Firmware |
 | --- | --- | --- | --- |
-| USB enumeration | `lsusb -v` (or USB Device Tree Viewer) | 1209:0001, "Dachshund" / "Dachshund60F", a serial unique to each board, bcdDevice from `firmware/VERSION`, bMaxPower 500 mA, HID interrupt endpoint with bInterval 1 | Phase 2 (main) |
+| USB enumeration | `lsusb -v` (or USB Device Tree Viewer) | 1209:0001, "Dachshund" / "Dachshund70", a serial unique to each board, bcdDevice from `firmware/VERSION`, bMaxPower 500 mA, HID interrupt endpoint with bInterval 1 | Phase 2 (main) |
 | USB-C orientation | Enumerate with the plug both ways round, and through A-to-C and C-to-C cables | Enumerates every time | Phase 2 |
 | Hot-plug | Unplug and replug 20 times | Enumerates every time; no hang (check RTT) | Phase 2 |
 | Boot keyboard | Type in a BIOS/UEFI setup screen; through a KVM if you have one | Keys work | Phase 3 (main) |
@@ -274,7 +277,7 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 | Boot fallback | In a BIOS/UEFI setup screen or through a KVM, hold 7 keys | Six keys report, no stuck keys; back in the OS, NKRO works again | Phase 4 |
 | Media and system keys | Fn+F-row media keys, volume, mute; Sleep if mapped | The host reacts; `lsusb -v` shows a second HID interface with report IDs 1–3 | Phase 4 |
 | Suspend and wake | Put the computer to sleep with the keyboard plugged in, then press a key | The LEDs go dark while the host sleeps; a key press wakes it (if the host allows USB wake); after waking, no key is stuck | Phase 4 |
-| Config interface | `lsusb -v`; then the handshake from host-lib (phase 7) or Doghouse (phase 8) | A third HID interface, usage page 0xFF00, usage 0x44, 64-byte reports in and out. The handshake reports protocol 1, the firmware version, 6×15×4 and "Dachshund60F"; `get_serial` returns the same text as the USB serial; `identify` blinks the LEDs | Phase 5 |
+| Config interface | `lsusb -v`; then the handshake from host-lib (phase 7) or Doghouse (phase 8) | A third HID interface, usage page 0xFF00, usage 0x44, 64-byte reports in and out. The handshake reports protocol 1, the firmware version, 6×15×4 and "Dachshund70"; `get_serial` returns the same text as the USB serial; `identify` blinks the LEDs | Phase 5 |
 | Settings survive power-off | Change a key and save (Doghouse, phase 8, or host-lib), unplug, replug; then revert and factory reset | The change is kept after replugging; revert brings back the saved keymap and factory reset the default one; an NKRO choice made with Fn+N and then saved is kept | Phase 6 |
 | Lock LEDs | Toggle Caps, Num, Scroll on the host | Caps LED (D2) lights warm white while Caps Lock is on; the screen shows all three; the layer LED (D3) shows amber on Fn | Phase 4; colours settable in phase 10 |
 | LED chain | Bring-up walk on power-up (once, 3.6 s) | One LED at a time in chain order D3 (layer), D4–D7 (battery 1–4), D2 (Caps), each red then green then blue for 200 ms. Wrong order means a routing fault; wrong colours means the GRB order is off | Phase 2; one pass since phase 4 |
@@ -308,7 +311,7 @@ Run these with the mainboard flashed:
 | Both plug orientations, A-to-C and C-to-C | Enumerates each time | Bootloader, then phase 14 |
 | RGB LED | Red, green and blue each light; no colour stuck on | Bootloader shows blue; full test in phase 14, or a Zephyr blinky for `nrf52840dongle/nrf52840` (same LED pins) |
 | PAIR and RESET | Each works | Bootloader |
-| Enumerates as 1209:0002 "Dachshund60F Receiver" | Shown in `lsusb -v` | Phase 14 |
+| Enumerates as 1209:0002 "Dachshund70 Receiver" | Shown in `lsusb -v` | Phase 14 |
 | Pairs with the keyboard and relays keys | Keys type through it | Phase 14 |
 
 ## Stage 4: performance measurements
@@ -418,7 +421,7 @@ About a third of this plan can run on the day the boards arrive. The rest waits 
 | --- | --- | --- |
 | Phase 2: USB enumeration, LED walk, Esc-to-UF2, RTT logs, REGOUT0 | On main | Enumeration, LED chain, LED switch, rails |
 | Status screen (four panels) | On main | Display tests |
-| Dachshund60F UF2 bootloader | On main (PR #7); never run on hardware | First SWD flash and every UF2 step |
+| Dachshund70 UF2 bootloader | On main (PR #7); never run on hardware | First SWD flash and every UF2 step |
 | Phase 3: matrix scan at 1 kHz, debounce (eager press, 5 ms), keymap, key reports | On main (PR #8) | Every-key, ghosting, chatter, BIOS, scan and debounce timing |
 | Phase 4: NKRO, consumer keys, lock LEDs, suspend and remote wakeup | On main (PR #13) | Rollover, boot fallback, media keys, lock LEDs, suspend and wake |
 | Phase 5: config protocol v1 on a vendor HID interface | Done, in review | Config interface |

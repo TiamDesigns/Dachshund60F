@@ -1,6 +1,6 @@
 # Doghouse
 
-The configurator for Dachshund60F and future dog-named boards. Svelte 5 +
+The configurator for Dachshund70 and future dog-named boards. Svelte 5 +
 TypeScript, built with Vite. It runs in Chrome or Edge and talks to real
 boards over WebHID, or to simulated ones in demo mode. The same frontend also
 runs as a desktop app for Windows, macOS and Linux (Tauri, `src-tauri/`), which

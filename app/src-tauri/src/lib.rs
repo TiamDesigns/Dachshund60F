@@ -13,7 +13,7 @@ fn updates_enabled(app: tauri::AppHandle) -> bool {
 }
 
 /// Where people download Doghouse by hand (app/src/lib/app-version.ts).
-const RELEASES_URL: &str = "https://github.com/TiamDesigns/Dachshund60F/releases/latest";
+const RELEASES_URL: &str = "https://github.com/TiamDesigns/Dachshund70/releases/latest";
 
 /// Opens the download page in the computer's browser, for copies that can't
 /// install an update themselves. Only this one address, never one from the UI.

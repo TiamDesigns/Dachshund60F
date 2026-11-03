@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { BatteryStatus } from "@dachshund60f/host-lib";
+  import type { BatteryStatus } from "@dachshund70/host-lib";
 
   import { batteryColor } from "../battery.ts";
 

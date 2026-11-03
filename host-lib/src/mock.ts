@@ -472,7 +472,7 @@ export class MockBoard implements Board {
 }
 
 export interface MockBoardManagerOptions {
-  /** Keyboard definitions by model name, e.g. { Dachshund60F: def }. */
+  /** Keyboard definitions by model name, e.g. { Dachshund70: def }. */
   definitions: Record<string, KeyboardDefinition>;
   /** Battery simulation interval; 0 turns simulation off. Default 0. */
   tickMs?: number;
@@ -526,7 +526,7 @@ export class MockBoardManager implements BoardManager {
     if (!definition) {
       throw new Error(`no keyboard definition for ${model}`);
     }
-    const id = options.id ?? `D60F-${(0x1a2b + this.nextSerial++ * 0x3c1).toString(16).toUpperCase().padStart(4, "0")}`;
+    const id = options.id ?? `D70-${(0x1a2b + this.nextSerial++ * 0x3c1).toString(16).toUpperCase().padStart(4, "0")}`;
     if (this.boards.has(id)) {
       throw new Error(`board ${id} is already connected`);
     }

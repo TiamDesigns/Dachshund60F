@@ -1,8 +1,10 @@
-# Dachshund60F
+# Dachshund70
 
 A tri-mode 60% keyboard I'm designing from scratch: the PCBs, the switch plate, the firmware, the config protocol, the driver and the configurator app. It runs over USB, Bluetooth LE and its own 2.4 GHz dongle, all on the nRF52840.
 
-![Dachshund60F layout](KLE%20Info/keyboard-layout.jpg)
+It was called the Dachshund60F until November 2026; older notes, PRs and the 26 October project review still use that name.
+
+![Dachshund70 layout](KLE%20Info/keyboard-layout.jpg)
 
 No boards have been made yet. All three PCBs are designed and the firmware is built and tested on a PC, so the next step is ordering them and bringing them up.
 
@@ -60,7 +62,7 @@ And at the end of it I want a keyboard I actually enjoy using every day.
 | Layout | 60% with an F-row, 80 switch positions, split or 6.25u spacebar |
 | Matrix | 6 × 15, COL2ROW, diodes on every switch |
 | Switches | Kailh hot-swap sockets (3 soldered positions on the spacebar row) |
-| Encoder | Bourns PEC12R-2230F-S0024: shaft parallel to the board, 24 detents, push switch, 30 mm shaft, used as a roller. On its own module board, cabled to the mainboard |
+| Encoder | Bourns PEC12R-2220F-S0024: shaft parallel to the board, 24 detents, push switch, 20 mm shaft, used as a roller. On its own module board, cabled to the mainboard |
 | Lighting | 6 × SK6812MINI-E indicators: layer, a 4-step battery gauge, and Caps Lock. No per-key RGB |
 | Display | Optional OLED or e-paper on header J4 (panel not chosen yet) |
 | Power | USB-C on a daughterboard, 1S LiPo on JST-PH, MCP73831 charger with a load-sharing power path |
@@ -97,7 +99,7 @@ The firmware follows the build order in [SPEC.md](SPEC.md): wired first, then wi
 | Folder | What's in it |
 | --- | --- |
 | `hardware/` | KiCad 10 projects: mainboard, USB-C daughterboard, dongle and plate, STEP exports, and the case (`hardware/case/`, CadQuery) |
-| `boards/Dachshund60F/` | Pin map, keyboard definition, Zephyr board files and the UF2 bootloader board |
+| `boards/Dachshund70/` | Pin map, keyboard definition, Zephyr board files and the UF2 bootloader board |
 | `boards/Pup/` | A one-key test board: the keyboard firmware on Nordic's nRF52840 Dongle, for trying the wireless outputs before the PCB exists |
 | `firmware/` | The keyboard firmware. `firmware/core/` is the hardware-free keymap engine and its tests |
 | `dongle/` | 2.4 GHz receiver firmware (see `dongle/README.md` to flash and pair it) |
@@ -137,7 +139,7 @@ cd host-lib && npm ci && npm test
 From an nRF Connect SDK v3.4.1 shell, in the repo root:
 
 ```sh
-west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"
+west build -p -b dachshund70/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"
 ```
 
 [CLAUDE.md](CLAUDE.md) has every command, including release builds, display panels, the bootloader and flashing.
@@ -165,5 +167,5 @@ Please read this before you build one:
 
 - **No warranty.** This is a personal learning project, provided as is. At the time of writing no board has been manufactured or tested, so the designs may have mistakes. Check them yourself before ordering.
 - **Lithium batteries can be dangerous.** The board charges a LiPo cell. Use a cell with its own protection circuit, check the connector polarity (JST-PH polarity isn't standard between vendors), and don't leave it charging unattended until you've tested your build.
-- **USB IDs: change them before you give a board to anyone.** I've chosen not to register USB IDs for this project, because my board only lives on my desk. The firmware uses pid.codes *test* PIDs (1209:0001, 0002 and 0003), which anyone may use for in-house testing but which **must not** be used on a device that's given away, sold or manufactured. Every board using them looks identical to the OS, and to every other project that uses the same test IDs. If your boards will leave your hands, get your own VID/PID (a free PID from [pid.codes](https://pid.codes/howto/) for open-source hardware, or a VID from the USB-IF) and change them in `firmware/Kconfig`, the dongle and bootloader configs, and `boards/Dachshund60F/board.json`.
+- **USB IDs: change them before you give a board to anyone.** I've chosen not to register USB IDs for this project, because my board only lives on my desk. The firmware uses pid.codes *test* PIDs (1209:0001, 0002 and 0003), which anyone may use for in-house testing but which **must not** be used on a device that's given away, sold or manufactured. Every board using them looks identical to the OS, and to every other project that uses the same test IDs. If your boards will leave your hands, get your own VID/PID (a free PID from [pid.codes](https://pid.codes/howto/) for open-source hardware, or a VID from the USB-IF) and change them in `firmware/Kconfig`, the dongle and bootloader configs, and `boards/Dachshund70/board.json`.
 - **Certification.** The radio module is pre-certified, but a finished product may still need its own testing (FCC, CE and so on) before you sell it. That's on you.

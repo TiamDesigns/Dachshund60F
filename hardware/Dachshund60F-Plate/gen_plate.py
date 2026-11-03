@@ -85,10 +85,10 @@ PRONG_START = NECK_WIDTH / 2 + ARM_LENGTH      # from the nub centre: the arm's 
 ARM_OUTER = SLOT + ARM_WIDTH
 
 # Reliefs for the encoder module's two M2 posts (they stand 1.2 mm from the notch
-# edge), Ø5.2 centred on the module's holes (mainboard mm), open to the edge
+# edge), Ø3.8 centred on the module's holes (mainboard mm), open to the edge
 # where the circle would leave a sliver.
-POST_RELIEFS = ((307.2, 41.7), (307.2, 58.3))
-POST_RELIEF_D = 5.2
+POST_RELIEFS = ((306.6, 41.7), (306.6, 57.8))
+POST_RELIEF_D = 3.8   # the case's M2 post bosses are dia 3.4: 0.2 clear all round
 
 # Every inside corner of the outline gets at least this radius (tab roots).
 OUTLINE_INSIDE_RADIUS = 0.5
@@ -100,10 +100,11 @@ OUTLINE_OUTSIDE_RADIUS = 0.7
 # module board since mainboard Rev 1.1, so the mainboard has no encoder to
 # measure; ENCODER_BOX is the courtyard (x0, y0, x1, y1, in mainboard mm) the
 # old on-board encoder had, which fixed the notch's bottom edge. Its left edge
-# leaves a 2.8 mm web next to the Delete cutout and leaves the whole shaft and
-# a wheel on it clear.
-ENCODER_BOX = (308.105, 41.33, 328.595, 57.72)
-NOTCH_LEFT = 306.0
+# (the Delete cutout's right edge is at x 303.25) leaves a 2.0 mm web next to the
+# Delete cutout (1.45 mm at the two post reliefs) and leaves the whole shaft and
+# a wheel on it clear; the module's own board, below the plate, runs under the web.
+ENCODER_BOX = (308.105, 41.33, 328.595, 55.7)
+NOTCH_LEFT = 305.25
 NOTCH_BELOW_COURTYARD = 1.3
 NOTCH_RADIUS = 2.0
 

@@ -37,7 +37,7 @@ const BLE_COLLECTIONS: WebHidCollection[] = [
 
 class FakeWebHidDevice implements WebHidDevice {
   opened = false;
-  readonly productName = "Dachshund60F";
+  readonly productName = "Dachshund70";
   private readonly listeners = new Set<(e: WebHidInputReportEvent) => void>();
   private readonly fake: FakeTransport;
   readonly sent: { reportId: number; length: number }[] = [];

@@ -40,7 +40,7 @@ static void test_default_layout_is_valid(void)
 {
     struct kb_screen_layout layout;
 
-    kb_screen_default_layout(&layout, ALL_WIDGETS, "Dachshund60F");
+    kb_screen_default_layout(&layout, ALL_WIDGETS, "Dachshund70");
     KB_CHECK_EQ(kb_screen_layout_validate(&layout), 0);
     KB_CHECK_EQ(layout.count, 5);
 
@@ -56,7 +56,7 @@ static void test_default_layout_on_two_rows(void)
     struct kb_screen_state state;
     struct kb_screen_item items[KB_SCREEN_MAX_WIDGETS];
 
-    kb_screen_default_layout(&layout, ALL_WIDGETS, "Dachshund60F");
+    kb_screen_default_layout(&layout, ALL_WIDGETS, "Dachshund70");
     kb_screen_state_init(&state);
     state.locks = KB_LOCK_CAPS;
     state.transport = KB_TRANSPORT_USB;
@@ -77,7 +77,7 @@ static void test_default_layout_text_row_on_taller_screen(void)
     struct kb_screen_state state;
     struct kb_screen_item items[KB_SCREEN_MAX_WIDGETS];
 
-    kb_screen_default_layout(&layout, ALL_WIDGETS, "Dachshund60F");
+    kb_screen_default_layout(&layout, ALL_WIDGETS, "Dachshund70");
     kb_screen_state_init(&state);
 
     size_t n = kb_screen_render(&layout, &state, 25, 7, items, KB_SCREEN_MAX_WIDGETS);
@@ -86,7 +86,8 @@ static void test_default_layout_text_row_on_taller_screen(void)
     KB_CHECK_EQ(n, 3);
     KB_CHECK(item_is(items, n, 0, 0, "Base"));
     KB_CHECK(item_is(items, n, 0, 19, "BAT --"));
-    KB_CHECK(item_is(items, n, 2, 6, "Dachshund60F"));
+    /* Centred: (25 - 11) / 2 = 7. */
+    KB_CHECK(item_is(items, n, 2, 7, "Dachshund70"));
 }
 
 static void test_selected_widgets_pack_rows(void)
