@@ -27,6 +27,14 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - Daughterboard height: the USB daughterboard now sits 4.5 mm lower in the case. Nothing on the boards changes: J1 and J2 and the 6-pin SH cable are flexible, so it only needs a cable long enough for the new path (suggest 100 mm).
 - J5 and the battery cell: the cell (KiCad x 281.0 to 337.5, y 41.0 to 76.0 under the back) covers the whole right strip where J5 could sit, and J5 is 2.96 mm tall, so it sits 0.65 mm into the cell's top. No move on the board clears it; see the thread for the options. Not changed yet.
 - Not ordered, made or fitted.
+### Renamed to Dachshund70, part 2: the PCB projects (2026-11-03)
+
+- The mainboard, USB-C daughterboard, dongle and encoder module projects are now `hardware/Dachshund70/`, `Dachshund70-USB/`, `Dachshund70-Dongle/` and `Dachshund70-Encoder/`, with their `.kicad_pro`, `.kicad_sch`, `.kicad_pcb` and `.kicad_dru` files, the schematic sheet instances, title blocks and notes renamed to match. The project footprint library is now `lib/Dachshund70.pretty`, nicknamed `Dachshund70` in `fp-lib-table` and in the D2–D7 footprint references.
+- Silkscreen: the USB-C daughterboard and dongle labels say "Dachshund70". The mainboard's back logo (filled polygons) now reads "Doghouse Boards  Dachshund70  Rev 1.1": the "6" became a URW Gothic Book "7" at the same size and baseline, the "F" is gone, "Rev 1.1" moved up to close the gap, and the whole logo was shifted 1.54 mm to stay centred where it was.
+- `export_fab.py` writes `Dachshund70*` order files for the four renamed boards. `export_step.py` and `gen_plate.py` read the renamed mainboard; the STEP files keep their old names until part 3.
+- Not run here: KiCad DRC and ERC (no kicad-cli in the cloud container). Only names, the logo polygons and text changed, so the results should be the same; worth a DRC pass when the projects are next opened.
+- Part 3 waits for the case thread's plate branch: the plate project, the STEP files, and the case and keycap outputs.
+
 ### Renamed to Dachshund70, part 1: firmware, app and docs (2026-11-03)
 
 - Tiam renamed the project from Dachshund70 to Dachshund70. This change covers everything outside `hardware/`: the Zephyr board is now `dachshund70/nrf52840` in `boards/Dachshund70/`, the USB product strings are "Dachshund70" and "Dachshund70 Receiver", the Bluetooth name and DIS model are "Dachshund70", and the UF2 board ID is `nRF52840-Dachshund70-v1` (no board had been flashed, so nothing old needs to keep working). The host library and Doghouse packages are `@dachshund70/…`, and Doghouse is bumped to 0.1.4 because 0.1.3 doesn't know a board called Dachshund70.
