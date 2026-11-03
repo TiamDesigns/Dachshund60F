@@ -59,11 +59,13 @@ MIN_ACCENT_AREA = 2.0  # mm²
 # two arms that run back along the plate edge in opposite directions (a T). A slot
 # SLOT wide separates each arm from the plate edge, so the arm is a cantilever
 # spring held only by the neck and the material flexes. Each arm's free end carries
-# one prong (the 2.8 x 6.5 mm tab the sock slides over, pointing outward): twelve
-# gaskets on six nubs. The sock's open end sits against the arm's outer face.
+# one prong (the 2.8 x 6.5 mm tab the sock slides over): twelve gaskets on six nubs.
+# The prongs continue the arms along the plate edge (parallel to it, not pointing
+# outward), so a sock lies along the edge and the nub reaches only ~5 mm past the plate
+# edge, which is what fits the case's bezel. The sock's open end sits against the arm's end.
 # Everything stays outside the plate outline, so no switch cutout is touched.
 NECK_WIDTH = 4.0
-SLOT = 1.2               # between the plate edge and the arm
+SLOT = 2.0               # between the plate edge and the arm (the sock, 5 wide, centred on the arm, then clears the plate edge)
 ARM_WIDTH = 1.5          # in plane; the arm bends in this direction
 ARM_LENGTH = 12.0        # from the neck's side face to the arm's free end
 TAB_WIDTH = 2.8          # one prong
@@ -77,8 +79,8 @@ SOCK_WIDTH = 5.0
 # one 15 mm left of the connector) instead.
 FRONT_NUBS = (-106.17, 0.0, 106.17)
 BACK_NUBS = (-107.7, -15.0, 77.7)
-# Where a prong sits: the prong's outer edge is flush with the arm's end.
-PRONG_OFFSET = NECK_WIDTH / 2 + ARM_LENGTH - TAB_WIDTH / 2
+# A prong continues its arm past the arm's end, along the plate edge, centred on the arm's width.
+PRONG_START = NECK_WIDTH / 2 + ARM_LENGTH      # from the nub centre: the arm's end, where the prong and the sock start
 # Distance from the plate edge to the arms' outer face, where the prongs start.
 ARM_OUTER = SLOT + ARM_WIDTH
 
@@ -268,9 +270,10 @@ def build(mb):
     # Nubs: the top edge is y0 (the keyboard's back), the bottom edge y1 (its front).
     top_nubs = [cx + f for f in BACK_NUBS]
     bottom_nubs = [cx + f for f in FRONT_NUBS]
-    top_prongs = [n + s * PRONG_OFFSET for n in top_nubs for s in (-1, 1)]
-    bottom_prongs = [n + s * PRONG_OFFSET for n in bottom_nubs for s in (-1, 1)]
-    reach = NECK_WIDTH / 2 + ARM_LENGTH
+    top_prongs = [n + s * (PRONG_START + TAB_LENGTH / 2) for n in top_nubs for s in (-1, 1)]       # prong centres
+    bottom_prongs = [n + s * (PRONG_START + TAB_LENGTH / 2) for n in bottom_nubs for s in (-1, 1)]
+    reach = PRONG_START
+    arm_mid = SLOT + ARM_WIDTH / 2                  # the arm's (and the prong's) centre line, past the plate edge
     tabs = []
     # Overlaps of 0.5-1 mm between the pieces keep the union free of seams.
     for n in top_nubs:
@@ -280,9 +283,9 @@ def build(mb):
         tabs.append(rect(n - NECK_WIDTH / 2, y1 - 1, n + NECK_WIDTH / 2, y1 + ARM_OUTER))
         tabs.append(rect(n - reach, y1 + SLOT, n + reach, y1 + ARM_OUTER))
     for tx in top_prongs:
-        tabs.append(rect(tx - TAB_WIDTH / 2, y0 - ARM_OUTER - TAB_LENGTH, tx + TAB_WIDTH / 2, y0 - ARM_OUTER + 0.5))
+        tabs.append(rect(tx - TAB_LENGTH / 2 - 0.5, y0 - arm_mid - TAB_WIDTH / 2, tx + TAB_LENGTH / 2 + 0.5, y0 - arm_mid + TAB_WIDTH / 2))
     for tx in bottom_prongs:
-        tabs.append(rect(tx - TAB_WIDTH / 2, y1 + ARM_OUTER - 0.5, tx + TAB_WIDTH / 2, y1 + ARM_OUTER + TAB_LENGTH))
+        tabs.append(rect(tx - TAB_LENGTH / 2 - 0.5, y1 + arm_mid - TAB_WIDTH / 2, tx + TAB_LENGTH / 2 + 0.5, y1 + arm_mid + TAB_WIDTH / 2))
     outline = union([outline] + tabs)
 
     ex0, ey0, ex1, ey1 = mb["encoder"]
@@ -341,10 +344,13 @@ def build(mb):
     mask.Simplify()
 
     socks = []
-    for tx in top_prongs:
-        socks.append((tx, y0 - ARM_OUTER - SOCK_LENGTH, y0 - ARM_OUTER))
-    for tx in bottom_prongs:
-        socks.append((tx, y1 + ARM_OUTER, y1 + ARM_OUTER + SOCK_LENGTH))
+    # (x start, x end, y centre): the sock's open end at the arm's end, lying along the edge
+    for n in top_nubs:
+        for s in (-1, 1):
+            socks.append((n + s * PRONG_START, n + s * (PRONG_START + SOCK_LENGTH), y0 - arm_mid))
+    for n in bottom_nubs:
+        for s in (-1, 1):
+            socks.append((n + s * PRONG_START, n + s * (PRONG_START + SOCK_LENGTH), y1 + arm_mid))
 
     return {
         "plate": plate, "copper": copper, "mask": mask, "socks": socks,
@@ -410,8 +416,8 @@ def write(mb, geo):
     add_fill(board, geo["mask"], pcbnew.F_Mask)
 
     # Sock outlines on Cmts.User, for designing the case pockets.
-    for x, ya, yb in geo["socks"]:
-        add_contour(board, rect(x - SOCK_WIDTH / 2, ya, x + SOCK_WIDTH / 2, yb).Outline(0),
+    for xa, xb, yc in geo["socks"]:
+        add_contour(board, rect(min(xa, xb), yc - SOCK_WIDTH / 2, max(xa, xb), yc + SOCK_WIDTH / 2).Outline(0),
                     pcbnew.Cmts_User, 0.1)
 
     # Bottom-side text faces the PCB, so it's never seen. "JLCJLCJLCJLC" tells

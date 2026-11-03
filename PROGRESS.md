@@ -6,6 +6,11 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Plate: gasket prongs parallel to the edge (2026-11-03)
+
+- Tiam: the gaskets pointed out toward the case wall; they should lie parallel to the plate edge so they fit the bezel. Each arm's prong now continues the arm along the edge (2.8 mm wide, 6.5 mm long, centred on the arm) instead of pointing outward, and the sock lies along the edge from the arm's end (8 mm, open end at the arm's end). `SLOT` is 2.0 mm (was 1.2) so a 5 mm sock centred on the arm stays 0.25 mm off the plate edge; the nub now reaches 4.15 mm past the edge (sock 5.25 mm) instead of 9.2 (10.7).
+- `gen_plate.py`: `PRONG_START` replaces `PRONG_OFFSET`; the socks list is (x start, x end, y centre). Plate regenerated with KiCad 10's Python, DRC (kicad-cli) 0 violations, 0 unconnected; Plate and Assembly STEP and the polycarbonate DXF regenerated. Not fabricated, not tested on hardware. Nub centres are unchanged.
+
 ### Plate: branched gasket nubs (2026-11-02)
 
 - Tiam's correction: the forked tabs were read wrongly. Each of the six positions is now one nub that branches: a 4 mm neck leaves the plate edge, then splits into two 1.5 mm wide, 12 mm long arms running back along the edge in opposite directions (a T), with a 1.2 mm slot between each arm and the plate edge, so each arm is a cantilever held only through the neck. The free end of each arm carries one prong (2.8 x 6.5 mm, pointing outward, flush with the arm's end): still twelve gaskets, on six nubs. Estimated stiffness at the prong about 15 N/mm in 1.6 mm FR4 (3EI/L^3, E ~ 20 GPa).

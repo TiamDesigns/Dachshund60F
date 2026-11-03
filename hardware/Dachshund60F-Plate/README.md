@@ -44,18 +44,19 @@ can't drift apart.
 
 Six branched nubs, three on the top edge (the keyboard's back) and three on the bottom (its front), none on the
 ends. Each nub is one 4 mm neck that leaves the plate edge and splits into two arms running back along the edge in
-opposite directions (a T). A 1.2 mm slot separates each arm from the plate edge, so an arm is a cantilever held only
+opposite directions (a T). A 2.0 mm slot separates each arm from the plate edge, so an arm is a cantilever held only
 through the neck and the material flexes. An arm is 1.5 mm wide (in the plane, the direction it bends) and 12 mm long
 from the neck's side face; with 1.6 mm FR4 that is roughly 15 N/mm at the prong (3EI/L³, E ≈ 20 GPa), and the
 polycarbonate plate is softer. The free end of each arm carries one prong, 2.8 mm wide and 6.5 mm long, the size of
-the silicone sock's pocket (8 × 5 × 5 mm outside, 6.5 × 2.8 × 1.2 mm inside, fits 1.2–1.6 mm plates), pointing outward
-with its outer edge flush with the arm's end. The sock's open end sits against the arm's outer face, 2.7 mm past the
-plate edge. Twelve gaskets on six nubs. Everything is outside the plate outline, so no switch cutout is touched. Inside
-corners (neck to slot) have a 0.5 mm radius and outside corners 0.7 mm (the rounding would erase an arm
-thinner than twice the outside radius).
+the silicone sock's pocket (8 × 5 × 5 mm outside, 6.5 × 2.8 × 1.2 mm inside, fits 1.2–1.6 mm plates). The prongs run
+on along the plate edge, parallel to it and to the arms (they no longer point outward), so every gasket lies along the
+edge and a nub reaches only 4.15 mm past it (the socks, centred on the arm, reach 5.25 mm). That is what fits the case's
+bezel. The sock's open end sits against the arm's end, 14 mm from the nub centre. Twelve gaskets on six nubs.
+Everything is outside the plate outline, so no switch cutout is touched. Inside corners (neck to slot) have a 0.5 mm
+radius and outside corners 0.7 mm (the rounding would erase an arm thinner than twice the outside radius).
 
-Nub centres (mm from the middle of the plate, x = 0 at the USB-C connector on the back edge), prongs at ±(2 + 12 − 1.4)
-= ±12.6 mm from each:
+Nub centres (mm from the middle of the plate, x = 0 at the USB-C connector on the back edge), prong centres at ±(2 + 12 + 3.25)
+= ±17.25 mm from each:
 
 | Edge | Nub centres |
 | --- | --- |
@@ -65,11 +66,11 @@ Nub centres (mm from the middle of the plate, x = 0 at the USB-C connector on th
 The back can't be symmetric: the encoder notch takes out the right-hand end of the top edge (plate edge to
 x ≈ +125), and the USB-C connector is at x = 0, so the three nubs are spread evenly over the edge that is left,
 with the middle one 15 mm left of the connector. In mainboard coordinates the nubs are at x = 70.55, 163.25, 255.95
-on the top edge (y = 39.0), with prongs at 57.95, 83.15, 150.65, 175.85, 243.35, 268.55, and at x = 72.08, 178.25,
-284.42 on the bottom edge (y = 160.1), with prongs at 59.48, 84.68, 165.65, 190.85, 271.82, 297.02.
+on the top edge (y = 39.0), with prongs at 53.30, 87.80, 146.00, 180.50, 238.70, 273.20, and at x = 72.08, 178.25,
+284.42 on the bottom edge (y = 160.1), with prongs at 54.83, 89.33, 161.00, 195.50, 267.17, 301.67.
 
 The sock outlines (8 × 5 mm) are drawn on Cmts.User, so the case pockets can be placed from them. Each sock starts at
-the arm's outer face and reaches 8 mm past it (10.7 mm past the plate edge). The case needs a clearance pocket round
+the arm's end and lies 8 mm along the plate edge, centred 2.75 mm past it (0.25 to 5.25 mm past the edge). The case needs a clearance pocket round
 each nub (about 0.5 mm round the neck and arms) so the arms can move.
 
 Feel: set by the arm width and length. To soften it, make `ARM_WIDTH` smaller or `ARM_LENGTH` longer; to firm it up,
