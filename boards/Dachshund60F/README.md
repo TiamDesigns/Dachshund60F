@@ -94,7 +94,8 @@ switch footprints and wire them to the same diode.
 
 - **Power:** VBUS to the module's VBUS pad. VDDH (nRF52840 high-voltage
   mode) is VSYS, fed from USB through a Schottky, or from the battery through
-  the power slide switch and a load-sharing P-MOSFET that turns off while USB
+  the power slide switch (on the USB daughterboard, reached through
+  J1 pins 5 and 6) and a load-sharing P-MOSFET that turns off while USB
   is in. On USB, VDDH reads the USB rail, not the battery.
 - **GPIO voltage:** set REGOUT0 to 3.3 V (UICR). The default is 1.8 V, too low
   to drive the SK6812 data input.

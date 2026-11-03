@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Power switch moved to the USB daughterboard (2026-11-03)
+
+- Tiam's call: the battery slide switch (C&K PCM12SMTR, SPDT, used as an on/off in the VBAT to VBAT_SW line) leaves the mainboard and goes on the USB daughterboard, so it is reached from the back of the case.
+- Cable: the mainboard J1 and the daughterboard J2 are now JST SH 6-pin (SM06B-SRSS-TB(LF)(SN), LCSC C160405) instead of 4-pin. Pins 1 to 4 stay where they were (VBUS, D-, D+, GND); pin 5 is VBAT and pin 6 is VBAT_SW. A pin-for-pin 6-way cable is needed.
+- Daughterboard (`hardware/Dachshund60F-USB/`, rev 1.1): 54 × 9 mm (was 42 × 9; the extra 12 mm is on the right, so the USB-C stays at x 121 and H1 at x 104.5). H2 moved from x 137.5 to 140.0 to make room for the wider J2. SW1 sits on the top side at x 148.4 (pad row y 104.0, footprint origin y 102.4), actuator out of the back (top) edge by 0.75 mm and sliding along it; the 3D model is 7.7 mm wide, 1.5 mm tall. VBAT_SW runs from J2 pin 6 over the top of H2 on the front; VBAT drops from pin 5 through a via and runs along the bottom edge on the back to a via by the switch. Which way the knob must slide to switch on is not checked: pad 2 is the common, the knob at the left (-x) end is the throw on pad 3 (unused), and on the right end it joins pad 1 (VBAT). Check it with a meter on the first board. DRC: the only messages are SW1's silkscreen crossing the back edge, like the USB-C's already did; 0 unconnected. ERC and parity clean.
+- Mainboard (rev 1.1): SW1 is removed; J1 is the 6-pin port at (331.0, 87.0) mm on the back with pins 5 and 6 routed down the right edge to where the switch's pads were (VBAT at x 335.4, VBAT_SW at x 336.4). The GND via at J1's pin 4 moved 1 mm east. DRC with every severity: 218 items (was 222), 0 unconnected; ERC unchanged.
+- STEP exports for the mainboard, assembly and daughterboard refreshed. Docs updated: bring-up plan, boards README, design decisions. The case README and generator still describe SW1 on the mainboard; the case thread owns those.
+- Not ordered, made or fitted.
+
 ### Encoder module: 20 mm shaft, PEC12R-2220F-S0024 (2026-11-02)
 
 - Tiam asked for a shorter shaft, so SW1 on the encoder module is now the Bourns PEC12R-2220F-S0024 (20 mm shaft, same body, footprint and pins as the 30 mm -2230F-S0024 it replaces). Schematic value, MPN and LCSC (C49673168, which showed no stock on 2026-10-28, so JLC may have to source it globally or you solder it by hand), the PCB's value field and the docs are updated.

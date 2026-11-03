@@ -1223,6 +1223,319 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Connector_Generic_MountingPin:Conn_01x06_MountingPin"
+			(pin_names
+				(offset 1.016)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "J"
+				(at 0 7.62 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x06_MountingPin"
+				(at 1.27 -10.16 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Description" "Generic connectable mounting pin connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??-1MP*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(symbol "Conn_01x06_MountingPin_1_1"
+				(rectangle
+					(start -1.27 6.35)
+					(end 1.27 -8.89)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -1.27 5.207)
+					(end 0 4.953)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -4.953)
+					(end 0 -5.207)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -7.493)
+					(end 0 -7.747)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.016 -9.652) (xy 1.016 -9.652)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(text "Mounting"
+					(at 0 -9.271 0)
+					(effects
+						(font
+							(size 0.381 0.381)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 5.08 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -5.08 0)
+					(length 3.81)
+					(name "Pin_5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -7.62 0)
+					(length 3.81)
+					(name "Pin_6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -12.7 90)
+					(length 3.048)
+					(name "MountPin"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "MP"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "Connector_Generic_MountingPin:Conn_01x04_MountingPin"
 			(pin_names
 				(offset 1.016)
@@ -6310,10 +6623,7 @@
 			(embedded_fonts no)
 		)
 	)
-	(no_connect
-		(at 132.08 246.38)
-		(uuid "e34bb949-1d48-45c0-8413-7d4acdb27160")
-	)
+
 	(no_connect
 		(at 129.54 223.52)
 		(uuid "2d80bad6-eaa0-4020-9fd5-519dd5bbacdc")
@@ -8830,20 +9140,8 @@
 		)
 		(uuid "01b1eb6c-29b5-4948-aaa0-5e538136b8eb")
 	)
-	(wire
-		(pts
-			(xy 132.08 241.3)
-			(xy 134.62 241.3)
-		)
-		(uuid "79044d44-7322-4447-a3d3-d753daf2065a")
-	)
-	(wire
-		(pts
-			(xy 121.92 243.84)
-			(xy 119.38 243.84)
-		)
-		(uuid "f2fba311-aee9-4448-850d-fcdc93f67dbf")
-	)
+
+
 	(wire
 		(pts
 			(xy 80.01 74.93)
@@ -8893,13 +9191,7 @@
 		)
 		(uuid "ebadf4d7-8fca-4b49-90e0-3f291b4fa431")
 	)
-	(wire
-		(pts
-			(xy 25.4 226.06)
-			(xy 25.4 228.6)
-		)
-		(uuid "2f41be96-d32e-4d65-8199-00d7964bc13f")
-	)
+
 	(wire
 		(pts
 			(xy 43.18 219.71)
@@ -11702,26 +11994,8 @@
 		)
 		(uuid "51515b65-fbcc-4ffa-b681-c9cbc8ea9a40")
 	)
-	(label "VBAT"
-		(at 134.62 241.3 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "406e180e-503f-4f55-8145-38cd5629e3cf")
-	)
-	(label "VBAT_SW"
-		(at 119.38 243.84 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "34f54c33-3861-43e9-a95e-c86f9a401927")
-	)
+
+
 	(label "VSYS"
 		(at 80.01 72.39 0)
 		(effects
@@ -11792,16 +12066,7 @@
 		)
 		(uuid "3d519888-3d27-4833-b1cc-431f973bfd4c")
 	)
-	(label "GND"
-		(at 25.4 228.6 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "33297f83-e4bb-4746-b749-8c73d8e8c846")
-	)
+
 	(label "GND"
 		(at 43.18 222.25 0)
 		(effects
@@ -12621,8 +12886,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic_MountingPin:Conn_01x04_MountingPin")
-		(at 25.4 215.9 0)
+		(lib_id "Connector_Generic_MountingPin:Conn_01x06_MountingPin")
+		(at 25.4 218.44 0)
 		(mirror y)
 		(unit 1)
 		(in_bom yes)
@@ -12637,7 +12902,7 @@
 				)
 			)
 		)
-		(property "Value" "USB daughterboard (JST-SH 4P)"
+		(property "Value" "USB daughterboard (JST-SH 6P)"
 			(at 24.13 223.52 0)
 			(effects
 				(font
@@ -12646,7 +12911,7 @@
 				(justify left)
 			)
 		)
-		(property "MPN" "JST SM04B-SRSS-TB(LF)(SN)"
+		(property "MPN" "JST SM06B-SRSS-TB(LF)(SN)"
 			(at 24.13 223.52 0)
 			(hide yes)
 			(effects
@@ -12655,7 +12920,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C160404"
+		(property "LCSC" "C160405"
 			(at 24.13 223.52 0)
 			(hide yes)
 			(effects
@@ -12664,7 +12929,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
+		(property "Footprint" "Connector_JST:JST_SH_SM06B-SRSS-TB_1x06-1MP_P1.00mm_Horizontal"
 			(at 25.4 215.9 0)
 			(hide yes)
 			(effects
@@ -13175,84 +13440,7 @@
 			)
 		)
 	)
-	(symbol
-		(lib_id "Switch:SW_SPDT")
-		(at 127 243.84 0)
-		(unit 1)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "4c5fe010-185b-4fd8-a9f1-8730b7dd20cb")
-		(property "Reference" "SW1"
-			(at 127 238.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Power"
-			(at 127 248.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "MPN" "C&K PCM12SMTR"
-			(at 127 248.92 0)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "LCSC" "C221841"
-			(at 127 248.92 0)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPDT_PCM12"
-			(at 127 243.84 0)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 127 243.84 0)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Switch, single pole double throw"
-			(at 127 243.84 0)
-			(hide yes)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(instances
-			(project "Dachshund60F"
-				(path "/1d3f02fb-327d-4e90-8f04-7e58052bd7d3"
-					(reference "SW1")
-					(unit 1)
-				)
-			)
-		)
-	)
+
 	(symbol
 		(lib_id "Device:C")
 		(at 149.86 243.84 0)
@@ -30191,6 +30379,57 @@
 			(justify left bottom)
 		)
 		(uuid "10bbef43-8287-45a3-96d1-b0b6dddd1b7a")
+	)
+	(wire
+		(pts
+			(xy 30.48 223.52)
+			(xy 33.02 223.52)
+		)
+		(uuid "01bab63e-d203-4e5a-93d9-d84502636a6f")
+	)
+	(label "VBAT"
+		(at 33.02 223.52 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c5887199-3e91-42ae-bd8f-67e26a3a8d56")
+	)
+	(wire
+		(pts
+			(xy 30.48 226.06)
+			(xy 33.02 226.06)
+		)
+		(uuid "f1548809-8205-4542-bc9b-85ccdf8da7fe")
+	)
+	(label "VBAT_SW"
+		(at 33.02 226.06 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "c3a8dcfd-e8a0-48cd-9172-2e62f93aa7d3")
+	)
+	(wire
+		(pts
+			(xy 25.4 231.14)
+			(xy 25.4 233.68)
+		)
+		(uuid "ba45e856-b838-4d4e-849e-a8ff53c26bf7")
+	)
+	(label "GND"
+		(at 25.4 233.68 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "f9383b7e-afae-4036-9f3b-485880f20188")
 	)
 	(sheet_instances
 		(path "/"
