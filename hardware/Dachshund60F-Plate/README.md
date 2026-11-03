@@ -11,7 +11,7 @@ B.Cu. The top has an exposed-copper accent ring around every switch cutout.
 ```
 
 The script reads every switch, stabilizer, the encoder, J4 and the indicator LEDs from
-`hardware/Dachshund60F/Dachshund60F.kicad_pcb`. Rerun it after the mainboard changes, so the two boards
+`hardware/Dachshund70/Dachshund70.kicad_pcb`. Rerun it after the mainboard changes, so the two boards
 can't drift apart.
 
 ## Geometry

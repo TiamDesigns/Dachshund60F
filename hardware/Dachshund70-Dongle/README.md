@@ -1,4 +1,4 @@
-# Dachshund60F 2.4 GHz dongle
+# Dachshund70 2.4 GHz dongle
 
 The receiver for the keyboard's 2.4 GHz mode (SPEC phase 14). It is a small desk puck: a USB-C cable
 runs to the computer, and the puck sits on the desk near the keyboard. KiCad 10, 2 layers, 1.6 mm.
@@ -100,7 +100,7 @@ What the hardware does for latency:
    barely light at 1.8 V.
 2. Flash over SWD: either the Adafruit `pca10059` UF2 bootloader (then hold PAIR while plugging in for
    the UF2 drive), or the dongle app directly.
-3. Check that it enumerates as 1209:0002 "Dachshund60F Receiver", with both plug orientations and from a
+3. Check that it enumerates as 1209:0002 "Dachshund70 Receiver", with both plug orientations and from a
    USB-C to USB-C cable (the Rd resistors).
 4. Check that the LED shows red, green and blue, and that PAIR and RESET work.
 5. Range and latency: measure them with the keyboard in phase 14, with the puck next to the keyboard

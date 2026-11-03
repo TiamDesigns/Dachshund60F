@@ -5,7 +5,7 @@
 	(uuid "3ed18af5-ea2f-41cd-9b4f-50b7f06fa172")
 	(paper "A4")
 	(title_block
-		(title "Dachshund60F 2.4 GHz dongle")
+		(title "Dachshund70 2.4 GHz dongle")
 		(date "2026-10-23")
 		(rev "1.0")
 	)
@@ -4370,7 +4370,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "J1")
 					(unit 1)
@@ -4648,7 +4648,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "U1")
 					(unit 1)
@@ -4855,7 +4855,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "F1")
 					(unit 1)
@@ -4978,7 +4978,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "R1")
 					(unit 1)
@@ -5101,7 +5101,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "R2")
 					(unit 1)
@@ -5224,7 +5224,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "FB1")
 					(unit 1)
@@ -5347,7 +5347,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "U2")
 					(unit 1)
@@ -5877,7 +5877,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "C1")
 					(unit 1)
@@ -6000,7 +6000,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "C2")
 					(unit 1)
@@ -6123,7 +6123,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "C3")
 					(unit 1)
@@ -6246,7 +6246,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "C4")
 					(unit 1)
@@ -6360,7 +6360,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "D1")
 					(unit 1)
@@ -6525,7 +6525,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "R3")
 					(unit 1)
@@ -6648,7 +6648,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "R4")
 					(unit 1)
@@ -6771,7 +6771,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "R5")
 					(unit 1)
@@ -6894,7 +6894,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "SW1")
 					(unit 1)
@@ -7017,7 +7017,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "SW2")
 					(unit 1)
@@ -7140,7 +7140,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "J2")
 					(unit 1)
@@ -7308,7 +7308,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "H1")
 					(unit 1)
@@ -7371,7 +7371,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "H2")
 					(unit 1)
@@ -7433,7 +7433,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "#PWR01")
 					(unit 1)
@@ -7495,7 +7495,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "#FLG01")
 					(unit 1)
@@ -7589,7 +7589,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "#FLG02")
 					(unit 1)
@@ -7672,7 +7672,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "#FLG03")
 					(unit 1)
@@ -7755,7 +7755,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "#FLG04")
 					(unit 1)
@@ -7838,7 +7838,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Dongle"
+			(project "Dachshund70-Dongle"
 				(path "/3ed18af5-ea2f-41cd-9b4f-50b7f06fa172"
 					(reference "#FLG05")
 					(unit 1)
@@ -7867,7 +7867,7 @@
 		)
 		(uuid "dbb8c9b1-caf9-47d2-b759-ed32912234bf")
 	)
-	(text "Dachshund60F 2.4 GHz dongle (receiver)"
+	(text "Dachshund70 2.4 GHz dongle (receiver)"
 		(exclude_from_sim no)
 		(at 25.4 22.86 0)
 		(effects
@@ -7922,7 +7922,7 @@
 		)
 		(uuid "8811da0f-bc9c-4f61-bac2-5734fb08c783")
 	)
-	(text "Button and LED pins match Nordic's PCA10059 dongle. Pins: boards/Dachshund60F/board.json."
+	(text "Button and LED pins match Nordic's PCA10059 dongle. Pins: boards/Dachshund70/board.json."
 		(exclude_from_sim no)
 		(at 25.4 41.91 0)
 		(effects

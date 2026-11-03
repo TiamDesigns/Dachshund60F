@@ -278,7 +278,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Dachshund60F-USB.kicad_pro",
+    "filename": "Dachshund70-Encoder.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -358,15 +358,15 @@
     "legacy_lib_list": [],
     "top_level_sheets": [
       {
-        "filename": "Dachshund60F-USB.kicad_sch",
-        "name": "Dachshund60F-USB",
+        "filename": "Dachshund70-Encoder.kicad_sch",
+        "name": "Dachshund70-Encoder",
         "uuid": "00000000-0000-0000-0000-000000000000"
       }
     ]
   },
   "sheets": [
     [
-      "e29d01df-5a61-4369-90b4-cf5a2044c6a6",
+      "227f45b5-2d6b-48c5-ade3-8e307b34a657",
       "Root"
     ]
   ],

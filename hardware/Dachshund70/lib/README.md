@@ -21,8 +21,8 @@ command.
 
 # Project footprints
 
-`Dachshund60F.pretty/` holds footprints changed for this board, registered
-as `Dachshund60F` in the project `fp-lib-table`.
+`Dachshund70.pretty/` holds footprints changed for this board, registered
+as `Dachshund70` in the project `fp-lib-table`.
 
 - `LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount_Cutout3.4`: KiCad's
   `LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount` with its

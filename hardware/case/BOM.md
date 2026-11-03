@@ -43,7 +43,7 @@ are line items only; their parts are in each board's own BOM (`hardware/<board>/
 
 | Qty | Board | Folder |
 |---:|---|---|
-| 1 | Mainboard | `hardware/Dachshund60F/` |
-| 1 | USB-C daughterboard | `hardware/Dachshund60F-USB/` |
+| 1 | Mainboard | `hardware/Dachshund70/` |
+| 1 | USB-C daughterboard | `hardware/Dachshund70-USB/` |
 | 1 | Switch plate (FR4) | `hardware/Dachshund60F-Plate/` |
-| 1 | 2.4 GHz dongle (separate, not in the case) | `hardware/Dachshund60F-Dongle/` |
+| 1 | 2.4 GHz dongle (separate, not in the case) | `hardware/Dachshund70-Dongle/` |

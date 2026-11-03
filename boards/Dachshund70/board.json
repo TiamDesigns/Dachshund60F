@@ -49,9 +49,9 @@
     "P0.18": "nRESET (reset button and SWD header)"
   },
   "dongle": {
-    "status": "proposed: pins chosen for the hardware/Dachshund60F-Dongle PCB; update this section if the schematic changes them",
+    "status": "proposed: pins chosen for the hardware/Dachshund70-Dongle PCB; update this section if the schematic changes them",
     "mcu": "nRF52840 (Raytac MDBT50Q-P1MV2)",
-    "pcb": "hardware/Dachshund60F-Dongle",
+    "pcb": "hardware/Dachshund70-Dongle",
     "compatibility": "Button and LED pins match Nordic's nRF52840 Dongle (PCA10059), so the dongle firmware can be developed on one",
     "pairButton": { "pin": "P1.06", "active": "low", "pull": "internal pull-up" },
     "statusLed": {

@@ -1,4 +1,4 @@
-# Dachshund60F encoder module
+# Dachshund70 encoder module
 
 The roller encoder on its own small board, cabled to the mainboard. Introduced with mainboard Rev 1.1,
 which no longer carries the encoder. KiCad 10 project, 2 layers, 1.6 mm FR4.

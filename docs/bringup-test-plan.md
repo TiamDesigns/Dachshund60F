@@ -10,10 +10,10 @@ The boards, as designed on main (2026-10-23):
 
 | Board | KiCad project | What it carries | Test access |
 | --- | --- | --- | --- |
-| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-P1MV2, MCP73831 charger (300 mA), JST-PH battery J2, 6-pin daughterboard port J1, TPS22917 LED switch, 6× SK6812MINI-E, encoder port J5, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
-| USB-C daughterboard | `hardware/Dachshund60F-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, the battery slide switch SW1 (C&K PCM12SMTR, actuator out of the back edge), 6-pin JST-SH J2 | Connector pins and part pads |
-| Encoder module | `hardware/Dachshund60F-Encoder/` | Bourns PEC12R-2220F-S0024 roller encoder, JST-SH cable port J1 to the mainboard's J5 | Connector pins and the encoder's pads |
-| Dongle | `hardware/Dachshund60F-Dongle/` | MDBT50Q-P1MV2, HRO USB-C, USBLC6-2SC6, PTC, PAIR and RESET buttons, RGB LED, SWD J2 | No test points. Probe C1–C4 and J2 |
+| Mainboard | `hardware/Dachshund70/` | MDBT50Q-P1MV2, MCP73831 charger (300 mA), JST-PH battery J2, 6-pin daughterboard port J1, TPS22917 LED switch, 6× SK6812MINI-E, encoder port J5, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
+| USB-C daughterboard | `hardware/Dachshund70-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, the battery slide switch SW1 (C&K PCM12SMTR, actuator out of the back edge), 6-pin JST-SH J2 | Connector pins and part pads |
+| Encoder module | `hardware/Dachshund70-Encoder/` | Bourns PEC12R-2220F-S0024 roller encoder, JST-SH cable port J1 to the mainboard's J5 | Connector pins and the encoder's pads |
+| Dongle | `hardware/Dachshund70-Dongle/` | MDBT50Q-P1MV2, HRO USB-C, USBLC6-2SC6, PTC, PAIR and RESET buttons, RGB LED, SWD J2 | No test points. Probe C1–C4 and J2 |
 
 Recommended order:
 
