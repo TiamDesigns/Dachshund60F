@@ -6,6 +6,14 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: rev 2 designed in Fusion and exported into the repo; CadQuery case removed (2026-11-03)
+
+- The case is now the Fusion model "Dachshund70 case rev2" (v31): 4° (was 7°), top and bottom aluminium blocks with an accent ring between them, a stepped floor, a 52 x 34.5 battery laid flat under the screen and knob, a brass weight (face 185.0 x 30.6 with R4 corners, flange 216.0 x 46.5 with R5, four M3 x 5 screws at x +/-103.5, y 2.5 and 22.5, 331 g), a knob and encoder cover, a power-switch slider cap and an LED light guide. `hardware/case/README.md` has the dimensions and `BOM.md` every part.
+- New in `hardware/case/`: `fusion/Dachshund70-Case-rev2.f3d` (58 MB), `fusion/scripts/` (the Python that builds and exports the model; paths stripped, edit `REPO` first), `step/` (eight part STEP files at their assembly positions, the 64 MB assembly with boards, plate, battery, screen, keycaps and case, and both keycap sets), `dxf/` (the ring for the laser, and the weight engraving: dog and text) and five renders.
+- Removed: `gen_case.py`, `render.py`, `assembly.py` and `keycaps.py` (Tiam chose to drop the CadQuery design; the keycap sets now come out of Fusion instead of `keycaps.py`), the 23 old renders, and the rev 1 outputs that no longer match a part: `Dachshund70-Case-Panel.step`, `Dachshund70-Gaskets.step` (eight socks), `Dachshund70-Weight.step` (dog bone), `Dachshund70-Plate-Foam.dxf`, `Dachshund70-LED-Seal.dxf`, `Dachshund70-LED-Plugs.step`, `Dachshund70-LED-Guide.step` and `Dachshund70-Switch-Cap.step` (replaced by `Dachshund70-Case-*` versions), and the old `Dachshund70-Keycaps*.step` (7 degree frame; replaced by ones from Fusion). Older entries below mention `gen_case.py`; they describe rev 1 and are kept as history.
+- Not tested on real hardware or with real parts: nothing is machined, printed or fitted. The rebuild path (`build_case2.py` then `post_build.py`) was not re-run end to end after the scripts moved into the repo, so the `.f3d` is the dependable copy. The assembly's screen, battery and knob are stand-ins.
+- Open: the J2 lead route, the PCM12SMTR availability and the weight font option are in `SCHEDULED_TASKS.md`.
+
 ### Plate: merged with main, 2.0 mm web beside the Delete cutout (2026-11-03)
 
 - `claude/plate-branched-tabs` now merges `origin/main` (PR 67's corner notch and the rename of firmware, app and docs), keeping main's notch bottom (`ENCODER_BOX` 55.7), `POST_RELIEFS` (306.6, 41.7) and (306.6, 57.8), and this branch's gasket nubs.
@@ -50,7 +58,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 ### Renamed to Dachshund70, part 3: plate, STEP files and case outputs (2026-11-03)
 
 - `hardware/Dachshund70-Plate/` (project, PCB, outline DXF, `gen_plate.py` title block and silkscreen "Dachshund70 plate rev A"), every STEP file in `hardware/step/` and `hardware/case/step/` (file names and the product names inside them), the foam and LED seal DXFs, and the names in `export_step.py` (its temporary old-name mapping is gone), `export_fab.py`, `gen_case.py`, `keycaps.py`, `assembly.py` and the case README and BOM.
-- `gen_case.py`'s `ENGRAVE_TEXT` is now "Dachshund70", but the committed case STEP files were not regenerated here (no CadQuery run in this container), so the engraving geometry in `Dachshund70-Weight.step` still spells the old name. The case is moving to Fusion, whose export replaces these files; otherwise rerun `gen_case.py`. Likewise the plate PCB's silkscreen text was renamed in the file, and rerunning `gen_plate.py` gives the same result.
+- `gen_case.py`'s `ENGRAVE_TEXT` is now "Dachshund70", but the committed case STEP files were not regenerated here (no CadQuery run in this container), so the engraving geometry in `Dachshund70-Weight.step` still spells the old name. (Superseded: the case files were regenerated from Fusion, with a new weight.) The case is moving to Fusion, whose export replaces these files; otherwise rerun `gen_case.py`. Likewise the plate PCB's silkscreen text was renamed in the file, and rerunning `gen_plate.py` gives the same result.
 - Fix: part 1 had pointed Doghouse's update check (`APP_REPO`), the desktop app's releases link and the UF2 drive's index link at `TiamDesigns/Dachshund70`, which doesn't exist until the repo is renamed. They point at `TiamDesigns/Dachshund60F` again; GitHub will redirect them after the rename.
 - Nothing in the repo says Dachshund60F any more except those three links, the README's note, the dated 2026-10-26 project review and git history. The repo name itself is Tiam's step (`SCHEDULED_TASKS.md`).
 
@@ -92,7 +100,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - `gen_plate.py`: parameters `FRONT_FORKS`, `BACK_FORKS`, `PRONG_PITCH`, `POST_RELIEFS`; the corner-radius check now only counts the outline's four corner arcs (the mainboard's new cable slot also has R1.0 arcs, which made the script stop). Plate regenerated with KiCad 10's Python, as the README says (the KiCad MCP wasn't reachable from this session, and the .kicad_pcb was not edited by hand). DRC (kicad-cli): 0 violations, 0 unconnected.
 - STEP files refreshed (all components with their 3D models, `--subst-models`; no part was missing a model): mainboard, plate (forked tabs and reliefs), assembly, USB daughterboard, dongle and encoder module. New `Dachshund70-Battery.step` (803450 LiPo, 50 x 34 x 8 mm, with protection board, two leads and the JST-PH plug) and `Dachshund70-Screen.step` (GDEY0213B74 2.13 inch e-paper panel, flex, and the Adafruit eInk Breakout Friend), both modelled to the datasheet sizes (no vendor models were downloaded) in Fusion and exported from there, not by `export_step.py`. Origin of the screen model: the middle of the glass, glass top at z = 0.
 - `Dachshund70-Plate-outline.dxf`: the plate's Edge.Cuts for a polycarbonate plate cut from the same outline.
-- Not done: `hardware/case/gen_case.py` still builds eight tabs and sockets.
+- Not done: `hardware/case/gen_case.py` still builds eight tabs and sockets. (That script has since been removed; the Fusion case has twelve sockets.)
 
 ### Mainboard Rev 1.1: encoder off the mainboard, new encoder module (2026-11-02)
 
