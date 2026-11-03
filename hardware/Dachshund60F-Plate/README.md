@@ -51,7 +51,8 @@ polycarbonate plate is softer. The free end of each arm carries one prong, 2.8 m
 the silicone sock's pocket (8 × 5 × 5 mm outside, 6.5 × 2.8 × 1.2 mm inside, fits 1.2–1.6 mm plates), pointing outward
 with its outer edge flush with the arm's end. The sock's open end sits against the arm's outer face, 2.7 mm past the
 plate edge. Twelve gaskets on six nubs. Everything is outside the plate outline, so no switch cutout is touched. Inside
-corners (neck to slot) have a 0.5 mm radius and outside corners 1 mm.
+corners (neck to slot) have a 0.5 mm radius and outside corners 0.7 mm (the rounding would erase an arm
+thinner than twice the outside radius).
 
 Nub centres (mm from the middle of the plate, x = 0 at the USB-C connector on the back edge), prongs at ±(2 + 12 − 1.4)
 = ±12.6 mm from each:

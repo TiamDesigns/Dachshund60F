@@ -10,7 +10,8 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 - Tiam's correction: the forked tabs were read wrongly. Each of the six positions is now one nub that branches: a 4 mm neck leaves the plate edge, then splits into two 1.5 mm wide, 12 mm long arms running back along the edge in opposite directions (a T), with a 1.2 mm slot between each arm and the plate edge, so each arm is a cantilever held only through the neck. The free end of each arm carries one prong (2.8 x 6.5 mm, pointing outward, flush with the arm's end): still twelve gaskets, on six nubs. Estimated stiffness at the prong about 15 N/mm in 1.6 mm FR4 (3EI/L^3, E ~ 20 GPa).
 - Nothing is cut into the plate's switch area; the nub lives entirely outside the outline. Sock outlines on Cmts.User now start at the arm's outer face (2.7 mm past the plate edge) and reach 8 mm past it. Nub centres unchanged (bottom -106.17, 0, +106.17; top -107.7, -15.0, +77.7); prongs sit +-12.6 mm from each. Parameters in gen_plate.py: NECK_WIDTH, SLOT, ARM_WIDTH, ARM_LENGTH, FRONT_NUBS, BACK_NUBS.
-- kicad-cli DRC 0 violations; Plate and Assembly STEP and the polycarbonate DXF regenerated. Not fabricated.
+- The first version of this change lost the arms: the outline's 1.0 mm outside-corner rounding is an opening, which erases anything under 2.0 mm wide, so the 1.5 mm arms vanished and only the necks and prongs were left. OUTLINE_OUTSIDE_RADIUS is now 0.7. Checked on the outline points (arms at x 164.25..192.25 beside the centre-front nub) and in a section of the case model.
+- kicad-cli DRC 0 violations; Plate and Assembly STEP and the polycarbonate DXF regenerated (the Assembly also carries the USB daughterboard and mainboard from the power-switch branch). Not fabricated.
 - Case (Fusion): the 12 sock pockets move to the arm ends and each nub gets a 0.5 mm clearance pocket in the top shell.
 
 ### Plate: forked gasket tabs and encoder-post reliefs (2026-11-02)

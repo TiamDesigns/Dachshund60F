@@ -90,8 +90,9 @@ POST_RELIEF_D = 5.2
 
 # Every inside corner of the outline gets at least this radius (tab roots).
 OUTLINE_INSIDE_RADIUS = 0.5
-# Every outside corner gets at least this radius (tab tips, notch ends).
-OUTLINE_OUTSIDE_RADIUS = 1.0
+# Every outside corner gets at least this radius (tab tips, notch ends). Rounding is a morphological opening,
+# so anything thinner than twice this vanishes: it must stay under half the arm width (ARM_WIDTH 1.5).
+OUTLINE_OUTSIDE_RADIUS = 0.7
 
 # Encoder notch: the plate stops short of the roller. The encoder is on its own
 # module board since mainboard Rev 1.1, so the mainboard has no encoder to
