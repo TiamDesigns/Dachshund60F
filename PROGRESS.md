@@ -6,6 +6,26 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Plate: merged with main, 2.0 mm web beside the Delete cutout (2026-11-03)
+
+- `claude/plate-branched-tabs` now merges `origin/main` (PR 67's corner notch and the rename of firmware, app and docs), keeping main's notch bottom (`ENCODER_BOX` 55.7), `POST_RELIEFS` (306.6, 41.7) and (306.6, 57.8), and this branch's gasket nubs.
+- Tiam approved a wider web: `NOTCH_LEFT` goes from 304.0 to 305.25, so the plate web beside the Delete cutout (right edge at x 303.25) is 2.0 mm instead of 0.75 (the mainboard's own notch stays at 304.0). Checked against the encoder module: its board runs under the web at z 1.8 to 3.3 and the plate is at z 5.0 to 6.6; its connector, pins and frame ears all stand in the notch (x from 314.6, y 42.7 to 56.3); the module's M2 posts get `POST_RELIEF_D` 3.8 (the case's bosses are dia 3.4; was 5.2), which leaves 1.45 mm of web at the two reliefs.
+- Plate regenerated with KiCad 10's Python on main's boards; kicad-cli DRC 0 violations, 0 unconnected; Plate and Assembly STEP and the polycarbonate DXF regenerated. Not fabricated.
+- Merged `origin/main` again after PR 69 (the PCB projects renamed to `hardware/Dachshund70/`): `MAINBOARD` in `gen_plate.py` already points at `../Dachshund70/Dachshund70.kicad_pcb`. Regenerating against it gave the same plate (only fresh UUIDs) and DRC still shows 0 violations, so the plate, DXF and STEP files are unchanged; the plate files keep their Dachshund60F names until the rename thread renames them.
+
+### Plate: gasket prongs parallel to the edge (2026-11-03)
+
+- Tiam: the gaskets pointed out toward the case wall; they should lie parallel to the plate edge so they fit the bezel. Each arm's prong now continues the arm along the edge (2.8 mm wide, 6.5 mm long, centred on the arm) instead of pointing outward, and the sock lies along the edge from the arm's end (8 mm, open end at the arm's end). `SLOT` is 2.0 mm (was 1.2) so a 5 mm sock centred on the arm stays 0.25 mm off the plate edge; the nub now reaches 4.15 mm past the edge (sock 5.25 mm) instead of 9.2 (10.7).
+- `gen_plate.py`: `PRONG_START` replaces `PRONG_OFFSET`; the socks list is (x start, x end, y centre). Plate regenerated with KiCad 10's Python, DRC (kicad-cli) 0 violations, 0 unconnected; Plate and Assembly STEP and the polycarbonate DXF regenerated. Not fabricated, not tested on hardware. Nub centres are unchanged.
+
+### Plate: branched gasket nubs (2026-11-02)
+
+- Tiam's correction: the forked tabs were read wrongly. Each of the six positions is now one nub that branches: a 4 mm neck leaves the plate edge, then splits into two 1.5 mm wide, 12 mm long arms running back along the edge in opposite directions (a T), with a 1.2 mm slot between each arm and the plate edge, so each arm is a cantilever held only through the neck. The free end of each arm carries one prong (2.8 x 6.5 mm, pointing outward, flush with the arm's end): still twelve gaskets, on six nubs. Estimated stiffness at the prong about 15 N/mm in 1.6 mm FR4 (3EI/L^3, E ~ 20 GPa).
+- Nothing is cut into the plate's switch area; the nub lives entirely outside the outline. Sock outlines on Cmts.User now start at the arm's outer face (2.7 mm past the plate edge) and reach 8 mm past it. Nub centres unchanged (bottom -106.17, 0, +106.17; top -107.7, -15.0, +77.7); prongs sit +-12.6 mm from each. Parameters in gen_plate.py: NECK_WIDTH, SLOT, ARM_WIDTH, ARM_LENGTH, FRONT_NUBS, BACK_NUBS.
+- The first version of this change lost the arms: the outline's 1.0 mm outside-corner rounding is an opening, which erases anything under 2.0 mm wide, so the 1.5 mm arms vanished and only the necks and prongs were left. OUTLINE_OUTSIDE_RADIUS is now 0.7. Checked on the outline points (arms at x 164.25..192.25 beside the centre-front nub) and in a section of the case model.
+- kicad-cli DRC 0 violations; Plate and Assembly STEP and the polycarbonate DXF regenerated (the Assembly also carries the USB daughterboard and mainboard from the power-switch branch). Not fabricated.
+- Case (Fusion): the 12 sock pockets move to the arm ends and each nub gets a 0.5 mm clearance pocket in the top shell.
+
 ### Mainboard: corner notch, J5 to the right of it, D3 moved (2026-11-03)
 
 - For the case thread's Fusion v27 (module mount and battery bay), with their choices: the top-right corner is cut away by a notch open to the top edge, x 304.0 to 326.4 and y 39.0 to 57.0, with a 4.2 mm lobe at (306.6, 57.8) for the module's lower M2 screw head (the post is at y 57.82). The case's first notch (down to y 60.8) cut a bundle of MCU lines that has no room to go round, so the case thread chose this shallower one; the lobe is the one thing still in that bundle's way.

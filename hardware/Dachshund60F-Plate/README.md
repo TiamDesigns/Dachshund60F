@@ -31,60 +31,65 @@ can't drift apart.
   SW606 and SW615) are the soldered ones, so the PCB holds them. The hot-swap 2.25u Mod (SW608) keeps a
   full cutout.
 - **Encoder:** the plate stops short of the roller. A notch takes out the top-right corner,
-  x ≥ 304.0 mm and y ≤ 57.0 mm, with a 2 mm inside radius, matching the mainboard's own corner notch (which
-  is only open to x 326.4; the plate's goes on to the right edge so the shaft and the wheel on it are clear).
-  It leaves a 0.8 mm web next to the Delete cutout. Supporting the roller is up to the
+  x ≥ 305.25 mm and y ≤ 57.0 mm, with a 2 mm inside radius. It is narrower than the mainboard's own corner notch (x ≥ 304.0, open
+  only to x 326.4) so the web next to the Delete cutout is 2.0 mm; the plate's notch goes on to the right edge so the shaft and the
+  wheel on it are clear. The module's own board (below the plate) runs under the web, and nothing of the module stands at plate height there. Supporting the roller is up to the
   case. Since mainboard Rev 1.1 the encoder is on its own module board, so `gen_plate.py` no longer reads
   it from the mainboard: the notch's bottom edge comes from `ENCODER_BOX` and `NOTCH_LEFT`.
 - **Display header:** a slot over J4 (the courtyard plus 0.2 mm), for the 8.5 mm-tall pin header.
 - **Indicator LEDs:** 4 × 4 mm windows over D3–D7, the layer and battery LEDs. The Caps LED (D2) sits
   inside its switch cutout, so it needs no window.
 
-## Gasket tabs
+## Gasket nubs
 
-Six forked tabs, three on the top edge (the keyboard's back) and three on the bottom (its front), none on the
-ends. Each tab forks into two prongs, and each prong slides into its own silicone sock, so there are twelve
-gaskets. A prong is 2.8 mm wide and 6.5 mm long, the size of the sock's pocket (8 × 5 × 5 mm outside,
-6.5 × 2.8 × 1.2 mm inside, fits 1.2–1.6 mm plates), and fills the whole pocket, so the sock's open end sits
-against the plate edge. The socks are 5 mm wide, so the prongs are 7 mm apart, centre to centre (a 4.2 mm slot
-between them, and 2 mm of case wall between neighbouring sock pockets). Tab roots have a 0.5 mm radius and
-tips a 1 mm radius.
+Six branched nubs, three on the top edge (the keyboard's back) and three on the bottom (its front), none on the
+ends. Each nub is one 4 mm neck that leaves the plate edge and splits into two arms running back along the edge in
+opposite directions (a T). A 2.0 mm slot separates each arm from the plate edge, so an arm is a cantilever held only
+through the neck and the material flexes. An arm is 1.5 mm wide (in the plane, the direction it bends) and 12 mm long
+from the neck's side face; with 1.6 mm FR4 that is roughly 15 N/mm at the prong (3EI/L³, E ≈ 20 GPa), and the
+polycarbonate plate is softer. The free end of each arm carries one prong, 2.8 mm wide and 6.5 mm long, the size of
+the silicone sock's pocket (8 × 5 × 5 mm outside, 6.5 × 2.8 × 1.2 mm inside, fits 1.2–1.6 mm plates). The prongs run
+on along the plate edge, parallel to it and to the arms (they no longer point outward), so every gasket lies along the
+edge and a nub reaches only 4.15 mm past it (the socks, centred on the arm, reach 5.25 mm). That is what fits the case's
+bezel. The sock's open end sits against the arm's end, 14 mm from the nub centre. Twelve gaskets on six nubs.
+Everything is outside the plate outline, so no switch cutout is touched. Inside corners (neck to slot) have a 0.5 mm
+radius and outside corners 0.7 mm (the rounding would erase an arm thinner than twice the outside radius).
 
-Fork centres (mm from the middle of the plate, x = 0 at the USB-C connector on the back edge), prongs at ±3.5 mm
-from each:
+Nub centres (mm from the middle of the plate, x = 0 at the USB-C connector on the back edge), prong centres at ±(2 + 12 + 3.25)
+= ±17.25 mm from each:
 
-| Edge | Fork centres |
+| Edge | Nub centres |
 | --- | --- |
 | Bottom (front) | −106.17, 0, +106.17 (even thirds, symmetric) |
 | Top (back) | −107.7, −15.0, +77.7 |
 
 The back can't be symmetric: the encoder notch takes out the right-hand end of the top edge (plate edge to
-x ≈ +125), and the USB-C connector is at x = 0, so the three forks are spread evenly over the edge that is left,
-with the middle one 15 mm left of the connector. In mainboard coordinates the prongs are at x = 67.05, 74.05,
-159.75, 166.75, 252.45, 259.45 on the top edge (y = 39.0) and x = 68.58, 75.58, 174.75, 181.75, 280.92, 287.92 on the
-bottom edge (y = 160.1).
+x ≈ +125), and the USB-C connector is at x = 0, so the three nubs are spread evenly over the edge that is left,
+with the middle one 15 mm left of the connector. In mainboard coordinates the nubs are at x = 70.55, 163.25, 255.95
+on the top edge (y = 39.0), with prongs at 53.30, 87.80, 146.00, 180.50, 238.70, 273.20, and at x = 72.08, 178.25,
+284.42 on the bottom edge (y = 160.1), with prongs at 54.83, 89.33, 161.00, 195.50, 267.17, 301.67.
 
-The sock outlines (8 × 5 mm) are drawn on Cmts.User, so the case pockets can be placed from them. Each
-sock reaches 8 mm past the plate edge.
+The sock outlines (8 × 5 mm) are drawn on Cmts.User, so the case pockets can be placed from them. Each sock starts at
+the arm's end and lies 8 mm along the plate edge, centred 2.75 mm past it (0.25 to 5.25 mm past the edge). The case needs a clearance pocket round
+each nub (about 0.5 mm round the neck and arms) so the arms can move.
 
-Feel: short prongs with plain roots (no relief cuts beside them), on FR4, give a moderate bounce. To soften it,
-add flex cuts along the plate edge between the prongs; to firm it up, add a tab on each end. The fork centres
-are `FRONT_FORKS` and `BACK_FORKS`, and the prong pitch `PRONG_PITCH`, in the script. If the socks feel loose,
-widen `TAB_WIDTH` to 3.0 mm.
+Feel: set by the arm width and length. To soften it, make `ARM_WIDTH` smaller or `ARM_LENGTH` longer; to firm it up,
+the opposite. The nub centres are `FRONT_NUBS` and `BACK_NUBS`, the neck `NECK_WIDTH`, the slot `SLOT`, in the script.
+If the socks feel loose, widen `TAB_WIDTH` to 3.0 mm.
 
 ## Polycarbonate plate
 
 A polycarbonate plate is cut from the same outline as the FR4 one: `Dachshund60F-Plate-outline.dxf` is the plate's
-Edge.Cuts (outline with the twelve prongs and the post reliefs, and every switch, stabilizer, LED and display
-cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts`. Regenerate it after any change to the
+Edge.Cuts (outline with the six branched nubs, their twelve prongs and the post reliefs, and every switch, stabilizer, LED and display
+cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts --output-units mm --mode-single -o Dachshund60F-Plate-outline.dxf Dachshund60F-Plate.kicad_pcb`. Regenerate it after any change to the
 plate (rerun `gen_plate.py` first). The copper accents exist only on the FR4 plate.
 
 ## Encoder module post reliefs
 
-The encoder module's two M2 posts stand at mainboard (306.6, 41.7) and (306.6, 57.8). Each has a Ø5.2 mm relief in
-the plate (`POST_RELIEFS`). With the notch now at x ≥ 304.0 and y ≤ 57.0 (the mainboard's corner notch, plus the
-plate's own opening to the right edge for the roller), the upper post is inside the notch and the lower one's relief
-merges into the notch's bottom edge as a lobe. The web left between the notch and the Delete cutout is 0.8 mm.
+The encoder module's two M2 posts stand at mainboard (306.6, 41.7) and (306.6, 57.8). Each has a Ø3.8 mm relief in
+the plate (`POST_RELIEFS`): the case's post bosses are Ø3.4, so 0.2 mm clear all round. With the notch at x ≥ 305.25 and y ≤ 57.0 (plus the
+plate's own opening to the right edge for the roller), the upper post is mostly inside the notch and the lower one's relief
+merges into the notch's bottom edge as a lobe. The web left between the notch and the Delete cutout is 2.0 mm (1.45 mm at the two reliefs, which bite 0.55 mm into it).
 
 ## Copper accents
 
