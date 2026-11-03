@@ -37,8 +37,8 @@ from the PCB's top face.
   The cable leaves toward -u.
 - On the mainboard, J5 is on the back at x = 313.4 mm, y = 48.0 (pin 5) to 52.0 (pin 1), body toward -x
   (courtyard x 308.1 to 314.7, y 45.6 to 54.4), cable leaving toward -x. A 6.0 × 2.5 mm slot in the mainboard
-  (x 303.6 to 309.6, y 48.75 to 51.25, 1 mm corner radius) lets the cable pass from J5 up to the module. The module sits about 0.2 mm above the mainboard, so two 4.2 mm
-  holes at (307.2, 41.7) and (307.2, 58.3) clear its M2 screw heads (module left edge at x 304.5).
+  (x 303.005 to 309.005, y 48.75 to 51.25, 1 mm corner radius) lets the cable pass from J5 up to the module. The module sits about 0.2 mm above the mainboard, so two 4.2 mm
+  holes at (306.605, 41.7) and (306.605, 58.3) clear its M2 screw heads (module left edge at x 303.905).
 
 ## Status
 

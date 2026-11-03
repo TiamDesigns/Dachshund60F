@@ -6,6 +6,13 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Encoder module and cable slot moved 0.595 mm west (2026-11-03)
+
+- For the case thread's 4° case (Tiam approved): the module's left edge u0 goes from KiCad x 304.5 to 303.905, so the two 4.2 mm screw-head holes move from x 307.2 to 306.605 (y 41.7 and 58.3 unchanged) and the 6.0 × 2.5 mm cable slot moves to x 303.005 to 309.005 (y 48.75 to 51.25). COL14 on the back now runs down x 303.8 instead of 304.4, to stay clear of the moved lower hole. DRC with every severity: 219 items (was 218): the one new message is SW113's front silkscreen outline (x 303.32) being clipped by the slot's new edge. 0 unconnected.
+- Daughterboard height: the USB daughterboard now sits 4.5 mm lower in the case. Nothing on the boards changes: J1 and J2 and the 6-pin SH cable are flexible, so it only needs a cable long enough for the new path (suggest 100 mm).
+- J5 and the battery cell: the cell (KiCad x 281.0 to 337.5, y 41.0 to 76.0 under the back) covers the whole right strip where J5 could sit, and J5 is 2.96 mm tall, so it sits 0.65 mm into the cell's top. No move on the board clears it; see the thread for the options. Not changed yet.
+- Not ordered, made or fitted.
+
 ### Power switch moved to the USB daughterboard (2026-11-03)
 
 - Tiam's call: the battery slide switch (C&K PCM12SMTR, SPDT, used as an on/off in the VBAT to VBAT_SW line) leaves the mainboard and goes on the USB daughterboard, so it is reached from the back of the case.
