@@ -2,7 +2,7 @@
 
 A tri-mode 60% keyboard I'm designing from scratch: the PCBs, the switch plate, the firmware, the config protocol, the driver and the configurator app. It runs over USB, Bluetooth LE and its own 2.4 GHz dongle, all on the nRF52840.
 
-It was called the Dachshund70 until November 2026; older notes, PRs and the 26 October project review still use that name.
+It was called the Dachshund60F until November 2026; older notes, PRs and the 26 October project review still use that name.
 
 ![Dachshund70 layout](KLE%20Info/keyboard-layout.jpg)
 

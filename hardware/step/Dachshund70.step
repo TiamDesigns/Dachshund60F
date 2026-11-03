@@ -1,7 +1,7 @@
 ISO-10303-21;
 HEADER;
 FILE_DESCRIPTION(('KiCad electronic assembly'),'2;1');
-FILE_NAME('Dachshund60F.step','2026-11-03T14:33:17',('Pcbnew'),('Kicad')
+FILE_NAME('Dachshund70.step','2026-11-03T14:33:17',('Pcbnew'),('Kicad')
   ,'Open CASCADE STEP processor 7.9','KiCad to STEP converter','Unknown'
   );
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
@@ -15,7 +15,7 @@ DATA;
 #4 = PRODUCT_DEFINITION_SHAPE('','',#5);
 #5 = PRODUCT_DEFINITION('design','',#6,#9);
 #6 = PRODUCT_DEFINITION_FORMATION('','',#7);
-#7 = PRODUCT('Dachshund60F 1','Dachshund60F 1','',(#8));
+#7 = PRODUCT('Dachshund70 1','Dachshund70 1','',(#8));
 #8 = PRODUCT_CONTEXT('',#2,'mechanical');
 #9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
 #10 = SHAPE_REPRESENTATION('',(#11,#15,#19,#23,#27,#31,#35,#39,#43,#47,
@@ -290057,7 +290057,7 @@ SHAPE_REPRESENTATION_RELATIONSHIP() );
 #228386 = PRODUCT_DEFINITION_SHAPE('','',#228387);
 #228387 = PRODUCT_DEFINITION('design','',#228388,#228391);
 #228388 = PRODUCT_DEFINITION_FORMATION('','',#228389);
-#228389 = PRODUCT('Dachshund60F_PCB','Dachshund60F_PCB','',(#228390));
+#228389 = PRODUCT('Dachshund70_PCB','Dachshund70_PCB','',(#228390));
 #228390 = PRODUCT_CONTEXT('',#2,'mechanical');
 #228391 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
 #228392 = ADVANCED_BREP_SHAPE_REPRESENTATION('',(#11,#228393),#247340);

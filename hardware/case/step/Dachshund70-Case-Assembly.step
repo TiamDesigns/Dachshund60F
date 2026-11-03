@@ -15,7 +15,7 @@ DATA;
 #4 = PRODUCT_DEFINITION_SHAPE('','',#5);
 #5 = PRODUCT_DEFINITION('design','',#6,#9);
 #6 = PRODUCT_DEFINITION_FORMATION('','',#7);
-#7 = PRODUCT('Dachshund60F case assembly','Dachshund60F case assembly',
+#7 = PRODUCT('Dachshund70 case assembly','Dachshund70 case assembly',
   '',(#8));
 #8 = PRODUCT_CONTEXT('',#2,'mechanical');
 #9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
@@ -119,7 +119,7 @@ GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#99)) GLOBAL_UNIT_ASSIGNED_CONTEXT(
 #102 = PRODUCT_DEFINITION_SHAPE('','',#103);
 #103 = PRODUCT_DEFINITION('design','',#104,#107);
 #104 = PRODUCT_DEFINITION_FORMATION('','',#105);
-#105 = PRODUCT('Dachshund60F-Assembly 1','Dachshund60F-Assembly 1','',(
+#105 = PRODUCT('Dachshund70-Assembly 1','Dachshund70-Assembly 1','',(
     #106));
 #106 = PRODUCT_CONTEXT('',#2,'mechanical');
 #107 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
@@ -1383,7 +1383,7 @@ SHAPE_REPRESENTATION_RELATIONSHIP() );
 #1319 = PRODUCT_DEFINITION_SHAPE('','',#1320);
 #1320 = PRODUCT_DEFINITION('design','',#1321,#1324);
 #1321 = PRODUCT_DEFINITION_FORMATION('','',#1322);
-#1322 = PRODUCT('Dachshund60F-Plate_PCB','Dachshund60F-Plate_PCB','',(
+#1322 = PRODUCT('Dachshund70-Plate_PCB','Dachshund70-Plate_PCB','',(
     #1323));
 #1323 = PRODUCT_CONTEXT('',#2,'mechanical');
 #1324 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
@@ -508163,8 +508163,8 @@ SHAPE_REPRESENTATION_RELATIONSHIP() );
 #443325 = PRODUCT_DEFINITION_SHAPE('','',#443326);
 #443326 = PRODUCT_DEFINITION('design','',#443327,#443330);
 #443327 = PRODUCT_DEFINITION_FORMATION('','',#443328);
-#443328 = PRODUCT('Dachshund60F-Assembly_PCB',
-  'Dachshund60F-Assembly_PCB','',(#443329));
+#443328 = PRODUCT('Dachshund70-Assembly_PCB',
+  'Dachshund70-Assembly_PCB','',(#443329));
 #443329 = PRODUCT_CONTEXT('',#2,'mechanical');
 #443330 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
 #443331 = ADVANCED_BREP_SHAPE_REPRESENTATION('',(#11,#443332),#462562);
@@ -527611,7 +527611,7 @@ SHAPE_REPRESENTATION_RELATIONSHIP() );
 #462574 = PRODUCT_DEFINITION_SHAPE('','',#462575);
 #462575 = PRODUCT_DEFINITION('design','',#462576,#462579);
 #462576 = PRODUCT_DEFINITION_FORMATION('','',#462577);
-#462577 = PRODUCT('Dachshund60F-USB 1','Dachshund60F-USB 1','',(#462578)
+#462577 = PRODUCT('Dachshund70-USB 1','Dachshund70-USB 1','',(#462578)
   );
 #462578 = PRODUCT_CONTEXT('',#2,'mechanical');
 #462579 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
@@ -544956,7 +544956,7 @@ SHAPE_REPRESENTATION_RELATIONSHIP() );
 #479396 = PRODUCT_DEFINITION_SHAPE('','',#479397);
 #479397 = PRODUCT_DEFINITION('design','',#479398,#479401);
 #479398 = PRODUCT_DEFINITION_FORMATION('','',#479399);
-#479399 = PRODUCT('Dachshund60F-USB_PCB','Dachshund60F-USB_PCB','',(
+#479399 = PRODUCT('Dachshund70-USB_PCB','Dachshund70-USB_PCB','',(
     #479400));
 #479400 = PRODUCT_CONTEXT('',#2,'mechanical');
 #479401 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');

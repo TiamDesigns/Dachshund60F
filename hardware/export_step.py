@@ -5,12 +5,12 @@
 Writes to hardware/step/ (committed; rerun after any board change and commit
 the result when you want a snapshot):
 
-- Dachshund60F.step           mainboard with all parts
-- Dachshund60F-Plate.step     switch plate
-- Dachshund60F-Assembly.step  mainboard and plate, already stacked
-- Dachshund60F-USB.step       USB-C daughterboard
-- Dachshund60F-Dongle.step    2.4 GHz dongle
-- Dachshund60F-Encoder.step   encoder module (the roller encoder on its own board)
+- Dachshund70.step           mainboard with all parts
+- Dachshund70-Plate.step     switch plate
+- Dachshund70-Assembly.step  mainboard and plate, already stacked
+- Dachshund70-USB.step       USB-C daughterboard
+- Dachshund70-Dongle.step    2.4 GHz dongle
+- Dachshund70-Encoder.step   encoder module (the roller encoder on its own board)
 
 The mainboard, plate and assembly share one origin: the centre of the
 mainboard outline, so the separate files line up in X and Y. In every file the
@@ -31,7 +31,7 @@ OUT = os.path.join(HERE, "step")
 KICAD_CLI = os.environ.get("KICAD_CLI", r"C:\Program Files\KiCad\10.0\bin\kicad-cli.exe")
 
 MAINBOARD = os.path.join(HERE, "Dachshund70", "Dachshund70.kicad_pcb")
-PLATE = os.path.join(HERE, "Dachshund60F-Plate", "Dachshund60F-Plate.kicad_pcb")
+PLATE = os.path.join(HERE, "Dachshund70-Plate", "Dachshund70-Plate.kicad_pcb")
 
 # Centre of the mainboard outline (19..337.5 x 39..160.1 mm).
 MAIN_ORIGIN = "178.25x99.55mm"
@@ -73,15 +73,15 @@ def assembly(plate_step, out):
     i = s.index("\n\t(footprint ")
     s = s[:i] + fp + s[i:]
     with tempfile.TemporaryDirectory() as tmp:
-        board = os.path.join(tmp, "Dachshund60F-Assembly.kicad_pcb")
+        board = os.path.join(tmp, "Dachshund70-Assembly.kicad_pcb")
         open(board, "w", encoding="utf-8").write(s)
         export(board, out, "--user-origin", MAIN_ORIGIN)
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    export(MAINBOARD, os.path.join(OUT, "Dachshund60F.step"), "--user-origin", MAIN_ORIGIN)
-    plate = os.path.join(OUT, "Dachshund60F-Plate.step")
+    export(MAINBOARD, os.path.join(OUT, "Dachshund70.step"), "--user-origin", MAIN_ORIGIN)
+    plate = os.path.join(OUT, "Dachshund70-Plate.step")
     export(PLATE, plate, "--user-origin", MAIN_ORIGIN)
     # The assembly places the plate by KiCad coordinates, so it needs a copy
     # exported with KiCad's own origin.
@@ -89,11 +89,9 @@ def main():
         plate_abs = os.path.join(tmp, "plate.step")
         subprocess.run([KICAD_CLI, "pcb", "export", "step", "--force", "--user-origin", "0x0mm",
                         "-o", plate_abs, PLATE], capture_output=True, check=True)
-        assembly(plate_abs, os.path.join(OUT, "Dachshund60F-Assembly.step"))
+        assembly(plate_abs, os.path.join(OUT, "Dachshund70-Assembly.step"))
     for name in ("Dachshund70-USB", "Dachshund70-Dongle", "Dachshund70-Encoder"):
-        # The STEP files keep their Dachshund60F names until the plate and case work lands.
-        step = name.replace("Dachshund70", "Dachshund60F")
-        export(os.path.join(HERE, name, f"{name}.kicad_pcb"), os.path.join(OUT, f"{step}.step"))
+        export(os.path.join(HERE, name, f"{name}.kicad_pcb"), os.path.join(OUT, f"{name}.step"))
 
 
 if __name__ == "__main__":

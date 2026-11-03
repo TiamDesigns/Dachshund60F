@@ -1,10 +1,10 @@
-"""Cherry-profile keycaps for the Dachshund60F, placed on the board in the case's desk frame.
+"""Cherry-profile keycaps for the Dachshund70, placed on the board in the case's desk frame.
 
     python hardware/case/keycaps.py            # default layout (split spacebar)
     python hardware/case/keycaps.py --full     # the 6.25 u spacebar instead
 
-Needs CadQuery. Writes hardware/case/step/Dachshund60F-Keycaps.step, one named part per key, in the same
-frame as Dachshund60F-Case-Assembly.step, so the two import on top of each other. The keys come from
+Needs CadQuery. Writes hardware/case/step/Dachshund70-Keycaps.step, one named part per key, in the same
+frame as Dachshund70-Case-Assembly.step, so the two import on top of each other. The keys come from
 boards/Dachshund70/keyboard.json; the case's own numbers (key grid, tilt, keycap bottom) from gen_case.py.
 
 The profile is Cherry as GMK makes it, with the numbers from KeyV2's cherry.scad (rsheldiii/KeyV2):
@@ -25,7 +25,7 @@ from OCP.Interface import Interface_Static
 import gen_case as g
 
 BOARD_JSON = os.path.join(os.path.dirname(g.HW), "boards", "Dachshund70", "keyboard.json")
-OUT = os.path.join(g.OUT, "Dachshund60F-Keycaps.step")
+OUT = os.path.join(g.OUT, "Dachshund70-Keycaps.step")
 
 U = 19.05
 BOTTOM = 18.16                    # 1 u at the skirt

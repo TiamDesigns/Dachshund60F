@@ -1,4 +1,4 @@
-# Dachshund60F case BOM
+# Dachshund70 case BOM
 
 Everything that goes into the case and holds it together, for the default layout (split spacebar). The PCBs
 are line items only; their parts are in each board's own BOM (`hardware/<board>/`). Counts follow
@@ -8,17 +8,17 @@ are line items only; their parts are in each board's own BOM (`hardware/<board>/
 
 | Qty | Part | Material, process | File |
 |---:|---|---|---|
-| 1 | Top case | 6061 aluminium, 3-axis CNC, bead-blast and anodise | `step/Dachshund60F-Case-Top.step` |
-| 1 | Bottom case | 6061 aluminium, 3-axis CNC, bead-blast and anodise | `step/Dachshund60F-Case-Bottom.step` |
-| 1 | Side panel (right end, over the antenna) | Polycarbonate, CNC | `step/Dachshund60F-Case-Panel.step` |
-| 1 | Power switch cap (slider and grip) | Polycarbonate or nylon, CNC or printed | `step/Dachshund60F-Switch-Cap.step` |
-| 1 | Roller, 19 mm × 21 mm, blind bore for a 6 mm D-shaft | Aluminium, turned, knurled | `Roller` in `step/Dachshund60F-Case-Assembly.step` |
+| 1 | Top case | 6061 aluminium, 3-axis CNC, bead-blast and anodise | `step/Dachshund70-Case-Top.step` |
+| 1 | Bottom case | 6061 aluminium, 3-axis CNC, bead-blast and anodise | `step/Dachshund70-Case-Bottom.step` |
+| 1 | Side panel (right end, over the antenna) | Polycarbonate, CNC | `step/Dachshund70-Case-Panel.step` |
+| 1 | Power switch cap (slider and grip) | Polycarbonate or nylon, CNC or printed | `step/Dachshund70-Switch-Cap.step` |
+| 1 | Roller, 19 mm × 21 mm, blind bore for a 6 mm D-shaft | Aluminium, turned, knurled | `Roller` in `step/Dachshund70-Case-Assembly.step` |
 | 1 | Wheel push cap, 11 mm disc | Amber acrylic or polycarbonate, glued in | `Wheel cap` in the assembly |
-| 1 | Plate foam, 3.5 mm | Poron, cut | `step/Dachshund60F-Plate-Foam.dxf` |
-| 1 | LED seal, 1.5 mm | Black closed-cell foam (EVA or Poron), cut | `step/Dachshund60F-LED-Seal.dxf` |
-| 1 | LED light guide | Opaque PETG or ASA (black, or white for brighter dots), 3D printed | `step/Dachshund60F-LED-Guide.step` |
-| 5 | LED plugs (diffusers), 2.9 mm shaft on a 4 mm head | Clear resin, printed, or turned from 4 mm acrylic rod; tops frosted | `step/Dachshund60F-LED-Plugs.step` |
-| 1 | Weight, 80 × 64 mm, stepped 3–10 mm thick, about 285 g | Brass (C360), CNC, engraved 0.3 mm (0.6 mm cutter), brushed | `step/Dachshund60F-Weight.step` |
+| 1 | Plate foam, 3.5 mm | Poron, cut | `step/Dachshund70-Plate-Foam.dxf` |
+| 1 | LED seal, 1.5 mm | Black closed-cell foam (EVA or Poron), cut | `step/Dachshund70-LED-Seal.dxf` |
+| 1 | LED light guide | Opaque PETG or ASA (black, or white for brighter dots), 3D printed | `step/Dachshund70-LED-Guide.step` |
+| 5 | LED plugs (diffusers), 2.9 mm shaft on a 4 mm head | Clear resin, printed, or turned from 4 mm acrylic rod; tops frosted | `step/Dachshund70-LED-Plugs.step` |
+| 1 | Weight, 80 × 64 mm, stepped 3–10 mm thick, about 285 g | Brass (C360), CNC, engraved 0.3 mm (0.6 mm cutter), brushed | `step/Dachshund70-Weight.step` |
 
 ## Bought parts
 
@@ -45,5 +45,5 @@ are line items only; their parts are in each board's own BOM (`hardware/<board>/
 |---:|---|---|
 | 1 | Mainboard | `hardware/Dachshund70/` |
 | 1 | USB-C daughterboard | `hardware/Dachshund70-USB/` |
-| 1 | Switch plate (FR4) | `hardware/Dachshund60F-Plate/` |
+| 1 | Switch plate (FR4) | `hardware/Dachshund70-Plate/` |
 | 1 | 2.4 GHz dongle (separate, not in the case) | `hardware/Dachshund70-Dongle/` |

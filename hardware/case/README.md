@@ -1,4 +1,4 @@
-# Dachshund60F case
+# Dachshund70 case
 
 A gasket-mount case at 7°, meant to be CNC-machined from aluminium, with a polycarbonate panel in the
 middle of the right side for the radio and the power switch. The bezel is one height all round, level with the keycaps' bottom edges; over the right
@@ -14,7 +14,7 @@ python hardware/case/gen_case.py --parts    # parts only, skips the board import
 python hardware/case/gen_case.py --renders  # also redraws renders/ (needs EGL or OSMesa on Linux)
 ```
 
-The script reads the plate's outline from `hardware/Dachshund60F-Plate/Dachshund60F-Plate.kicad_pcb` and the
+The script reads the plate's outline from `hardware/Dachshund70-Plate/Dachshund70-Plate.kicad_pcb` and the
 boards from `hardware/step/`. It never writes to either, so rerun `hardware/export_step.py` first if a board
 changes.
 
@@ -22,18 +22,18 @@ changes.
 
 | File | What |
 | --- | --- |
-| `Dachshund60F-Case-Top.step` | Top case (aluminium): the bezel, the upper half of the gasket pockets, the sidebar roof and the encoder hump |
-| `Dachshund60F-Case-Bottom.step` | Bottom case (aluminium): the tub with its stepped floor, gasket seats, USB-C pocket, battery tray, pockets for the feet |
-| `Dachshund60F-Case-Panel.step` | A polycarbonate panel in the middle of the right side (the side wall and the floor inside it), next to and under the radio's antenna, with the power switch |
-| `Dachshund60F-Switch-Cap.step` | The power switch's cap: a slider in the end wall and the grip pressed onto it from outside |
-| `Dachshund60F-Gaskets.step` | The eight silicone socks, as installed (squeezed to 4.6 mm) |
-| `Dachshund60F-Plate-Foam.dxf` | Plate–PCB foam outline with every cutout, to extrude 3.5 mm (board-centred origin, plate frame) |
-| `Dachshund60F-LED-Seal.dxf` | The black foam strip that seals the light guide to the plate, to cut from 1.5 mm foam (same frame) |
-| `Dachshund60F-LED-Guide.step` | The light guide over the five status LEDs, to 3D print in an opaque material |
-| `Dachshund60F-LED-Plugs.step` | The five clear plugs that sit in the roof's LED holes and diffuse the light |
-| `Dachshund60F-Weight.step` | The brass weight in the bottom, with its engraving |
-| `Dachshund60F-Case-Assembly.step` | All of the above plus the mainboard and plate, the USB-C daughterboard, and stand-ins for the battery, the roller, the screen, the LED seal and the feet |
-| `Dachshund60F-Keycaps.step` | Cherry-profile keycaps (GMK numbers, rows R1 R1 R2 R3 R4 R4) on every key of the default layout, in the same frame as the assembly, so they import on top of it. Written by `keycaps.py` (`--full` for the 6.25 u spacebar). GMK-style doubleshot legends (shifted character over the base one, smaller words on the mods; Inter stands in for GMK's typeface, `--font` to change it). Stand-ins for looks and clearances |
+| `Dachshund70-Case-Top.step` | Top case (aluminium): the bezel, the upper half of the gasket pockets, the sidebar roof and the encoder hump |
+| `Dachshund70-Case-Bottom.step` | Bottom case (aluminium): the tub with its stepped floor, gasket seats, USB-C pocket, battery tray, pockets for the feet |
+| `Dachshund70-Case-Panel.step` | A polycarbonate panel in the middle of the right side (the side wall and the floor inside it), next to and under the radio's antenna, with the power switch |
+| `Dachshund70-Switch-Cap.step` | The power switch's cap: a slider in the end wall and the grip pressed onto it from outside |
+| `Dachshund70-Gaskets.step` | The eight silicone socks, as installed (squeezed to 4.6 mm) |
+| `Dachshund70-Plate-Foam.dxf` | Plate–PCB foam outline with every cutout, to extrude 3.5 mm (board-centred origin, plate frame) |
+| `Dachshund70-LED-Seal.dxf` | The black foam strip that seals the light guide to the plate, to cut from 1.5 mm foam (same frame) |
+| `Dachshund70-LED-Guide.step` | The light guide over the five status LEDs, to 3D print in an opaque material |
+| `Dachshund70-LED-Plugs.step` | The five clear plugs that sit in the roof's LED holes and diffuse the light |
+| `Dachshund70-Weight.step` | The brass weight in the bottom, with its engraving |
+| `Dachshund70-Case-Assembly.step` | All of the above plus the mainboard and plate, the USB-C daughterboard, and stand-ins for the battery, the roller, the screen, the LED seal and the feet |
+| `Dachshund70-Keycaps.step` | Cherry-profile keycaps (GMK numbers, rows R1 R1 R2 R3 R4 R4) on every key of the default layout, in the same frame as the assembly, so they import on top of it. Written by `keycaps.py` (`--full` for the 6.25 u spacebar). GMK-style doubleshot legends (shifted character over the base one, smaller words on the mods; Inter stands in for GMK's typeface, `--font` to change it). Stand-ins for looks and clearances |
 
 All parts are in the desk frame: the case bottom is Z = 0, X runs along the board and Y points to the back.
 The assembly places the boards as components, so their colours and names carry over from `hardware/step/`.
@@ -80,7 +80,7 @@ The assembly places the boards as components, so their colours and names carry o
   and a 0.4 mm chamfer, about 285 g. Its top steps up with the floor's steps inside, so 2 mm of aluminium
   stays over it everywhere and it's 3 to 10 mm thick. Four M3 × 5 button heads from inside, in 1 mm
   counterbores in the floor's steps, hold it into tapped holes where it's thickest. Its face is engraved
-  0.3 mm deep with a 0.6 mm cutter: a dachshund in one line, side on, and "Dachshund60F" under it, reading
+  0.3 mm deep with a 0.6 mm cutter: a dachshund in one line, side on, and "Dachshund70" under it, reading
   the right way up when the board is turned over front to back (`WEIGHT_*`, `DOG`, `ENGRAVE_*`).
 
 ## Stack and gasket mount
@@ -144,11 +144,11 @@ The assembly places the boards as components, so their colours and names carry o
   colours). Push the cap towards the keys. It travels 0.5 mm and takes a firm push (Bourns: 610 gf).
 - **Indicator LEDs (D3–D7):** D3 shows something different from the other four, so it stands apart: an
   8 mm gap to D4, then 5.5 mm, with a 0.6 mm score across the roof in the gap. Over them sits a 3D-printed
-  light guide (`Dachshund60F-LED-Guide.step`, opaque: black PETG, or white inside for brighter dots), from
+  light guide (`Dachshund70-LED-Guide.step`, opaque: black PETG, or white inside for brighter dots), from
   1 mm above the plate to the roof's underside, with a 3.2 mm channel straight up from each LED. A strip of
-  1.5 mm black closed-cell foam (EVA or Poron, cut from `Dachshund60F-LED-Seal.dxf`) seals it to the plate,
+  1.5 mm black closed-cell foam (EVA or Poron, cut from `Dachshund70-LED-Seal.dxf`) seals it to the plate,
   so light can't leak sideways under it; it is soft, so it doesn't stiffen the gasket mount. The diffusers
-  are clear plugs (`Dachshund60F-LED-Plugs.step`: a 2.9 mm shaft through the roof's 3 mm hole, flush with
+  are clear plugs (`Dachshund70-LED-Plugs.step`: a 2.9 mm shaft through the roof's 3 mm hole, flush with
   the top, on a 4 mm × 1 mm head), printed in clear resin or turned from acrylic rod, their tops frosted.
   Their heads sit in counterbores at the top of the guide's channels, so the plugs locate the guide; a few
   dots of glue hold the guide to the roof while the top case goes on.

@@ -54,6 +54,6 @@
 #define UF2_PRODUCT_NAME "Dachshund70"
 #define UF2_VOLUME_LABEL "DACHSHUND"
 #define UF2_BOARD_ID     "nRF52840-Dachshund70-v1"
-#define UF2_INDEX_URL    "https://github.com/TiamDesigns/Dachshund70"
+#define UF2_INDEX_URL    "https://github.com/TiamDesigns/Dachshund60F"
 
 #endif // DACHSHUND70_H

@@ -15,7 +15,7 @@ DATA;
 #4 = PRODUCT_DEFINITION_SHAPE('','',#5);
 #5 = PRODUCT_DEFINITION('design','',#6,#9);
 #6 = PRODUCT_DEFINITION_FORMATION('','',#7);
-#7 = PRODUCT('Dachshund60F','Dachshund60F','',(#8));
+#7 = PRODUCT('Dachshund70','Dachshund70','',(#8));
 #8 = PRODUCT_CONTEXT('',#2,'mechanical');
 #9 = PRODUCT_DEFINITION_CONTEXT('part definition',#2,'design');
 #10 = SHAPE_REPRESENTATION('',(#11,#15),#19);
