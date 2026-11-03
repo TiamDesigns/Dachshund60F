@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { MockBoard, MockBoardManager } from "@dachshund60f/host-lib";
+  import type { MockBoard, MockBoardManager } from "@dachshund70/host-lib";
 
   /** Controls for the simulated boards, shown in demo mode. */
   let {
@@ -17,7 +17,7 @@
 
   function plug(connection: "usb" | "dongle" | "ble") {
     const name = NAMES[Math.floor(Math.random() * NAMES.length)]!;
-    mock.plug("Dachshund60F", connection, {
+    mock.plug("Dachshund70", connection, {
       name,
       battery: { percent: 40 + Math.floor(Math.random() * 60), charging: connection === "usb" },
     });

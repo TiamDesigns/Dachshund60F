@@ -19,7 +19,7 @@ test("every catalog id encodes and decodes back to itself", () => {
 });
 
 test("the default keymap encodes with no RAW keycodes", () => {
-  for (const layer of defaultKeymap("Dachshund60F")!.keys) {
+  for (const layer of defaultKeymap("Dachshund70")!.keys) {
     for (const row of layer) {
       for (const id of row) assert.equal(decodeKeycode(encodeKeycode(id)), id);
     }

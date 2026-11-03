@@ -2,7 +2,7 @@
  * Application state: connected boards and the editing session for each.
  *
  * Boards come from host-lib board managers: real boards over WebHID (Chrome
- * and Edge), plus simulated Dachshund60Fs in demo mode, which is on when the
+ * and Edge), plus simulated Dachshund70s in demo mode, which is on when the
  * browser has no WebHID or the URL has ?demo.
  */
 
@@ -31,8 +31,8 @@ import {
   type KeycodeId,
   type MacroStep,
   protocol,
-} from "@dachshund60f/host-lib";
-import dachshund60f from "@boards/Dachshund60F/keyboard.json";
+} from "@dachshund70/host-lib";
+import dachshund70 from "@boards/Dachshund70/keyboard.json";
 import pup from "@boards/Pup/keyboard.json";
 
 import { desktopApp, inDesktopApp, type Desktop, type UpdateCheck } from "./desktop.ts";
@@ -44,13 +44,13 @@ import type { PresetValues } from "./presets.ts";
 const { PROTOCOL_VERSION } = protocol;
 
 export const definitions: Record<string, KeyboardDefinition> = {
-  Dachshund60F: dachshund60f as KeyboardDefinition,
+  Dachshund70: dachshund70 as KeyboardDefinition,
   Pup: pup as KeyboardDefinition,
 };
 
 /** Dog breed shown for each board model. */
 export const BREEDS: Record<string, string> = {
-  Dachshund60F: "Dachshund",
+  Dachshund70: "Dachshund",
   Pup: "Puppy",
 };
 
@@ -645,8 +645,8 @@ function createApp(): AppState {
   let mock: MockBoardManager | undefined;
   if (demo) {
     mock = new MockBoardManager({ definitions, tickMs: 4000, latencyMs: 40 });
-    mock.plug("Dachshund60F", "usb", { name: "Biscuit", battery: { percent: 82, charging: true } });
-    mock.plug("Dachshund60F", "dongle", { name: "Noodle", battery: { percent: 46, charging: false } });
+    mock.plug("Dachshund70", "usb", { name: "Biscuit", battery: { percent: 82, charging: true } });
+    mock.plug("Dachshund70", "dongle", { name: "Noodle", battery: { percent: 46, charging: false } });
   }
 
   const native = desktop

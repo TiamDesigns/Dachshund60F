@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { allKeycodes, isBoardKeycode, keycodeInfo, type KeycodeId } from "@dachshund60f/host-lib";
+  import { allKeycodes, isBoardKeycode, keycodeInfo, type KeycodeId } from "@dachshund70/host-lib";
 
   // A keycode typed or picked from the catalogue; modded keys like LSFT(KC_1) can be typed.
   let {

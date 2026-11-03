@@ -40,7 +40,7 @@ export function boardHandler(
         layers: 4,
         encoders: 0,
         macroBufferSize: 0,
-        model: "Dachshund60F",
+        model: "Dachshund70",
       });
       return response(req.command, req.sequence, 0, payload);
     }

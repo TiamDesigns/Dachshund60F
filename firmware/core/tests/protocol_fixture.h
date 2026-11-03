@@ -269,7 +269,7 @@ static void fx_init(void)
         .firmware_minor = 4,
         .firmware_patch = 0,
         .build = "abc1234",
-        .model = "Dachshund60F",
+        .model = "Dachshund70",
         .serial = "0123456789ABCDEF",
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_IDENTIFY,
         .encoders = 1,

@@ -4,10 +4,14 @@ Open work to pick up in later prompts. Each task is written so it can be pasted 
 
 Last updated: 2026-10-29 (case: swooping scoop, centred screen and LEDs, printed light guide, 8 screws and 4 feet, engraved weight, switch stops).
 
+## Rename to Dachshund70
+
+- **Rename the hardware to Dachshund70 (after the encoder PCB and plate PRs merge).** Rename `hardware/Dachshund60F*/` folders and their KiCad files (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`, `.kicad_prl`, `.kicad_dru`), the `Dachshund60F` footprint library (`lib/Dachshund60F.pretty` and its `fp-lib-table` entry, plus the footprint references in the schematic and PCB), the four silkscreen labels, the STEP files in `hardware/step/` and `hardware/case/step/`, and the names in `export_step.py`, `export_fab.py`, `gen_plate.py`, `gen_case.py`, `keycaps.py` and the hardware READMEs and docs. Then Tiam renames the GitHub repo, and the links in `app/src-tauri/src/lib.rs` and `boards/Dachshund70/bootloader/board.h` move to the new URL.
+
 ## Before ordering boards
 
 - **Fab preview of the USB connector edges (review).** The daughterboard and dongle each keep two stock USB-C connector silkscreen/edge warnings. Check them in the fab's preview before ordering (the connector overhangs the edge on purpose).
-- **Order the boards (Tiam, planned for the week of 2026-10-23).** Mainboard, USB-C daughterboard and dongle. Ordering also locks the proposed pin map in `boards/Dachshund60F/board.json`.
+- **Order the boards (Tiam, planned for the week of 2026-10-23).** Mainboard, USB-C daughterboard and dongle. Ordering also locks the proposed pin map in `boards/Dachshund70/board.json`.
 
 ## Firmware and app, testable before boards arrive (in phase order)
 

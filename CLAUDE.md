@@ -15,7 +15,7 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 - Bootloader: UF2 (Adafruit nRF52 bootloader)
 - Host library: TypeScript (Node ≥ 20, ESM), `node-hid` on desktop and WebHID in the browser; tests use `node:test`
 - GUI: **Doghouse** in `app/`, Svelte 5 + TypeScript + Vite. It runs in Chrome or Edge against real boards over WebHID, or simulated ones in demo mode (`?demo`), and as a Tauri 2 desktop app (`app/src-tauri/`: hidapi instead of WebHID, UF2 drive writes, auto-update from GitHub Releases; needs Rust, and the MSVC build tools on Windows). Design language: warm earth tones, dog-themed (boards are named after dogs).
-- Board: `Dachshund60F` (MDBT50Q-P1MV2, 6×15 COL2ROW matrix, 1 encoder, 2× SK6812MINI-E). Pins are in `boards/Dachshund60F/board.json` and are still proposed, since no PCB exists yet.
+- Board: `Dachshund70` (MDBT50Q-P1MV2, 6×15 COL2ROW matrix, 1 encoder, 2× SK6812MINI-E). Pins are in `boards/Dachshund70/board.json` and are still proposed, since no PCB exists yet.
 - USB VID/PID: pid.codes **test** PIDs 0x1209:0x0001 (keyboard), 0x1209:0x0002 (dongle) and 0x1209:0x0003 (UF2 bootloader). They're for in-house testing only. Tiam has chosen not to register PIDs while the board stays on their desk; anyone who gives away or sells a board must use their own VID/PID (the README warns them).
 
 ## Repo layout
@@ -32,14 +32,14 @@ Custom tri-mode keyboard (USB, Bluetooth LE, 2.4 GHz dongle) built on the nRF528
 
 Firmware commands run from an NCS v3.4.1 shell (nRF Connect for VS Code, or `nrfutil sdk-manager` / `nrfutil toolchain-manager launch`), with the repo as the current directory. They build the apps as freestanding applications. For a self-contained workspace instead, clone the repo into `<ws>/kb`, then `cd <ws> && west init -l kb && west update`. Keep `<ws>` out of OneDrive; NCS is several GB.
 
-- Build firmware: `west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"` (`BOARD_ROOT` must be an absolute path to the repo root, where Zephyr finds `boards/Dachshund60F/board.yml`)
+- Build firmware: `west build -p -b dachshund70/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"` (`BOARD_ROOT` must be an absolute path to the repo root, where Zephyr finds `boards/Dachshund70/board.yml`)
 - Build with the status screen: add `-DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay` after the `--`. Panels are listed in `firmware/displays/README.md`: `oled-ssd1306-128x32`, `oled-ssd1306-128x64`, `oled-sh1106-128x64` and `eink-2in13-v4`. Without one, the firmware has no screen.
 - Build dongle: `west build -p -b nrf52840dongle/nrf52840 -d build/dongle dongle`. Flashing it onto an nRF52840 Dongle and pairing are in `dongle/README.md`.
 - Build the Pup (the keyboard firmware on an nRF52840 Dongle, one key, for testing the wireless outputs): `west build -p -b nrf52840dongle/nrf52840 -d build/pup firmware`. Its pins are in `boards/Pup/`; flashing is in `boards/Pup/README.md`.
 - Release build (logging compiled out): add `-DEXTRA_CONF_FILE=release.conf` after the `--`
 - Flash (UF2): double-tap reset, or hold Esc for 3 s, so the board mounts as a UF2 drive. Then copy `build/firmware/firmware/zephyr/zephyr.uf2` onto it, or run `west flash -d build/firmware` (the default runner is `uf2`). Or use Doghouse: About → Update firmware… checks the file, backs up the settings, reboots the board into UF2, writes the file to its drive (Chrome or Edge) and restores anything the update lost.
-- Build the UF2 bootloader (Linux or WSL; needs `arm-none-eabi-gcc`, CMake, Ninja and Python `intelhex`): `boards/Dachshund60F/bootloader/build.sh`. CI builds it too and uploads `dachshund60f_bootloader_s140_6.1.1.hex` as the `bootloader-<sha>` artifact.
-- First-time bootloader flash: program that hex over the SWD header with a chip erase (`nrfutil device program --firmware <hex> --options chip_erase_mode=ERASE_ALL`, or pyocd/J-Link). Steps and checks are in `boards/Dachshund60F/bootloader/README.md`.
+- Build the UF2 bootloader (Linux or WSL; needs `arm-none-eabi-gcc`, CMake, Ninja and Python `intelhex`): `boards/Dachshund70/bootloader/build.sh`. CI builds it too and uploads `dachshund70_bootloader_s140_6.1.1.hex` as the `bootloader-<sha>` artifact.
+- First-time bootloader flash: program that hex over the SWD header with a chip erase (`nrfutil device program --firmware <hex> --options chip_erase_mode=ERASE_ALL`, or pyocd/J-Link). Steps and checks are in `boards/Dachshund70/bootloader/README.md`.
 - Debug logs: SEGGER RTT over SWD (the board has no UART). Release builds have none.
 - Run core (keymap) tests: `cmake -S firmware/core -B firmware/core/build && cmake --build firmware/core/build && ctest --test-dir firmware/core/build --output-on-failure`
 - Run host-lib tests (also validates every `boards/<name>/` definition): `cd host-lib && npm ci && npm test`. The round-trip tests against the host-built firmware need `kb_host_device`: build the core first (above); they're skipped without it, unless `KB_HOST_DEVICE` names the binary, as in CI.

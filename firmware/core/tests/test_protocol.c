@@ -46,7 +46,7 @@ static void test_handshake(void)
     KB_CHECK_EQ(h.layers, FX_LAYERS);
     KB_CHECK_EQ(h.encoders, 1);
     KB_CHECK_EQ(h.capabilities, KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_IDENTIFY);
-    KB_CHECK(strcmp(h.model, "Dachshund60F") == 0);
+    KB_CHECK(strcmp(h.model, "Dachshund70") == 0);
     KB_CHECK(strcmp(h.build, "abc1234") == 0);
     /* The padding after the payload is zero. */
     for (size_t i = KB_PROTO_HEADER_SIZE + payload_len(); i < KB_PROTO_REPORT_SIZE; i++) {

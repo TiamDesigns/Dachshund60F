@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ConnectionKind } from "@dachshund60f/host-lib";
+  import type { ConnectionKind } from "@dachshund70/host-lib";
 
   let { connection, compact = false }: { connection: ConnectionKind; compact?: boolean } = $props();
 

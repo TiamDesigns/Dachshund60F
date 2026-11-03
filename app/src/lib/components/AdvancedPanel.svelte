@@ -13,7 +13,7 @@
     type AdvancedOptions,
     type AdvancedTable,
     type KeyboardDefinition,
-  } from "@dachshund60f/host-lib";
+  } from "@dachshund70/host-lib";
 
   import { keyChoices, MOD_BITS, newEntry, summary, TABLES } from "../advanced.ts";
   import type { BoardSession } from "../app-state.svelte.ts";

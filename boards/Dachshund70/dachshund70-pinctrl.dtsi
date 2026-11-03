@@ -1,4 +1,4 @@
-/* Pin muxing for the Dachshund60F. Pins come from board.json. */
+/* Pin muxing for the Dachshund70. Pins come from board.json. */
 
 &pinctrl {
 	/* SK6812 data: SPIM MOSI only, clocked at 4 MHz by the ws2812-spi driver. */

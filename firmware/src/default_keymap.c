@@ -1,6 +1,6 @@
 /*
- * Dachshund60F default keymap, as [layer][row][col] over the full 6x15
- * matrix (positions in boards/Dachshund60F/README.md). Unused matrix
+ * Dachshund70 default keymap, as [layer][row][col] over the full 6x15
+ * matrix (positions in boards/Dachshund70/README.md). Unused matrix
  * positions are XXXXXXX.
  *
  * Must match host-lib/src/default-keymaps.ts (encoders included), which the mock board and

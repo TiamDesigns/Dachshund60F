@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import type { AdvancedOptions, BoardSettings } from "@dachshund60f/host-lib";
+import type { AdvancedOptions, BoardSettings } from "@dachshund70/host-lib";
 
 import { activePreset, BUILT_IN_PRESETS, currentValues, makePreset, matches, parseCustomPresets } from "./presets.ts";
 

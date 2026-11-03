@@ -1,4 +1,4 @@
-# Dachshund60F bring-up and test plan
+# Dachshund70 bring-up and test plan
 
 As of 2026-10-23. The editable copy, with the results log, is the [Claude Doc](https://claude.ai/artifact/4cqRPnLR6nG84q44rr7kXN); this file is a snapshot of it.
 
@@ -227,16 +227,16 @@ Each board gets its bootloader once over SWD; after that, firmware goes on by co
 
 ### Mainboard: bootloader, then firmware
 
-The bootloader board files are in `boards/Dachshund60F/bootloader/` (merged in PR #7). Its README (`boards/Dachshund60F/bootloader/README.md`) has the full procedure; in short:
+The bootloader board files are in `boards/Dachshund70/bootloader/` (merged in PR #7). Its README (`boards/Dachshund70/bootloader/README.md`) has the full procedure; in short:
 
-1. Build it with `boards/Dachshund60F/bootloader/build.sh` on Linux or WSL, or download the `bootloader-<sha>` artifact from a CI run.
-2. Flash `dachshund60f_bootloader_s140_6.1.1.hex` with a full erase:
-    - `nrfutil device program --firmware dachshund60f_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ`
-    - or `pyocd flash -t nrf52840 --erase chip dachshund60f_bootloader_s140_6.1.1.hex`
+1. Build it with `boards/Dachshund70/bootloader/build.sh` on Linux or WSL, or download the `bootloader-<sha>` artifact from a CI run.
+2. Flash `dachshund70_bootloader_s140_6.1.1.hex` with a full erase:
+    - `nrfutil device program --firmware dachshund70_bootloader_s140_6.1.1.hex --options chip_erase_mode=ERASE_ALL,verify=VERIFY_READ`
+    - or `pyocd flash -t nrf52840 --erase chip dachshund70_bootloader_s140_6.1.1.hex`
 3. Take the bench supply off J2, then power the board from USB alone (no battery). Reset. With no app, the DACHSHUND drive mounts (1209:0003) and the six LEDs show the bootloader colours.
-4. Check `INFO_UF2.TXT` reads `Board-ID: nRF52840-Dachshund60F-v1`.
+4. Check `INFO_UF2.TXT` reads `Board-ID: nRF52840-Dachshund70-v1`.
 5. Check +3V3 now reads 3.3 V (the bootloader set REGOUT0).
-6. Build the firmware (`west build -p -b dachshund60f/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"`, or take `zephyr.uf2` from CI) and copy `build/firmware/firmware/zephyr/zephyr.uf2` to the drive. The board resets into the firmware and enumerates as 1209:0001.
+6. Build the firmware (`west build -p -b dachshund70/nrf52840 -d build/firmware firmware -- -DBOARD_ROOT="$PWD"`, or take `zephyr.uf2` from CI) and copy `build/firmware/firmware/zephyr/zephyr.uf2` to the drive. The board resets into the firmware and enumerates as 1209:0001.
 7. Check every way back into the bootloader: hold Esc 3 s in the firmware; hold Esc while pressing reset; double-tap reset. The drive must come back each time.
 8. Brick test: copy a deliberately bad UF2 (for example the dongle's) and check the bootloader still comes up on double-tap reset. A UF2 with the wrong family ID should be refused outright.
 
@@ -267,7 +267,7 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 
 | Area | Test | Pass | Firmware |
 | --- | --- | --- | --- |
-| USB enumeration | `lsusb -v` (or USB Device Tree Viewer) | 1209:0001, "Dachshund" / "Dachshund60F", a serial unique to each board, bcdDevice from `firmware/VERSION`, bMaxPower 500 mA, HID interrupt endpoint with bInterval 1 | Phase 2 (main) |
+| USB enumeration | `lsusb -v` (or USB Device Tree Viewer) | 1209:0001, "Dachshund" / "Dachshund70", a serial unique to each board, bcdDevice from `firmware/VERSION`, bMaxPower 500 mA, HID interrupt endpoint with bInterval 1 | Phase 2 (main) |
 | USB-C orientation | Enumerate with the plug both ways round, and through A-to-C and C-to-C cables | Enumerates every time | Phase 2 |
 | Hot-plug | Unplug and replug 20 times | Enumerates every time; no hang (check RTT) | Phase 2 |
 | Boot keyboard | Type in a BIOS/UEFI setup screen; through a KVM if you have one | Keys work | Phase 3 (main) |
@@ -277,7 +277,7 @@ This stage answers "does every part work at all". The "Firmware" column says wha
 | Boot fallback | In a BIOS/UEFI setup screen or through a KVM, hold 7 keys | Six keys report, no stuck keys; back in the OS, NKRO works again | Phase 4 |
 | Media and system keys | Fn+F-row media keys, volume, mute; Sleep if mapped | The host reacts; `lsusb -v` shows a second HID interface with report IDs 1–3 | Phase 4 |
 | Suspend and wake | Put the computer to sleep with the keyboard plugged in, then press a key | The LEDs go dark while the host sleeps; a key press wakes it (if the host allows USB wake); after waking, no key is stuck | Phase 4 |
-| Config interface | `lsusb -v`; then the handshake from host-lib (phase 7) or Doghouse (phase 8) | A third HID interface, usage page 0xFF00, usage 0x44, 64-byte reports in and out. The handshake reports protocol 1, the firmware version, 6×15×4 and "Dachshund60F"; `get_serial` returns the same text as the USB serial; `identify` blinks the LEDs | Phase 5 |
+| Config interface | `lsusb -v`; then the handshake from host-lib (phase 7) or Doghouse (phase 8) | A third HID interface, usage page 0xFF00, usage 0x44, 64-byte reports in and out. The handshake reports protocol 1, the firmware version, 6×15×4 and "Dachshund70"; `get_serial` returns the same text as the USB serial; `identify` blinks the LEDs | Phase 5 |
 | Settings survive power-off | Change a key and save (Doghouse, phase 8, or host-lib), unplug, replug; then revert and factory reset | The change is kept after replugging; revert brings back the saved keymap and factory reset the default one; an NKRO choice made with Fn+N and then saved is kept | Phase 6 |
 | Lock LEDs | Toggle Caps, Num, Scroll on the host | Caps LED (D2) lights warm white while Caps Lock is on; the screen shows all three; the layer LED (D3) shows amber on Fn | Phase 4; colours settable in phase 10 |
 | LED chain | Bring-up walk on power-up (once, 3.6 s) | One LED at a time in chain order D3 (layer), D4–D7 (battery 1–4), D2 (Caps), each red then green then blue for 200 ms. Wrong order means a routing fault; wrong colours means the GRB order is off | Phase 2; one pass since phase 4 |
@@ -311,7 +311,7 @@ Run these with the mainboard flashed:
 | Both plug orientations, A-to-C and C-to-C | Enumerates each time | Bootloader, then phase 14 |
 | RGB LED | Red, green and blue each light; no colour stuck on | Bootloader shows blue; full test in phase 14, or a Zephyr blinky for `nrf52840dongle/nrf52840` (same LED pins) |
 | PAIR and RESET | Each works | Bootloader |
-| Enumerates as 1209:0002 "Dachshund60F Receiver" | Shown in `lsusb -v` | Phase 14 |
+| Enumerates as 1209:0002 "Dachshund70 Receiver" | Shown in `lsusb -v` | Phase 14 |
 | Pairs with the keyboard and relays keys | Keys type through it | Phase 14 |
 
 ## Stage 4: performance measurements
@@ -421,7 +421,7 @@ About a third of this plan can run on the day the boards arrive. The rest waits 
 | --- | --- | --- |
 | Phase 2: USB enumeration, LED walk, Esc-to-UF2, RTT logs, REGOUT0 | On main | Enumeration, LED chain, LED switch, rails |
 | Status screen (four panels) | On main | Display tests |
-| Dachshund60F UF2 bootloader | On main (PR #7); never run on hardware | First SWD flash and every UF2 step |
+| Dachshund70 UF2 bootloader | On main (PR #7); never run on hardware | First SWD flash and every UF2 step |
 | Phase 3: matrix scan at 1 kHz, debounce (eager press, 5 ms), keymap, key reports | On main (PR #8) | Every-key, ghosting, chatter, BIOS, scan and debounce timing |
 | Phase 4: NKRO, consumer keys, lock LEDs, suspend and remote wakeup | On main (PR #13) | Rollover, boot fallback, media keys, lock LEDs, suspend and wake |
 | Phase 5: config protocol v1 on a vendor HID interface | Done, in review | Config interface |

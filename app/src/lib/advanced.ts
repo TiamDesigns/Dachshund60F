@@ -13,7 +13,7 @@ import {
   type KeycodeId,
   type Keymap,
   type MacroStep,
-} from "@dachshund60f/host-lib";
+} from "@dachshund70/host-lib";
 
 export type Entry<T extends AdvancedTable = AdvancedTable> = AdvancedKeys[T][number];
 

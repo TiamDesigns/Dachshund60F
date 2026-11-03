@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { allKeycodes, KEYCODE_CATEGORIES, type KeycodeCategory, type KeycodeId } from "@dachshund60f/host-lib";
+  import { allKeycodes, KEYCODE_CATEGORIES, type KeycodeCategory, type KeycodeId } from "@dachshund70/host-lib";
 
   import { KEYCODE_MIME } from "./KeyboardView.svelte";
 

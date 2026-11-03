@@ -247,7 +247,7 @@ int main(void)
         .firmware_minor = 0,
         .firmware_patch = 0,
         .build = "host",
-        .model = "Dachshund60F",
+        .model = "Dachshund70",
         .serial = "HOST0001",
         .capabilities = KB_PROTO_CAP_KEYMAP | KB_PROTO_CAP_PERSISTENCE | KB_PROTO_CAP_IDENTIFY |
                         KB_PROTO_CAP_ADVANCED_KEYS | KB_PROTO_CAP_MACROS | KB_PROTO_CAP_ENCODERS |

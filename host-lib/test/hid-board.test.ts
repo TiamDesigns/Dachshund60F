@@ -22,7 +22,7 @@ import { boardHandler, FakeTransport, response } from "./fake-device.js";
 import { HostDeviceTransport, hostDevicePath } from "./host-device.js";
 
 const definition = JSON.parse(
-  readFileSync(new URL("../../../boards/Dachshund60F/keyboard.json", import.meta.url), "utf8"),
+  readFileSync(new URL("../../../boards/Dachshund70/keyboard.json", import.meta.url), "utf8"),
 ) as KeyboardDefinition;
 
 async function rejectsWith(promise: Promise<unknown>, code: string): Promise<void> {
@@ -38,18 +38,18 @@ async function openHostDevice(t: TestContext): Promise<HidBoard> {
 }
 
 const subjects: [string, (t: TestContext) => Promise<Board>, { skip?: string }][] = [
-  ["mock", async () => new MockBoardManager({ definitions: { Dachshund60F: definition } }).plug("Dachshund60F", "usb"), {}],
+  ["mock", async () => new MockBoardManager({ definitions: { Dachshund70: definition } }).plug("Dachshund70", "usb"), {}],
   ["host-built firmware", openHostDevice, host.skip ? { skip: host.skip } : {}],
 ];
 
 for (const [name, open, options] of subjects) {
-  test(`${name}: reports the Dachshund60F and its default keymap`, options, async (t) => {
+  test(`${name}: reports the Dachshund70 and its default keymap`, options, async (t) => {
     const board = await open(t);
-    assert.equal(board.info.model, "Dachshund60F");
+    assert.equal(board.info.model, "Dachshund70");
     assert.equal(board.info.protocolVersion, protocol.PROTOCOL_VERSION);
     assert.equal(board.info.layerCount, 4);
     assert.ok(board.info.id.length > 0);
-    assert.deepEqual((await board.getKeymap()).keys, defaultKeymap("Dachshund60F")!.keys);
+    assert.deepEqual((await board.getKeymap()).keys, defaultKeymap("Dachshund70")!.keys);
   });
 
   test(`${name}: edits, save, revert and factory reset`, options, async (t) => {
@@ -75,7 +75,7 @@ for (const [name, open, options] of subjects) {
     assert.equal((await board.getKeymap()).keys[1]![2]![1], "MO(3)");
 
     await board.factoryReset();
-    assert.deepEqual((await board.getKeymap()).keys, defaultKeymap("Dachshund60F")!.keys);
+    assert.deepEqual((await board.getKeymap()).keys, defaultKeymap("Dachshund70")!.keys);
     assert.deepEqual(events.slice(0, 6), ["changed", "reverted", "changed", "saved", "changed", "reverted"]);
   });
 
@@ -179,7 +179,7 @@ test("host-built firmware: info from the handshake", host.skip ? { skip: host.sk
     "dongle",
     "featureSwitches",
   ]);
-  assert.deepEqual((await board.getKeymap()).encoders, defaultKeymap("Dachshund60F")!.encoders);
+  assert.deepEqual((await board.getKeymap()).encoders, defaultKeymap("Dachshund70")!.encoders);
   await board.identify();
   // kb_host_device: on USB and charging, last read at 72% on battery.
   assert.deepEqual(await board.getBattery(), { percent: 72, charging: true, millivolts: 3960, usbPower: true });
@@ -354,7 +354,7 @@ for (const [name, open, options] of subjects) {
   test(`${name}: back up, factory reset and restore`, options, async (t) => {
     const board = (await open(t)) as Required<Board>;
     const fresh = await backupBoard(board);
-    assert.equal(fresh.board.model, "Dachshund60F");
+    assert.equal(fresh.board.model, "Dachshund70");
     assert.ok(fresh.settings && fresh.advanced && fresh.macros && fresh.indicators);
 
     await board.setKey({ layer: 1, row: 1, col: 1 }, "KC_MUTE");

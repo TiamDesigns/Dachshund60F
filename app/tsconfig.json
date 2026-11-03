@@ -14,7 +14,7 @@
     "noEmit": true,
     "skipLibCheck": true,
     "paths": {
-      "@dachshund60f/host-lib": ["../host-lib/src/index.ts"],
+      "@dachshund70/host-lib": ["../host-lib/src/index.ts"],
       "@boards/*": ["../boards/*"]
     }
   },

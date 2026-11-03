@@ -10,7 +10,7 @@
     type EncoderAction,
     type KeyboardDefinition,
     type KeycodeId,
-  } from "@dachshund60f/host-lib";
+  } from "@dachshund70/host-lib";
 
   import { batteryColor } from "../battery.ts";
   import { boardGeometry, fitUnit, legendSize } from "../geometry.ts";

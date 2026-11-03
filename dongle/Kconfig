@@ -1,8 +1,8 @@
 # Dongle firmware options. USB IDs and strings must match the "dongle"
-# entry under "usb" in boards/Dachshund60F/board.json (checked by the
+# entry under "usb" in boards/Dachshund70/board.json (checked by the
 # host-lib board tests). firmware/src/kb_usb.c reads the same symbols.
 
-menu "Dachshund60F receiver"
+menu "Dachshund70 receiver"
 
 config KB_USB_VID
 	hex "USB vendor ID"
@@ -22,7 +22,7 @@ config KB_USB_MANUFACTURER
 
 config KB_USB_PRODUCT
 	string "USB product string"
-	default "Dachshund60F Receiver"
+	default "Dachshund70 Receiver"
 
 config KB_USB_MAX_POWER_MA
 	int "USB bMaxPower in mA"

@@ -15,7 +15,7 @@ import {
 function image(size: number, infoAt?: number): Uint8Array {
   const img = new Uint8Array(size).map((_, i) => i & 0xff);
   if (infoAt !== undefined) {
-    img.set(encodeFirmwareInfo({ protocolVersion: 1, version: "0.2.3", model: "Dachshund60F" }), infoAt);
+    img.set(encodeFirmwareInfo({ protocolVersion: 1, version: "0.2.3", model: "Dachshund70" }), infoAt);
   }
   return img;
 }
@@ -27,7 +27,7 @@ test("a firmware image round-trips and its info block is found", () => {
   assert.equal(r.start, APP_FLASH.start);
   assert.equal(r.end, APP_FLASH.start + 4000);
   assert.equal(r.blocks, Math.ceil(4000 / 256));
-  assert.deepEqual(r.info, { layout: 1, protocolVersion: 1, version: "0.2.3", model: "Dachshund60F" });
+  assert.deepEqual(r.info, { layout: 1, protocolVersion: 1, version: "0.2.3", model: "Dachshund70" });
 });
 
 test("an image without an info block parses with info null", () => {
@@ -69,7 +69,7 @@ test("version comparison", () => {
 });
 
 test("reads the Board-ID from a UF2 drive's INFO_UF2.TXT", () => {
-  const info = "UF2 Bootloader 0.9.2 lib/nrfx (v2.0.0)\r\nModel: Dachshund60F\r\nBoard-ID: nRF52840-Dachshund60F-v1\r\nDate: Oct 23 2026\r\n";
-  assert.equal(uf2BoardId(info), "nRF52840-Dachshund60F-v1");
+  const info = "UF2 Bootloader 0.9.2 lib/nrfx (v2.0.0)\r\nModel: Dachshund70\r\nBoard-ID: nRF52840-Dachshund70-v1\r\nDate: Oct 23 2026\r\n";
+  assert.equal(uf2BoardId(info), "nRF52840-Dachshund70-v1");
   assert.equal(uf2BoardId("hello"), null);
 });

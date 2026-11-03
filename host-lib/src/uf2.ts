@@ -20,9 +20,9 @@ const MAX_PAYLOAD = 476;
 export const NRF52840_FAMILY = 0xada52840;
 
 /**
- * Where application firmware may go on the Dachshund60F: after the S140
+ * Where application firmware may go on the Dachshund70: after the S140
  * SoftDevice and below the region the bootloader reserves (see
- * boards/Dachshund60F/bootloader/README.md).
+ * boards/Dachshund70/bootloader/README.md).
  */
 export const APP_FLASH = { start: 0x26000, end: 0xea000 } as const;
 
@@ -146,7 +146,7 @@ export function compareVersions(a: string, b: string): number {
 
 /**
  * The Board-ID line of a UF2 drive's INFO_UF2.TXT, or null. The
- * Dachshund60F's bootloader says "nRF52840-Dachshund60F-v1".
+ * Dachshund70's bootloader says "nRF52840-Dachshund70-v1".
  */
 export function uf2BoardId(infoText: string): string | null {
   const m = /^Board-ID:\s*(\S+)/m.exec(infoText);

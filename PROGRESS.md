@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Renamed to Dachshund70, part 1: firmware, app and docs (2026-11-03)
+
+- Tiam renamed the project from Dachshund60F to Dachshund70. This change covers everything outside `hardware/`: the Zephyr board is now `dachshund70/nrf52840` in `boards/Dachshund70/`, the USB product strings are "Dachshund70" and "Dachshund70 Receiver", the Bluetooth name and DIS model are "Dachshund70", and the UF2 board ID is `nRF52840-Dachshund70-v1` (no board had been flashed, so nothing old needs to keep working). The host library and Doghouse packages are `@dachshund70/…`, and Doghouse is bumped to 0.1.4 because 0.1.3 doesn't know a board called Dachshund70.
+- The "Dachshund" manufacturer name, the DACHSHUND UF2 drive label and the dog in Doghouse stay as they are. The 2026-10-26 project review keeps the old name, and the README notes it.
+- Still to do: the KiCad projects, silkscreens, STEP files, fab exports, and the plate and case scripts (`SCHEDULED_TASKS.md`), then the GitHub repo name (Tiam).
+
 ### Power switch moved to the USB daughterboard (2026-11-03)
 
 - Tiam's call: the battery slide switch (C&K PCM12SMTR, SPDT, used as an on/off in the VBAT to VBAT_SW line) leaves the mainboard and goes on the USB daughterboard, so it is reached from the back of the case.
@@ -50,7 +56,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - Screen and LEDs: the e-paper glass is centred on the sidebar as seen from above (`SIDEBAR_MID`, x 146.86), 2.06 mm further right. It reaches 1.75 mm into the end wall, in a slot up from the seam so a cutter reaches it. The driver board moves 1.2 mm right (1 mm clear of the antenna). The LED holes follow the mainboard's new LED positions (#61), and a 0.6 mm V score across the roof sits in the 8 mm gap after D3.
 - Light guide: the machined LED block is gone. In its place is a 3D-printed guide (`Dachshund60F-LED-Guide.step`) with a 3.2 mm channel over each LED, and five clear plugs (`Dachshund60F-LED-Plugs.step`: 2.9 mm through the 3 mm roof holes, flush, on 4 × 1 mm heads in counterbores in the guide). The plugs locate the guide. The LED seal follows the guide's outline. The screen frame got a notch over J4's header, which it had been touching.
 - Underside: 8 screws (was 12) at x = ±50.5 and ±151.5 front and back, 4 SKUF feet (was 8) at x = ±101, and the dowels moved over the feet. Screws and feet keep one 50.5 mm rhythm with the weight in the middle.
-- Weight: an 80 × 64 mm brass block flush in the bottom, stepped 3–10 mm thick to leave 2 mm of floor under the floor's steps, about 285 g. Four M3 × 5 button heads from inside hold it. Its face is engraved 0.3 mm deep with a single-line dachshund and "Dachshund60F" (Inter Display Medium), reading upright when the board is turned over front to back. The step corners where it meets its pocket are rounded to match the pocket's.
+- Weight: an 80 × 64 mm brass block flush in the bottom, stepped 3–10 mm thick to leave 2 mm of floor under the floor's steps, about 285 g. Four M3 × 5 button heads from inside hold it. Its face is engraved 0.3 mm deep with a single-line dachshund and "Dachshund70" (Inter Display Medium), reading upright when the board is turned over front to back. The step corners where it meets its pocket are rounded to match the pocket's.
 - Power switch: every pocket (flange, stem window, grip recess) is now the part's length plus the 1.5 mm travel plus 0.25 mm at each end, centred on the switch's middle. So at on and at off the switch's detent holds the cap with the grip just short of the recess wall (it allowed 1.5 mm of travel each way before). No off-the-shelf extension fits a PCM12, so the cap stays a made part.
 - New renders: 22-bottom-plan and 23-weight. BOM and README updated.
 - Not made or fitted.
@@ -125,7 +131,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 ### SW3 part number: PEC12R-2220F-S0024 (2026-10-28)
 
 - The BOM had PEC12R-4220F-S0024, which is Bourns' "Horizontal Mount – Axial PC Pin" part: its shaft points straight up from the board, like a knob. The roller needs "Vertical Mount – Radial PC Pin" (first digit 2), whose shaft is parallel to the board, and that's what the footprint (KiCad's PEC12R-2x17F-Sxxxx) is drawn for. The 2026-10-23 check below had the two backwards.
-- Tiam chose 24 detents, so SW3 is now PEC12R-2220F-S0024: shaft parallel to the board, 24 detents, 20 mm insulated D-shaft, push switch, 24 pulses per turn (one quadrature cycle per detent, which matches `CONFIG_KB_ENCODER_STEPS_PER_DETENT=4`). Changed in the schematic (Value, MPN, LCSC C49673168), the PCB's value field, `README.md`, `boards/Dachshund60F/README.md` and `docs/design-decisions.md`. The footprint and pins don't change.
+- Tiam chose 24 detents, so SW3 is now PEC12R-2220F-S0024: shaft parallel to the board, 24 detents, 20 mm insulated D-shaft, push switch, 24 pulses per turn (one quadrature cycle per detent, which matches `CONFIG_KB_ENCODER_STEPS_PER_DETENT=4`). Changed in the schematic (Value, MPN, LCSC C49673168), the PCB's value field, `README.md`, `boards/Dachshund70/README.md` and `docs/design-decisions.md`. The footprint and pins don't change.
 - LCSC lists C49673168 with no stock as of 2026-10-28, so JLC can't fit it from their stock; Digi-Key and Mouser had it. Either buy it and solder it by hand (it's through-hole), or check LCSC again before ordering assembly.
 
 ### SW3 3D model from Bourns' drawing (2026-10-28)
@@ -162,7 +168,7 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - LEDs: each has its own 4 mm channel through a solid block, sealed to the plate by a strip of 1.5 mm black foam (`Dachshund60F-LED-Seal.dxf`), with a 4 mm opal acrylic diffuser disc under each 3 mm hole.
 - Roller: 12.25 mm wide (was 8), on the same 20 mm shaft, in a wider slot.
 - USB-C daughterboard: centred in the back wall. The back screws moved to either side of it (nine screws now). The JST-SH cable to J1 is about 200 mm.
-- The engraving on the back (the bone and DACHSHUND60F) is gone.
+- The engraving on the back (the bone and DACHSHUND70) is gone.
 - Keycap to bezel, for Tiam: about 2.3 mm on the left, front and back with 18 mm Cherry-spec caps; 1.0 mm to the hood's side.
 - Not printed or fitted. The SH1107 overlay builds in CI but hasn't run on a panel.
 
@@ -252,10 +258,10 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 
 - Tiam asked for it so Bluetooth and the 2.4 GHz dongle can be tried on the nRF52840 Dongles being ordered, before the PCBs exist. `boards/Pup/` holds its `board.json`, `keyboard.json` (one key, one indicator) and `firmware/`: the devicetree overlay (SW1 on P1.06, LD2's red, green and blue on P0.08, P1.09 and P0.12, all from Nordic's PCA10059 documentation; flash layout with the code at 0x1000 after Nordic's MBR, `bt_settings` at 0xd6000 and `storage` at 0xd8000, below Nordic's bootloader at 0xe0000) and its default keymap (`a`).
 - It builds on Zephyr's own `nrf52840dongle/nrf52840` board, so it needs no Zephyr board files: `firmware/boards/nrf52840dongle_nrf52840.overlay` (which Zephyr picks by board name) includes `app.overlay` and the Pup's overlay, and `firmware/boards/nrf52840dongle_nrf52840.conf` sets the names (USB product and Bluetooth name "Dachshund Pup", `KB_MODEL` "Pup"), Nordic's bootloader and a 10 s recovery hold. Build: `west build -p -b nrf52840dongle/nrf52840 -d build/pup firmware`.
-- Firmware changes, none for the Dachshund60F: a board without `matrix-col-gpios` is wired directly (each row pin one key, read as column 0, with its devicetree flags for the pressed level), the indicators can drive one RGB LED on GPIOs (`indicator-rgb-gpios`, Caps Lock) instead of an SK6812 chain, the GPREGRET value for the bootloader is a Kconfig option (`KB_BOOTLOADER_GPREGRET`: 0x57 for the Adafruit UF2 bootloader, 0xB1 for Nordic's), and a board folder named by `KB_MODEL` with `firmware/default_keymap.c` brings its own default keymap.
+- Firmware changes, none for the Dachshund70: a board without `matrix-col-gpios` is wired directly (each row pin one key, read as column 0, with its devicetree flags for the pressed level), the indicators can drive one RGB LED on GPIOs (`indicator-rgb-gpios`, Caps Lock) instead of an SK6812 chain, the GPREGRET value for the bootloader is a Kconfig option (`KB_BOOTLOADER_GPREGRET`: 0x57 for the Adafruit UF2 bootloader, 0xB1 for Nordic's), and a board folder named by `KB_MODEL` with `firmware/default_keymap.c` brings its own default keymap.
 - host-lib and Doghouse: the Pup's default keymap is in `default-keymaps.ts` (so the mock can simulate one), and Doghouse knows its definition ("Pup · Puppy · 1 switch"). The board tests accept direct wiring and LEDs on their own pins, and new tests check the Pup's overlay pins, names and USB IDs, LED table and default keymap against `board.json`, `keyboard.json` and host-lib.
 - CI builds the Pup (debug and release) as `Firmware (pup)`.
-- Size, debug: 267.8 KB flash, 77.1 KB RAM; release 229.3 KB. The Dachshund60F's build is unchanged.
+- Size, debug: 267.8 KB flash, 77.1 KB RAM; release 229.3 KB. The Dachshund70's build is unchanged.
 - Not tested on hardware yet: everything (`SCHEDULED_TASKS.md`, "Pup on real hardware"), including whether Nordic's bootloader takes GPREGRET 0xB1.
 - How to test: host-lib and Doghouse tests as in CLAUDE.md. With a PCA10059: build, flash and try it as in `boards/Pup/README.md`.
 
@@ -265,7 +271,7 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 - Pairing: the dongle's link address comes from its device ID (FNV hash, never the pairing address or a preamble lookalike), so it never changes. The dongle's button turns on pairing for 30 s: it also listens on a fixed pairing address and offers its address there. `RF_PAIR` (new keycode, Doghouse "2.4G Pair") or Doghouse makes the keyboard ask on the pairing address for 30 s; it takes the first offer, keeps it in Zephyr settings (`kb/rf/dongle`, versioned, next to the Bluetooth bonds) and moves to it. The link isn't encrypted yet.
 - Keyboard (`src/kb_esb.c`, `CONFIG_KB_DONGLE`, on by default): ESB on the MPSL timeslot API, so it shares the radio with Bluetooth (Nordic marks this experimental). Reports go out the moment they're queued. The keyboard polls every 10 ms in use, 2 ms while config traffic flows, 100 ms while idle, and not at all once power management turns the radios off (the next key starts it again) or nothing is paired. Three failed packets in a row (each after 6 retransmits) mark the dongle gone; a single failure triggers a resync, so a lost release can't stick a key.
 - Output selection: the dongle is a third output. Keys go to the preferred one (`OUT_USB`, `OUT_2G4`, `OUT_BLE`, or Doghouse) while it's ready, otherwise to the first ready of USB, the dongle and Bluetooth. The dongle counts as ready when it answers and its computer has configured it. Lock LEDs, boot protocol and resync follow it like the other outputs.
-- Dongle firmware (`dongle/`): reuses the keyboard's USB device (`firmware/src/kb_usb.c` and `app.overlay`) with its own IDs (1209:0002, "Dachshund60F Receiver", `dongle/Kconfig`), relays reports to USB and config frames both ways, releases every key if the keyboard is quiet for 400 ms, and answers Doghouse with the new `unreachable` status while the keyboard is away. RGB LED: white at power-up, blue blinking while pairing, green on pairing and when the keyboard comes in range, red when it goes. Built for the nRF52840 Dongle (PCA10059), whose button and LED pins match the Dachshund dongle's; flash and pair steps are in `dongle/README.md`.
+- Dongle firmware (`dongle/`): reuses the keyboard's USB device (`firmware/src/kb_usb.c` and `app.overlay`) with its own IDs (1209:0002, "Dachshund70 Receiver", `dongle/Kconfig`), relays reports to USB and config frames both ways, releases every key if the keyboard is quiet for 400 ms, and answers Doghouse with the new `unreachable` status while the keyboard is away. RGB LED: white at power-up, blue blinking while pairing, green on pairing and when the keyboard comes in range, red when it goes. Built for the nRF52840 Dongle (PCA10059), whose button and LED pins match the Dachshund dongle's; flash and pair steps are in `dongle/README.md`.
 - Protocol (still version 1; added): `get_dongle` 0x54 (paired, link state, pairing), `pair_dongle` 0x55 (stop, start, forget), the `dongle` capability (bit 12), `set_output 3`, and the `unreachable` status (10), which only a dongle sends.
 - host-lib: the dongle's PID is found by both managers (connection `"dongle"`); while its keyboard is away the dongle isn't listed, and it's tried again every 2 s (`dongleRetryMs`), so the board leaves and comes back by itself. `Board` gains `getDongle()` and `pairDongle()`, and `setOutput` takes `"dongle"`. The mock simulates the dongle; `RF_PAIR` is in the keycode catalogue. A board test checks that the dongle's Kconfig USB IDs match board.json and both ends use the same ESB payload size.
 - Doghouse: the Connection tab offers 2.4 GHz as an output and has a dongle card (state, Pair a dongle, Stop, Forget).
@@ -293,7 +299,7 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 ### Phase 12: Bluetooth LE (2026-10-24)
 
 - Firmware (`src/kb_ble.c`): HID over GATT with Nordic's HIDS library, plus the Battery and Device Information services. The report map (`kb_hid_ble_desc()` in the core) carries every USB report: the boot keyboard report and lock LEDs take report ID 5, NKRO, consumer, system and mouse keep IDs 1-4, and the config protocol is a vendor collection with report ID 6 (`hid.ble_report_id` in `protocol.yaml`). Boot protocol works too. Reports go through a queue and their own thread; a lost report triggers a full resync, like USB.
-- Host profiles: three (`CONFIG_BT_ID_MAX=3`, matching `BT_SEL(0)`-`BT_SEL(2)` in Doghouse). Each profile has its own identity (address) and one bond, so each computer sees its own Dachshund60F. A profile with a bond only takes its own computer: anyone else who connects is dropped, and pairing from another computer is refused until `BT_CLR` (or Doghouse) forgets the host. Pairing is Just Works (no display). The selected profile, bonds and identities live in Zephyr settings (NVS, CRC-checked) on a new 8 KB `bt_settings` partition at 0xEA000, inside the area the UF2 bootloader never erases.
+- Host profiles: three (`CONFIG_BT_ID_MAX=3`, matching `BT_SEL(0)`-`BT_SEL(2)` in Doghouse). Each profile has its own identity (address) and one bond, so each computer sees its own Dachshund70. A profile with a bond only takes its own computer: anyone else who connects is dropped, and pairing from another computer is refused until `BT_CLR` (or Doghouse) forgets the host. Pairing is Just Works (no display). The selected profile, bonds and identities live in Zephyr settings (NVS, CRC-checked) on a new 8 KB `bt_settings` partition at 0xEA000, inside the area the UF2 bootloader never erases.
 - Output selection (`src/output.c`, logic in `kb/output.h`): keys go to the preferred output (USB by default; `OUT_USB`, `OUT_BLE` or Doghouse change it, and it is kept across power cycles) while its host is ready, and to the other one otherwise. USB counts as ready once configured (also while suspended, so a key still wakes the computer); Bluetooth once the link is encrypted. On a switch, the old host gets all-released reports so nothing sticks down, and the new one gets the full state. Lock LEDs, the indicators and the status screen follow the active output. USB now starts and stops with VBUS, so unplugging moves keys to Bluetooth at once.
 - Protocol (still version 1; commands added): `get_connection` (active and preferred output, USB and Bluetooth state, selected profile, profile count, paired mask), `set_output`, `select_profile`, `clear_profile`, and the `bluetooth` capability. The config protocol works over Bluetooth with the same frames; responses go back the way their request came. A 64-byte report needs an ATT MTU of 67, so the board asks for 247.
 - host-lib: `Board` gains optional `getConnection`, `setOutput`, `selectProfile` and `clearProfile` (`ConnectionStatus`). WebHID reads the config collection's report ID and reports `connection: "ble"` when it isn't 0; node-hid does the same from hidapi's bus type. A board reachable over both USB and Bluetooth is listed once, over USB, and its Bluetooth link takes over when the cable comes out. The mock simulates hosts and profiles.
@@ -309,7 +315,7 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 - host-lib: `uf2.ts` checks a UF2 file block by block (magic numbers, numbering, nothing missing), refuses another chip family or any block outside the application flash (0x26000-0xEA000, so never the SoftDevice, the bootloader or the settings), and reads the info block; `compareVersions` and `uf2BoardId` (the Board-ID from the drive's INFO_UF2.TXT). `backup.ts`: `backupBoard` reads the keymap, encoders, settings, advanced keys, macros and colours into one JSON object, and `restoreBoard` writes back only what differs, then saves. The mock board can now reboot (unsaved edits are lost) and, in its simulated bootloader, take "firmware" through `MockBoardManager.flash()`.
 - `keyboard.json` names the board's bootloader (`uf2BoardId`, `volume`), checked against the bootloader's `board.h`.
 - Doghouse: About → **Update firmware…** picks a `.uf2`, checks it is firmware for this model, shows the version change and warns about downgrades and a different protocol version. Then a dialog runs the steps: back up the settings (also kept in the browser, and downloadable), restart into the bootloader, choose the DACHSHUND drive (File System Access API in Chrome and Edge; the drive's Board-ID is checked) and write the file, wait for the board to come back, check it runs the new version, and put back anything the update lost. Browsers without the drive picker get a download link and "I've copied it". About also gets **Restore a backup…**, and demo boards a **Try a pretend update** button that runs the whole flow.
-- Tests: core `test_version` pins the info block's layout; host-lib `uf2.test.ts` (round trip, the info block across a block boundary, every refusal, versions, Board-ID) plus a check against the real `zephyr.uf2` done by hand (found 0.1.0, Dachshund60F, protocol 1); back up, factory reset and restore against both the mock and the host-built firmware; the mock's reboot and flash. The demo update flow was run end to end in Chromium.
+- Tests: core `test_version` pins the info block's layout; host-lib `uf2.test.ts` (round trip, the info block across a block boundary, every refusal, versions, Board-ID) plus a check against the real `zephyr.uf2` done by hand (found 0.1.0, Dachshund70, protocol 1); back up, factory reset and restore against both the mock and the host-built firmware; the mock's reboot and flash. The demo update flow was run end to end in Chromium.
 - Size, debug without a screen: 94.1 KB flash, 40.3 KB RAM.
 - Not yet tested: writing to a real UF2 drive from the browser (needs a board or an nRF52840 dongle with the Adafruit bootloader).
 - How to test: `cd app && npm run dev`, open http://localhost:5173/?demo, About → Try a pretend update. On a board: build a firmware with a higher `VERSION`, then About → Update firmware….
@@ -375,7 +381,7 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 - `client.ts`, `ProtocolClient`: one request in flight at a time, each with its own sequence number; responses are matched by command and sequence, so a late answer is never taken for the next request. A timeout is retried twice with a new sequence number, except `reboot`. Error statuses become `BoardError`s; `BoardErrorCode` gains `storage-error`, `not-supported`, `timeout` and `protocol-error`.
 - `hid-board.ts`, `HidBoard`: the typed `Board` over the protocol. Opening runs the handshake and `get_serial` (the board's id). Version negotiation: a board on another protocol version still opens and shows in the list, but every call fails with `version-mismatch` and nothing is sent after the handshake. The keymap is read in 28-key chunks. Unsaved changes are tracked per connection (the protocol can't ask). Commands the firmware lacks a capability for fail with `not-supported` without asking the board: today settings (phase 10) and encoders (phase 9). `BoardInfo.capabilities` lists the firmware's capabilities, and `reboot(bootloader)` restarts the board, into UF2 if asked.
 - `webhid.ts`, `WebHidBoardManager`: `request()` (from a click) asks for 1209:0001 with usage page 0xFF00 and usage 0x44; `start()` opens boards the site already may use; connect and disconnect events follow hotplug. The WebHID types are declared structurally, so there's no new dependency.
-- `node-hid.ts`, `NodeHidBoardManager`, from the separate `@dachshund60f/host-lib/node` entry so browser builds never see node-hid: loads node-hid v3 at run time (it isn't a dependency of host-lib; the desktop shell will install it), polls the device list once a second for hotplug, matches the config interface by usage page or, on Linux hidraw, by interface number 2, and puts report ID 0 before each write.
+- `node-hid.ts`, `NodeHidBoardManager`, from the separate `@dachshund70/host-lib/node` entry so browser builds never see node-hid: loads node-hid v3 at run time (it isn't a dependency of host-lib; the desktop shell will install it), polls the device list once a second for hotplug, matches the config interface by usage page or, on Linux hidraw, by interface number 2, and puts report ID 0 before each write.
 - Round-trip tests: `kb_host_device` (in `firmware/core/tests/`) is the core protocol handler, store and settings code over a simulated flash with the firmware's default keymap, speaking hex frames on stdin and stdout. The same Board tests (default keymap, edit, save, revert, factory reset, bad input) run against the mock and against it, and a saved keymap survives its reboot. Other tests cover the client (sequence matching, serialising, retries, late answers, status mapping, disconnects), version mismatch, and both managers against stand-in WebHID and node-hid APIs. CI's host-lib job builds `kb_host_device` and runs them.
 
 ### Phase 6: persistence (2026-10-23)
@@ -408,10 +414,10 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 - `protocol/`, `boards/` and `app/` hold READMEs only.
 - `.github/workflows/ci.yml`: core tests, host-lib tests, and debug and release firmware builds (DK and dongle board targets).
 
-### Board definition: Dachshund60F (2026-10-21, before phase 2)
+### Board definition: Dachshund70 (2026-10-21, before phase 2)
 
-- `boards/Dachshund60F/keyboard.json`: generated from `KLE Info/keyboard-layout(2).json`. It has 79 keys plus an alternate 6.25u spacebar (layout option), an encoder at x=15 right of Delete, and 2 indicators (Caps, layer).
-- `boards/Dachshund60F/board.json`: proposed pin map for the MDBT50Q-P1MV2, a 6×15 COL2ROW matrix, encoder P0.11/P0.12, SK6812 data on P0.06 with LED power enable on P0.08, charger status on P0.15, and battery measured through VDDH.
+- `boards/Dachshund70/keyboard.json`: generated from `KLE Info/keyboard-layout(2).json`. It has 79 keys plus an alternate 6.25u spacebar (layout option), an encoder at x=15 right of Delete, and 2 indicators (Caps, layer).
+- `boards/Dachshund70/board.json`: proposed pin map for the MDBT50Q-P1MV2, a 6×15 COL2ROW matrix, encoder P0.11/P0.12, SK6812 data on P0.06 with LED power enable on P0.08, charger status on P0.15, and battery measured through VDDH.
 - USB IDs: pid.codes test PIDs, 1209:0001 for the keyboard and 1209:0002 for the dongle.
 - `host-lib/test/boards.test.ts` validates every board folder: matrix range and uniqueness per layout option, no key overlaps, and pins that are valid, unique and not reserved.
 
@@ -423,7 +429,7 @@ From the project review of 2026-10-26 (`docs/project-review-2026-10-26.md`; it r
 - `.gitignore` excludes KiCad lock files, `.history/` backups, `*.kicad_prl` view state and `fp-info-cache`.
 - The kbplacer and kleplacement KiCad plugins are already installed and can place switches from the KLE layout.
 
-### PCB: Dachshund60F schematic and placement (2026-10-21)
+### PCB: Dachshund70 schematic and placement (2026-10-21)
 
 Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 kΩ PROG; lowered to 300 mA on 2026-10-26, see below) for a 1000–2000 mAh cell, and USB-C on a separate daughterboard.
 
@@ -450,27 +456,27 @@ Decisions: MX hot-swap (Kailh sockets), 2 layers, MCP73831 charger at 500 mA (2 
 ### Phase 2 firmware: board bring-up (2026-10-22, merged to main)
 
 - Pin check: all 29 module pins in `board.json` match the routed PCB pad for pad, and USB, SWD and VDDH sit on the right pads. Diodes are COL2ROW in the PCB (cathode on the ROW net).
-- Zephyr board `dachshund60f/nrf52840` (HWMv2) in `boards/Dachshund60F/`:
+- Zephyr board `dachshund70/nrf52840` (HWMv2) in `boards/Dachshund70/`:
   - devicetree written from `board.json`
   - Adafruit UF2 flash layout: app at 0x26000, storage at 0xEC000, bootloader at 0xF4000
   - `zephyr.uf2` output, with uf2 as the default `west flash` runner, plus nrfutil, jlink and pyocd for SWD
   - P0.18 as nRESET, and REG0/REG1 left in LDO mode, since DCCH is unconnected
   - `board.c` sets UICR REGOUT0 to 3.3 V on first boot in high-voltage mode, then resets
 - Raw pin groups (matrix, encoder, charge status) sit in `zephyr,user` until the phase 3, 9 and 13 drivers replace them.
-- USB (device_next): boot-protocol HID keyboard on 1209:0001, "Dachshund" / "Dachshund60F". The serial number comes from the chip's factory ID, so it's unique per board; `bcdDevice` comes from `firmware/VERSION`; bMaxPower is 500 mA. VID, PID and strings are Kconfig options in `firmware/Kconfig`. It sends no key reports yet, and the lock-LED output report is stored but not shown.
+- USB (device_next): boot-protocol HID keyboard on 1209:0001, "Dachshund" / "Dachshund70". The serial number comes from the chip's factory ID, so it's unique per board; `bcdDevice` comes from `firmware/VERSION`; bMaxPower is 500 mA. VID, PID and strings are Kconfig options in `firmware/Kconfig`. It sends no key reports yet, and the lock-LED output report is stored but not shown.
 - LED bring-up: enables the TPS22917 (P0.08), then lights one SK6812 at a time in chain order (layer, battery 1–4, Caps), cycling red, green and blue every 500 ms at low brightness. This shows both the chain order and the colour order.
 - Reboot to UF2: hold Esc (row 0, col 0) for 3 s. That writes GPREGRET = 0x57 and resets. The phase 3 keymap action replaces this.
 - Logging over SEGGER RTT on the SWD header, since the board has no UART. Release builds have no logging and no RTT.
 - Core: `kb_version_bcd_device` and `kb_hold` (long-press detector, timestamp wrap-safe), with host tests.
 - host-lib `firmware-board.test.ts`: the devicetree matrix, encoder, charger and LED pins, the LED chain length and the Kconfig USB IDs must all match `board.json`. A deliberately wrong DTS pin makes it fail.
-- CI builds `dachshund60f/nrf52840` with `-DBOARD_ROOT` and uploads `zephyr.uf2`. Debug: 67.6 KB flash, 16.9 KB RAM. Release: 51.9 KB flash, 13.4 KB RAM. Both UF2 files start at 0x26000 with family ID 0xADA52840.
+- CI builds `dachshund70/nrf52840` with `-DBOARD_ROOT` and uploads `zephyr.uf2`. Debug: 67.6 KB flash, 16.9 KB RAM. Release: 51.9 KB flash, 13.4 KB RAM. Both UF2 files start at 0x26000 with family ID 0xADA52840.
 
 ### Status screen on J4, OLED or e-paper (2026-10-22, merged to main)
 
 The status display is now in scope: SPEC.md moved it out of "Not in v1", and added it under Tier 3 plus a layout editor in the GUI list. The panel is not chosen yet, so the firmware supports both kinds, picked at build time.
 
 - Board devicetree:
-  - `display_header` is a GPIO nexus indexed by J4 pin number: 3 DIN, 4 CLK, 5 CS, 6 DC, 7 RST, 8 BUSY. Its binding is in `boards/Dachshund60F/dts/bindings/`.
+  - `display_header` is a GPIO nexus indexed by J4 pin number: 3 DIN, 4 CLK, 5 CS, 6 DC, 7 RST, 8 BUSY. Its binding is in `boards/Dachshund70/dts/bindings/`.
   - `display_i2c` (TWIM0: SDA P0.21, SCL P0.19, with pull-ups) and `display_spi` (SPIM2: SCK P0.19, MOSI P0.21, CS on J4-5) are both disabled until a panel overlay enables one.
 - Panels, in `firmware/displays/`: SSD1306 128×32, SSD1306 128×64, SH1106 128×64 (all I2C at 0x3C), and the Waveshare 2.13" e-Paper V4 (SSD1680, 250×122, SPI). Panel settings are copied from Zephyr's own shield definitions. Select one with `-DEXTRA_DTC_OVERLAY_FILE=displays/<panel>.overlay`. `CONFIG_KB_SCREEN` then turns on from the `zephyr,display` chosen node. With no overlay, the build is exactly as before.
 - Core `kb/screen.h`:
@@ -484,7 +490,7 @@ The status display is now in scope: SPEC.md moved it out of "Not in v1", and add
   - OLED changes redraw within 20 ms. E-paper redraws at most every 3 s, and changes in between are combined.
   - Lock state (from the USB LED report) and the USB connection are live. Layer shows "Base" until phase 3, battery "BAT --" until phase 13.
   - `status_screen_set_layout()` swaps the layout at run time, for the configurator once the protocol exists.
-- Build-time options (Kconfig): custom text (default "Dachshund60F"), which widgets to show, font index, invert, and the e-paper refresh interval.
+- Build-time options (Kconfig): custom text (default "Dachshund70"), which widgets to show, font index, invert, and the e-paper refresh interval.
 - host-lib tests:
   - The J4 map and the display I2C/SPI pinctrl must match `board.json`.
   - Panel overlays must not use raw `&gpio` pins or pinctrl.
@@ -500,7 +506,7 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 - host-lib:
   - Typed `Board`/`BoardManager` API (`types.ts`): board info with connection kind (usb, dongle, ble), battery, keymap and encoders, settings with limits, save/revert/factory reset, identify, events, and `BoardError` codes matching SPEC.
   - Keycode catalog (`keycodes.ts`): QMK-style ids in 9 categories, plus layer and Bluetooth profile keys that depend on the layer count.
-  - `default-keymaps.ts`: base and Fn layers for the Dachshund60F. Fn has media keys on the F-row, BT1–3 and output selection on 1–6, navigation on the arrows, and QK_BOOT on Esc.
+  - `default-keymaps.ts`: base and Fn layers for the Dachshund70. Fn has media keys on the F-row, BT1–3 and output selection on 1–6, navigation on the arrows, and QK_BOOT on Esc.
   - `MockBoard`/`MockBoardManager`: they validate like the firmware, keep live and saved copies, simulate battery charge and drain, and support plug/unplug.
   - 45 host-lib tests in total.
 - App:
@@ -519,13 +525,13 @@ Started ahead of phases 5 and 7, so the design can be reviewed before boards arr
 
 ### UF2 bootloader board definition (2026-10-23)
 
-- `boards/Dachshund60F/bootloader/`: board files for the Adafruit nRF52 bootloader (`board.h`, `pinconfig.c`, `board.mk`, `board.cmake`) and `build.sh`, which clones the bootloader at a pinned master commit (c67f0bcf, 2026-05-21), adds the board and builds it. The 0.9.2 release uses an older board API (`BUTTONS_NUMBER`), so it can't build these files.
-- Output: `dachshund60f_bootloader_s140_6.1.1.hex` (MBR, S140 6.1.1, bootloader and UICR) for the first SWD flash, and `bootloader_mbr.uf2` for later updates from the UF2 drive. The steps are in the folder's README.
+- `boards/Dachshund70/bootloader/`: board files for the Adafruit nRF52 bootloader (`board.h`, `pinconfig.c`, `board.mk`, `board.cmake`) and `build.sh`, which clones the bootloader at a pinned master commit (c67f0bcf, 2026-05-21), adds the board and builds it. The 0.9.2 release uses an older board API (`BUTTONS_NUMBER`), so it can't build these files.
+- Output: `dachshund70_bootloader_s140_6.1.1.hex` (MBR, S140 6.1.1, bootloader and UICR) for the first SWD flash, and `bootloader_mbr.uf2` for later updates from the UF2 drive. The steps are in the folder's README.
 - Entering UF2 mode: double-tap reset, or hold Esc at power-up or reset. `board_init2()` drives col 0 (P0.02) high, and the bootloader reads row 0 (P1.10) with a pull-down. Holding Esc for 3 s in the firmware still works (GPREGRET 0x57).
 - Status shows on all six SK6812s (P0.06), with P0.08 turning on LED power. REGOUT0 is set to 3.3 V on first boot. USB is 1209:0003, a pid.codes test PID, with a "DACHSHUND" drive. `board.json` now lists it under `usb.bootloader`.
 - Flash layout fix: on the nRF52840 the bootloader reserves 40 KB below itself (0xEA000–0xF3FFF), and it ignores UF2 app writes there. `code_partition` shrinks from 0xC6000 to 0xC4000, so it ends at 0xEA000. `storage` (0xEC000) was already in the reserved area, which DFU never erases.
 - host-lib `bootloader-board.test.ts`: the LED pin, count and power pin, the Esc row and column, the USB IDs and names must all match `board.json`, and the devicetree partitions must fit the bootloader's layout. Moving the code partition back to 0xC6000 makes the test fail.
-- CI job "UF2 bootloader (Dachshund60F)" builds the bootloader with Ubuntu's `gcc-arm-none-eabi` and pip's `intelhex`, and uploads the hex and UF2 as `bootloader-<sha>`.
+- CI job "UF2 bootloader (Dachshund70)" builds the bootloader with Ubuntu's `gcc-arm-none-eabi` and pip's `intelhex`, and uploads the hex and UF2 as `bootloader-<sha>`.
 
 ### Phase 3: matrix, debounce, keycodes and keymap (2026-10-23)
 
@@ -722,7 +728,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 
 - Pre-order review of the mainboard, USB-C daughterboard and dongle (KiCad 10.0.7 in the official Docker image). ERC: 0 errors on all three. DRC with schematic parity: 0 errors and 0 unconnected items on all three, plus the plate. Every footprint's pads match its library copy, once back-side parts are un-mirrored, so the "footprint differs from library" warnings are text and 3D-model fields only.
 - ST6 (the right Mod's stabilizer) moved 0.038 mm left, so its right-hand holes land exactly on the 6.25u stabilizer's (ST4). They were 0.038 mm apart, a near-overlap that drills a sliver and can break a bit; an exact duplicate is merged by the fab's CAM. DRC now reports "holes co-located" there instead of "hole to hole".
-- Mainboard back silkscreen: `+` and `-` beside J2's pins (VBAT on pin 1), and "Dachshund60F / mainboard v1.0 2026-10 / JLCJLCJLCJLC" in a free area under the encoder (the last marks where JLCPCB prints its order number). No new DRC warnings.
+- Mainboard back silkscreen: `+` and `-` beside J2's pins (VBAT on pin 1), and "Dachshund70 / mainboard v1.0 2026-10 / JLCJLCJLCJLC" in a free area under the encoder (the last marks where JLCPCB prints its order number). No new DRC warnings.
 - `hardware/export_fab.py` writes Gerbers and Excellon drill files (plated and non-plated separate, with drill maps) for all four boards as one zip each.
 - Assembly isn't settled yet: the mainboard's BOM has no MPN or LCSC numbers, and the daughterboard (9 mm wide) is under JLCPCB's 10 mm minimum for assembly, so it needs edge rails or a panel if JLC assembles it.
 
@@ -742,7 +748,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - The gaps Tiam spotted in the B.Cu pour at SW305/D305, SW400 and SW513 (and about 25 smaller ones) were pour pockets fully boxed in by tracks. The zones remove unconnected islands, so those pockets were left bare. Each pocket big enough for a via now has a GND via, so it fills like the others. A few pockets near the MCU are too small for a via and stay bare.
 - The ~600 scattered GND stitching vias were replaced by about 200 on a regular 9.525 mm (half-key) grid, placed only where both pours are clear. There are also a few extra vias in the pockets above and two that tie the pour pieces around the MCU to the main pour. This removed the 35 old copper-to-edge warnings. DRC otherwise matches main: no errors, nothing unconnected.
 - Stabilizer holes were checked for both spacebar layouts. The 6.25u (ST4) is centred on SW606. The split layout is 1.25u SW604 (no stab), 2.75u SW615 on ST5 and 2.25u SW608 on ST6, and ST6 shares its right holes with ST4. The plate's cutouts come from the same footprints.
-- Back silkscreen logo "Doghouse Boards" (Fredoka Bold, SIL OFL) and "Dachshund60F  Rev 1.0" (URW Gothic). It is in the band between the first two rows, as filled polygons in the group "Doghouse Boards logo", so the look doesn't depend on fonts installed on the PC.
+- Back silkscreen logo "Doghouse Boards" (Fredoka Bold, SIL OFL) and "Dachshund70  Rev 1.0" (URW Gothic). It is in the band between the first two rows, as filled polygons in the group "Doghouse Boards logo", so the look doesn't depend on fonts installed on the PC.
 - JLC's quote page didn't read the board size or layers from the first mainboard zip. `export_fab.py` now follows JLC's KiCad guide: no X2 or netlist attributes, no drill maps or job file, decimal Excellon, and the plate's empty drill files left out. Not yet confirmed on JLC's site.
 
 ### Licence (2026-10-23)
@@ -755,7 +761,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 
 - host-lib `npm test`: passes locally (Node 24.12, Windows), including board and devicetree validation.
 - Core C tests (core, hold, screen, version): pass in CI. Not run locally; there's no C compiler or CMake here.
-- Firmware builds: debug and release for `dachshund60f/nrf52840` with no screen and with each of the four panels, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39862064737. Not built locally; NCS isn't installed here.
+- Firmware builds: debug and release for `dachshund70/nrf52840` with no screen and with each of the four panels, and the dongle, pass in CI (NCS v3.4.1, Zephyr 4.4.2), run 39862064737. Not built locally; NCS isn't installed here.
 - Bring-up plan for all three boards (inspection, power, flashing, functional tests and measurements with methods and equipment): `docs/bringup-test-plan.md` (2026-10-23).
 - UF2 bootloader: builds cleanly (`-Werror`) on Linux with arm-none-eabi-gcc 13.2.1. The merged hex puts the SoftDevice at 0x1000–0x25DE8, the bootloader at 0xF4000–0xFC3AC, and the UICR words at 0x10001014/18. Not yet run on a chip.
 - Core C tests for phase 3 (debounce, engine, keycodes, keymap): pass locally on Linux with GCC, also under ASan and UBSan.
@@ -785,7 +791,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
   - scan rate is 1 kHz and a scan takes well under 1 ms (toggle a spare GPIO and use a logic analyser)
   - no chatter with the default debounce (eager press, 5 ms deferred release); try other algorithms through Kconfig if needed
 - Phase 2 is still to be checked on a board:
-  - flash `dachshund60f_bootloader_s140_6.1.1.hex` over SWD with a chip erase; check the DACHSHUND drive appears and `INFO_UF2.TXT` says `nRF52840-Dachshund60F-v1`; then copy `zephyr.uf2`
+  - flash `dachshund70_bootloader_s140_6.1.1.hex` over SWD with a chip erase; check the DACHSHUND drive appears and `INFO_UF2.TXT` says `nRF52840-Dachshund70-v1`; then copy `zephyr.uf2`
   - check that it enumerates as 1209:0001 with a unique serial number (USB Device Tree Viewer or `lsusb -v`)
   - check that it works as a boot keyboard in the BIOS
   - check that the LEDs walk once in chain order with correct colours at power-up
@@ -813,7 +819,7 @@ The mainboard ran only from the battery: with the switch off it was off even on 
 - When to add the Tauri shell (needs Rust and the MSVC build tools); WebHID stays possible for a hosted version
 - Display panel: OLED (which size) or e-paper; also its orientation in the case, since the overlays assume the panel's default rotation
 - Dongle case: it sets the M2 hole positions, the light pipe over D1 and the button caps. Use plastic, with nothing metal over the antenna strip.
-- Dongle bootloader: reuse Adafruit's `pca10059` build or make a dongle-specific one. The DFU button matches (P1.06), but that build's LEDs are P0.06 and P0.12, so only the blue LED would light on this dongle. A dongle board can reuse the files in `boards/Dachshund60F/bootloader/` as a template. Try the existing build on the first board.
+- Dongle bootloader: reuse Adafruit's `pca10059` build or make a dongle-specific one. The DFU button matches (P1.06), but that build's LEDs are P0.06 and P0.12, so only the blue LED would light on this dongle. A dongle board can reuse the files in `boards/Dachshund70/bootloader/` as a template. Try the existing build on the first board.
 
 ## Known bugs
 

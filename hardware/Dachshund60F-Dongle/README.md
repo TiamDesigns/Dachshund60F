@@ -3,7 +3,7 @@
 The receiver for the keyboard's 2.4 GHz mode (SPEC phase 14). It is a small desk puck: a USB-C cable
 runs to the computer, and the puck sits on the desk near the keyboard. KiCad 10, 2 layers, 1.6 mm.
 
-Pins come from the `dongle` section of `boards/Dachshund60F/board.json`, as for the keyboard.
+Pins come from the `dongle` section of `boards/Dachshund70/board.json`, as for the keyboard.
 
 ## Board
 
