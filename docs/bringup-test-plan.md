@@ -10,8 +10,8 @@ The boards, as designed on main (2026-10-23):
 
 | Board | KiCad project | What it carries | Test access |
 | --- | --- | --- | --- |
-| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-P1MV2, MCP73831 charger (300 mA), JST-PH battery J2, slide switch, TPS22917 LED switch, 6× SK6812MINI-E, encoder port J5, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
-| USB-C daughterboard | `hardware/Dachshund60F-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, JST-SH J2 | Connector pins and part pads |
+| Mainboard | `hardware/Dachshund60F/` | MDBT50Q-P1MV2, MCP73831 charger (300 mA), JST-PH battery J2, 6-pin daughterboard port J1, TPS22917 LED switch, 6× SK6812MINI-E, encoder port J5, 80 switch positions, display header J4, SWD J3 | Test pads TP1–TP9 on the back (see below), plus the decoupling-cap pads, J3, J4 and J1 |
+| USB-C daughterboard | `hardware/Dachshund60F-USB/` | HRO USB-C, 5.1 kΩ Rd on CC1/CC2, USBLC6-2SC6, 750 mA PTC, FB1 shield ferrite, the battery slide switch SW1 (C&K PCM12SMTR, actuator out of the back edge), 6-pin JST-SH J2 | Connector pins and part pads |
 | Encoder module | `hardware/Dachshund60F-Encoder/` | Bourns PEC12R-2220F-S0024 roller encoder, JST-SH cable port J1 to the mainboard's J5 | Connector pins and the encoder's pads |
 | Dongle | `hardware/Dachshund60F-Dongle/` | MDBT50Q-P1MV2, HRO USB-C, USBLC6-2SC6, PTC, PAIR and RESET buttons, RGB LED, SWD J2 | No test points. Probe C1–C4 and J2 |
 
@@ -36,7 +36,7 @@ The first six rows are enough to bring every board up. The rest unlock the measu
 | SWD probe | Flashing the bootloader and RTT logs | J-Link (EDU Mini is fine), an nRF52840 DK used as a probe through its Debug Out header, or a CMSIS-DAP probe such as the Raspberry Pi Debug Probe with pyOCD |
 | 1.27 mm 1×5 cable or pogo clip for J3 (mainboard) and J2 (dongle) | Connecting the probe | Pin order on both: 1 VDD, 2 SWDIO, 3 SWDCLK, 4 nRESET, 5 GND. Most probes have a 2×5 1.27 mm Cortex connector, so make or buy an adapter and label it |
 | USB-C cables: C-to-C, A-to-C, and a known-good short one | Enumeration in both plug orientations, Rd check | A USB-C charger too, to prove the 5.1 kΩ Rd resistors |
-| 1:1 JST-SH 4-pin cable, daughterboard to mainboard | USB to the mainboard | Pin 1 to pin 1. A reversed cable puts VBUS on GND. Check it with the DMM before first use |
+| 1:1 JST-SH 6-pin cable, daughterboard to mainboard | USB, and the battery through the switch, to the mainboard | Pin 1 to pin 1. A reversed cable puts VBUS on VBAT_SW and VBAT on GND. Check it with the DMM before first use |
 | Nordic Power Profiler Kit II (PPK2) | Current in every power state, battery life | Source mode powers the board at battery voltage and measures from about 200 nA to 1 A. The best single purchase for this plan |
 | Oscilloscope, 2+ channels, 100 MHz | Rail ripple, switch bounce, encoder quadrature, LED data edges | 10× probes with short ground springs for ripple |
 | Logic analyser, 8+ channels, 24 MHz or faster | Scan rate, latency markers, LED data timing | A Saleae, or a cheap FX2 clone with sigrok/PulseView. 24 MHz resolves the 800 kHz LED protocol |
@@ -74,7 +74,9 @@ Every board passes this stage with no power applied. Measure resistances with th
 | D+, D− to shield | J2-3, J2-2 to shell | Open |
 | Pin-for-pin continuity | USB-C D+ (A6/B6) to J2-3, D− (A7/B7) to J2-2 | Under 1 Ω, both rows of the receptacle |
 
-Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other, and so on for all four. Mark pin 1 on both plugs.
+Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other, and so on for all six. Mark pin 1 on both plugs.
+
+Then the switch: J2-5 (VBAT) and J2-6 (VBAT_SW) are open with the switch off and under 1 Ω with it on.
 
 ### Dongle
 
@@ -94,7 +96,7 @@ Then check the JST-SH cable itself: J2-1 on one end beeps to pin 1 on the other,
 | VBUS to GND | J1-1 to J1-4, or C2 | High |
 | VBAT to GND | J2 battery pins | High |
 | VSYS to GND, switch on | C4 or C5 pads | High |
-| VBAT_SW to VBAT | SW1 pin 2 (or Q1 drain) to J2-1, switch off, then on | Open, then under 1 Ω |
+| VBAT_SW to VBAT | J1-6 (or Q1 drain) to J1-5 with the daughterboard cable plugged in, switch off, then on | Open, then under 1 Ω. With the cable unplugged both are open |
 | Q1 body diode | Diode test, red on VBAT_SW (Q1 drain), black on VSYS (C4) | About 0.5–0.7 V forward, open the other way |
 | D8 power-path Schottky | Diode test, red on VBUS (C1), black on VSYS (C4) | About 0.15–0.3 V forward, open the other way |
 | Gate pull-down R3 | Across R3 | 100 kΩ |
@@ -122,7 +124,7 @@ Nine bare 1.5 mm round pads on the back, each labelled with its net on the silks
 | TP2 | VBAT | Below the charger, above J2 (322.0, 93.2) |
 | TP8 | GND | Just below TP2 (321.5, 96.5) |
 | TP7 | CHG_STAT | Left of the module, near C8/C9 (308.5, 71.5) |
-| TP3 | VBAT_SW (after the switch, before Q1) | Next to SW1 (331.5, 110.5) |
+| TP3 | VBAT_SW (after the switch, before Q1) | Near Q1 (331.5, 110.5) |
 | TP4 | VSYS | Above U3, below the J4 header (323.1, 116.0) |
 | TP5 | +3V3 | Beside SW2 (reset), above J4 (318.2, 110.4) |
 | TP6 | LED_VDD | Below U3, near D3/D4 (314.6, 123.4) |
@@ -141,13 +143,14 @@ A blank nRF52840 runs its regulator at the factory REGOUT0 setting, so VDD reads
 VSYS has two sources, in Microchip's load-sharing arrangement for the MCP73831 (AN1149):
 
 - **USB:** VBUS through the B5819W Schottky D8, so VSYS sits about 0.2–0.3 V below VBUS (around 4.7 V).
-- **Battery:** VBAT through the slide switch SW1 (net VBAT_SW), then the AO3401A P-MOSFET Q1 into VSYS. Q1's gate is on VBUS with a 100 kΩ pull-down (R3). With USB unplugged the gate sits at 0 V, so Q1 is fully on. With USB in, the gate is above the source, so Q1 is off and the battery only charges.
+- **Battery:** VBAT through the slide switch SW1 on the USB daughterboard (out to the daughterboard on J1-5, back on J1-6 as net VBAT_SW), then the AO3401A P-MOSFET Q1 into VSYS. Q1's gate is on VBUS with a 100 kΩ pull-down (R3). With USB unplugged the gate sits at 0 V, so Q1 is fully on. With USB in, the gate is above the source, so Q1 is off and the battery only charges.
 
 So:
 
 - On USB the keyboard runs whatever the switch says, and with no battery fitted. The switch only disconnects the battery.
 - On battery it runs only with the switch on.
 - The charger sits on VBAT, before the switch, so USB charges the battery with the switch off too.
+- The battery path now goes through the cable: with the daughterboard unplugged there is no battery power at all.
 - With USB in, the SAADC's VDDH/5 reading shows the USB-fed VSYS, not the cell. Firmware has to read the battery with USB unplugged, or show "charging" from CHG_STAT instead.
 
 ### Mainboard
