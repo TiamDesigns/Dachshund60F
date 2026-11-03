@@ -6,6 +6,15 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Mainboard: corner notch, J5 to the right of it, D3 moved (2026-11-03)
+
+- For the case thread's Fusion v27 (module mount and battery bay), with their choices: the top-right corner is cut away by a notch open to the top edge, x 304.0 to 326.4 and y 39.0 to 57.0, with a 4.2 mm lobe at (306.6, 57.8) for the module's lower M2 screw head (the post is at y 57.82). The case's first notch (down to y 60.8) cut a bundle of MCU lines that has no room to go round, so the case thread chose this shallower one; the lobe is the one thing still in that bundle's way.
+- Gone from the mainboard: J5's old spot, the two clearance holes (MH1, MH2) and the cable slot. J5 (5-pin JST SH, back) is now to the right of the notch: pad row at x 331.8, y 44.5 (pin 5) to 48.5 (pin 1), body toward -x, cable into the notch; courtyard about x 326.9 to 333.1, y 41.9 to 51.1. The case thread checked it is 2.4 mm above the battery. C10, C11 and D114 stay.
+- Rerouted with the grid router (see "J1 moved" below): COL7, COL10 and ROW0 on the front now pass under the lobe (y about 61.3 to 62.5); COL14 (the push switch's matrix line) reaches J5 pin 1 on a long lane through the top-right corner, because the bundle around the MCU's decoupling caps leaves no other way; ENC_A, ENC_B and ENC_SW run from J5 to C10, C11 and D114; the notch also needed the dangling spurs cut back. The router and its helper scripts are not committed.
+- LEDs: D3 moves from x 310.5 to 313.0 (its capacitor C14 with it); D4 to D7 stay at 318.5, 324.0, 329.5 and 335.0, so the pitch is an even 5.5 mm (Tiam's spacing; the case's light guide fans the light out). C14's reference text is unchanged; one stitching via that D3's move put on the DIN_BUF pad was removed.
+- `gen_plate.py`: the plate's notch is now x ≥ 304.0, y ≤ 57.0 (`NOTCH_LEFT`, `ENCODER_BOX`), with `POST_RELIEFS` at (306.6, 41.7) and (306.6, 57.8); the web beside the Delete cutout is 0.8 mm. DRC with every severity: 217 items (was 219), 0 unconnected, no new ones; ERC unchanged. STEP files refreshed.
+- Back-silkscreen texts that sat on the notch and J5 moved below J5. Not ordered, made or fitted.
+
 ### Mainboard: J1 moved to the front sidebar (2026-11-03)
 
 - For the case thread's rotated battery bay (Fusion v27): J1, the 6-pin JST SH port for the daughterboard cable, leaves (331.0, 87.0), which sits under the cell, and goes to the front sidebar: pad row at x 335.5, y 116.0 (pin 6) to 121.0 (pin 1), body toward -x, courtyard x 330.2 to 336.8, y 113.6 to 123.4. All six nets are rerouted: VBAT and VBAT_SW to their old stubs by Q1 and TP3, VBUS to the Q1/D8 copper, and USB D- and D+ on 30 mm lanes down the right edge, GND to the pour. Done with a small grid router written for this (not committed). DRC with every severity: 219 items (same as before), 0 unconnected; ERC unchanged. STEP files refreshed.

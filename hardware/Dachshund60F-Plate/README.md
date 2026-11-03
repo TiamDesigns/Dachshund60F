@@ -31,11 +31,11 @@ can't drift apart.
   SW606 and SW615) are the soldered ones, so the PCB holds them. The hot-swap 2.25u Mod (SW608) keeps a
   full cutout.
 - **Encoder:** the plate stops short of the roller. A notch takes out the top-right corner,
-  x ≥ 306.0 mm and y ≤ 59.0 mm, with a 2 mm inside radius. That clears the body (its left face at
-  x ≈ 308.15 mm), the 20 mm shaft pointing right (tip at x ≈ 331.3 mm) and a wheel on it, and leaves a 2.8 mm web next to the Delete cutout. Supporting the roller is up to the
+  x ≥ 304.0 mm and y ≤ 57.0 mm, with a 2 mm inside radius, matching the mainboard's own corner notch (which
+  is only open to x 326.4; the plate's goes on to the right edge so the shaft and the wheel on it are clear).
+  It leaves a 0.8 mm web next to the Delete cutout. Supporting the roller is up to the
   case. Since mainboard Rev 1.1 the encoder is on its own module board, so `gen_plate.py` no longer reads
-  it from the mainboard: the notch keeps the bottom edge the old on-board encoder gave it (`ENCODER_BOX`),
-  and the output is unchanged.
+  it from the mainboard: the notch's bottom edge comes from `ENCODER_BOX` and `NOTCH_LEFT`.
 - **Display header:** a slot over J4 (the courtyard plus 0.2 mm), for the 8.5 mm-tall pin header.
 - **Indicator LEDs:** 4 × 4 mm windows over D3–D7, the layer and battery LEDs. The Caps LED (D2) sits
   inside its switch cutout, so it needs no window.
@@ -81,10 +81,10 @@ plate (rerun `gen_plate.py` first). The copper accents exist only on the FR4 pla
 
 ## Encoder module post reliefs
 
-The encoder module's two M2 posts stand at mainboard (307.2, 41.7) and (307.2, 58.3), only 1.2 mm from the
-notch edge. Each has a Ø5.2 mm relief in the plate (`POST_RELIEFS`). The one by the top edge is a slot open to
-the edge, because a plain circle would leave a 0.1 mm sliver of FR4 between it and the edge. The web left between
-the relief and the Delete cutout is 1.4 mm.
+The encoder module's two M2 posts stand at mainboard (306.6, 41.7) and (306.6, 57.8). Each has a Ø5.2 mm relief in
+the plate (`POST_RELIEFS`). With the notch now at x ≥ 304.0 and y ≤ 57.0 (the mainboard's corner notch, plus the
+plate's own opening to the right edge for the roller), the upper post is inside the notch and the lower one's relief
+merges into the notch's bottom edge as a lobe. The web left between the notch and the Delete cutout is 0.8 mm.
 
 ## Copper accents
 
