@@ -76,7 +76,7 @@ BACK_FORKS = (-107.7, -15.0, 77.7)
 # Reliefs for the encoder module's two M2 posts (they stand 1.2 mm from the notch
 # edge), Ø5.2 centred on the module's holes (mainboard mm), open to the edge
 # where the circle would leave a sliver.
-POST_RELIEFS = ((307.2, 41.7), (307.2, 58.3))
+POST_RELIEFS = ((306.6, 41.7), (306.6, 57.8))
 POST_RELIEF_D = 5.2
 
 # Every inside corner of the outline gets at least this radius (tab roots).
@@ -90,8 +90,8 @@ OUTLINE_OUTSIDE_RADIUS = 1.0
 # old on-board encoder had, which fixed the notch's bottom edge. Its left edge
 # leaves a 2.8 mm web next to the Delete cutout and leaves the whole shaft and
 # a wheel on it clear.
-ENCODER_BOX = (308.105, 41.33, 328.595, 57.72)
-NOTCH_LEFT = 306.0
+ENCODER_BOX = (308.105, 41.33, 328.595, 55.7)
+NOTCH_LEFT = 304.0
 NOTCH_BELOW_COURTYARD = 1.3
 NOTCH_RADIUS = 2.0
 
