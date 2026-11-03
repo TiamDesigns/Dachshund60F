@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Mainboard: J1 moved to the front sidebar (2026-11-03)
+
+- For the case thread's rotated battery bay (Fusion v27): J1, the 6-pin JST SH port for the daughterboard cable, leaves (331.0, 87.0), which sits under the cell, and goes to the front sidebar: pad row at x 335.5, y 116.0 (pin 6) to 121.0 (pin 1), body toward -x, courtyard x 330.2 to 336.8, y 113.6 to 123.4. All six nets are rerouted: VBAT and VBAT_SW to their old stubs by Q1 and TP3, VBUS to the Q1/D8 copper, and USB D- and D+ on 30 mm lanes down the right edge, GND to the pour. Done with a small grid router written for this (not committed). DRC with every severity: 219 items (same as before), 0 unconnected; ERC unchanged. STEP files refreshed.
+- The corner notch (x 304.0 to 326.4, y 39.0 to 60.8), J5's move and the LED respacing are not done; see the thread. The notch cuts the bundle of DISP_*, SWDIO, SWDCLK and ROW0 lines that wraps over the MCU's decoupling caps, and the router found no way round it.
+- Not ordered, made or fitted.
+
 ### Encoder module and cable slot moved 0.595 mm west (2026-11-03)
 
 - For the case thread's 4° case (Tiam approved): the module's left edge u0 goes from KiCad x 304.5 to 303.905, so the two 4.2 mm screw-head holes move from x 307.2 to 306.605 (y 41.7 and 58.3 unchanged) and the 6.0 × 2.5 mm cable slot moves to x 303.005 to 309.005 (y 48.75 to 51.25). COL14 on the back now runs down x 303.8 instead of 304.4, to stay clear of the moved lower hole. DRC with every severity: 219 items (was 218): the one new message is SW113's front silkscreen outline (x 303.32) being clipped by the slot's new edge. 0 unconnected.
