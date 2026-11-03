@@ -26,7 +26,7 @@ Last updated 2026-10-24.
 | Decision | What I chose | Why |
 | --- | --- | --- |
 | Encoder | A Bourns PEC12R-2220F-S0024 (shaft parallel to the board, 24 detents, 20 mm shaft) used as a roller, turning front to back like a mouse wheel | I wanted a scroll wheel, not a knob. It replaced the EC11 in the first layout. |
-| Encoder board | The encoder is on its own small board (`hardware/Dachshund60F-Encoder/`), cabled to mainboard port J5 with a JST SH 1.0 mm 5-pin cable. No extra expansion ports | The roller and its machined cover mount to the case roof as a module. I declined spare-pin breakouts for now: this change is only the encoder. |
+| Encoder board | The encoder is on its own small board (`hardware/Dachshund70-Encoder/`), cabled to mainboard port J5 with a JST SH 1.0 mm 5-pin cable. No extra expansion ports | The roller and its machined cover mount to the case roof as a module. I declined spare-pin breakouts for now: this change is only the encoder. |
 | Power switch | The battery slide switch moved from the mainboard to the USB daughterboard, at its back edge, and the daughterboard cable went from 4 to 6 pins (VBAT and VBAT_SW added) | It is reached from the back of the case, next to the USB-C port. |
 | Board shape | 5 mm corner radius (it was 1 mm) | Softer corners for the case. About 6 mm is the most the encoder corner allows. |
 | Indicators | A row of five LEDs above the arrow keys (layer plus a 4-step battery gauge), with Caps Lock under its key | The layer LED moved out from under Esc, and the battery level is visible without opening the app. |

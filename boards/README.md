@@ -20,7 +20,7 @@ Boards:
 
 - `Dachshund70/`: MDBT50Q-P1MV2, 79 keys + encoder. Its pin map is proposed and
   not yet backed by a PCB. The `dongle` section of its `board.json` holds the
-  pins of its 2.4 GHz receiver (`hardware/Dachshund60F-Dongle/`), a second
+  pins of its 2.4 GHz receiver (`hardware/Dachshund70-Dongle/`), a second
   nRF52840; the host-lib tests check those pins too.
 
 - `Pup/`: a one-key test board, the keyboard firmware on Nordic's nRF52840

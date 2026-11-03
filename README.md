@@ -2,7 +2,7 @@
 
 A tri-mode 60% keyboard I'm designing from scratch: the PCBs, the switch plate, the firmware, the config protocol, the driver and the configurator app. It runs over USB, Bluetooth LE and its own 2.4 GHz dongle, all on the nRF52840.
 
-It was called the Dachshund60F until November 2026; older notes, PRs and the 26 October project review still use that name.
+It was called the Dachshund70 until November 2026; older notes, PRs and the 26 October project review still use that name.
 
 ![Dachshund70 layout](KLE%20Info/keyboard-layout.jpg)
 
@@ -159,7 +159,7 @@ This is open source and open hardware. You're free to copy it, change it, build 
 
 - **Code** (firmware, host library, Doghouse, protocol, scripts) is under the [MIT License](LICENSE).
 - **Hardware** (everything in `hardware/`: the three PCBs and the plate) is under the [CERN Open Hardware Licence v2, Permissive](hardware/LICENSE) (CERN-OHL-P-2.0).
-- **Third-party files** keep their own licences. The keyswitch footprints and 3D models are CC-BY-SA-4.0 (see `hardware/Dachshund60F/lib/README.md`), and the bootloader build fetches Adafruit's MIT-licensed source.
+- **Third-party files** keep their own licences. The keyswitch footprints and 3D models are CC-BY-SA-4.0 (see `hardware/Dachshund70/lib/README.md`), and the bootloader build fetches Adafruit's MIT-licensed source.
 
 Both licences are permissive. You can make your own boards, fork the firmware, put it in a product, or sell keyboards based on it, commercially or not. All I ask, and all the licences require, is that you keep the copyright and licence notices with what you copy.
 

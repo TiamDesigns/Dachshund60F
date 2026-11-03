@@ -7,7 +7,7 @@ The 2.4 GHz receiver for the Dachshund70: a second nRF52840 on USB. To the compu
 - If the keyboard goes quiet for 400 ms (asleep, off, out of range), every key is released on the computer. Doghouse requests then get `unreachable`, and Doghouse waits for the keyboard to come back.
 - Packets are defined in `firmware/core/include/kb/link.h` and tested on the host with the other core tests.
 
-It runs on Nordic's nRF52840 Dongle (PCA10059). The Dachshund60F-Dongle PCB uses the same button and LED pins (`boards/Dachshund70/board.json`), so this firmware is meant for both.
+It runs on Nordic's nRF52840 Dongle (PCA10059). The Dachshund70-Dongle PCB uses the same button and LED pins (`boards/Dachshund70/board.json`), so this firmware is meant for both.
 
 ## Build
 

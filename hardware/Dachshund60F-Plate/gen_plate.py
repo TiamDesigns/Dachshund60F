@@ -4,7 +4,7 @@ Run with KiCad's own Python (it ships the pcbnew module), from the repo root:
 
     "C:/Program Files/KiCad/10.0/bin/python.exe" hardware/Dachshund60F-Plate/gen_plate.py
 
-Everything is read from hardware/Dachshund60F/Dachshund60F.kicad_pcb, so rerun
+Everything is read from hardware/Dachshund70/Dachshund70.kicad_pcb, so rerun
 this after moving a switch, stabilizer, J4 or the indicator LEDs.
 The output overwrites Dachshund60F-Plate.kicad_pcb; edit the parameters below,
 not the generated board.
@@ -16,7 +16,7 @@ import os
 import pcbnew
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MAINBOARD = os.path.join(HERE, "..", "Dachshund60F", "Dachshund60F.kicad_pcb")
+MAINBOARD = os.path.join(HERE, "..", "Dachshund70", "Dachshund70.kicad_pcb")
 OUT = os.path.join(HERE, "Dachshund60F-Plate.kicad_pcb")
 
 # Plate stock. MX switches clip into 1.5 mm plates; 1.6 mm FR4 is the usual

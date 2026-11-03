@@ -5,7 +5,7 @@
 	(uuid "e29d01df-5a61-4369-90b4-cf5a2044c6a6")
 	(paper "A4")
 	(title_block
-		(title "Dachshund60F USB-C daughterboard")
+		(title "Dachshund70 USB-C daughterboard")
 		(date "2026-11-03")
 		(rev "1.1")
 	)
@@ -2911,7 +2911,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "J1")
 					(unit 1)
@@ -3186,7 +3186,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "SW1")
 					(unit 1)
@@ -3266,7 +3266,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "J2")
 					(unit 1)
@@ -3433,7 +3433,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "U1")
 					(unit 1)
@@ -3640,7 +3640,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "F1")
 					(unit 1)
@@ -3763,7 +3763,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "R1")
 					(unit 1)
@@ -3886,7 +3886,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "R2")
 					(unit 1)
@@ -4009,7 +4009,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "FB1")
 					(unit 1)
@@ -4114,7 +4114,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "H1")
 					(unit 1)
@@ -4198,7 +4198,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "H2")
 					(unit 1)
@@ -4281,7 +4281,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "#PWR01")
 					(unit 1)
@@ -4343,7 +4343,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "#FLG01")
 					(unit 1)
@@ -4437,7 +4437,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "#FLG02")
 					(unit 1)
@@ -4520,7 +4520,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "#FLG03")
 					(unit 1)
@@ -4603,7 +4603,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-USB"
+			(project "Dachshund70-USB"
 				(path "/e29d01df-5a61-4369-90b4-cf5a2044c6a6"
 					(reference "#FLG04")
 					(unit 1)
@@ -4632,7 +4632,7 @@
 		)
 		(uuid "6668e063-b76c-4a32-b724-bc2eb1b3b9fa")
 	)
-	(text "Dachshund60F USB-C daughterboard"
+	(text "Dachshund70 USB-C daughterboard"
 		(exclude_from_sim no)
 		(at 25.4 25.4 0)
 		(effects

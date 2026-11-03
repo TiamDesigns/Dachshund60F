@@ -175,7 +175,7 @@
 		)
 		(path "/71642107-6e46-4f13-80aa-ea3a413ca370")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -534,7 +534,7 @@
 		)
 		(path "/8bc126fa-0a79-4c46-854f-e02db5b1077d")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -949,7 +949,7 @@
 		)
 		(path "/11b6461b-1582-4a4e-9234-20be0cd1d7b1")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -1122,7 +1122,7 @@
 		)
 		(path "/107693ea-34c4-429e-91e8-67d4fd0ada09")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -1702,7 +1702,7 @@
 		)
 		(path "/f47f026d-c8bc-42d1-aa84-aa51567b340c")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -1875,7 +1875,7 @@
 		)
 		(path "/b9afaac8-8174-41ed-8af4-960df9beccd5")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -2024,7 +2024,7 @@
 		)
 		(path "/657cea1e-7c44-4def-8622-ef4c321d8a1e")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr exclude_from_pos_files exclude_from_bom)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_circle
@@ -2152,7 +2152,7 @@
 		)
 		(path "/55922e7a-c7a5-4874-9331-580748ae529d")
 		(sheetname "/")
-		(sheetfile "Dachshund60F-USB.kicad_sch")
+		(sheetfile "Dachshund70-USB.kicad_sch")
 		(attr exclude_from_pos_files exclude_from_bom)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_circle
@@ -2744,7 +2744,7 @@
 			)
 		)
 	)
-	(gr_text "Dachshund60F"
+	(gr_text "Dachshund70"
 		(at 111.9 102.2 0)
 		(layer "B.SilkS")
 		(uuid "171f810b-f06c-481e-9441-b84de166d1d8")

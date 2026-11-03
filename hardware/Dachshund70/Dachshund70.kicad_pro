@@ -70,7 +70,36 @@
         }
       },
       "diff_pair_dimensions": [],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "courtyards_overlap|146206500|142943000|84a2ca63-169b-4658-9da1-8c4e1bf69b2c|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|100969000|142553000|96cff6da-5435-4fbc-b797-ed511f265b9d|d716941d-f1fb-4d59-b842-fc49adc978bd",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|100969000|157763000|005a75ab-db3c-49f0-9574-0357d08682f2|d716941d-f1fb-4d59-b842-fc49adc978bd",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|153382000|142553000|ab201ebd-512d-447c-898d-79cf18509f44|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "npth_inside_courtyard|153382000|157763000|55063c40-2587-4cde-9899-df9f1523720f|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "pth_inside_courtyard|143984000|144458000|34175f5b-dc69-48f9-9eac-c814d9ae53bd|a0ccfd9d-54d8-44c2-ac5b-47045f8e47bc",
+          ""
+        ],
+        [
+          "pth_inside_courtyard|148429000|154618000|fddc0e65-9661-4a91-84d1-36ab3ea4f410|84a2ca63-169b-4658-9da1-8c4e1bf69b2c",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -203,12 +232,7 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [
-        0.0,
-        0.2,
-        0.3,
-        0.5
-      ],
+      "track_widths": [],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -235,16 +259,7 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [
-        {
-          "diameter": 0.0,
-          "drill": 0.0
-        },
-        {
-          "diameter": 0.6,
-          "drill": 0.3
-        }
-      ],
+      "via_dimensions": [],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -273,20 +288,244 @@
   "cvpcb": {
     "equivalence_files": []
   },
+  "erc": {
+    "erc_exclusions": [],
+    "meta": {
+      "version": 0
+    },
+    "pin_map": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        0,
+        2,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        1,
+        2
+      ],
+      [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        2,
+        1,
+        1,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      [
+        0,
+        2,
+        1,
+        2,
+        0,
+        0,
+        1,
+        0,
+        2,
+        2,
+        2,
+        2
+      ],
+      [
+        0,
+        2,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        0,
+        2
+      ],
+      [
+        0,
+        2,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        2,
+        0,
+        0,
+        2
+      ],
+      [
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ]
+    ],
+    "rule_severities": {
+      "bus_definition_conflict": "error",
+      "bus_entry_needed": "error",
+      "bus_to_bus_conflict": "error",
+      "bus_to_net_conflict": "error",
+      "different_unit_footprint": "error",
+      "different_unit_net": "error",
+      "duplicate_reference": "error",
+      "duplicate_sheet_names": "error",
+      "endpoint_off_grid": "warning",
+      "extra_units": "error",
+      "field_name_whitespace": "warning",
+      "footprint_filter": "ignore",
+      "footprint_link_issues": "warning",
+      "four_way_junction": "ignore",
+      "ground_pin_not_ground": "warning",
+      "hier_label_mismatch": "error",
+      "isolated_pin_label": "warning",
+      "label_dangling": "error",
+      "label_multiple_wires": "warning",
+      "lib_symbol_issues": "warning",
+      "lib_symbol_mismatch": "warning",
+      "missing_bidi_pin": "warning",
+      "missing_input_pin": "warning",
+      "missing_power_pin": "error",
+      "missing_unit": "warning",
+      "multiple_net_names": "warning",
+      "net_not_bus_member": "warning",
+      "no_connect_connected": "warning",
+      "no_connect_dangling": "warning",
+      "pin_not_connected": "error",
+      "pin_not_driven": "error",
+      "pin_to_pin": "warning",
+      "power_pin_not_driven": "error",
+      "same_local_global_label": "warning",
+      "similar_label_and_power": "warning",
+      "similar_labels": "warning",
+      "similar_power": "warning",
+      "simulation_model_issue": "ignore",
+      "single_global_label": "ignore",
+      "stacked_pin_name": "warning",
+      "unannotated": "error",
+      "unconnected_wire_endpoint": "warning",
+      "undefined_netclass": "error",
+      "unit_value_mismatch": "error",
+      "unresolved_variable": "error",
+      "wire_dangling": "error"
+    }
+  },
   "libraries": {
     "pinned_footprint_libs": [],
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Dachshund60F-Encoder.kicad_pro",
+    "filename": "Dachshund70.kicad_pro",
     "version": 3
   },
   "net_settings": {
     "classes": [
       {
         "bus_width": 12,
-        "clearance": 0.15,
-        "diff_pair_gap": 0.2,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
         "line_style": 0,
@@ -301,25 +540,6 @@
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
-      },
-      {
-        "bus_width": 12,
-        "clearance": 0.2,
-        "diff_pair_gap": 0.25,
-        "diff_pair_via_gap": 0.25,
-        "diff_pair_width": 0.2,
-        "line_style": 0,
-        "microvia_diameter": 0.3,
-        "microvia_drill": 0.1,
-        "name": "Power",
-        "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": 0,
-        "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.4,
-        "tuning_profile": "",
-        "via_diameter": 0.7,
-        "via_drill": 0.35,
-        "wire_width": 6
       }
     ],
     "meta": {
@@ -327,20 +547,7 @@
     },
     "net_colors": null,
     "netclass_assignments": null,
-    "netclass_patterns": [
-      {
-        "netclass": "Power",
-        "pattern": "/VBUS*"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "GND"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/SHIELD"
-      }
-    ]
+    "netclass_patterns": []
   },
   "pcbnew": {
     "last_paths": {
@@ -348,28 +555,133 @@
       "netlist": "",
       "plot": "",
       "specctra_dsn": "",
+      "step": "",
       "vrml": ""
     },
     "page_layout_descr_file": ""
   },
   "schematic": {
+    "annotate_start_num": 0,
+    "annotation": {
+      "method": 0,
+      "sort_order": 0
+    },
+    "bom_export_filename": "${PROJECTNAME}.csv",
+    "bom_fmt_presets": [],
+    "bom_fmt_settings": {
+      "field_delimiter": ",",
+      "keep_line_breaks": false,
+      "keep_tabs": false,
+      "name": "CSV",
+      "ref_delimiter": ",",
+      "ref_range_delimiter": "",
+      "string_delimiter": "\""
+    },
+    "bom_presets": [],
+    "bom_settings": {
+      "exclude_dnp": false,
+      "fields_ordered": [
+        {
+          "group_by": false,
+          "label": "Reference",
+          "name": "Reference",
+          "show": true
+        },
+        {
+          "group_by": false,
+          "label": "Qty",
+          "name": "${QUANTITY}",
+          "show": true
+        },
+        {
+          "group_by": true,
+          "label": "Value",
+          "name": "Value",
+          "show": true
+        },
+        {
+          "group_by": true,
+          "label": "DNP",
+          "name": "${DNP}",
+          "show": true
+        },
+        {
+          "group_by": true,
+          "label": "Exclude from BOM",
+          "name": "${EXCLUDE_FROM_BOM}",
+          "show": true
+        },
+        {
+          "group_by": true,
+          "label": "Exclude from Board",
+          "name": "${EXCLUDE_FROM_BOARD}",
+          "show": true
+        },
+        {
+          "group_by": true,
+          "label": "Footprint",
+          "name": "Footprint",
+          "show": true
+        },
+        {
+          "group_by": false,
+          "label": "Datasheet",
+          "name": "Datasheet",
+          "show": true
+        }
+      ],
+      "filter_string": "",
+      "group_symbols": true,
+      "include_excluded_from_bom": true,
+      "name": "Default Editing",
+      "sort_asc": true,
+      "sort_field": "Reference"
+    },
     "bus_aliases": {},
+    "connection_grid_size": 50.0,
+    "drawing": {
+      "dashed_lines_dash_length_ratio": 12.0,
+      "dashed_lines_gap_length_ratio": 3.0,
+      "default_line_thickness": 6.0,
+      "default_text_size": 50.0,
+      "field_names": [],
+      "hop_over_size_choice": 0,
+      "intersheets_ref_own_page": false,
+      "intersheets_ref_prefix": "",
+      "intersheets_ref_short": false,
+      "intersheets_ref_show": false,
+      "intersheets_ref_suffix": "",
+      "junction_size_choice": 3,
+      "label_size_ratio": 0.375,
+      "operating_point_overlay_i_precision": 3,
+      "operating_point_overlay_i_range": "~A",
+      "operating_point_overlay_v_precision": 3,
+      "operating_point_overlay_v_range": "~V",
+      "overbar_offset_ratio": 1.23,
+      "pin_symbol_size": 25.0,
+      "text_offset_ratio": 0.15
+    },
     "legacy_lib_dir": "",
     "legacy_lib_list": [],
+    "meta": {
+      "version": 1
+    },
+    "page_layout_descr_file": "",
+    "plot_directory": "",
+    "reuse_designators": true,
+    "subpart_first_id": 65,
+    "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "Dachshund60F-Encoder.kicad_sch",
-        "name": "Dachshund60F-Encoder",
+        "filename": "Dachshund70.kicad_sch",
+        "name": "Dachshund70",
         "uuid": "00000000-0000-0000-0000-000000000000"
       }
-    ]
+    ],
+    "used_designators": "",
+    "variants": []
   },
-  "sheets": [
-    [
-      "227f45b5-2d6b-48c5-ade3-8e307b34a657",
-      "Root"
-    ]
-  ],
+  "sheets": [],
   "text_variables": {},
   "tuning_profiles": {
     "meta": {

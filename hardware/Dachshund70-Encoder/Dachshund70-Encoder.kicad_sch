@@ -5,7 +5,7 @@
 	(uuid "227f45b5-2d6b-48c5-ade3-8e307b34a657")
 	(paper "A4")
 	(title_block
-		(title "Dachshund60F encoder module")
+		(title "Dachshund70 encoder module")
 		(date "2026-11-02")
 		(rev "1.0")
 	)
@@ -753,7 +753,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Encoder"
+			(project "Dachshund70-Encoder"
 				(path "/227f45b5-2d6b-48c5-ade3-8e307b34a657"
 					(reference "SW1")
 					(unit 1)
@@ -831,7 +831,7 @@
 			)
 		)
 		(instances
-			(project "Dachshund60F-Encoder"
+			(project "Dachshund70-Encoder"
 				(path "/227f45b5-2d6b-48c5-ade3-8e307b34a657"
 					(reference "J1")
 					(unit 1)
@@ -1031,7 +1031,7 @@
 		)
 		(uuid "cb8827db-5cf4-4136-9556-f92f8578d86b")
 	)
-	(text "Encoder module for the Dachshund60F mainboard (J5). The mainboard keeps the 10 nF debounce capacitors and the push-switch diode; this board is the encoder and the cable port only."
+	(text "Encoder module for the Dachshund70 mainboard (J5). The mainboard keeps the 10 nF debounce capacitors and the push-switch diode; this board is the encoder and the cable port only."
 		(exclude_from_sim no)
 		(at 76.2 55.88 0)
 		(effects

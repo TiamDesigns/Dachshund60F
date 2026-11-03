@@ -278,7 +278,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Dachshund60F-Dongle.kicad_pro",
+    "filename": "Dachshund70-USB.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -304,7 +304,7 @@
       },
       {
         "bus_width": 12,
-        "clearance": 0.15,
+        "clearance": 0.2,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
         "diff_pair_width": 0.2,
@@ -339,10 +339,6 @@
       {
         "netclass": "Power",
         "pattern": "/SHIELD"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/+3V3"
       }
     ]
   },
@@ -362,15 +358,15 @@
     "legacy_lib_list": [],
     "top_level_sheets": [
       {
-        "filename": "Dachshund60F-Dongle.kicad_sch",
-        "name": "Dachshund60F-Dongle",
+        "filename": "Dachshund70-USB.kicad_sch",
+        "name": "Dachshund70-USB",
         "uuid": "00000000-0000-0000-0000-000000000000"
       }
     ]
   },
   "sheets": [
     [
-      "3ed18af5-ea2f-41cd-9b4f-50b7f06fa172",
+      "e29d01df-5a61-4369-90b4-cf5a2044c6a6",
       "Root"
     ]
   ],
