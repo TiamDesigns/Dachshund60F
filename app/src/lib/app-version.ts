@@ -5,7 +5,7 @@
  * update server that answers with something the updater rejects).
  */
 
-export const APP_REPO = "TiamDesigns/Dachshund70";
+export const APP_REPO = "TiamDesigns/Dachshund60F";
 /** Where people download Doghouse by hand. */
 export const RELEASES_URL = `https://github.com/${APP_REPO}/releases/latest`;
 const RELEASES_API = `https://api.github.com/repos/${APP_REPO}/releases?per_page=30`;

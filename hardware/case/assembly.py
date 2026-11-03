@@ -84,7 +84,7 @@ def build(parts, colors, explode=None, skip=()):
     usb = _read_into(doc, g.USB_STEP)
 
     top = shapes.NewShape()
-    TDataStd_Name.Set_s(top, TCollection_ExtendedString("Dachshund60F case assembly"))
+    TDataStd_Name.Set_s(top, TCollection_ExtendedString("Dachshund70 case assembly"))
     for lbl in board:
         comp = shapes.AddComponent(top, lbl, _offset(explode.get("Board", 0)).Multiplied(_tilt()))
         TDataStd_Name.Set_s(comp, TCollection_ExtendedString("Mainboard and plate"))

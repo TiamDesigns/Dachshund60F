@@ -1,4 +1,4 @@
-"""Generate the Dachshund60F case, gaskets and plate foam, and the full assembly.
+"""Generate the Dachshund70 case, gaskets and plate foam, and the full assembly.
 
     python hardware/case/gen_case.py            # parts and assembly
     python hardware/case/gen_case.py --parts    # parts only (skips the slow board import)
@@ -6,20 +6,20 @@
 
 Needs CadQuery (pip install cadquery). Writes to hardware/case/step/:
 
-- Dachshund60F-Case-Top.step      top case (aluminium): bezel at keycap-bottom height with a 1 mm gap
+- Dachshund70-Case-Top.step      top case (aluminium): bezel at keycap-bottom height with a 1 mm gap
                                   round the keys, upper half of the gasket pockets, a flat roof over
                                   the sidebar (screen window and mount, LED holes, roller slot) and
                                   a round hump over the encoder
-- Dachshund60F-Case-Bottom.step   bottom case (aluminium): tub with a floor stepped by switch row,
+- Dachshund70-Case-Bottom.step   bottom case (aluminium): tub with a floor stepped by switch row,
                                   lower gasket seats, USB-C, battery tray, pockets for the feet
-- Dachshund60F-Case-Panel.step    a polycarbonate panel in the middle of the right end (side wall and
+- Dachshund70-Case-Panel.step    a polycarbonate panel in the middle of the right end (side wall and
                                   the floor inside it): next to and under the antenna, with the power
                                   switch's cap
-- Dachshund60F-Switch-Cap.step    the power switch's slider and grip
-- Dachshund60F-Plate-Foam.dxf     plate-PCB midlayer foam outline, to cut from 3.5 mm Poron
+- Dachshund70-Switch-Cap.step    the power switch's slider and grip
+- Dachshund70-Plate-Foam.dxf     plate-PCB midlayer foam outline, to cut from 3.5 mm Poron
                                   (the plate's own holes, grown 0.3 mm; board-centred origin)
-- Dachshund60F-Gaskets.step       the eight silicone socks on the plate tabs
-- Dachshund60F-Case-Assembly.step everything above plus the mainboard, plate,
+- Dachshund70-Gaskets.step       the eight silicone socks on the plate tabs
+- Dachshund70-Case-Assembly.step everything above plus the mainboard, plate,
                                   USB-C daughterboard, and stand-ins for the battery, the
                                   roller, the screen and the feet
 
@@ -55,9 +55,9 @@ from OCP.gp import gp_Pnt, gp_Pnt2d, gp_Vec
 HERE = os.path.dirname(os.path.abspath(__file__))
 HW = os.path.dirname(HERE)
 OUT = os.path.join(HERE, "step")
-PLATE_PCB = os.path.join(HW, "Dachshund60F-Plate", "Dachshund60F-Plate.kicad_pcb")
-BOARD_STEP = os.path.join(HW, "step", "Dachshund60F-Assembly.step")
-USB_STEP = os.path.join(HW, "step", "Dachshund60F-USB.step")
+PLATE_PCB = os.path.join(HW, "Dachshund70-Plate", "Dachshund70-Plate.kicad_pcb")
+BOARD_STEP = os.path.join(HW, "step", "Dachshund70-Assembly.step")
+USB_STEP = os.path.join(HW, "step", "Dachshund70-USB.step")
 
 # KiCad coordinates of the mainboard outline centre (the STEP origin).
 KICAD_ORIGIN = (178.25, 99.55)
@@ -139,7 +139,7 @@ STEP_KEEPOUTS = [(125.0, 200.0, -200.0, 200.0),   # sidebar: SW1, SW2, J1, J2, t
                  (41.0, 100.0, 10.0, 52.0),       # battery tray and lead exit
                  (-26.0, 26.0, 40.0, 200.0)]      # USB-C daughterboard
 
-# USB-C daughterboard (hardware/step/Dachshund60F-USB.step, connector facing +Y): centred in the back
+# USB-C daughterboard (hardware/step/Dachshund70-USB.step, connector facing +Y): centred in the back
 # wall, flat on a ledge, receptacle face USB_FACE_INSET inside the back face.
 USB_X = 0.0            # world X of the connector centre
 USB_Z = 10.5           # world Z of the daughterboard's bottom (2.3 mm under the hot-swap sockets)
@@ -310,7 +310,7 @@ WEIGHT_SCREWS = [(x, y) for y in (7.5, 23.5) for x in (-30.0, 30.0)]  # world, w
 WEIGHT_SCREW_CBORE = (6.2, 1.0)  # for the button heads, in the floor's top
 ENGRAVE_DEPTH, ENGRAVE_W = 0.3, 0.6  # a 0.6 mm engraving cutter
 ENGRAVE_FONT = "/usr/share/fonts/opentype/inter/InterDisplay-Medium.otf"
-ENGRAVE_TEXT, ENGRAVE_TEXT_SIZE = "Dachshund60F", 6.5
+ENGRAVE_TEXT, ENGRAVE_TEXT_SIZE = "Dachshund70", 6.5
 # The dachshund, facing right, as the strokes of one line drawing (mm, x right, y up as you look at the
 # bottom with the board turned over front to back): tail, back, head and snout down the chest to the
 # front paw; the rump and back leg; the belly between the legs; the ear.
@@ -1402,7 +1402,7 @@ def report(parts):
 
 
 def write_step(shape, path, name, color):
-    a = cq.Assembly(name="Dachshund60F")
+    a = cq.Assembly(name="Dachshund70")
     a.add(shape, name=name, color=cq.Color(*color))
     # No curves-on-surfaces (pcurves): on the lofted roll they'd make the file several times bigger, and
     # CAD programs rebuild them on import.
@@ -1437,14 +1437,14 @@ def build_parts():
 
 
 FILES = {
-    "Case top": "Dachshund60F-Case-Top.step",
-    "Case bottom": "Dachshund60F-Case-Bottom.step",
-    "Case panel": "Dachshund60F-Case-Panel.step",
-    "Switch cap": "Dachshund60F-Switch-Cap.step",
-    "Gasket": "Dachshund60F-Gaskets.step",
-    "LED guide": "Dachshund60F-LED-Guide.step",
-    "LED plugs": "Dachshund60F-LED-Plugs.step",
-    "Weight": "Dachshund60F-Weight.step",
+    "Case top": "Dachshund70-Case-Top.step",
+    "Case bottom": "Dachshund70-Case-Bottom.step",
+    "Case panel": "Dachshund70-Case-Panel.step",
+    "Switch cap": "Dachshund70-Switch-Cap.step",
+    "Gasket": "Dachshund70-Gaskets.step",
+    "LED guide": "Dachshund70-LED-Guide.step",
+    "LED plugs": "Dachshund70-LED-Plugs.step",
+    "Weight": "Dachshund70-Weight.step",
 }
 
 
@@ -1460,17 +1460,17 @@ def main():
     for key, fname in FILES.items():
         write_step(parts[key], os.path.join(OUT, fname), key, COLORS[key])
     # The foam is cut from sheet, so it ships as a 2D outline (plate frame, mm) to extrude 3.5 mm.
-    dxf = os.path.join(OUT, "Dachshund60F-Plate-Foam.dxf")
+    dxf = os.path.join(OUT, "Dachshund70-Plate-Foam.dxf")
     cq.exporters.export(cq.Workplane("XY").add(foam_face()), dxf, "DXF")
     print(f"{os.path.relpath(dxf, HW)}: {os.path.getsize(dxf) / 1e6:.1f} MB")
     # The LED seal: a strip of 1.5 mm black closed-cell foam (same frame).
-    dxf = os.path.join(OUT, "Dachshund60F-LED-Seal.dxf")
+    dxf = os.path.join(OUT, "Dachshund70-LED-Seal.dxf")
     cq.exporters.export(cq.Workplane("XY").add(led_seal_face()), dxf, "DXF")
     if "--parts" in sys.argv:
         return
     import assembly
 
-    doc = assembly.write(parts, COLORS, os.path.join(OUT, "Dachshund60F-Case-Assembly.step"))
+    doc = assembly.write(parts, COLORS, os.path.join(OUT, "Dachshund70-Case-Assembly.step"))
     if "--renders" in sys.argv:
         import tempfile
 

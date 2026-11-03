@@ -6,7 +6,7 @@ Last updated: 2026-10-29 (case: swooping scoop, centred screen and LEDs, printed
 
 ## Rename to Dachshund70
 
-- **Finish the Dachshund70 rename (after the case thread's plate branch merges).** Rename `hardware/Dachshund60F-Plate/` and its files (`.kicad_pro`, `.kicad_pcb`, outline DXF, the title block and silkscreen in `gen_plate.py`), every STEP file in `hardware/step/` and `hardware/case/step/`, and the output and input names in `export_step.py` (drop its temporary Dachshund60F mapping), `export_fab.py`, `gen_case.py` (including `ENGRAVE_TEXT`), `keycaps.py`, `assembly.py` and the case README and BOM. Then Tiam renames the GitHub repo, and the links in `app/src-tauri/src/lib.rs` and `boards/Dachshund70/bootloader/board.h` move to the new URL.
+- **Point the GitHub links at the renamed repo (after Tiam renames it to Dachshund70).** Update `APP_REPO` in `app/src/lib/app-version.ts`, `RELEASES_URL` in `app/src-tauri/src/lib.rs`, `UF2_INDEX_URL` in `boards/Dachshund70/bootloader/board.h` and any `TiamDesigns/Dachshund60F` links in the docs. GitHub redirects the old URLs, so nothing breaks before this.
 
 ## Before ordering boards
 

@@ -1,13 +1,13 @@
-# Dachshund60F switch plate
+# Dachshund70 switch plate
 
 A 1.6 mm FR4 plate for gasket mounting. It is ordered as an ordinary 2-layer PCB with no copper on
 B.Cu. The top has an exposed-copper accent ring around every switch cutout.
 
-`Dachshund60F-Plate.kicad_pcb` is generated. Don't edit it by hand: change the parameters at the top of
+`Dachshund70-Plate.kicad_pcb` is generated. Don't edit it by hand: change the parameters at the top of
 `gen_plate.py` and rerun it with KiCad's Python, from the repo root:
 
 ```
-"C:/Program Files/KiCad/10.0/bin/python.exe" hardware/Dachshund60F-Plate/gen_plate.py
+"C:/Program Files/KiCad/10.0/bin/python.exe" hardware/Dachshund70-Plate/gen_plate.py
 ```
 
 The script reads every switch, stabilizer, the encoder, J4 and the indicator LEDs from
@@ -79,9 +79,9 @@ If the socks feel loose, widen `TAB_WIDTH` to 3.0 mm.
 
 ## Polycarbonate plate
 
-A polycarbonate plate is cut from the same outline as the FR4 one: `Dachshund60F-Plate-outline.dxf` is the plate's
+A polycarbonate plate is cut from the same outline as the FR4 one: `Dachshund70-Plate-outline.dxf` is the plate's
 Edge.Cuts (outline with the six branched nubs, their twelve prongs and the post reliefs, and every switch, stabilizer, LED and display
-cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts --output-units mm --mode-single -o Dachshund60F-Plate-outline.dxf Dachshund60F-Plate.kicad_pcb`. Regenerate it after any change to the
+cutout), in mm, exported with `kicad-cli pcb export dxf --layers Edge.Cuts --output-units mm --mode-single -o Dachshund70-Plate-outline.dxf Dachshund70-Plate.kicad_pcb`. Regenerate it after any change to the
 plate (rerun `gen_plate.py` first). The copper accents exist only on the FR4 plate.
 
 ## Encoder module post reliefs
