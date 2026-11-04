@@ -1271,7 +1271,7 @@ def build(prm):
         ti = skx.sketchTexts.createInput2('Dachshund70', mm(6.0))
         ti.setAsMultiLine(skx.modelToSketchSpace(P(-88, WCY + 4, h)), skx.modelToSketchSpace(P(-12, WCY - 4, h)),
                           adsk.core.HorizontalAlignments.CenterHorizontalAlignment, adsk.core.VerticalAlignments.MiddleVerticalAlignment, 0)
-        ti.fontName = 'Arial Rounded MT Bold'
+        ti.fontName = 'Fredoka SemiBold'    # SIL OFL, Google Fonts; install the static SemiBold (see hardware/case/README.md)
         try:
             ti.isHorizontalFlip = BAR_TEXT_FLIP          # the face looks down: mirror it so it reads from below
         except Exception as ex_:
