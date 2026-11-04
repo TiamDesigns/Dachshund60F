@@ -6,13 +6,20 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: weight text in Fredoka SemiBold, Fusion v33 (2026-11-04)
+
+- The weight's "Dachshund70" is now Fredoka SemiBold (SIL OFL, the font of the project slideshow and the "Doghouse Boards" PCB logo), same size and centre (x -76.2 to -23.8 on the weight, was Arial Rounded MT Bold). Fusion v33. The text engraving is 0.3 deep; the strokes are about 0.9 mm, so a 0.6 mm cutter follows them.
+- Re-exported from v33: `Dachshund70-Case-Weight.step`, `Dachshund70-Weight-Engraving.dxf` (15 text loops, as before), `Dachshund70-Case-Assembly.step`, `fusion/Dachshund70-Case-rev2.f3d` and the weight close-up render. `build_case2.py` now sets `Fredoka SemiBold`; to run it, install the static SemiBold (made from the variable TTF in google/fonts `ofl/fredoka`) before starting Fusion, since Fusion only reads its font list at launch.
+- Lesson: rolling the Fusion timeline back and forward recomputes it and resets every imported occurrence to the origin. `post_build.py`'s `stage2()` puts them back (it adds no timeline items). Caveat: the `post_build.py` in the repo assumes the keycap STEP files are in the final desk frame (as exported now), but the model's keycaps were imported from the old 7 degree files and need the `keycap_matrix()` lift, so v33 was restored with the original script; a rebuild from the repo's scripts and the new keycap files should use the identity placement. Changing the font also left the text extrusion with a reference failure; re-pointing its profile at the sketch text fixed it.
+- Not tested on a machine: nothing is engraved yet.
+
 ### Case: rev 2 designed in Fusion and exported into the repo; CadQuery case removed (2026-11-03)
 
 - The case is now the Fusion model "Dachshund70 case rev2" (v31): 4° (was 7°), top and bottom aluminium blocks with an accent ring between them, a stepped floor, a 52 x 34.5 battery laid flat under the screen and knob, a brass weight (face 185.0 x 30.6 with R4 corners, flange 216.0 x 46.5 with R5, four M3 x 5 screws at x +/-103.5, y 2.5 and 22.5, 331 g), a knob and encoder cover, a power-switch slider cap and an LED light guide. `hardware/case/README.md` has the dimensions and `BOM.md` every part.
 - New in `hardware/case/`: `fusion/Dachshund70-Case-rev2.f3d` (58 MB), `fusion/scripts/` (the Python that builds and exports the model; paths stripped, edit `REPO` first), `step/` (eight part STEP files at their assembly positions, the 64 MB assembly with boards, plate, battery, screen, keycaps and case, and both keycap sets), `dxf/` (the ring for the laser, and the weight engraving: dog and text) and five renders.
 - Removed: `gen_case.py`, `render.py`, `assembly.py` and `keycaps.py` (Tiam chose to drop the CadQuery design; the keycap sets now come out of Fusion instead of `keycaps.py`), the 23 old renders, and the rev 1 outputs that no longer match a part: `Dachshund70-Case-Panel.step`, `Dachshund70-Gaskets.step` (eight socks), `Dachshund70-Weight.step` (dog bone), `Dachshund70-Plate-Foam.dxf`, `Dachshund70-LED-Seal.dxf`, `Dachshund70-LED-Plugs.step`, `Dachshund70-LED-Guide.step` and `Dachshund70-Switch-Cap.step` (replaced by `Dachshund70-Case-*` versions), and the old `Dachshund70-Keycaps*.step` (7 degree frame; replaced by ones from Fusion). Older entries below mention `gen_case.py`; they describe rev 1 and are kept as history.
 - Not tested on real hardware or with real parts: nothing is machined, printed or fitted. The rebuild path (`build_case2.py` then `post_build.py`) was not re-run end to end after the scripts moved into the repo, so the `.f3d` is the dependable copy. The assembly's screen, battery and knob are stand-ins.
-- Open: the J2 lead route, the PCM12SMTR availability and the weight font option are in `SCHEDULED_TASKS.md`.
+- Open: the J2 lead route and the PCM12SMTR availability are in `SCHEDULED_TASKS.md`.
 
 ### Plate: merged with main, 2.0 mm web beside the Delete cutout (2026-11-03)
 

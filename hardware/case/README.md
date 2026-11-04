@@ -49,7 +49,7 @@ KiCad y = 99.55 − local y.
   slots). Lines, arcs and circles, no splines. Origin at the board's centre.
 - `Dachshund70-Weight-Engraving.dxf`: the engraving as seen from below (the way it reads), in mm, origin at
   the centre of the weight's face: `DOG_SILHOUETTE` (the recess's outline), `DOG_DETAIL` (the ear, chest, leg
-  grooves and eye) and `TEXT` ("Dachshund70", with the counters of a, d, D and 0 as inner loops). Closed
+  grooves and eye) and `TEXT` ("Dachshund70" in Fredoka SemiBold, with the counters of a, d, D and 0 as inner loops). Closed
   polylines. The silhouette is 0.3 deep (flat floor), the grooves and eye 0.5 deep and the text 0.3.
 
 ## Key dimensions

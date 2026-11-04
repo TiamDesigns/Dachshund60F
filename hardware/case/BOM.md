@@ -1,4 +1,4 @@
-# Dachshund70 case BOM (rev 2, Fusion model v31)
+# Dachshund70 case BOM (rev 2, Fusion model v33)
 
 Everything that goes into the case and holds it together, for the default layout (split spacebar). The PCBs
 are line items only; their parts are in each board's own BOM (`hardware/<board>/`). Sizes are in mm, from the
@@ -11,7 +11,7 @@ Fusion model; masses use 2.70 g/cm³ for aluminium. Finish and anodise colours a
 | 1 | Top block | 6061-T6 aluminium | 347.9 × 155.2 × 24.5, 173.9 cm³ (about 470 g) | CNC 3-axis (5-axis or a ball-end for the slopes), bead-blast, anodise | `step/Dachshund70-Case-Top.step` |
 | 1 | Bottom block | 6061-T6 aluminium | 347.9 × 155.2 × 15.1, 310.1 cm³ (about 837 g) | CNC, bead-blast, anodise | `step/Dachshund70-Case-Bottom.step` |
 | 1 | Accent ring | 6061 or 5052 aluminium sheet, 1.6 thick | outline 347.9 × 155.2, opening 320 × 122.6, 23.1 cm³ (about 62 g) | Laser cut from flat sheet, anodise in the accent colour | `step/Dachshund70-Case-Ring.step`, `dxf/Dachshund70-Case-Ring.dxf` |
-| 1 | Weight | C360 brass (steel, aluminium or titanium possible) | face 185.0 × 30.6 (R4), flange 216.0 × 46.5 (R5), 5.1 / 6.4 / 7.7 thick, 38.95 cm³: brass 331 g, steel 306 g, aluminium 105 g, titanium 173 g | CNC; polished face with a 0.4 chamfer round the edge; dachshund silhouette 0.3 deep (flat floor bead-blasted), 0.4 wide detail grooves 0.5 deep, "Dachshund70" text 0.3 deep | `step/Dachshund70-Case-Weight.step`, `dxf/Dachshund70-Weight-Engraving.dxf` |
+| 1 | Weight | C360 brass (steel, aluminium or titanium possible) | face 185.0 × 30.6 (R4), flange 216.0 × 46.5 (R5), 5.1 / 6.4 / 7.7 thick, 38.95 cm³: brass 331 g, steel 306 g, aluminium 105 g, titanium 173 g | CNC; polished face with a 0.4 chamfer round the edge; dachshund silhouette 0.3 deep (flat floor bead-blasted), 0.4 wide detail grooves 0.5 deep, "Dachshund70" text 0.3 deep (Fredoka SemiBold, SIL OFL) | `step/Dachshund70-Case-Weight.step`, `dxf/Dachshund70-Weight-Engraving.dxf` |
 | 1 | Knob | 6061 aluminium | Ø19.2 × 15.1, 3.7 cm³ (10 g) | CNC, knurl (64 flutes, 14 rings), anodise | `step/Dachshund70-Case-Knob.step` |
 | 1 | Encoder cover | 6061 aluminium | 13.3 × 19.2 × about 17, 1.3 cm³ (3.6 g) | CNC, anodise in the accent colour | `step/Dachshund70-Case-Encoder-Cover.step` |
 | 1 | Power switch slider cap | 6061 aluminium, anodised accent colour | 3.4 × 2.0 stadium, 2.2 long | CNC (or Swiss turn), anodise | `step/Dachshund70-Case-Switch-Cap.step` |
