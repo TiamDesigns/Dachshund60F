@@ -22,9 +22,9 @@ hotswap sockets and SMD parts are skipped, switches are meshed coarsely). Keep t
 ```bash
 SRC="$PWD/hardware/case/step/Dachshund70-Case-Assembly.step" OUT=/path/to/work/mesh freecadcmd hardware/case/blender/fc_mesh.py
 MESH=/path/to/work/mesh OUT=/path/to/work ACCENT=orange blender -b --factory-startup --python hardware/case/blender/build.py
-blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- dramatic /path/to/work/out 384
-blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- views /path/to/work/out 256
-blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- simple /path/to/work/out 256
+blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- dramatic /path/to/work/out 1024
+blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- views /path/to/work/out 512
+blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- simple /path/to/work/out 512
 ```
 
 `ACCENT=green` builds the green variant. The case parts in the assembly STEP are unnamed compounds; `build.py`
