@@ -45,7 +45,7 @@ M = {
     "copper": mat("Connector metal", "#BFC2C4", 0.3, 1.0),
     "switch": mat("Switch housing", "#2A2826", 0.4, 0.0),
     "switchtop": mat("Switch top smoke", "#3A3A3C", 0.25, 0.0, **{"Transmission Weight": 0.5}),
-    "rubber": mat("Rubber", "#1A1A1A", 0.85, 0.0),
+    "rubber": mat("Rubber (white)", "#E9E6DF", 0.8, 0.0, **{"Subsurface Weight": 0.1}),
     "paper": mat("E-paper", "#CFCBC2", 0.85, 0.0),
     "guide": mat("Light guide", "#F4F4F0", 0.3, 0.0, **{"Transmission Weight": 0.85}),
     "plastic": mat("Dark plastic", "#222222", 0.5, 0.0),
@@ -62,6 +62,67 @@ add_bump(M["accent"], 2500, 0.03)
 add_bump(M["plate"], 2000, 0.15)
 for k in ("cap_alpha", "cap_mod", "cap_accent", "knob"):
     add_bump(M[k], 2600, 0.02)  # faint moulding / blasting texture
+
+def add_dust(m, scale=1400.0, thresh=0.988, col="#D9D5CE"):
+    """Sparse sub-millimetre specks: a random few Voronoi cells get a dusty, rough dot."""
+    nt = m.node_tree; b = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    v = nt.nodes.new("ShaderNodeTexVoronoi"); v.inputs["Scale"].default_value = scale
+    nt.links.new(tc.outputs["Object"], v.inputs["Vector"])
+    sep = nt.nodes.new("ShaderNodeSeparateColor"); nt.links.new(v.outputs["Color"], sep.inputs[0])
+    pick = nt.nodes.new("ShaderNodeMath"); pick.operation = "GREATER_THAN"; pick.inputs[1].default_value = thresh
+    nt.links.new(sep.outputs[0], pick.inputs[0])
+    near = nt.nodes.new("ShaderNodeMath"); near.operation = "LESS_THAN"; near.inputs[1].default_value = 0.22
+    nt.links.new(v.outputs["Distance"], near.inputs[0])
+    mask = nt.nodes.new("ShaderNodeMath"); mask.operation = "MULTIPLY"
+    nt.links.new(pick.outputs[0], mask.inputs[0]); nt.links.new(near.outputs[0], mask.inputs[1])
+    for inp, val in (("Base Color", srgb(col)), ("Roughness", 0.95)):
+        src = b.inputs[inp]; mix = nt.nodes.new("ShaderNodeMix")
+        mix.data_type = "RGBA" if inp == "Base Color" else "FLOAT"
+        ia, ib = (6, 7) if inp == "Base Color" else (2, 3)
+        if src.is_linked: nt.links.new(src.links[0].from_socket, mix.inputs[ia])
+        else: mix.inputs[ia].default_value = src.default_value
+        mix.inputs[ib].default_value = val
+        nt.links.new(mask.outputs[0], mix.inputs[0])
+        out = mix.outputs[2] if inp == "Base Color" else mix.outputs[0]
+        nt.links.new(out, src)
+
+for k in ("ecoat", "cap_alpha", "cap_mod", "cap_accent", "accent", "knob", "leg_dark", "leg_cream"):
+    add_dust(M[k])
+
+# A faint fingerprint on the brass weight's face: whorl ridges inside a soft oval raise the roughness
+nt = M["brass"].node_tree; bb = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+tc = nt.nodes.new("ShaderNodeTexCoord")
+mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Location"].default_value = (-0.0452, -0.0262, 0)
+mp.inputs["Rotation"].default_value = (0, 0, math.radians(25)); mp.inputs["Scale"].default_value = (1.0, 0.78, 1.0)
+nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
+ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"; nt.links.new(mp.outputs[0], ln.inputs[0])
+wob = nt.nodes.new("ShaderNodeTexNoise"); wob.inputs["Scale"].default_value = 900; nt.links.new(mp.outputs[0], wob.inputs["Vector"])
+ph = nt.nodes.new("ShaderNodeMath"); ph.operation = "MULTIPLY_ADD"; ph.inputs[1].default_value = 0.0004
+nt.links.new(wob.outputs["Fac"], ph.inputs[0]); nt.links.new(ln.outputs[0], ph.inputs[2])
+rg = nt.nodes.new("ShaderNodeMath"); rg.operation = "SINE"
+sc_ = nt.nodes.new("ShaderNodeMath"); sc_.operation = "MULTIPLY"; sc_.inputs[1].default_value = 2 * math.pi / 0.00048
+nt.links.new(ph.outputs[0], sc_.inputs[0]); nt.links.new(sc_.outputs[0], rg.inputs[0])
+rid = nt.nodes.new("ShaderNodeMath"); rid.operation = "GREATER_THAN"; rid.inputs[1].default_value = 0.2
+nt.links.new(rg.outputs[0], rid.inputs[0])
+fall = nt.nodes.new("ShaderNodeMapRange"); fall.inputs[1].default_value = 0.0085; fall.inputs[2].default_value = 0.0055
+fall.inputs[3].default_value = 0.0; fall.inputs[4].default_value = 1.0; nt.links.new(ln.outputs[0], fall.inputs[0])
+fm = nt.nodes.new("ShaderNodeMath"); fm.operation = "MULTIPLY"
+nt.links.new(rid.outputs[0], fm.inputs[0]); nt.links.new(fall.outputs[0], fm.inputs[1])
+rr = nt.nodes.new("ShaderNodeMath"); rr.operation = "MULTIPLY_ADD"; rr.inputs[1].default_value = 0.16; rr.inputs[2].default_value = 0.07
+nt.links.new(fm.outputs[0], rr.inputs[0]); nt.links.new(rr.outputs[0], bb.inputs["Roughness"])
+add_dust(M["brass"], 1400, 0.992)
+
+# E-ink picture: an image mapped across the panel's bounding box (top of the image = back of the board)
+ei = mat("E-ink", "#E4E1DA", 0.9, 0.0); nt = ei.node_tree; eb = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+tx = nt.nodes.new("ShaderNodeTexImage"); tx.image = bpy.data.images.load(os.path.join(S, "eink.png"))
+tx.image.colorspace_settings.name = "sRGB"; tx.interpolation = "Cubic"
+tcg = nt.nodes.new("ShaderNodeTexCoord"); nt.links.new(tcg.outputs["Generated"], tx.inputs["Vector"])
+nt.links.new(tx.outputs["Color"], eb.inputs["Base Color"])
+M["eink"] = ei
+ep = ei.copy(); ep.name = "E-ink picture"
+next(n for n in ep.node_tree.nodes if n.type == "TEX_IMAGE").image = bpy.data.images.load(os.path.join(S, "eink_pic.png"))
+M["eink_pic"] = ep
 
 ACCENT_KEYS = {"Esc", "Enter"}
 MOD_KEYS = {"Tab", "Caps Lock", "Shift", "Shift 2", "Ctrl", "Ctrl 2", "Win", "Alt", "Fn",
@@ -111,8 +172,8 @@ for e in man:
     for c in o.users_collection: c.objects.unlink(o)
     col.objects.link(o)
     role, mk = classify(e)
-    if e["label"] == "E-paper 2.13 GDEY0213B74 with driver board005" or (role == "screen" and e["facets"] > 200 and e["bb"][5] > 24.9):
-        mk = "paper"
+    if role == "screen" and (e["bb"][3] - e["bb"][0]) > 23 and (e["bb"][4] - e["bb"][1]) > 47:
+        mk = "eink" if (e["bb"][3] - e["bb"][0]) > 26 else "eink_pic"  # the panel, and its picture area
     k = keyname(e["chain"], e["label"])
     o.name = (f"{role}:{k}:{e['label']}" if k else f"{role}:{e['label']}")[:60]
     o["role"] = role; o["key"] = k or ""

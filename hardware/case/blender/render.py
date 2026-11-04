@@ -27,7 +27,9 @@ sc.cycles.use_denoising = True
 sc.cycles.max_bounces = 10; sc.cycles.transmission_bounces = 10; sc.cycles.glossy_bounces = 6
 sc.view_settings.view_transform = "AgX"
 sc.view_settings.look = "AgX - Medium High Contrast"
-sc.view_settings.exposure = {"dramatic": 0.0, "views": -0.3, "simple": 0.3}.get(SCENE, 0.0)
+sc.view_settings.exposure = {"dramatic": 0.0, "views": -0.55}.get(SCENE, 0.0)
+sc.cycles.filter_width = 1.2
+sc.cycles.denoising_prefilter = "ACCURATE"
 sc.render.image_settings.file_format = "PNG"
 sc.render.film_transparent = False
 
@@ -163,17 +165,55 @@ CTR = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, 0.012))
 # =====================================================================
 if SCENE == "dramatic":
     world("#8C93A0", 0.10)
-    plaster = surface_mat("Plaster", "#A08E7A", "#CDBFAD", scale=30, bump=0.9, rough=0.92)
-    wood = surface_mat("Oak desk", "#432A18", "#8E6640", scale=6, bump=0.10, rough=0.45, voronoi=False,
-                       stretch=(0.25, 16.0, 1.0))
-    def box(name, size, loc, m):
+    def node_mat(name):
+        m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree
+        return m, nt, next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    def N(nt, t, **inp):
+        n = nt.nodes.new(t)
+        for k, v in inp.items(): n.inputs[k].default_value = v
+        return n
+    def box(name, size, loc, m, bevel=0.0):
         me = bpy.data.meshes.new(name); bm = bmesh.new(); bmesh.ops.create_cube(bm, size=1.0); bm.to_mesh(me)
-        o = link(bpy.data.objects.new(name, me)); o.scale = size; o.location = loc; me.materials.append(m); return o
-    box("Desk", (2.0, 1.2, 0.03), (0, -0.30, -0.015), wood)
-    box("Wall", (3.0, 0.05, 2.0), (0, 0.30 + 0.025, 1.0), plaster)
-    # Low warm sun from the front left, through a window with blinds (a gobo card)
+        o = link(bpy.data.objects.new(name, me)); o.scale = size; o.location = loc; me.materials.append(m)
+        if bevel:
+            bpy.context.view_layer.update()
+            b = o.modifiers.new("bv", "BEVEL"); b.width = bevel; b.segments = 3; b.use_clamp_overlap = True
+        return o
+
+    # --- oak desk: growth rings stretched along X, fine pores, satin finish ---
+    wood, nt, wb = node_mat("Oak desk")
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    mp = N(nt, "ShaderNodeMapping"); mp.inputs["Scale"].default_value = (0.06, 1.0, 1.0)
+    nt.links.new(geo.outputs["Position"], mp.inputs["Vector"])
+    wv = N(nt, "ShaderNodeTexWave", Scale=22.0, Distortion=7.0, Detail=6.0, **{"Detail Scale": 1.6})
+    wv.wave_type = "RINGS"; nt.links.new(mp.outputs[0], wv.inputs["Vector"])
+    mp2 = N(nt, "ShaderNodeMapping"); mp2.inputs["Scale"].default_value = (0.05, 1.5, 1.0)
+    nt.links.new(geo.outputs["Position"], mp2.inputs["Vector"])
+    pores = N(nt, "ShaderNodeTexNoise", Scale=900.0, Detail=4.0); nt.links.new(mp2.outputs[0], pores.inputs["Vector"])
+    blot = N(nt, "ShaderNodeTexNoise", Scale=3.0, Detail=3.0); nt.links.new(geo.outputs["Position"], blot.inputs["Vector"])
+    cr = nt.nodes.new("ShaderNodeValToRGB"); e = cr.color_ramp.elements
+    e[0].position, e[0].color = 0.25, srgb("#5A361D"); e[1].position, e[1].color = 0.8, srgb("#A8774B")
+    nt.links.new(wv.outputs["Fac"], cr.inputs["Fac"])
+    mix = nt.nodes.new("ShaderNodeMix"); mix.data_type = "RGBA"; mix.blend_type = "MULTIPLY"
+    mix.inputs[0].default_value = 0.25; nt.links.new(cr.outputs["Color"], mix.inputs[6]); nt.links.new(blot.outputs["Color"], mix.inputs[7])
+    nt.links.new(mix.outputs[2], wb.inputs["Base Color"])
+    wb.inputs["Roughness"].default_value = 0.42; wb.inputs["Coat Weight"].default_value = 0.25
+    wb.inputs["Coat Roughness"].default_value = 0.25
+    add = N(nt, "ShaderNodeMath"); add.operation = "MULTIPLY_ADD"; add.inputs[1].default_value = 0.3
+    nt.links.new(pores.outputs["Fac"], add.inputs[0]); nt.links.new(wv.outputs["Fac"], add.inputs[2])
+    bp = N(nt, "ShaderNodeBump", Strength=0.12, Distance=0.0004)
+    nt.links.new(add.outputs[0], bp.inputs["Height"]); nt.links.new(bp.outputs["Normal"], wb.inputs["Normal"])
+
+    plaster = surface_mat("Plaster", "#A08E7A", "#CDBFAD", scale=30, bump=0.9, rough=0.92)
+    floor_m = simple_mat("Floor", "#2A231E", 0.8)
+    # Desk pulled 6 cm off the wall: a gap with the floor in shadow below
+    box("Desk", (1.6, 1.15, 0.032), (0, 0.24 - 0.575, -0.016), wood, bevel=0.002)
+    box("Wall", (3.0, 0.05, 2.6), (0, 0.30 + 0.025, 0.55), plaster)
+    box("Floor", (3.0, 3.0, 0.02), (0, 0.0, -0.76), floor_m)
+
+    # --- low warm sun through blinds (gobo card); hard-edged shadows ---
     d = Vector((0.62, 0.62, -0.48)).normalized()
-    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 4.6; sun.angle = math.radians(0.8)
+    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 4.6; sun.angle = math.radians(0.25)
     sun.color = (1.0, 0.78, 0.55)
     so = link(bpy.data.objects.new("Sun", sun)); so.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
     g = bpy.data.materials.new("Gobo"); g.use_nodes = True; nt = g.node_tree
@@ -192,11 +232,11 @@ if SCENE == "dramatic":
             else: nt.links.new(v, n.inputs[i])
         return n.outputs[0]
     x, y = sep.outputs["X"], sep.outputs["Y"]
-    # window: two panes x in [0.30,0.47] and [0.50,0.67], y in [0.25,0.80]; blinds every 0.035 in y
-    inx = mth("MULTIPLY", mth("GREATER_THAN", x, 0.30), mth("LESS_THAN", x, 0.67))
-    mull = mth("MULTIPLY", mth("GREATER_THAN", x, 0.47), mth("LESS_THAN", x, 0.50))
-    iny = mth("MULTIPLY", mth("GREATER_THAN", y, 0.25), mth("LESS_THAN", y, 0.80))
-    slat = mth("LESS_THAN", mth("FRACT", mth("MULTIPLY", y, 1 / 0.022)), 0.42)
+    GX = float(os.environ.get("GOBO_X", "-0.12"))  # slides the window so the mullion misses the board
+    inx = mth("MULTIPLY", mth("GREATER_THAN", x, 0.24 + GX), mth("LESS_THAN", x, 0.73 + GX))
+    mull = mth("MULTIPLY", mth("GREATER_THAN", x, 0.475 + GX), mth("LESS_THAN", x, 0.495 + GX))
+    iny = mth("MULTIPLY", mth("GREATER_THAN", y, 0.22), mth("LESS_THAN", y, 0.84))
+    slat = mth("LESS_THAN", mth("FRACT", mth("MULTIPLY", y, 1 / 0.026)), 0.30)
     openf = mth("MULTIPLY", mth("MULTIPLY", inx, iny), mth("MULTIPLY", mth("SUBTRACT", 1.0, mull), mth("SUBTRACT", 1.0, slat)))
     nt.links.new(openf, mix.inputs[0]); nt.links.new(bk.outputs[0], mix.inputs[1]); nt.links.new(tr.outputs[0], mix.inputs[2])
     nt.links.new(mix.outputs[0], out.inputs["Surface"])
@@ -208,99 +248,134 @@ if SCENE == "dramatic":
     gp.visible_camera = False; gp.visible_glossy = False
     area("Fill", (0.9, -0.9, 0.4), CTR, 1.2, 7, (0.85, 0.9, 1.0))
     area("Bounce", (-0.2, -1.0, 0.15), CTR, 1.6, 4, (1.0, 0.86, 0.7))
-    # Props: ceramic mug, a notebook, two loose keycaps
-    mug_m = simple_mat("Glazed ceramic", "#ECE6DA", 0.1, **{"Coat Weight": 0.6})
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.042, depth=0.095, vertices=128, location=(0.13, 0.215, 0.0475))
-    mug = bpy.context.object; mug.data.materials.append(mug_m)
-    bv = mug.modifiers.new("bv", "BEVEL"); bv.width = 0.003; bv.segments = 4
-    for p in mug.data.polygons: p.use_smooth = True
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.026, minor_radius=0.0065, location=(0.13 + 0.050, 0.215, 0.05),
-                                     rotation=(math.radians(90), 0, 0), major_segments=64, minor_segments=24)
-    bpy.context.object.data.materials.append(mug_m)
-    coffee = simple_mat("Coffee", "#24140A", 0.04)
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.039, depth=0.002, vertices=128, location=(0.13, 0.215, 0.084))
-    bpy.context.object.data.materials.append(coffee)
-    nb = simple_mat("Notebook", "#36443A", 0.8)
-    o = box("Notebook", (0.15, 0.21, 0.012), (0.41, 0.07, 0.006), nb); o.rotation_euler.z = math.radians(-14)
-    # Felt desk mat with rounded corners under the board
+
+    # --- wool felt mat, rounded corners: fibres, mottling, a soft cut edge ---
     MAT_T = 0.004
     bm = bmesh.new(); W2, H2, r = 0.36, 0.17, 0.028; pts = []
     for cx, cy, a0 in ((W2 - r, H2 - r, 0), (-W2 + r, H2 - r, 90), (-W2 + r, -H2 + r, 180), (W2 - r, -H2 + r, 270)):
         for i in range(13):
             a = math.radians(a0 + i * 7.5); pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
-    vs = [bm.verts.new((x, y, 0)) for x, y in pts]; f = bm.faces.new(vs)
+    vs = [bm.verts.new((px, py, 0)) for px, py in pts]; f = bm.faces.new(vs)
     ext = bmesh.ops.extrude_face_region(bm, geom=[f])
     for v in ext["geom"]:
         if isinstance(v, bmesh.types.BMVert): v.co.z = MAT_T
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     me = bpy.data.meshes.new("Mat"); bm.to_mesh(me)
-    mat_o = link(bpy.data.objects.new("Felt mat", me)); mat_o.location = (-0.05, -0.05, 0.0)
+    mat_o = link(bpy.data.objects.new("Felt mat", me)); mat_o.location = (-0.03, -0.045, 0.0)
     mat_o.rotation_euler.z = math.radians(-1.5)
-    bv = mat_o.modifiers.new("bv", "BEVEL"); bv.width = 0.0015; bv.segments = 3; bv.limit_method = "ANGLE"
-    felt = bpy.data.materials.new("Wool felt"); felt.use_nodes = True; nt = felt.node_tree
-    fb = nt.nodes["Principled BSDF"]; fb.inputs["Base Color"].default_value = srgb("#4E4C49")
-    fb.inputs["Roughness"].default_value = 1.0; fb.inputs["Sheen Weight"].default_value = 0.8
-    fb.inputs["Sheen Roughness"].default_value = 0.45; fb.inputs["Sheen Tint"].default_value = srgb("#B9B4AC")
+    bv = mat_o.modifiers.new("bv", "BEVEL"); bv.width = 0.0012; bv.segments = 4; bv.limit_method = "ANGLE"
+    felt, nt, fb = node_mat("Wool felt")
+    fb.inputs["Roughness"].default_value = 1.0; fb.inputs["Sheen Weight"].default_value = 1.0
+    fb.inputs["Sheen Roughness"].default_value = 0.35; fb.inputs["Sheen Tint"].default_value = srgb("#C9C4BA")
     geo = nt.nodes.new("ShaderNodeNewGeometry")
-    n1 = nt.nodes.new("ShaderNodeTexNoise"); n1.inputs["Scale"].default_value = 2200; n1.inputs["Detail"].default_value = 10
-    n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 60; n2.inputs["Detail"].default_value = 4
-    nt.links.new(geo.outputs["Position"], n1.inputs["Vector"]); nt.links.new(geo.outputs["Position"], n2.inputs["Vector"])
-    cr = nt.nodes.new("ShaderNodeValToRGB"); cr.color_ramp.elements[0].color = srgb("#46443F"); cr.color_ramp.elements[1].color = srgb("#58564F")
-    nt.links.new(n2.outputs["Fac"], cr.inputs["Fac"]); nt.links.new(cr.outputs["Color"], fb.inputs["Base Color"])
-    bp = nt.nodes.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.35; bp.inputs["Distance"].default_value = 0.0004
-    nt.links.new(n1.outputs["Fac"], bp.inputs["Height"]); nt.links.new(bp.outputs["Normal"], fb.inputs["Normal"])
+    fib = N(nt, "ShaderNodeTexNoise", Scale=5200.0, Detail=12.0, Roughness=0.7, Distortion=1.5)
+    mot = N(nt, "ShaderNodeTexNoise", Scale=140.0, Detail=6.0)
+    hair = N(nt, "ShaderNodeTexVoronoi", Scale=2600.0); hair.feature = "DISTANCE_TO_EDGE"
+    for t in (fib, mot, hair): nt.links.new(geo.outputs["Position"], t.inputs["Vector"])
+    cr = nt.nodes.new("ShaderNodeValToRGB"); e = cr.color_ramp.elements
+    e[0].position, e[0].color = 0.3, srgb("#3A3936"); e[1].position, e[1].color = 0.72, srgb("#5B5953")
+    mm = N(nt, "ShaderNodeMath"); mm.operation = "MULTIPLY_ADD"; mm.inputs[1].default_value = 0.55
+    nt.links.new(fib.outputs["Fac"], mm.inputs[0]); nt.links.new(mot.outputs["Fac"], mm.inputs[2])
+    nt.links.new(mm.outputs[0], cr.inputs["Fac"]); nt.links.new(cr.outputs["Color"], fb.inputs["Base Color"])
+    hh = N(nt, "ShaderNodeMath"); hh.operation = "MULTIPLY_ADD"; hh.inputs[1].default_value = 0.6
+    nt.links.new(hair.outputs["Distance"], hh.inputs[0]); nt.links.new(fib.outputs["Fac"], hh.inputs[2])
+    bp = N(nt, "ShaderNodeBump", Strength=0.6, Distance=0.0005)
+    nt.links.new(hh.outputs[0], bp.inputs["Height"]); nt.links.new(bp.outputs["Normal"], fb.inputs["Normal"])
     me.materials.append(felt)
     root.location.z += MAT_T
-    # More set dressing behind the board: a potted plant and a framed print leaning on the wall
+
+    # --- props ---
+    mug_m = simple_mat("Glazed ceramic", "#ECE6DA", 0.1, **{"Coat Weight": 0.6})
+    add_dust_spots = None
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.042, depth=0.095, vertices=128, location=(0.15, 0.17, 0.0475))
+    mug = bpy.context.object; mug.data.materials.append(mug_m)
+    b2 = mug.modifiers.new("bv", "BEVEL"); b2.width = 0.003; b2.segments = 4
+    for p in mug.data.polygons: p.use_smooth = True
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.026, minor_radius=0.0065, location=(0.15 + 0.050, 0.17, 0.05),
+                                     rotation=(math.radians(90), 0, 0), major_segments=64, minor_segments=24)
+    bpy.context.object.data.materials.append(mug_m)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.039, depth=0.002, vertices=128, location=(0.15, 0.17, 0.084))
+    bpy.context.object.data.materials.append(simple_mat("Coffee", "#24140A", 0.04))
+    # Cloth-bound notebook: linen weave cover, cream page block, an elastic band
+    linen, nt, lb = node_mat("Linen cover")
+    tco = nt.nodes.new("ShaderNodeTexCoord")
+    wx = N(nt, "ShaderNodeTexWave", Scale=420.0, Distortion=0.6); wx.bands_direction = "X"
+    wy = N(nt, "ShaderNodeTexWave", Scale=420.0, Distortion=0.6); wy.bands_direction = "Y"
+    sl = N(nt, "ShaderNodeTexNoise", Scale=60.0)
+    for t in (wx, wy, sl): nt.links.new(tco.outputs["Object"], t.inputs["Vector"])
+    wm = N(nt, "ShaderNodeMath"); wm.operation = "MULTIPLY"
+    nt.links.new(wx.outputs["Fac"], wm.inputs[0]); nt.links.new(wy.outputs["Fac"], wm.inputs[1])
+    cr = nt.nodes.new("ShaderNodeValToRGB"); e = cr.color_ramp.elements
+    e[0].color = srgb("#2F3B31"); e[1].color = srgb("#4C5E4D")
+    nt.links.new(sl.outputs["Fac"], cr.inputs["Fac"]); nt.links.new(cr.outputs["Color"], lb.inputs["Base Color"])
+    lb.inputs["Roughness"].default_value = 0.85; lb.inputs["Sheen Weight"].default_value = 0.4
+    bp = N(nt, "ShaderNodeBump", Strength=0.5, Distance=0.0003)
+    nt.links.new(wm.outputs[0], bp.inputs["Height"]); nt.links.new(bp.outputs["Normal"], lb.inputs["Normal"])
+    pages, nt, pb = node_mat("Pages")
+    pb.inputs["Base Color"].default_value = srgb("#EDE4D0"); pb.inputs["Roughness"].default_value = 0.9
+    tcp = nt.nodes.new("ShaderNodeTexCoord")
+    pw = N(nt, "ShaderNodeTexWave", Scale=180.0); pw.bands_direction = "Z"; nt.links.new(tcp.outputs["Object"], pw.inputs["Vector"])
+    bp = N(nt, "ShaderNodeBump", Strength=0.3, Distance=0.0002)
+    nt.links.new(pw.outputs["Fac"], bp.inputs["Height"]); nt.links.new(bp.outputs["Normal"], pb.inputs["Normal"])
+    nb = link(bpy.data.objects.new("Notebook", None)); nb.location = (0.42, 0.10, 0.0); nb.rotation_euler.z = math.radians(-14)
+    for nm, sz, lc, m in (("Cover bottom", (0.150, 0.212, 0.0016), (0, 0, 0.0008), linen),
+                          ("Page block", (0.144, 0.206, 0.0110), (-0.002, 0, 0.0071), pages),
+                          ("Cover top", (0.150, 0.212, 0.0016), (0, 0, 0.0134), linen),
+                          ("Elastic", (0.006, 0.2135, 0.0150), (0.058, 0, 0.0071), simple_mat("Elastic", "#1E1E1E", 0.6))):
+        o = box(nm, sz, lc, m, bevel=0.0007); o.parent = nb
+    pen_m = simple_mat("Pen", "#1C1C1C", 0.3, 0.6)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.0045, depth=0.14, vertices=48, location=(0.41, 0.07, 0.019),
+                                        rotation=(0, math.radians(90), math.radians(62)))
+    bpy.context.object.data.materials.append(pen_m)
+    # Plant in a terracotta pot, and a framed print resting on the desk, leaning on the wall
     terra = surface_mat("Terracotta", "#9C5235", "#B8694A", scale=120, bump=0.3, rough=0.85)
-    bpy.ops.mesh.primitive_cone_add(vertices=96, radius1=0.036, radius2=0.047, depth=0.075, location=(-0.12, 0.225, 0.0375))
+    bpy.ops.mesh.primitive_cone_add(vertices=96, radius1=0.036, radius2=0.047, depth=0.075, location=(-0.24, 0.17, 0.0375))
     pot = bpy.context.object; pot.data.materials.append(terra)
     for p in pot.data.polygons: p.use_smooth = True
-    soil = simple_mat("Soil", "#2B1D14", 0.95)
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.044, depth=0.002, vertices=64, location=(-0.12, 0.225, 0.07))
-    bpy.context.object.data.materials.append(soil)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.044, depth=0.002, vertices=64, location=(-0.24, 0.17, 0.07))
+    bpy.context.object.data.materials.append(simple_mat("Soil", "#2B1D14", 0.95))
     leaf = simple_mat("Leaf", "#3F6B3A", 0.35, **{"Subsurface Weight": 0.15, "Coat Weight": 0.3})
     import random; random.seed(7)
     for i in range(14):
-        a = i * 2.399; tilt = math.radians(18 + 22 * random.random())
-        h = 0.07 + 0.05 * random.random()
+        a = i * 2.399; tilt = math.radians(18 + 22 * random.random()); h = 0.07 + 0.05 * random.random()
         bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=12, radius=1.0)
         lf = bpy.context.object; lf.data.materials.append(leaf)
         for p in lf.data.polygons: p.use_smooth = True
-        lf.scale = (0.011, 0.0035, h / 2)
-        lf.rotation_euler = Euler((tilt, 0, a))
-        lf.location = Vector((-0.12, 0.225, 0.07)) + Euler((tilt, 0, a)).to_matrix() @ Vector((0, 0, h / 2))
+        lf.scale = (0.011, 0.0035, h / 2); lf.rotation_euler = Euler((tilt, 0, a))
+        lf.location = Vector((-0.24, 0.17, 0.07)) + Euler((tilt, 0, a)).to_matrix() @ Vector((0, 0, h / 2))
     frame_m = simple_mat("Walnut frame", "#3A2618", 0.4)
-    fr = box("Frame", (0.22, 0.014, 0.29), (0.34, 0.285, 0.143), frame_m); fr.rotation_euler.x = math.radians(-6)
     art = bpy.data.materials.new("Print"); art.use_nodes = True; nt = art.node_tree
-    pb = nt.nodes["Principled BSDF"]; pb.inputs["Roughness"].default_value = 0.9
-    tc2 = nt.nodes.new("ShaderNodeTexCoord"); wv = nt.nodes.new("ShaderNodeTexWave")
-    wv.inputs["Scale"].default_value = 0.5; wv.inputs["Distortion"].default_value = 9.0; wv.wave_type = "RINGS"
-    nt.links.new(tc2.outputs["Object"], wv.inputs["Vector"])
-    cr = nt.nodes.new("ShaderNodeValToRGB"); cr.color_ramp.interpolation = "CONSTANT"
-    cr.color_ramp.elements[0].color = srgb("#E2D8C4"); cr.color_ramp.elements[1].color = srgb("#C48A68")
-    cr.color_ramp.elements[1].position = 0.62
-    e3 = cr.color_ramp.elements.new(0.82); e3.color = srgb("#8A9C88")
-    nt.links.new(wv.outputs["Fac"], cr.inputs["Fac"]); nt.links.new(cr.outputs["Color"], pb.inputs["Base Color"])
-    pr2 = box("Print", (0.18, 0.002, 0.25), (0.34, 0.2775, 0.143), art); pr2.rotation_euler.x = math.radians(-6)
-    pen_m = simple_mat("Pen", "#1C1C1C", 0.3, 0.6)
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.0045, depth=0.14, vertices=32, location=(0.40, 0.05, 0.0165),
-                                        rotation=(0, math.radians(90), math.radians(62)))
-    bpy.context.object.data.materials.append(pen_m)
-    copy_cap("Esc", (0.19, -0.17, 0.0), Euler((0, 0, math.radians(32))), floor=MAT_T)
-    cam = camera("Cam", (-0.40, -0.62, 0.24), (0.03, 0.0, 0.02), lens=55, fstop=6.3)
-    shot(cam, "01-dramatic", (2400, 1600))
+    pbsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED"); pbsdf.inputs["Roughness"].default_value = 0.9
+    tc2 = nt.nodes.new("ShaderNodeTexCoord"); wv2 = nt.nodes.new("ShaderNodeTexWave")
+    wv2.inputs["Scale"].default_value = 0.5; wv2.inputs["Distortion"].default_value = 9.0; wv2.wave_type = "RINGS"
+    nt.links.new(tc2.outputs["Object"], wv2.inputs["Vector"])
+    cr2 = nt.nodes.new("ShaderNodeValToRGB"); cr2.color_ramp.interpolation = "CONSTANT"
+    cr2.color_ramp.elements[0].color = srgb("#E2D8C4"); cr2.color_ramp.elements[1].color = srgb("#C48A68")
+    cr2.color_ramp.elements[1].position = 0.62
+    e3 = cr2.color_ramp.elements.new(0.82); e3.color = srgb("#8A9C88")
+    nt.links.new(wv2.outputs["Fac"], cr2.inputs["Fac"]); nt.links.new(cr2.outputs["Color"], pbsdf.inputs["Base Color"])
+    # pivot on the desk 1 cm in from the back edge; lean the top back onto the wall
+    H, lean = 0.29, math.asin((0.30 - 0.23 - 0.014) / 0.29)
+    pv = link(bpy.data.objects.new("Frame pivot", None)); pv.location = (-0.02, 0.23, 0.0); pv.rotation_euler.x = -lean
+    fr = box("Frame", (0.22, 0.014, H), (0, 0.007, H / 2), frame_m, bevel=0.002); fr.parent = pv
+    pr2 = box("Print", (0.18, 0.002, H - 0.04), (0, -0.0005, H / 2), art); pr2.parent = pv
+    copy_cap("Esc", (0.20, -0.16, 0.0), Euler((0, 0, math.radians(32))), floor=MAT_T)
+    # Board fills the frame; shallow depth of field drops the props out of focus
+    cam = camera("Cam", (-0.40, -0.63, 0.25), (0.02, 0.0, 0.012), lens=55, fstop=3.5)
+    cam.data.dof.focus_distance = (Vector((-0.01, -0.03, 0.02)) - cam.location).length
+    shot(cam, "01-dramatic", (3600, 2400))
 
 
 # =====================================================================
 elif SCENE == "views":
-    world("#A9BBAA", 0.3)
-    sage = surface_mat("Sage paper", "#A9BBAA", "#B6C6B5", scale=90, bump=0.12, rough=0.95)
+    world("#2C3F38", 0.25)
+    sage = surface_mat("Deep green paper", "#2A3D35", "#34493F", scale=90, bump=0.12, rough=0.95)
     sweep("Cyc", 8.0, 1.6, 1.6, 0.35, sage, y0=0.25)
-    area("Wash", (0, -0.6, 0.9), (0, 1.05, 0.5), 2.5, 14, (1.0, 0.98, 0.95))
-    area("Key", (-0.55, -0.55, 0.75), CTR, 0.9, 16, (1.0, 0.96, 0.9))
+    area("Brass card", (0.0, 0.05, 0.6), (0, 0, 0), 0.5, 6, (1.0, 0.97, 0.92))
+    area("Wash", (0, -0.6, 0.9), (0, 1.05, 0.5), 2.5, 8, (1.0, 0.98, 0.95))
+    area("Key", (-0.55, -0.55, 0.75), CTR, 0.7, 22, (1.0, 0.96, 0.9))
     area("Rim", (0.6, 0.55, 0.45), CTR, 0.6, 9, (1.0, 0.95, 0.88))
-    area("Top", (0.0, -0.1, 1.1), CTR, 1.4, 2)
+    area("Top", (0.0, -0.1, 1.1), CTR, 1.4, 1)
     d = 0.75
     v = {
         "hero": camera("hero", (-0.36, -0.52, 0.30), (0.0, 0.0, 0.01), lens=50, fstop=5.6),
@@ -311,24 +386,15 @@ elif SCENE == "views":
         "knob": camera("knob", (0.32, -0.20, 0.16), (0.14, 0.01, 0.022), lens=85, fstop=6.3),
     }
     for k in ("hero", "front", "top", "back", "right-end", "knob"):
-        shot(v[k], "views-" + k, (2400, 1600) if k == "hero" else (1600, 1067))
+        shot(v[k], "views-" + k, (3600, 2400) if k == "hero" else (2400, 1600))
     # underside: flip the board onto its keycaps
     root.rotation_euler = (math.radians(180), 0, 0)
     bpy.context.view_layer.update(); lo2, hi2 = world_bounds()
     root.location.z -= lo2.z; root.location.y -= (lo2.y + hi2.y) / 2
     bpy.context.view_layer.update()
     cam = camera("under", (-0.30, -0.48, 0.42), (0.0, 0.0, 0.03), lens=50, fstop=5.6)
-    shot(cam, "views-underside", (1600, 1067))
+    shot(cam, "views-underside", (2400, 1600))
     camw = camera("weight", (0.0, 0.20, 0.30), (0.0, 0.0, 0.035), lens=85, fstop=4.5)
-    shot(camw, "views-weight", (1600, 1067))
+    shot(camw, "views-weight", (2400, 1600))
 
 # =====================================================================
-elif SCENE == "simple":
-    world("#FFFFFF", 0.25)
-    white = simple_mat("White cyc", "#F3F2EF", 0.9)
-    sweep("Cyc", 5.0, 3.0, 2.0, 0.5, white, y0=0.9)
-    area("Soft", (0.0, -0.4, 1.2), CTR, 1.6, 22)
-    area("Side", (-0.9, -0.3, 0.5), CTR, 1.0, 12)
-    area("Side2", (0.9, -0.3, 0.5), CTR, 1.0, 2)
-    cam = camera("plan", (0, -0.16, 1.0), (0, 0.0, 0.0), lens=85, ortho=0.42)
-    shot(cam, "03-simple", (2400, 1600))
