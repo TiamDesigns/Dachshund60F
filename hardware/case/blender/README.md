@@ -5,11 +5,11 @@ They show the preliminary look; they are not a spec. The Fusion model is still t
 
 | File | What |
 | --- | --- |
-| `renders/01-dramatic.jpg` | Low warm sun through window blinds: wool felt mat, oak desk standing off a plaster wall, plant, framed print, mug, linen notebook and a loose keycap, shallow depth of field |
+| `renders/01-dramatic.jpg` | Low warm sun through window blinds: wool felt mat, walnut desk standing off a plaster wall, plant, framed print, mug, linen notebook and a loose keycap, shallow depth of field |
 | `renders/02-views.jpg` | Hero view plus back, right end, knob close-up, plan, underside and the brass weight, on deep green paper |
 
 Finishes: warm light-grey matte e-coat case, GMK Kaiju-style keycaps (cream alphas, warm grey mods, red-orange
-Esc and Enter), anodised ring, knob and encoder cover (orange `#FF9A66`, or green `#2F6B3A` with `ACCENT=green`),
+Esc and Enter), anodised ring, knob and encoder cover (orange `#E8763E`, or green `#2F6B3A` with `ACCENT=green`),
 polished brass weight with three fingerprints, stainless screws, white rubber rails, frosted polycarbonate plate,
 and a few specks of dust. The e-ink panel shows `eink.png` (its picture area `eink_pic.png`).
 
