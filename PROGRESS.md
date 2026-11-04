@@ -55,6 +55,13 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - Daughterboard height: the USB daughterboard now sits 4.5 mm lower in the case. Nothing on the boards changes: J1 and J2 and the 6-pin SH cable are flexible, so it only needs a cable long enough for the new path (suggest 100 mm).
 - J5 and the battery cell: the cell (KiCad x 281.0 to 337.5, y 41.0 to 76.0 under the back) covers the whole right strip where J5 could sit, and J5 is 2.96 mm tall, so it sits 0.65 mm into the cell's top. No move on the board clears it; see the thread for the options. Not changed yet.
 - Not ordered, made or fitted.
+### Mainboard logo in Fredoka (2026-11-04)
+
+- Tiam asked for the PCB and weight logos in the font of the YouTube slideshow, whose Doghouse Boards wordmark and headings are Fredoka (SIL OFL). The mainboard's back logo line "Dachshund70  Rev 1.1" is now Fredoka SemiBold polygons (was URW Gothic Book), at the same cap height (4.68 mm) and on the same baseline as "Doghouse Boards" (already Fredoka Bold). The logo was re-centred and stays inside its old footprint (x 113.7–247.3, y 56.0–64.0).
+- The small KiCad-font labels on the USB-C board, dongle, encoder and plate stay in KiCad's font: at 0.8–1.2 mm, Fredoka's strokes would be thinner than JLC's 0.15 mm silkscreen minimum.
+- The weight engraving moves to Fredoka in the Fusion case model (case thread).
+- Not run here: KiCad DRC (no kicad-cli in the cloud container). Only silkscreen polygons inside the old logo area changed.
+
 ### Renamed to Dachshund70: repo links (2026-11-04)
 
 - Tiam renamed the GitHub repo to TiamDesigns/Dachshund70. Doghouse's update check (`APP_REPO`), the desktop app's releases link and the UF2 drive's index link now use the new name. GitHub redirects the old URLs, so Doghouse 0.1.3's auto-update keeps working.
