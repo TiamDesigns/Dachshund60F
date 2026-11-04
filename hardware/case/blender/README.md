@@ -10,7 +10,7 @@ They show the preliminary look; they are not a spec. The Fusion model is still t
 
 Finishes: warm light-grey matte e-coat case, GMK Kaiju-style keycaps (cream alphas, warm grey mods, red-orange
 Esc and Enter), anodised ring, knob and encoder cover (orange `#FF9A66`, or green `#2F6B3A` with `ACCENT=green`),
-polished brass weight with a faint fingerprint, stainless screws, white rubber rails, frosted polycarbonate plate,
+polished brass weight with three fingerprints, stainless screws, white rubber rails, frosted polycarbonate plate,
 and a few specks of dust. The e-ink panel shows `eink.png` (its picture area `eink_pic.png`).
 
 ## Re-rendering
@@ -23,13 +23,13 @@ aberration, vignette and grain).
 ```bash
 SRC="$PWD/hardware/case/step/Dachshund70-Case-Assembly.step" OUT=/path/to/work/mesh freecadcmd hardware/case/blender/fc_mesh.py
 MESH=/path/to/work/mesh OUT=/path/to/work ACCENT=orange blender -b --factory-startup --python hardware/case/blender/build.py
-blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- dramatic /path/to/work/out 768
-blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- views /path/to/work/out 384
-python hardware/case/blender/post.py /path/to/work/out/01-dramatic.png hardware/case/blender/renders/01-dramatic.jpg 2400
+blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- dramatic /path/to/work/out 512
+blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- views /path/to/work/out 320
+python hardware/case/blender/post.py /path/to/work/out/01-dramatic.png hardware/case/blender/renders/01-dramatic.jpg 3600
 for n in hero back right-end knob top underside weight; do
-  python hardware/case/blender/post.py /path/to/work/out/views-$n.png /path/to/work/post/views-$n.png $([ $n = hero ] && echo 2400 || echo 1600)
+  python hardware/case/blender/post.py /path/to/work/out/views-$n.png /path/to/work/post/views-$n.png $([ $n = hero ] && echo 3600 || echo 2400)
 done
-python hardware/case/blender/montage.py /path/to/work/post hardware/case/blender/renders/02-views.jpg
+python hardware/case/blender/montage.py /path/to/work/post hardware/case/blender/renders/02-views.jpg 3600
 ```
 
 `GOBO_X` (default `-0.12`) slides the window shadow sideways in the dramatic scene. The case parts in the

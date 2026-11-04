@@ -22,18 +22,23 @@ def mat(name, col, rough=0.5, metal=0.0, **kw):
         b.inputs[k].default_value = v
     return m
 
+def objm(nt, tc):
+    """Object coordinates in metres (the STL meshes are in millimetres with a 0.001 object scale)."""
+    v = nt.nodes.new("ShaderNodeVectorMath"); v.operation = "SCALE"; v.inputs["Scale"].default_value = 0.001
+    nt.links.new(tc.outputs["Object"], v.inputs[0]); return v.outputs[0]
+
 def add_bump(m, scale=900.0, strength=0.06, dist=0.0002, rough_var=None):
     nt = m.node_tree; b = nt.nodes["Principled BSDF"]
     tc = nt.nodes.new("ShaderNodeTexCoord")
     n = nt.nodes.new("ShaderNodeTexNoise"); n.inputs["Scale"].default_value = scale
     n.inputs["Detail"].default_value = 8
-    nt.links.new(tc.outputs["Object"], n.inputs["Vector"])
+    nt.links.new(objm(nt, tc), n.inputs["Vector"])
     bp = nt.nodes.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = strength
     bp.inputs["Distance"].default_value = dist
     nt.links.new(n.outputs["Fac"], bp.inputs["Height"])
     nt.links.new(bp.outputs["Normal"], b.inputs["Normal"])
 
-accent_hex = "#FF9A66" if ACCENT == "orange" else "#2F6B3A"
+accent_hex = "#E8763E" if ACCENT == "orange" else "#2F6B3A"
 M = {
     "ecoat": mat("Ecoat warm light grey", "#D9D4CB", 0.62, 0.0, **{"Coat Weight": 0.08, "Coat Roughness": 0.5}),
     "accent": mat("Anodised accent", accent_hex, 0.42, 0.45),
@@ -63,16 +68,16 @@ add_bump(M["plate"], 2000, 0.15)
 for k in ("cap_alpha", "cap_mod", "cap_accent", "knob"):
     add_bump(M[k], 2600, 0.02)  # faint moulding / blasting texture
 
-def add_dust(m, scale=1100.0, thresh=0.978, col="#DCD8D0"):
+def add_dust(m, scale=1100.0, thresh=0.993, col="#DCD8D0"):
     """Sparse sub-millimetre specks: a random few Voronoi cells get a dusty, rough dot."""
     nt = m.node_tree; b = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
     tc = nt.nodes.new("ShaderNodeTexCoord")
     v = nt.nodes.new("ShaderNodeTexVoronoi"); v.inputs["Scale"].default_value = scale
-    nt.links.new(tc.outputs["Object"], v.inputs["Vector"])
+    nt.links.new(objm(nt, tc), v.inputs["Vector"])
     sep = nt.nodes.new("ShaderNodeSeparateColor"); nt.links.new(v.outputs["Color"], sep.inputs[0])
     pick = nt.nodes.new("ShaderNodeMath"); pick.operation = "GREATER_THAN"; pick.inputs[1].default_value = thresh
     nt.links.new(sep.outputs[0], pick.inputs[0])
-    near = nt.nodes.new("ShaderNodeMath"); near.operation = "LESS_THAN"; near.inputs[1].default_value = 0.28
+    near = nt.nodes.new("ShaderNodeMath"); near.operation = "LESS_THAN"; near.inputs[1].default_value = 0.2
     nt.links.new(v.outputs["Distance"], near.inputs[0])
     mask = nt.nodes.new("ShaderNodeMath"); mask.operation = "MULTIPLY"
     nt.links.new(pick.outputs[0], mask.inputs[0]); nt.links.new(near.outputs[0], mask.inputs[1])
@@ -90,27 +95,59 @@ def add_dust(m, scale=1100.0, thresh=0.978, col="#DCD8D0"):
 for k in ("ecoat", "cap_alpha", "cap_mod", "cap_accent", "accent", "knob", "leg_dark", "leg_cream"):
     add_dust(M[k])
 
-# A faint fingerprint on the brass weight's face: whorl ridges inside a soft oval raise the roughness
-nt = M["brass"].node_tree; bb = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
-tc = nt.nodes.new("ShaderNodeTexCoord")
-mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Location"].default_value = (-0.0452, -0.0262, 0)
-mp.inputs["Rotation"].default_value = (0, 0, math.radians(25)); mp.inputs["Scale"].default_value = (1.0, 0.78, 1.0)
-nt.links.new(tc.outputs["Object"], mp.inputs["Vector"])
-ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"; nt.links.new(mp.outputs[0], ln.inputs[0])
-wob = nt.nodes.new("ShaderNodeTexNoise"); wob.inputs["Scale"].default_value = 900; nt.links.new(mp.outputs[0], wob.inputs["Vector"])
-ph = nt.nodes.new("ShaderNodeMath"); ph.operation = "MULTIPLY_ADD"; ph.inputs[1].default_value = 0.0004
-nt.links.new(wob.outputs["Fac"], ph.inputs[0]); nt.links.new(ln.outputs[0], ph.inputs[2])
-rg = nt.nodes.new("ShaderNodeMath"); rg.operation = "SINE"
-sc_ = nt.nodes.new("ShaderNodeMath"); sc_.operation = "MULTIPLY"; sc_.inputs[1].default_value = 2 * math.pi / 0.00048
-nt.links.new(ph.outputs[0], sc_.inputs[0]); nt.links.new(sc_.outputs[0], rg.inputs[0])
-rid = nt.nodes.new("ShaderNodeMath"); rid.operation = "GREATER_THAN"; rid.inputs[1].default_value = 0.2
-nt.links.new(rg.outputs[0], rid.inputs[0])
-fall = nt.nodes.new("ShaderNodeMapRange"); fall.inputs[1].default_value = 0.0095; fall.inputs[2].default_value = 0.006
-fall.inputs[3].default_value = 0.0; fall.inputs[4].default_value = 1.0; nt.links.new(ln.outputs[0], fall.inputs[0])
-fm = nt.nodes.new("ShaderNodeMath"); fm.operation = "MULTIPLY"
-nt.links.new(rid.outputs[0], fm.inputs[0]); nt.links.new(fall.outputs[0], fm.inputs[1])
-rr = nt.nodes.new("ShaderNodeMath"); rr.operation = "MULTIPLY_ADD"; rr.inputs[1].default_value = 0.27; rr.inputs[2].default_value = 0.07
-nt.links.new(fm.outputs[0], rr.inputs[0]); nt.links.new(rr.outputs[0], bb.inputs["Roughness"])
+# Fingerprints on the brass weight's face: whorl ridges inside soft ovals raise the roughness and dull the colour
+def fingerprints(m, prints, ridge=0.00046, rough_add=0.5, base_rough=0.06):
+    nt = m.node_tree; bb = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    tc = nt.nodes.new("ShaderNodeTexCoord"); acc = None
+    for (cx, cy, rot, sx, sy, amt) in prints:
+        sub = nt.nodes.new("ShaderNodeVectorMath"); sub.operation = "SUBTRACT"; sub.inputs[1].default_value = (cx, cy, 0)
+        nt.links.new(objm(nt, tc), sub.inputs[0])
+        mp = nt.nodes.new("ShaderNodeMapping"); mp.vector_type = "POINT"
+        mp.inputs["Rotation"].default_value = (0, 0, math.radians(rot))
+        mp.inputs["Scale"].default_value = (0.008 / sx, 0.008 / sy, 1.0)
+        nt.links.new(sub.outputs[0], mp.inputs["Vector"])
+        sxy = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(mp.outputs[0], sxy.inputs[0])
+        cxy = nt.nodes.new("ShaderNodeCombineXYZ")
+        nt.links.new(sxy.outputs[0], cxy.inputs[0]); nt.links.new(sxy.outputs[1], cxy.inputs[1])
+        ln = nt.nodes.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"; nt.links.new(cxy.outputs[0], ln.inputs[0])
+        wob = nt.nodes.new("ShaderNodeTexNoise"); wob.inputs["Scale"].default_value = 700; wob.inputs["Detail"].default_value = 3
+        nt.links.new(cxy.outputs[0], wob.inputs["Vector"])
+        # loop pattern: a whorl dragged sideways (length plus a share of x), wobbled
+        lx = nt.nodes.new("ShaderNodeMath"); lx.operation = "MULTIPLY_ADD"; lx.inputs[1].default_value = 0.45
+        nt.links.new(sxy.outputs[0], lx.inputs[0]); nt.links.new(ln.outputs["Value"], lx.inputs[2])
+        ph = nt.nodes.new("ShaderNodeMath"); ph.operation = "MULTIPLY_ADD"; ph.inputs[1].default_value = 0.0011
+        nt.links.new(wob.outputs["Fac"], ph.inputs[0]); nt.links.new(lx.outputs[0], ph.inputs[2])
+        k = nt.nodes.new("ShaderNodeMath"); k.operation = "MULTIPLY"; k.inputs[1].default_value = 2 * math.pi / ridge
+        nt.links.new(ph.outputs[0], k.inputs[0])
+        sn = nt.nodes.new("ShaderNodeMath"); sn.operation = "SINE"; nt.links.new(k.outputs[0], sn.inputs[0])
+        rid = nt.nodes.new("ShaderNodeMath"); rid.operation = "GREATER_THAN"; rid.inputs[1].default_value = 0.1
+        nt.links.new(sn.outputs[0], rid.inputs[0])
+        fall = nt.nodes.new("ShaderNodeMapRange"); fall.inputs[1].default_value = 0.0080; fall.inputs[2].default_value = 0.0045
+        nt.links.new(ln.outputs["Value"], fall.inputs[0])
+        edge = nt.nodes.new("ShaderNodeTexNoise"); edge.inputs["Scale"].default_value = 150
+        nt.links.new(cxy.outputs[0], edge.inputs["Vector"])
+        fe = nt.nodes.new("ShaderNodeMath"); fe.operation = "MULTIPLY"
+        nt.links.new(fall.outputs[0], fe.inputs[0]); nt.links.new(edge.outputs["Fac"], fe.inputs[1])
+        fe2 = nt.nodes.new("ShaderNodeMath"); fe2.operation = "MULTIPLY"; fe2.inputs[1].default_value = 1.8 * amt; fe2.use_clamp = True
+        nt.links.new(fe.outputs[0], fe2.inputs[0])
+        one = nt.nodes.new("ShaderNodeMath"); one.operation = "MULTIPLY"
+        nt.links.new(rid.outputs[0], one.inputs[0]); nt.links.new(fe2.outputs[0], one.inputs[1])
+        # a faint oily haze between the ridges too
+        hz = nt.nodes.new("ShaderNodeMath"); hz.operation = "MULTIPLY_ADD"; hz.inputs[1].default_value = 0.25
+        nt.links.new(fe2.outputs[0], hz.inputs[0]); nt.links.new(one.outputs[0], hz.inputs[2])
+        if acc is None: acc = hz.outputs[0]
+        else:
+            mx = nt.nodes.new("ShaderNodeMath"); mx.operation = "MAXIMUM"
+            nt.links.new(acc, mx.inputs[0]); nt.links.new(hz.outputs[0], mx.inputs[1]); acc = mx.outputs[0]
+    rr = nt.nodes.new("ShaderNodeMath"); rr.operation = "MULTIPLY_ADD"; rr.inputs[1].default_value = rough_add
+    rr.inputs[2].default_value = base_rough; nt.links.new(acc, rr.inputs[0]); nt.links.new(rr.outputs[0], bb.inputs["Roughness"])
+    dim = nt.nodes.new("ShaderNodeMix"); dim.data_type = "RGBA"; dim.blend_type = "MULTIPLY"
+    nt.links.new(acc, dim.inputs[0]); dim.inputs[6].default_value = bb.inputs["Base Color"].default_value
+    dim.inputs[7].default_value = (0.8, 0.76, 0.7, 1); nt.links.new(dim.outputs[2], bb.inputs["Base Color"])
+
+# weight face: x -0.0925..0.0925, y about -0.011..0.019 (object coordinates)
+fingerprints(M["brass"], [(0.052, 0.006, 25, 0.0085, 0.0105, 1.0), (-0.061, 0.002, -35, 0.0080, 0.0100, 0.9),
+                          (0.010, 0.010, 80, 0.0070, 0.0090, 0.6)])
 add_dust(M["brass"], 1100, 0.982)
 
 # E-ink picture: an image mapped across the panel's bounding box (top of the image = back of the board)

@@ -192,27 +192,55 @@ if SCENE == "dramatic":
     geo = nt.nodes.new("ShaderNodeNewGeometry")
     sp = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(geo.outputs["Position"], sp.inputs[0])
     X, Y = sp.outputs["X"], sp.outputs["Y"]
-    pid = W("FLOOR", W("DIVIDE", W("ADD", Y, 0.5), 0.145))            # plank index, 145 mm boards
-    wn = nt.nodes.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = "1D"; nt.links.new(pid, wn.inputs["W"])
-    rnd = wn.outputs["Value"]
-    cx = nt.nodes.new("ShaderNodeCombineXYZ")
-    nt.links.new(W("MULTIPLY", X, 1.3), cx.inputs[0]); nt.links.new(W("MULTIPLY", pid, 3.7), cx.inputs[1])
-    dn = N(nt, "ShaderNodeTexNoise", Scale=1.0, Detail=3.0); nt.links.new(cx.outputs[0], dn.inputs["Vector"])
-    dn2 = N(nt, "ShaderNodeTexNoise", Scale=2.6, Detail=2.0); nt.links.new(cx.outputs[0], dn2.inputs["Vector"])
-    yd = W("ADD", W("ADD", Y, W("MULTIPLY", W("SUBTRACT", dn.outputs["Fac"], 0.5), 0.05)), W("MULTIPLY", rnd, 0.09))
-    dd = W("ADD", 0.012, W("MULTIPLY", dn2.outputs["Fac"], 0.06))  # pith depth below the surface
-    rr = W("SQRT", W("ADD", W("MULTIPLY", yd, yd), W("MULTIPLY", dd, dd)))
-    fine = N(nt, "ShaderNodeTexNoise", Scale=60.0, Detail=6.0); nt.links.new(geo.outputs["Position"], fine.inputs["Vector"])
-    ring = W("FRACT", W("ADD", W("MULTIPLY", rr, 340.0), W("MULTIPLY", fine.outputs["Fac"], 0.8)))
-    late = nt.nodes.new("ShaderNodeMapRange"); late.interpolation_type = "SMOOTHERSTEP"
-    nt.links.new(ring, late.inputs[0]); late.inputs[1].default_value = 0.55; late.inputs[2].default_value = 0.92
-    tone = N(nt, "ShaderNodeTexNoise", Scale=5.0, Detail=4.0); nt.links.new(geo.outputs["Position"], tone.inputs["Vector"])
-    base = nt.nodes.new("ShaderNodeValToRGB"); e = base.color_ramp.elements
-    e[0].position, e[0].color = 0.3, srgb("#4A2D1C"); e[1].position, e[1].color = 0.75, srgb("#7A5236")
-    nt.links.new(W("ADD", W("MULTIPLY", tone.outputs["Fac"], 0.7), W("MULTIPLY", rnd, 0.3)), base.inputs["Fac"])
-    mx = nt.nodes.new("ShaderNodeMix"); mx.data_type = "RGBA"
-    nt.links.new(W("MULTIPLY", late.outputs[0], 0.75), mx.inputs[0]); nt.links.new(base.outputs["Color"], mx.inputs[6])
-    mx.inputs[7].default_value = srgb("#2B190F")
+    def NX(xs, ys, scale, detail=3.0, seed=0.0):
+        c = nt.nodes.new("ShaderNodeCombineXYZ")
+        nt.links.new(W("MULTIPLY", X, xs), c.inputs[0])
+        if ys is not None: nt.links.new(ys, c.inputs[1])
+        c.inputs[2].default_value = seed
+        n = N(nt, "ShaderNodeTexNoise", Scale=scale, Detail=detail); nt.links.new(c.outputs[0], n.inputs["Vector"])
+        return W("SUBTRACT", n.outputs["Fac"], 0.5)
+    # gently wandering grain lines, a repeating "pith" every 21 cm across the board; where the pith comes close to
+    # the surface the growth rings open into nested cathedral arches, elsewhere they run as long straight lines
+    yd = W("ADD", Y, W("ADD", W("MULTIPLY", NX(0.7, None, 1.0, 3.0, 1.0), 0.09), W("MULTIPLY", NX(3.0, None, 1.0, 2.0, 2.0), 0.012)))
+    band = W("FLOOR", W("DIVIDE", yd, 0.13))
+    ym = W("MULTIPLY", W("SUBTRACT", W("FRACT", W("DIVIDE", yd, 0.13)), 0.5), 0.13)
+    dd = W("ADD", 0.001, W("MULTIPLY", W("ABSOLUTE", NX(5.0, W("MULTIPLY", band, 3.1), 1.0, 2.0, 5.0)), 0.06))
+    rr = W("SQRT", W("ADD", W("MULTIPLY", ym, ym), W("MULTIPLY", dd, dd)))
+    fm = N(nt, "ShaderNodeMapping"); fm.inputs["Scale"].default_value = (0.25, 1.0, 1.0)
+    nt.links.new(geo.outputs["Position"], fm.inputs["Vector"])
+    fine = N(nt, "ShaderNodeTexNoise", Scale=14.0, Detail=3.0); nt.links.new(fm.outputs[0], fine.inputs["Vector"])
+    wid = N(nt, "ShaderNodeTexNoise", Scale=3.0, Detail=2.0); nt.links.new(geo.outputs["Position"], wid.inputs["Vector"])
+    raw = W("ADD", W("MULTIPLY", rr, W("ADD", 55.0, W("MULTIPLY", wid.outputs["Fac"], 70.0))), W("MULTIPLY", fine.outputs["Fac"], 0.3))
+    ring = W("FRACT", raw)
+    rid = nt.nodes.new("ShaderNodeTexWhiteNoise"); rid.noise_dimensions = "1D"
+    nt.links.new(W("ADD", W("FLOOR", raw), W("MULTIPLY", band, 17.0)), rid.inputs["W"])
+    strength = W("ADD", 0.3, W("MULTIPLY", W("POWER", rid.outputs["Value"], 1.3), 0.7))   # some rings bold, most faint
+    l1 = nt.nodes.new("ShaderNodeMapRange"); l1.interpolation_type = "SMOOTHSTEP"
+    nt.links.new(ring, l1.inputs[0]); l1.inputs[1].default_value = 0.6; l1.inputs[2].default_value = 0.85
+    l2 = nt.nodes.new("ShaderNodeMapRange"); l2.interpolation_type = "SMOOTHSTEP"
+    nt.links.new(ring, l2.inputs[0]); l2.inputs[1].default_value = 1.0; l2.inputs[2].default_value = 0.9
+    late = nt.nodes.new("ShaderNodeMath"); late.operation = "MULTIPLY"
+    nt.links.new(W("MULTIPLY", l1.outputs[0], l2.outputs[0]), late.inputs[0]); nt.links.new(strength, late.inputs[1])
+    ew = nt.nodes.new("ShaderNodeValToRGB"); e = ew.color_ramp.elements
+    e[0].position, e[0].color = 0.2, srgb("#4A2B18"); e[1].position, e[1].color = 0.85, srgb("#A46C43")
+    tone2 = N(nt, "ShaderNodeTexNoise", Scale=4.0, Detail=4.0); nt.links.new(fm.outputs[0], tone2.inputs["Vector"])
+    nt.links.new(W("ADD", W("MULTIPLY", tone2.outputs["Fac"], 0.8), W("MULTIPLY", ring, 0.25)), ew.inputs["Fac"])
+    grain = nt.nodes.new("ShaderNodeMix"); grain.data_type = "RGBA"
+    nt.links.new(late.outputs[0], grain.inputs[0]); nt.links.new(ew.outputs["Color"], grain.inputs[6])
+    grain.inputs[7].default_value = srgb("#24130A")
+    hair = W("FRACT", W("ADD", W("MULTIPLY", rr, 760.0), W("MULTIPLY", fine.outputs["Fac"], 1.2)))
+    hl = W("MULTIPLY", W("LESS_THAN", hair, 0.12), 0.22)  # fine secondary grain lines
+    # dark figure streaks running with the grain, and broad tone variation
+    sm = N(nt, "ShaderNodeMapping"); sm.inputs["Scale"].default_value = (0.03, 1.0, 1.0)
+    nt.links.new(geo.outputs["Position"], sm.inputs["Vector"])
+    st = N(nt, "ShaderNodeTexNoise", Scale=110.0, Detail=8.0, Roughness=0.65); nt.links.new(sm.outputs[0], st.inputs["Vector"])
+    tone = N(nt, "ShaderNodeTexNoise", Scale=2.5, Detail=3.0); nt.links.new(geo.outputs["Position"], tone.inputs["Vector"])
+    shade = W("SUBTRACT", W("ADD", W("MULTIPLY", st.outputs["Fac"], 0.7), W("MULTIPLY", tone.outputs["Fac"], 0.4)), hl)
+    mx = nt.nodes.new("ShaderNodeMix"); mx.data_type = "RGBA"; mx.blend_type = "MULTIPLY"
+    mx.inputs[0].default_value = 1.0; nt.links.new(grain.outputs[2], mx.inputs[6])
+    hsv = nt.nodes.new("ShaderNodeCombineColor"); sv = W("ADD", 0.35, shade)
+    for k in range(3): nt.links.new(sv, hsv.inputs[k])
+    nt.links.new(hsv.outputs[0], mx.inputs[7])
     # open pores: short dark streaks running with the grain
     pm = N(nt, "ShaderNodeMapping"); pm.inputs["Scale"].default_value = (0.04, 1.0, 1.0)
     nt.links.new(geo.outputs["Position"], pm.inputs["Vector"])
@@ -225,7 +253,7 @@ if SCENE == "dramatic":
     nt.links.new(W("ADD", 0.38, W("MULTIPLY", pmask, 0.25)), wb.inputs["Roughness"])
     wb.inputs["Coat Weight"].default_value = 0.3; wb.inputs["Coat Roughness"].default_value = 0.3
     bp = N(nt, "ShaderNodeBump", Strength=0.25, Distance=0.0003)
-    nt.links.new(W("ADD", W("MULTIPLY", pmask, -1.0), W("MULTIPLY", late.outputs[0], 0.3)), bp.inputs["Height"])
+    nt.links.new(W("ADD", W("MULTIPLY", pmask, -1.0), W("MULTIPLY", late.outputs[0], 0.05)), bp.inputs["Height"])
     nt.links.new(bp.outputs["Normal"], wb.inputs["Normal"])
 
     # --- lime plaster wall: mottled colour, trowel undulation, sand grain ---
@@ -368,7 +396,7 @@ if SCENE == "dramatic":
     nt.links.new(tcc.outputs["Object"], ln.inputs[0])
     ns = N(nt, "ShaderNodeTexNoise", Scale=400.0, Detail=6.0); nt.links.new(tcc.outputs["Object"], ns.inputs["Vector"])
     rim = nt.nodes.new("ShaderNodeMapRange"); rim.inputs[1].default_value = 0.028; rim.inputs[2].default_value = 0.0375
-    nt.links.new(ln.outputs[0], rim.inputs[0])
+    nt.links.new(ln.outputs["Value"], rim.inputs[0])
     cc = nt.nodes.new("ShaderNodeValToRGB"); e = cc.color_ramp.elements
     e[0].position, e[0].color = 0.2, srgb("#2A150A"); e[1].position, e[1].color = 0.9, srgb("#9A6234")
     mxc = N(nt, "ShaderNodeMath"); mxc.operation = "MULTIPLY_ADD"; mxc.inputs[1].default_value = 0.35
@@ -444,9 +472,13 @@ if SCENE == "dramatic":
     gl = box("Glass", (0.192, 0.0015, H - 0.028), (0, -0.0022, H / 2), glass); gl.parent = pv; gl.visible_shadow = False
     copy_cap("Esc", (0.20, -0.16, 0.0), Euler((0, 0, math.radians(32))), floor=MAT_T)
     # Board fills the frame; shallow depth of field drops the props out of focus
-    cam = camera("Cam", (-0.40, -0.63, 0.25), (0.02, 0.0, 0.012), lens=55, fstop=6.3)
+    cam = camera("Cam", (-0.36, -0.535, 0.21), (-0.012, 0.0, 0.012), lens=55, fstop=6.3)
     cam.data.dof.focus_distance = (Vector((-0.01, -0.03, 0.02)) - cam.location).length
-    shot(cam, "01-dramatic", (3600, 2400))
+    if os.environ.get("WOODTEST"):
+        cam = camera("Wood", (0.62, -0.95, 0.30), (0.58, -0.50, 0.0), lens=45)
+        shot(cam, "wood", (1500, 1000))
+    else:
+        shot(cam, "01-dramatic", (4800, 3200))
 
 
 # =====================================================================
@@ -477,19 +509,19 @@ elif SCENE == "views":
     v = {
         "hero": camera("hero", (-0.36, -0.52, 0.30), (0.0, 0.0, 0.01), lens=50, fstop=5.6),
         "top": camera("top", (0, 0, 0.9), (0, 0.0001, 0), lens=50, ortho=0.39),
-        "back": camera("back", (0.05, 0.78, 0.14), (0.0, 0.0, 0.012), lens=50),
+        "back": camera("back", (0.035, 0.36, 0.055), (0.014, 0.078, 0.010), lens=85, fstop=8.0),
         "right-end": camera("right-end", (0.62, -0.12, 0.10), (0.11, 0.0, 0.02), lens=55),
         "knob": camera("knob", (0.32, -0.20, 0.16), (0.14, 0.01, 0.022), lens=85, fstop=6.3),
     }
     for k in ("hero", "top", "back", "right-end", "knob"):
-        face(v[k]); shot(v[k], "views-" + k, (3600, 2400) if k == "hero" else (2400, 1600))
+        face(v[k]); shot(v[k], "views-" + k, (4800, 3200) if k == "hero" else (3200, 2133))
     # underside: flip the board onto its keycaps
     root.rotation_euler = (math.radians(180), 0, 0)
     bpy.context.view_layer.update(); lo2, hi2 = world_bounds()
     root.location.z -= lo2.z; root.location.y -= (lo2.y + hi2.y) / 2
     bpy.context.view_layer.update()
     cam = camera("under", (-0.30, -0.48, 0.42), (0.0, 0.0, 0.03), lens=50, fstop=5.6)
-    face(cam); shot(cam, "views-underside", (2400, 1600))
+    face(cam); shot(cam, "views-underside", (3200, 2133))
     # weight close-up: the polished face mirrors whatever is above it, so give it one big, even, dim softbox
     # (a smooth gold gradient) and let the engraving's walls catch a low side light
     for o in (key, rim): o.hide_render = True
@@ -497,6 +529,6 @@ elif SCENE == "views":
     face(camw)
     area("Weight soft", (0.0, -0.30, 0.40), (0.0, 0.0, 0.035), 0.6, 0.45, (1.0, 0.96, 0.9), sy=0.18)
     area("Weight rake", (0.55, 0.05, 0.08), (0.0, 0.0, 0.035), 0.25, 4, (1.0, 0.95, 0.88))
-    shot(camw, "views-weight", (2400, 1600))
+    shot(camw, "views-weight", (3200, 2133))
 
 # =====================================================================
