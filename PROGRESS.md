@@ -6,6 +6,12 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 
 ## Done
 
+### Case: Blender preview renders of rev 2 (2026-11-03)
+
+- `hardware/case/blender/`: dramatic, multi-view and simple renders (orange and green anodising), plus the
+  FreeCAD tessellation and Blender build/render scripts. Renders only; no geometry changed.
+- What they show still needs work: see the open "Case changes from the Blender renders" task in `SCHEDULED_TASKS.md`.
+
 ### Case: rev 2 designed in Fusion and exported into the repo; CadQuery case removed (2026-11-03)
 
 - The case is now the Fusion model "Dachshund70 case rev2" (v31): 4° (was 7°), top and bottom aluminium blocks with an accent ring between them, a stepped floor, a 52 x 34.5 battery laid flat under the screen and knob, a brass weight (face 185.0 x 30.6 with R4 corners, flange 216.0 x 46.5 with R5, four M3 x 5 screws at x +/-103.5, y 2.5 and 22.5, 331 g), a knob and encoder cover, a power-switch slider cap and an LED light guide. `hardware/case/README.md` has the dimensions and `BOM.md` every part.

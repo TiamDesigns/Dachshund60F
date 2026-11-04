@@ -8,6 +8,10 @@ Last updated: 2026-11-03 (case moved to Fusion: rev 2 exports, DXFs and build sc
 
 - **Point the GitHub links at the renamed repo (after Tiam renames it to Dachshund70).** Update `APP_REPO` in `app/src/lib/app-version.ts`, `RELEASES_URL` in `app/src-tauri/src/lib.rs`, `UF2_INDEX_URL` in `boards/Dachshund70/bootloader/board.h` and any `TiamDesigns/Dachshund60F` links in the docs. GitHub redirects the old URLs, so nothing breaks before this.
 
+## Case changes from the Blender renders
+
+- **Review the rev 2 look against `hardware/case/blender/renders/` and decide which to change (Tiam).** What the renders show: the 1.6 mm accent ring reads only as a hairline (thicker sheet, or let it stand proud); the plain encoder cover beside the knob looks like a stub (blend it into the bezel or drop it); the screen window looks empty, with a seam across it that splits it into two pale rectangles (add a black mask or a cover lens, and line the window up with the picture area); the flat bezel around the LED row and below the screen is empty; the back face is bare with a small, off-centre USB-C and switch; eight screw heads show underneath and the weight window is small for the underside.
+
 ## Before ordering boards
 
 - **Fab preview of the USB connector edges (review).** The daughterboard and dongle each keep two stock USB-C connector silkscreen/edge warnings. Check them in the fab's preview before ordering (the connector overhangs the edge on purpose).
