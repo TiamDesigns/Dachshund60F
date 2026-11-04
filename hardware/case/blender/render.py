@@ -26,7 +26,8 @@ sc.cycles.use_adaptive_sampling = True
 sc.cycles.use_denoising = True
 sc.cycles.max_bounces = 10; sc.cycles.transmission_bounces = 10; sc.cycles.glossy_bounces = 6
 sc.view_settings.view_transform = "AgX"
-sc.view_settings.look = "AgX - Medium High Contrast" if SCENE == "dramatic" else "AgX - Base Contrast"
+sc.view_settings.look = "AgX - High Contrast" if SCENE == "dramatic" else "AgX - Medium High Contrast"
+sc.view_settings.exposure = {"dramatic": -0.35, "views": -0.3, "simple": 0.3}.get(SCENE, 0.0)
 sc.render.image_settings.file_format = "PNG"
 sc.render.film_transparent = False
 
@@ -134,7 +135,7 @@ def shot(cam, name, res=(2400, 1600)):
     sc.render.filepath = os.path.join(OUT, name + ".png")
     bpy.ops.render.render(write_still=True); print("wrote", sc.render.filepath)
 
-def copy_cap(keyword, loc, rot):
+def copy_cap(keyword, loc, rot, floor=0.0):
     """Loose keycap prop: copy a cap and its legends, move them to loc."""
     parts = [o for o in root.children if o.get("key") == keyword and o["role"] in ("keycap", "legend")]
     if not parts: return
@@ -147,7 +148,13 @@ def copy_cap(keyword, loc, rot):
     for o in parts:
         n = o.copy(); link(n); n.parent = None; n.matrix_world = o.matrix_world.copy()
         n.parent = e; n.matrix_parent_inverse = e.matrix_world.inverted()
-    e.location = loc; e.rotation_euler = rot
+    # undo the board's 4 deg tilt so the cap sits level, then rest its lowest vertex on the desk
+    e.rotation_euler = Euler((-math.radians(4.0), 0, 0))
+    e.rotation_euler.rotate(rot)
+    e.location = loc
+    bpy.context.view_layer.update()
+    zmin = min((n.matrix_world @ v.co).z for n in e.children for v in n.data.vertices)
+    e.location.z -= zmin - floor + 0.0001
 
 lo, hi = world_bounds()
 print("bounds", lo, hi)
@@ -156,9 +163,9 @@ CTR = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, 0.012))
 # =====================================================================
 if SCENE == "dramatic":
     world("#1A2030", 0.05)
-    plaster = surface_mat("Plaster", "#B9AB9A", "#CBBFAF", scale=45, bump=0.45, rough=0.92)
-    wood = surface_mat("Oak desk", "#5E3F27", "#86603F", scale=6, bump=0.04, rough=0.5, voronoi=False,
-                       stretch=(0.4, 9.0, 1.0))
+    plaster = surface_mat("Plaster", "#A08E7A", "#CDBFAD", scale=30, bump=0.9, rough=0.92)
+    wood = surface_mat("Oak desk", "#432A18", "#8E6640", scale=6, bump=0.10, rough=0.45, voronoi=False,
+                       stretch=(0.25, 16.0, 1.0))
     def box(name, size, loc, m):
         me = bpy.data.meshes.new(name); bm = bmesh.new(); bmesh.ops.create_cube(bm, size=1.0); bm.to_mesh(me)
         o = link(bpy.data.objects.new(name, me)); o.scale = size; o.location = loc; me.materials.append(m); return o
@@ -166,7 +173,7 @@ if SCENE == "dramatic":
     box("Wall", (3.0, 0.05, 2.0), (0, 0.30 + 0.025, 1.0), plaster)
     # Low warm sun from the front left, through a window with blinds (a gobo card)
     d = Vector((0.62, 0.62, -0.48)).normalized()
-    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 9.0; sun.angle = math.radians(0.8)
+    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 6.5; sun.angle = math.radians(0.8)
     sun.color = (1.0, 0.78, 0.55)
     so = link(bpy.data.objects.new("Sun", sun)); so.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
     g = bpy.data.materials.new("Gobo"); g.use_nodes = True; nt = g.node_tree
@@ -213,22 +220,86 @@ if SCENE == "dramatic":
     bpy.ops.mesh.primitive_cylinder_add(radius=0.039, depth=0.002, vertices=128, location=(0.13, 0.215, 0.084))
     bpy.context.object.data.materials.append(coffee)
     nb = simple_mat("Notebook", "#36443A", 0.8)
-    o = box("Notebook", (0.15, 0.21, 0.012), (0.36, 0.12, 0.006), nb); o.rotation_euler.z = math.radians(-14)
-    copy_cap("Esc", (0.19, -0.17, 0.0), Euler((0, 0, math.radians(32))))
-    copy_cap("Enter", (0.09, -0.185, 0.0), Euler((0, 0, math.radians(-12))))
+    o = box("Notebook", (0.15, 0.21, 0.012), (0.41, 0.07, 0.006), nb); o.rotation_euler.z = math.radians(-14)
+    # Felt desk mat with rounded corners under the board
+    MAT_T = 0.004
+    bm = bmesh.new(); W2, H2, r = 0.36, 0.17, 0.028; pts = []
+    for cx, cy, a0 in ((W2 - r, H2 - r, 0), (-W2 + r, H2 - r, 90), (-W2 + r, -H2 + r, 180), (W2 - r, -H2 + r, 270)):
+        for i in range(13):
+            a = math.radians(a0 + i * 7.5); pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+    vs = [bm.verts.new((x, y, 0)) for x, y in pts]; f = bm.faces.new(vs)
+    ext = bmesh.ops.extrude_face_region(bm, geom=[f])
+    for v in ext["geom"]:
+        if isinstance(v, bmesh.types.BMVert): v.co.z = MAT_T
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    me = bpy.data.meshes.new("Mat"); bm.to_mesh(me)
+    mat_o = link(bpy.data.objects.new("Felt mat", me)); mat_o.location = (-0.05, -0.05, 0.0)
+    mat_o.rotation_euler.z = math.radians(-1.5)
+    bv = mat_o.modifiers.new("bv", "BEVEL"); bv.width = 0.0015; bv.segments = 3; bv.limit_method = "ANGLE"
+    felt = bpy.data.materials.new("Wool felt"); felt.use_nodes = True; nt = felt.node_tree
+    fb = nt.nodes["Principled BSDF"]; fb.inputs["Base Color"].default_value = srgb("#4E4C49")
+    fb.inputs["Roughness"].default_value = 1.0; fb.inputs["Sheen Weight"].default_value = 0.8
+    fb.inputs["Sheen Roughness"].default_value = 0.45; fb.inputs["Sheen Tint"].default_value = srgb("#B9B4AC")
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    n1 = nt.nodes.new("ShaderNodeTexNoise"); n1.inputs["Scale"].default_value = 2200; n1.inputs["Detail"].default_value = 10
+    n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = 60; n2.inputs["Detail"].default_value = 4
+    nt.links.new(geo.outputs["Position"], n1.inputs["Vector"]); nt.links.new(geo.outputs["Position"], n2.inputs["Vector"])
+    cr = nt.nodes.new("ShaderNodeValToRGB"); cr.color_ramp.elements[0].color = srgb("#46443F"); cr.color_ramp.elements[1].color = srgb("#58564F")
+    nt.links.new(n2.outputs["Fac"], cr.inputs["Fac"]); nt.links.new(cr.outputs["Color"], fb.inputs["Base Color"])
+    bp = nt.nodes.new("ShaderNodeBump"); bp.inputs["Strength"].default_value = 0.35; bp.inputs["Distance"].default_value = 0.0004
+    nt.links.new(n1.outputs["Fac"], bp.inputs["Height"]); nt.links.new(bp.outputs["Normal"], fb.inputs["Normal"])
+    me.materials.append(felt)
+    root.location.z += MAT_T
+    # More set dressing behind the board: a potted plant and a framed print leaning on the wall
+    terra = surface_mat("Terracotta", "#9C5235", "#B8694A", scale=120, bump=0.3, rough=0.85)
+    bpy.ops.mesh.primitive_cone_add(vertices=96, radius1=0.036, radius2=0.047, depth=0.075, location=(-0.12, 0.225, 0.0375))
+    pot = bpy.context.object; pot.data.materials.append(terra)
+    for p in pot.data.polygons: p.use_smooth = True
+    soil = simple_mat("Soil", "#2B1D14", 0.95)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.044, depth=0.002, vertices=64, location=(-0.12, 0.225, 0.07))
+    bpy.context.object.data.materials.append(soil)
+    leaf = simple_mat("Leaf", "#3F6B3A", 0.35, **{"Subsurface Weight": 0.15, "Coat Weight": 0.3})
+    import random; random.seed(7)
+    for i in range(14):
+        a = i * 2.399; tilt = math.radians(18 + 22 * random.random())
+        h = 0.07 + 0.05 * random.random()
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=12, radius=1.0)
+        lf = bpy.context.object; lf.data.materials.append(leaf)
+        for p in lf.data.polygons: p.use_smooth = True
+        lf.scale = (0.011, 0.0035, h / 2)
+        lf.rotation_euler = Euler((tilt, 0, a))
+        lf.location = Vector((-0.12, 0.225, 0.07)) + Euler((tilt, 0, a)).to_matrix() @ Vector((0, 0, h / 2))
+    frame_m = simple_mat("Walnut frame", "#3A2618", 0.4)
+    fr = box("Frame", (0.22, 0.014, 0.29), (0.34, 0.285, 0.143), frame_m); fr.rotation_euler.x = math.radians(-6)
+    art = bpy.data.materials.new("Print"); art.use_nodes = True; nt = art.node_tree
+    pb = nt.nodes["Principled BSDF"]; pb.inputs["Roughness"].default_value = 0.9
+    tc2 = nt.nodes.new("ShaderNodeTexCoord"); wv = nt.nodes.new("ShaderNodeTexWave")
+    wv.inputs["Scale"].default_value = 0.5; wv.inputs["Distortion"].default_value = 9.0; wv.wave_type = "RINGS"
+    nt.links.new(tc2.outputs["Object"], wv.inputs["Vector"])
+    cr = nt.nodes.new("ShaderNodeValToRGB"); cr.color_ramp.interpolation = "CONSTANT"
+    cr.color_ramp.elements[0].color = srgb("#E2D8C4"); cr.color_ramp.elements[1].color = srgb("#C48A68")
+    cr.color_ramp.elements[1].position = 0.62
+    e3 = cr.color_ramp.elements.new(0.82); e3.color = srgb("#8A9C88")
+    nt.links.new(wv.outputs["Fac"], cr.inputs["Fac"]); nt.links.new(cr.outputs["Color"], pb.inputs["Base Color"])
+    pr2 = box("Print", (0.18, 0.002, 0.25), (0.34, 0.2775, 0.143), art); pr2.rotation_euler.x = math.radians(-6)
+    pen_m = simple_mat("Pen", "#1C1C1C", 0.3, 0.6)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.0045, depth=0.14, vertices=32, location=(0.40, 0.05, 0.0165),
+                                        rotation=(0, math.radians(90), math.radians(62)))
+    bpy.context.object.data.materials.append(pen_m)
+    copy_cap("Esc", (0.19, -0.17, 0.0), Euler((0, 0, math.radians(32))), floor=MAT_T)
     cam = camera("Cam", (-0.40, -0.62, 0.24), (0.03, 0.0, 0.02), lens=55, fstop=6.3)
     shot(cam, "01-dramatic", (2400, 1600))
 
 
 # =====================================================================
 elif SCENE == "views":
-    world("#A9BBAA", 0.55)
+    world("#A9BBAA", 0.3)
     sage = surface_mat("Sage paper", "#A9BBAA", "#B6C6B5", scale=90, bump=0.12, rough=0.95)
     sweep("Cyc", 8.0, 1.6, 1.6, 0.35, sage, y0=0.25)
-    area("Wash", (0, -0.6, 0.9), (0, 1.05, 0.5), 2.5, 30, (1.0, 0.98, 0.95))
+    area("Wash", (0, -0.6, 0.9), (0, 1.05, 0.5), 2.5, 14, (1.0, 0.98, 0.95))
     area("Key", (-0.55, -0.55, 0.75), CTR, 0.9, 16, (1.0, 0.96, 0.9))
-    area("Rim", (0.6, 0.55, 0.45), CTR, 0.6, 10, (1.0, 0.95, 0.88))
-    area("Top", (0.0, -0.1, 1.1), CTR, 1.4, 6)
+    area("Rim", (0.6, 0.55, 0.45), CTR, 0.6, 9, (1.0, 0.95, 0.88))
+    area("Top", (0.0, -0.1, 1.1), CTR, 1.4, 2)
     d = 0.75
     v = {
         "hero": camera("hero", (-0.36, -0.52, 0.30), (0.0, 0.0, 0.01), lens=50, fstop=5.6),
@@ -252,12 +323,11 @@ elif SCENE == "views":
 
 # =====================================================================
 elif SCENE == "simple":
-    sc.view_settings.exposure = 0.55
-    world("#FFFFFF", 0.35)
+    world("#FFFFFF", 0.25)
     white = simple_mat("White cyc", "#F3F2EF", 0.9)
     sweep("Cyc", 5.0, 3.0, 2.0, 0.5, white, y0=0.9)
-    area("Soft", (0.0, -0.4, 1.2), CTR, 1.6, 30)
-    area("Side", (-0.9, -0.3, 0.5), CTR, 1.0, 8)
-    area("Side2", (0.9, -0.3, 0.5), CTR, 1.0, 8)
+    area("Soft", (0.0, -0.4, 1.2), CTR, 1.6, 22)
+    area("Side", (-0.9, -0.3, 0.5), CTR, 1.0, 12)
+    area("Side2", (0.9, -0.3, 0.5), CTR, 1.0, 2)
     cam = camera("plan", (0, -0.16, 1.0), (0, 0.0, 0.0), lens=85, ortho=0.42)
     shot(cam, "03-simple", (2400, 1600))

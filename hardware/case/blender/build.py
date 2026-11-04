@@ -1,4 +1,4 @@
-﻿# Blender (headless): import the tessellated assembly, assign materials, save base.blend
+# Blender (headless): import the tessellated assembly, assign materials, save base.blend
 import bpy, bmesh, json, os, re, sys, math
 S = os.path.dirname(os.path.abspath(__file__))
 MESH = os.environ.get("MESH", os.path.join(S, "mesh"))
@@ -33,11 +33,11 @@ def add_bump(m, scale=900.0, strength=0.06, dist=0.0002, rough_var=None):
     nt.links.new(n.outputs["Fac"], bp.inputs["Height"])
     nt.links.new(bp.outputs["Normal"], b.inputs["Normal"])
 
-accent_hex = "#F2551D" if ACCENT == "orange" else "#2F6B3A"
+accent_hex = "#FF9A66" if ACCENT == "orange" else "#2F6B3A"
 M = {
     "ecoat": mat("Ecoat warm light grey", "#D9D4CB", 0.62, 0.0, **{"Coat Weight": 0.08, "Coat Roughness": 0.5}),
-    "accent": mat("Anodised accent", accent_hex, 0.32, 1.0),
-    "knob": mat("Anodised knob", accent_hex, 0.36, 1.0),
+    "accent": mat("Anodised accent", accent_hex, 0.42, 0.45),
+    "knob": mat("Anodised knob", accent_hex, 0.42, 0.5),
     "brass": mat("Polished brass", "#E9C27A", 0.07, 1.0),
     "steel": mat("Stainless steel", "#C9CBCC", 0.22, 1.0),
     "plate": mat("Frosted polycarbonate", "#F2F2EE", 0.42, 0.0, **{"Transmission Weight": 0.92, "IOR": 1.58}),
@@ -60,16 +60,18 @@ M = {
 add_bump(M["ecoat"], 1600, 0.05)
 add_bump(M["accent"], 2500, 0.03)
 add_bump(M["plate"], 2000, 0.15)
+for k in ("cap_alpha", "cap_mod", "cap_accent", "knob"):
+    add_bump(M[k], 2600, 0.02)  # faint moulding / blasting texture
 
 ACCENT_KEYS = {"Esc", "Enter"}
 MOD_KEYS = {"Tab", "Caps Lock", "Shift", "Shift 2", "Ctrl", "Ctrl 2", "Win", "Alt", "Fn",
-            "Backspace", "Delete", "Spacebar", "â†‘", "â†", "â†“", "â†’",
+            "Backspace", "Delete", "Spacebar", "↑", "←", "↓", "→",
             "F1", "F2", "F3", "F4", "F9", "F10", "F11", "F12"}
 
 def keyname(chain, label):
     for c in chain:
         mm = re.match(r"^(.+?) \(R\d, [\d.]+u\)$", c)
-        if mm: return mm.group(1).encode("latin-1", "ignore").decode("utf-8", "ignore") if "Ã¢" in mm.group(1) else mm.group(1)
+        if mm: return mm.group(1).encode("latin-1", "ignore").decode("utf-8", "ignore") if "â" in mm.group(1) else mm.group(1)
     if any("Spacebar" in c for c in chain) and label.startswith(("cap", "legend")): return "Spacebar"
     return None
 
@@ -81,7 +83,7 @@ def classify(e):
     lab, ch = e["label"], e["chain"]; path = " ".join(ch) + " " + lab
     if lab in CASE:
         role = CASE[lab]
-        return role, {"bottom": "ecoat", "top": "ecoat", "ring": "accent", "enc_cover": "ecoat", "knob": "knob",
+        return role, {"bottom": "ecoat", "top": "ecoat", "ring": "accent", "enc_cover": "knob", "knob": "knob",
                       "led_guide": "guide", "screen_frame": "plastic", "switch_cap": "accent", "weight": "brass",
                       "rail": "rubber"}[role]
     if lab.startswith("COMPOUND"): return "screw", "steel"
