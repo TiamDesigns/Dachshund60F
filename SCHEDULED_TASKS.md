@@ -4,10 +4,6 @@ Open work to pick up in later prompts. Each task is written so it can be pasted 
 
 Last updated: 2026-11-03 (case moved to Fusion: rev 2 exports, DXFs and build scripts in `hardware/case/`; new case tasks).
 
-## Rename to Dachshund70
-
-- **Point the GitHub links at the renamed repo (after Tiam renames it to Dachshund70).** Update `APP_REPO` in `app/src/lib/app-version.ts`, `RELEASES_URL` in `app/src-tauri/src/lib.rs`, `UF2_INDEX_URL` in `boards/Dachshund70/bootloader/board.h` and any `TiamDesigns/Dachshund60F` links in the docs. GitHub redirects the old URLs, so nothing breaks before this.
-
 ## Before ordering boards
 
 - **Fab preview of the USB connector edges (review).** The daughterboard and dongle each keep two stock USB-C connector silkscreen/edge warnings. Check them in the fab's preview before ordering (the connector overhangs the edge on purpose).
