@@ -63,7 +63,7 @@ add_bump(M["plate"], 2000, 0.15)
 for k in ("cap_alpha", "cap_mod", "cap_accent", "knob"):
     add_bump(M[k], 2600, 0.02)  # faint moulding / blasting texture
 
-def add_dust(m, scale=1400.0, thresh=0.988, col="#D9D5CE"):
+def add_dust(m, scale=1100.0, thresh=0.978, col="#DCD8D0"):
     """Sparse sub-millimetre specks: a random few Voronoi cells get a dusty, rough dot."""
     nt = m.node_tree; b = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
     tc = nt.nodes.new("ShaderNodeTexCoord")
@@ -72,7 +72,7 @@ def add_dust(m, scale=1400.0, thresh=0.988, col="#D9D5CE"):
     sep = nt.nodes.new("ShaderNodeSeparateColor"); nt.links.new(v.outputs["Color"], sep.inputs[0])
     pick = nt.nodes.new("ShaderNodeMath"); pick.operation = "GREATER_THAN"; pick.inputs[1].default_value = thresh
     nt.links.new(sep.outputs[0], pick.inputs[0])
-    near = nt.nodes.new("ShaderNodeMath"); near.operation = "LESS_THAN"; near.inputs[1].default_value = 0.22
+    near = nt.nodes.new("ShaderNodeMath"); near.operation = "LESS_THAN"; near.inputs[1].default_value = 0.28
     nt.links.new(v.outputs["Distance"], near.inputs[0])
     mask = nt.nodes.new("ShaderNodeMath"); mask.operation = "MULTIPLY"
     nt.links.new(pick.outputs[0], mask.inputs[0]); nt.links.new(near.outputs[0], mask.inputs[1])
@@ -105,13 +105,13 @@ sc_ = nt.nodes.new("ShaderNodeMath"); sc_.operation = "MULTIPLY"; sc_.inputs[1].
 nt.links.new(ph.outputs[0], sc_.inputs[0]); nt.links.new(sc_.outputs[0], rg.inputs[0])
 rid = nt.nodes.new("ShaderNodeMath"); rid.operation = "GREATER_THAN"; rid.inputs[1].default_value = 0.2
 nt.links.new(rg.outputs[0], rid.inputs[0])
-fall = nt.nodes.new("ShaderNodeMapRange"); fall.inputs[1].default_value = 0.0085; fall.inputs[2].default_value = 0.0055
+fall = nt.nodes.new("ShaderNodeMapRange"); fall.inputs[1].default_value = 0.0095; fall.inputs[2].default_value = 0.006
 fall.inputs[3].default_value = 0.0; fall.inputs[4].default_value = 1.0; nt.links.new(ln.outputs[0], fall.inputs[0])
 fm = nt.nodes.new("ShaderNodeMath"); fm.operation = "MULTIPLY"
 nt.links.new(rid.outputs[0], fm.inputs[0]); nt.links.new(fall.outputs[0], fm.inputs[1])
-rr = nt.nodes.new("ShaderNodeMath"); rr.operation = "MULTIPLY_ADD"; rr.inputs[1].default_value = 0.16; rr.inputs[2].default_value = 0.07
+rr = nt.nodes.new("ShaderNodeMath"); rr.operation = "MULTIPLY_ADD"; rr.inputs[1].default_value = 0.27; rr.inputs[2].default_value = 0.07
 nt.links.new(fm.outputs[0], rr.inputs[0]); nt.links.new(rr.outputs[0], bb.inputs["Roughness"])
-add_dust(M["brass"], 1400, 0.992)
+add_dust(M["brass"], 1100, 0.982)
 
 # E-ink picture: an image mapped across the panel's bounding box (top of the image = back of the board)
 ei = mat("E-ink", "#E4E1DA", 0.9, 0.0); nt = ei.node_tree; eb = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
@@ -190,5 +190,19 @@ for e in man:
     if role == "legend":  # lift legends a hair off the cap so they never z-fight
         o.location.z += 0.00002
 root.location.z = 0.001  # rubber rails stand 1 mm proud of the floor
+
+# Status LEDs: five 3 mm holes under the screen (found in the top block's mesh); the left three glow amber
+amber = bpy.data.materials.new("LED amber"); amber.use_nodes = True
+ab = next(n for n in amber.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+ab.inputs["Base Color"].default_value = (1.0, 0.45, 0.06, 1); ab.inputs["Emission Color"].default_value = (1.0, 0.30, 0.015, 1)
+ab.inputs["Emission Strength"].default_value = 14.0; ab.inputs["Roughness"].default_value = 0.4
+off = mat("LED off (diffuser)", "#2A2724", 0.35, 0.0)
+for i, x in enumerate((0.1317, 0.1381, 0.1445, 0.1509, 0.1573)):
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.00145, depth=0.0016, vertices=32, location=(x, -0.03175, 0.0212))
+    led = bpy.context.object; led.name = f"led:{i}"; led["role"] = "led"
+    led.rotation_euler.x = math.radians(4.0)
+    led.data.materials.append(amber if i < 3 else off)
+    for c in led.users_collection: c.objects.unlink(led)
+    col.objects.link(led); led.parent = root
 print("roles", roles)
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(os.environ.get("OUT", S), f"base_{ACCENT}.blend"))
