@@ -26,8 +26,8 @@ sc.cycles.use_adaptive_sampling = True
 sc.cycles.use_denoising = True
 sc.cycles.max_bounces = 10; sc.cycles.transmission_bounces = 10; sc.cycles.glossy_bounces = 6
 sc.view_settings.view_transform = "AgX"
-sc.view_settings.look = "AgX - High Contrast" if SCENE == "dramatic" else "AgX - Medium High Contrast"
-sc.view_settings.exposure = {"dramatic": -0.35, "views": -0.3, "simple": 0.3}.get(SCENE, 0.0)
+sc.view_settings.look = "AgX - Medium High Contrast"
+sc.view_settings.exposure = {"dramatic": 0.0, "views": -0.3, "simple": 0.3}.get(SCENE, 0.0)
 sc.render.image_settings.file_format = "PNG"
 sc.render.film_transparent = False
 
@@ -162,7 +162,7 @@ CTR = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, 0.012))
 
 # =====================================================================
 if SCENE == "dramatic":
-    world("#1A2030", 0.05)
+    world("#8C93A0", 0.10)
     plaster = surface_mat("Plaster", "#A08E7A", "#CDBFAD", scale=30, bump=0.9, rough=0.92)
     wood = surface_mat("Oak desk", "#432A18", "#8E6640", scale=6, bump=0.10, rough=0.45, voronoi=False,
                        stretch=(0.25, 16.0, 1.0))
@@ -173,7 +173,7 @@ if SCENE == "dramatic":
     box("Wall", (3.0, 0.05, 2.0), (0, 0.30 + 0.025, 1.0), plaster)
     # Low warm sun from the front left, through a window with blinds (a gobo card)
     d = Vector((0.62, 0.62, -0.48)).normalized()
-    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 6.5; sun.angle = math.radians(0.8)
+    sun = bpy.data.lights.new("Sun", "SUN"); sun.energy = 4.6; sun.angle = math.radians(0.8)
     sun.color = (1.0, 0.78, 0.55)
     so = link(bpy.data.objects.new("Sun", sun)); so.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
     g = bpy.data.materials.new("Gobo"); g.use_nodes = True; nt = g.node_tree
@@ -206,7 +206,8 @@ if SCENE == "dramatic":
     gp.rotation_euler = (-d).to_track_quat("Z", "Y").to_euler()
     gp.rotation_euler.rotate_axis("Z", math.radians(8))
     gp.visible_camera = False; gp.visible_glossy = False
-    area("Fill", (0.9, -0.9, 0.4), CTR, 1.0, 4, (0.7, 0.8, 1.0))
+    area("Fill", (0.9, -0.9, 0.4), CTR, 1.2, 7, (0.85, 0.9, 1.0))
+    area("Bounce", (-0.2, -1.0, 0.15), CTR, 1.6, 4, (1.0, 0.86, 0.7))
     # Props: ceramic mug, a notebook, two loose keycaps
     mug_m = simple_mat("Glazed ceramic", "#ECE6DA", 0.1, **{"Coat Weight": 0.6})
     bpy.ops.mesh.primitive_cylinder_add(radius=0.042, depth=0.095, vertices=128, location=(0.13, 0.215, 0.0475))

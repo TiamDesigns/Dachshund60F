@@ -7,8 +7,6 @@ They show the preliminary look; they are not a spec. The Fusion model is still t
 | --- | --- |
 | `renders/01-dramatic.jpg` | Low warm sun through window blinds: felt desk mat, oak desk, plaster wall, plant, framed print, mug, notebook and a loose keycap |
 | `renders/02-views.jpg` | Hero view plus back, right end, knob close-up, plan, underside and the brass weight, on sage paper |
-| `renders/03-simple-orange.jpg` | Plan view on white, orange anodised ring, knob and encoder cover |
-| `renders/03-simple-green.jpg` | The same with green anodising |
 
 Finishes: warm light-grey matte e-coat case, GMK Kaiju-style keycaps (cream alphas, warm grey mods, red-orange
 Esc and Enter), anodised ring, knob and encoder cover (orange `#FF9A66` or green `#2F6B3A`), polished brass weight, stainless
@@ -24,7 +22,6 @@ SRC="$PWD/hardware/case/step/Dachshund70-Case-Assembly.step" OUT=/path/to/work/m
 MESH=/path/to/work/mesh OUT=/path/to/work ACCENT=orange blender -b --factory-startup --python hardware/case/blender/build.py
 blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- dramatic /path/to/work/out 1024
 blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- views /path/to/work/out 512
-blender -b /path/to/work/base_orange.blend --python hardware/case/blender/render.py -- simple /path/to/work/out 512
 ```
 
 `ACCENT=green` builds the green variant. The case parts in the assembly STEP are unnamed compounds; `build.py`
