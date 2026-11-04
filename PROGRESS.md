@@ -55,6 +55,10 @@ Phase 15 (desktop packaging and auto-update) is done, and with it every phase in
 - Daughterboard height: the USB daughterboard now sits 4.5 mm lower in the case. Nothing on the boards changes: J1 and J2 and the 6-pin SH cable are flexible, so it only needs a cable long enough for the new path (suggest 100 mm).
 - J5 and the battery cell: the cell (KiCad x 281.0 to 337.5, y 41.0 to 76.0 under the back) covers the whole right strip where J5 could sit, and J5 is 2.96 mm tall, so it sits 0.65 mm into the cell's top. No move on the board clears it; see the thread for the options. Not changed yet.
 - Not ordered, made or fitted.
+### Renamed to Dachshund70: repo links (2026-11-04)
+
+- Tiam renamed the GitHub repo to TiamDesigns/Dachshund70. Doghouse's update check (`APP_REPO`), the desktop app's releases link and the UF2 drive's index link now use the new name. GitHub redirects the old URLs, so Doghouse 0.1.3's auto-update keeps working.
+
 ### Renamed to Dachshund70, part 3: plate, STEP files and case outputs (2026-11-03)
 
 - `hardware/Dachshund70-Plate/` (project, PCB, outline DXF, `gen_plate.py` title block and silkscreen "Dachshund70 plate rev A"), every STEP file in `hardware/step/` and `hardware/case/step/` (file names and the product names inside them), the foam and LED seal DXFs, and the names in `export_step.py` (its temporary old-name mapping is gone), `export_fab.py`, `gen_case.py`, `keycaps.py`, `assembly.py` and the case README and BOM.
